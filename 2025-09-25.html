@@ -6,23 +6,20 @@
     <title>슬램버거 성과 분석 대시보드</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Chosen Palette: Warm Burger Palette -->
-    <!-- Application Structure Plan: A clean, modern dashboard layout is chosen to present the success story of SlamBurger. The structure includes a header, key metrics, and a tab-based navigation. All customer-related data is consolidated under the '고객 충성도' tab to provide a holistic view of the customer journey, from initial visit to purchase and retention. This thematic structure ('성장 스토리', '고객 충성도', '메뉴 경쟁력') allows for a clear narrative flow. -->
+    <!-- Application Structure Plan: A clean, modern dashboard layout is chosen to present the success story of SlamBurger. The structure includes a header, key metrics, and a tab-based navigation. A new 'Online Influence' tab has been added to showcase the brand's digital dominance. This thematic structure ('성장 스토리', '고객 충성도', '메뉴 경쟁력', '온라인 영향력') provides a comprehensive, 360-degree view of the business, from operational growth to online brand power. -->
     <!-- Visualization & Content Choices: 
-        1. Monthly Sales -> Goal: Show growth -> Viz: Stacked Bar Chart -> Interaction: Tooltips -> Justification: Shows total growth and the contribution of each channel (Hall vs. Delivery). -> Library: Chart.js.
-        2. Customer Funnel -> Goal: Show conversion journey -> Viz: Visual Funnel Diagram -> Interaction: None -> Justification: Clearly illustrates the customer journey from foot traffic to purchase, highlighting key conversion points. -> Method: HTML/CSS.
-        3. Revisit Rate -> Goal: Demonstrate loyalty -> Viz: Line Chart -> Interaction: Tooltips -> Justification: Perfect for illustrating the dramatic increase in customer retention. -> Library: Chart.js.
-        4. Cumulative New Customers -> Goal: Show cumulative brand attraction -> Viz: Cumulative Area Chart -> Interaction: Tooltips -> Justification: Illustrates the total growth of the customer base, a key indicator of expanding market reach. -> Library: Chart.js.
+        1. Monthly Sales -> Goal: Show growth -> Viz: Stacked Bar Chart -> Interaction: Tooltips -> Justification: Shows total growth and the contribution of each channel. -> Library: Chart.js.
+        2. Customer Funnel -> Goal: Show conversion journey -> Viz: Visual Funnel Diagram -> Justification: Clearly illustrates the customer journey from foot traffic to purchase. -> Method: HTML/CSS.
+        3. Online Dominance -> Goal: Showcase market leadership -> Viz: KPI Cards & Info Graphics -> Justification: KPI cards effectively highlight top search rankings and review counts, establishing credibility and market authority. -> Method: HTML/CSS.
+        4. Menu Contribution -> Goal: Highlight product success -> Viz: Pie Chart -> Interaction: Hover -> Justification: Clearly shows the proportional contribution of key products. -> Library: Chart.js.
         5. Cohort Analysis -> Goal: Show detailed retention -> Viz: Heatmap Table -> Interaction: Colors indicate retention strength. -> Justification: Excellent for displaying multi-dimensional data and making patterns immediately visible. -> Method: HTML/CSS/JS.
-        6. Menu Contribution -> Goal: Highlight product success -> Viz: Pie Chart -> Interaction: Hover -> Justification: Clearly shows the proportional contribution of key products. -> Library: Chart.js.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Pretendard', sans-serif;
             background-color: #FDFBF7;
             color: #3D352E;
         }
@@ -115,20 +112,20 @@
 
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             <div class="kpi-card text-center">
+                <p class="text-sm font-bold text-gray-500">네이버 검색</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">통합 1위</p>
+            </div>
+            <div class="kpi-card text-center">
+                <p class="text-sm font-bold text-gray-500">방문자/블로그 리뷰</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">589건+</p>
+            </div>
+            <div class="kpi-card text-center">
                 <p class="text-sm font-bold text-gray-500">구매 전환율 (28일)</p>
                 <p class="text-3xl font-bold text-orange-600 mt-2">41.0%</p>
             </div>
             <div class="kpi-card text-center">
-                <p class="text-sm font-bold text-gray-500">객단가 (28일)</p>
-                <p class="text-3xl font-bold text-orange-600 mt-2">₩10,333</p>
-            </div>
-            <div class="kpi-card text-center">
                 <p class="text-sm font-bold text-gray-500">최고 재방문율 (9월)</p>
                 <p class="text-3xl font-bold text-orange-600 mt-2">50.07%</p>
-            </div>
-            <div class="kpi-card text-center">
-                <p class="text-sm font-bold text-gray-500">방문 전환율 (28일)</p>
-                <p class="text-3xl font-bold text-orange-600 mt-2">3.84%</p>
             </div>
         </section>
 
@@ -136,6 +133,7 @@
             <div id="tab-growth" class="nav-tab active">📈 성장 스토리</div>
             <div id="tab-loyalty" class="nav-tab">❤️ 고객 충성도</div>
             <div id="tab-product" class="nav-tab">🍔 메뉴 경쟁력</div>
+            <div id="tab-online" class="nav-tab">📢 온라인 영향력</div>
         </nav>
 
         <main>
@@ -147,146 +145,39 @@
                 <div class="chart-container">
                     <canvas id="salesChart"></canvas>
                 </div>
-
                 <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <h3 class="text-lg font-bold text-amber-700 flex items-center">
-                            <span class="text-2xl mr-3">🏬</span>
-                            <span>홀 매출 분석: 안정성의 원천</span>
-                        </h3>
-                        <p class="mt-3 text-gray-700 text-sm">
-                            홀 매출은 월평균 **3,000만 원**에 육박하는 안정적인 수치를 꾸준히 기록하고 있습니다. 이는 슬램버거의 강력한 오프라인 경험과 브랜드 충성도를 입증하는 핵심 지표입니다. 
-                        </p>
-                        <div class="mini-chart-container mt-4">
-                            <canvas id="hallSalesChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <h3 class="text-lg font-bold text-amber-700 flex items-center">
-                             <span class="text-2xl mr-3">🏍️</span>
-                            <span>배달 매출 분석: 성장의 엔진</span>
-                        </h3>
-                        <p class="mt-3 text-gray-700 text-sm">
-                            오픈 초기 대비 **60% 이상** 성장한 배달 매출은 온라인에서의 성공적인 브랜드 인지도 확산과 맛 경쟁력을 증명하며, 슬램버거의 전체 성장을 견인하는 핵심 동력임을 보여줍니다.
-                        </p>
-                         <div class="mini-chart-container mt-4">
-                            <canvas id="deliverySalesChart"></canvas>
-                        </div>
-                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200"><h3 class="text-lg font-bold text-amber-700 flex items-center"><span class="text-2xl mr-3">🏬</span><span>홀 매출 분석: 안정성의 원천</span></h3><p class="mt-3 text-gray-700 text-sm">홀 매출은 월평균 **3,000만 원**에 육박하는 안정적인 수치를 꾸준히 기록하고 있습니다. 이는 슬램버거의 강력한 오프라인 경험과 브랜드 충성도를 입증하는 핵심 지표입니다.</p><div class="mini-chart-container mt-4"><canvas id="hallSalesChart"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200"><h3 class="text-lg font-bold text-amber-700 flex items-center"><span class="text-2xl mr-3">🏍️</span><span>배달 매출 분석: 성장의 엔진</span></h3><p class="mt-3 text-gray-700 text-sm">오픈 초기 대비 **60% 이상** 성장한 배달 매출은 온라인에서의 성공적인 브랜드 인지도 확산과 맛 경쟁력을 증명하며, 슬램버거의 전체 성장을 견인하는 핵심 동력임을 보여줍니다.</p><div class="mini-chart-container mt-4"><canvas id="deliverySalesChart"></canvas></div></div>
                 </div>
             </div>
 
             <div id="content-loyalty" class="content-section">
-                 <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold">고객 여정 퍼널 분석 (최근 28일)</h2>
-                    <p class="text-gray-600 mt-1">유동인구를 실제 매출로 연결하는 각 단계별 전환율을 통해 슬램버거의 강력한 영업력을 확인할 수 있습니다.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border max-w-6xl mx-auto mb-12">
-                     <div class="flex flex-col md:flex-row items-center justify-around text-center space-y-4 md:space-y-0">
-                        <div>
-                            <p class="text-sm font-bold text-gray-500">매장 앞 유동인구</p>
-                            <p class="text-2xl font-bold">145,197명</p>
-                        </div>
-                        <div class="text-amber-600 font-bold text-center px-2">
-                            <p class="text-2xl">→</p>
-                            <p class="text-sm">방문 전환율<br><span class="font-bold">3.84%</span></p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-500">매장 방문</p>
-                            <p class="text-2xl font-bold">5,576명</p>
-                        </div>
-                        <div class="text-amber-600 font-bold text-center px-2">
-                            <p class="text-2xl">→</p>
-                            <p class="text-sm">구매 전환율<br><span class="font-bold">41.0%</span></p>
-                        </div>
-                         <div>
-                            <p class="text-sm font-bold text-gray-500">총 구매</p>
-                            <p class="text-2xl font-bold">2,284건</p>
-                        </div>
-                        <div class="text-amber-600 font-bold text-center px-2">
-                            <p class="text-2xl">→</p>
-                            <p class="text-sm">객단가<br><span class="font-bold">₩10,333</span></p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-500">홀 매출</p>
-                            <p class="text-2xl font-bold">₩2,360만</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-12 mb-6">
-                    <h2 class="text-2xl font-bold">누적 신규 방문 고객 추이 (홀)</h2>
-                    <p class="text-gray-600 mt-1">오픈 이후 꾸준히 신규 고객이 유입되어 팬덤이 지속적으로 확장되고 있음을 보여줍니다.</p>
-                </div>
-                <div class="chart-container">
-                    <canvas id="newCustomerChart"></canvas>
-                </div>
-
-                <div class="text-center mt-12 mb-6">
-                    <h2 class="text-2xl font-bold">홀 고객 월 재방문율</h2>
-                    <p class="text-gray-600 mt-1">매장 운영 안정화에 따라 재방문율이 가파르게 상승, 방문 고객 2명 중 1명은 단골이 되고 있습니다.</p>
-                </div>
-                <div class="chart-container">
-                    <canvas id="revisitRateChart"></canvas>
-                </div>
-
-                <div class="text-center mt-12 mb-6">
-                    <h2 class="text-2xl font-bold">신규 고객 리텐션 (코호트 분석)</h2>
-                    <p class="text-gray-600 mt-1">시간이 지날수록 신규 고객의 재방문율(리텐션)이 강화되는 패턴을 보입니다. 색상이 진할수록 높은 재방문율을 의미합니다.</p>
-                </div>
-                <div class="overflow-x-auto bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <table class="cohort-table">
-                        <thead>
-                            <tr>
-                                <th>가입 주차</th>
-                                <th>1주차</th><th>2주차</th><th>3주차</th><th>4주차</th><th>5주차</th>
-                                <th>6주차</th><th>7주차</th><th>8주차</th><th>9주차</th><th>10주차</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="cohort-date">05/19 (W21)</td><td class="cohort-data">4.46%</td><td class="cohort-data">3.82%</td><td class="cohort-data">3.18%</td><td class="cohort-data">3.82%</td><td class="cohort-data">3.18%</td><td class="cohort-data">1.91%</td><td class="cohort-data">2.55%</td><td class="cohort-data">1.91%</td><td class="cohort-data">1.27%</td><td class="cohort-data">2.55%</td></tr>
-                            <tr><td class="cohort-date">06/02 (W23)</td><td class="cohort-data">4.50%</td><td class="cohort-data">1.80%</td><td class="cohort-data">5.41%</td><td class="cohort-data">2.70%</td><td class="cohort-data">5.41%</td><td class="cohort-data">2.70%</td><td class="cohort-data">3.60%</td><td class="cohort-data">5.41%</td><td class="cohort-data">4.50%</td><td class="cohort-data">2.70%</td></tr>
-                            <tr><td class="cohort-date">06/16 (W25)</td><td class="cohort-data">4.74%</td><td class="cohort-data">6.47%</td><td class="cohort-data">5.60%</td><td class="cohort-data">4.31%</td><td class="cohort-data">5.60%</td><td class="cohort-data">4.31%</td><td class="cohort-data">0.43%</td><td class="cohort-data">1.72%</td><td class="cohort-data">1.72%</td><td class="cohort-data">2.59%</td></tr>
-                            <tr><td class="cohort-date">07/07 (W28)</td><td class="cohort-data">4.80%</td><td class="cohort-data">4.40%</td><td class="cohort-data">2.40%</td><td class="cohort-data">2.80%</td><td class="cohort-data">4.00%</td><td class="cohort-data">1.60%</td><td class="cohort-data">3.20%</td><td class="cohort-data">2.40%</td><td class="cohort-data">3.20%</td><td class="cohort-data">1.20%</td></tr>
-                            <tr><td class="cohort-date">07/21 (W30)</td><td class="cohort-data">8.33%</td><td class="cohort-data">3.07%</td><td class="cohort-data">4.82%</td><td class="cohort-data">3.51%</td><td class="cohort-data">1.32%</td><td class="cohort-data">3.07%</td><td class="cohort-data">2.63%</td><td class="cohort-data">0.88%</td><td ></td><td ></td></tr>
-                            <tr><td class="cohort-date">08/04 (W32)</td><td class="cohort-data">8.45%</td><td class="cohort-data">7.51%</td><td class="cohort-data">5.16%</td><td class="cohort-data">6.10%</td><td class="cohort-data">3.76%</td><td class="cohort-data">5.16%</td><td class="cohort-data">2.35%</td><td ></td><td ></td><td ></td></tr>
-                            <tr><td class="cohort-date">08/25 (W35)</td><td class="cohort-data">12.36%</td><td class="cohort-data">6.18%</td><td class="cohort-data">5.06%</td><td class="cohort-data">5.62%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
-                            <tr><td class="cohort-date">09/01 (W36)</td><td class="cohort-data">7.79%</td><td class="cohort-data">3.25%</td><td class="cohort-data">1.95%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
-                            <tr><td class="cohort-date">09/08 (W37)</td><td class="cohort-data">4.73%</td><td class="cohort-data">3.38%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
-                            <tr><td class="cohort-date">09/15 (W38)</td><td class="cohort-data">6.80%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                 <div class="text-center mb-6"><h2 class="text-2xl font-bold">고객 여정 퍼널 분석 (최근 28일)</h2><p class="text-gray-600 mt-1">유동인구를 실제 매출로 연결하는 각 단계별 전환율을 통해 슬램버거의 강력한 영업력을 확인할 수 있습니다.</p></div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border max-w-6xl mx-auto mb-12"><div class="flex flex-col md:flex-row items-center justify-around text-center space-y-4 md:space-y-0"><div><p class="text-sm font-bold text-gray-500">매장 앞 유동인구</p><p class="text-2xl font-bold">145,197명</p></div><div class="text-amber-600 font-bold text-center px-2"><p class="text-2xl">→</p><p class="text-sm">방문 전환율<br><span class="font-bold">3.84%</span></p></div><div><p class="text-sm font-bold text-gray-500">매장 방문</p><p class="text-2xl font-bold">5,576명</p></div><div class="text-amber-600 font-bold text-center px-2"><p class="text-2xl">→</p><p class="text-sm">구매 전환율<br><span class="font-bold">41.0%</span></p></div><div><p class="text-sm font-bold text-gray-500">총 구매</p><p class="text-2xl font-bold">2,284건</p></div><div class="text-amber-600 font-bold text-center px-2"><p class="text-2xl">→</p><p class="text-sm">객단가<br><span class="font-bold">₩10,333</span></p></div><div><p class="text-sm font-bold text-gray-500">홀 매출</p><p class="text-2xl font-bold">₩2,360만</p></div></div></div>
+                <div class="text-center mt-12 mb-6"><h2 class="text-2xl font-bold">누적 신규 방문 고객 추이 (홀)</h2><p class="text-gray-600 mt-1">오픈 이후 꾸준히 신규 고객이 유입되어 팬덤이 지속적으로 확장되고 있음을 보여줍니다.</p></div>
+                <div class="chart-container"><canvas id="newCustomerChart"></canvas></div>
+                <div class="text-center mt-12 mb-6"><h2 class="text-2xl font-bold">홀 고객 월 재방문율</h2><p class="text-gray-600 mt-1">매장 운영 안정화에 따라 재방문율이 가파르게 상승, 방문 고객 2명 중 1명은 단골이 되고 있습니다.</p></div>
+                <div class="chart-container"><canvas id="revisitRateChart"></canvas></div>
+                <div class="text-center mt-12 mb-6"><h2 class="text-2xl font-bold">신규 고객 리텐션 (코호트 분석)</h2><p class="text-gray-600 mt-1">시간이 지날수록 신규 고객의 재방문율(리텐션)이 강화되는 패턴을 보입니다. 색상이 진할수록 높은 재방문율을 의미합니다.</p></div>
+                <div class="overflow-x-auto bg-white p-4 rounded-lg shadow-sm border border-gray-200"><table class="cohort-table"><thead><tr><th>가입 주차</th><th>1주차</th><th>2주차</th><th>3주차</th><th>4주차</th><th>5주차</th><th>6주차</th><th>7주차</th><th>8주차</th><th>9주차</th><th>10주차</th></tr></thead><tbody><tr><td class="cohort-date">05/19 (W21)</td><td class="cohort-data">4.46%</td><td class="cohort-data">3.82%</td><td class="cohort-data">3.18%</td><td class="cohort-data">3.82%</td><td class="cohort-data">3.18%</td><td class="cohort-data">1.91%</td><td class="cohort-data">2.55%</td><td class="cohort-data">1.91%</td><td class="cohort-data">1.27%</td><td class="cohort-data">2.55%</td></tr><tr><td class="cohort-date">06/02 (W23)</td><td class="cohort-data">4.50%</td><td class="cohort-data">1.80%</td><td class="cohort-data">5.41%</td><td class="cohort-data">2.70%</td><td class="cohort-data">5.41%</td><td class="cohort-data">2.70%</td><td class="cohort-data">3.60%</td><td class="cohort-data">5.41%</td><td class="cohort-data">4.50%</td><td class="cohort-data">2.70%</td></tr><tr><td class="cohort-date">06/16 (W25)</td><td class="cohort-data">4.74%</td><td class="cohort-data">6.47%</td><td class="cohort-data">5.60%</td><td class="cohort-data">4.31%</td><td class="cohort-data">5.60%</td><td class="cohort-data">4.31%</td><td class="cohort-data">0.43%</td><td class="cohort-data">1.72%</td><td class="cohort-data">1.72%</td><td class="cohort-data">2.59%</td></tr><tr><td class="cohort-date">07/07 (W28)</td><td class="cohort-data">4.80%</td><td class="cohort-data">4.40%</td><td class="cohort-data">2.40%</td><td class="cohort-data">2.80%</td><td class="cohort-data">4.00%</td><td class="cohort-data">1.60%</td><td class="cohort-data">3.20%</td><td class="cohort-data">2.40%</td><td class="cohort-data">3.20%</td><td class="cohort-data">1.20%</td></tr><tr><td class="cohort-date">07/21 (W30)</td><td class="cohort-data">8.33%</td><td class="cohort-data">3.07%</td><td class="cohort-data">4.82%</td><td class="cohort-data">3.51%</td><td class="cohort-data">1.32%</td><td class="cohort-data">3.07%</td><td class="cohort-data">2.63%</td><td class="cohort-data">0.88%</td><td ></td><td ></td></tr><tr><td class="cohort-date">08/04 (W32)</td><td class="cohort-data">8.45%</td><td class="cohort-data">7.51%</td><td class="cohort-data">5.16%</td><td class="cohort-data">6.10%</td><td class="cohort-data">3.76%</td><td class="cohort-data">5.16%</td><td class="cohort-data">2.35%</td><td ></td><td ></td><td ></td></tr><tr><td class="cohort-date">08/25 (W35)</td><td class="cohort-data">12.36%</td><td class="cohort-data">6.18%</td><td class="cohort-data">5.06%</td><td class="cohort-data">5.62%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr><tr><td class="cohort-date">09/01 (W36)</td><td class="cohort-data">7.79%</td><td class="cohort-data">3.25%</td><td class="cohort-data">1.95%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr><tr><td class="cohort-date">09/08 (W37)</td><td class="cohort-data">4.73%</td><td class="cohort-data">3.38%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr><tr><td class="cohort-date">09/15 (W38)</td><td class="cohort-data">6.80%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr></tbody></table></div>
             </div>
 
             <div id="content-product" class="content-section">
-                 <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold">Top 5 버거 판매 비중 (누적)</h2>
-                    <p class="text-gray-600 mt-1">'더 비프 버거'와 '더 치킨 버거'가 전체 판매량의 33%를 차지하며 시장을 선도하고 있습니다.</p>
+                 <div class="text-center mb-6"><h2 class="text-2xl font-bold">Top 5 버거 판매 비중 (누적)</h2><p class="text-gray-600 mt-1">'더 비프 버거'와 '더 치킨 버거'가 전체 판매량의 33%를 차지하며 시장을 선도하고 있습니다.</p></div>
+                <div class="chart-container" style="max-width: 450px;"><canvas id="menuChart"></canvas></div>
+                <div class="text-center mt-12 mb-6"><h2 class="text-2xl font-bold">시장의 판도를 바꾼 K-시그니처, '갈비'</h2><p class="text-gray-600 mt-1 max-w-2xl mx-auto">전체 갈비맛 버거 라인업은 버거 판매량의 20.8%를 차지하며, 슬램버거의 독보적인 정체성을 구축했습니다.</p></div>
+                <div class="max-w-2xl mx-auto px-4"><div class="w-full bg-gray-200 rounded-full h-8 dark:bg-gray-700 mb-4"><div class="bg-amber-600 h-8 rounded-full text-white font-bold flex items-center justify-center" style="width: 20.8%">20.8%</div></div><div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-left"><h3 class="text-lg font-bold text-amber-700">심층 분석: 왜 '양념갈비' 버거인가?</h3><p class="mt-2 text-gray-700">슬램버거의 '갈비' 라인업은 단순한 메뉴를 넘어, 시장을 재정의하는 K-버거의 상징입니다. 대부분의 브랜드가 소고기(牛)와 치킨(鷄) 패티에 집중할 때, 슬램버거는 한국인이 가장 사랑하는 '단짠'의 정수인 '양념갈비' 맛을 갈비를 활용하여 완벽하게 구현했습니다.</p><p class="mt-3 text-gray-700">이는 전체 버거 판매량의 **5분의 1**을 차지하는 압도적인 수치로 증명되었으며, 경쟁사가 모방할 수 없는 강력한 해자를 구축했음을 의미합니다. 이는 단순한 돼지고기 버거가 아닌, **'한국식 BBQ'라는 새로운 버거 카테고리를 개척**한 것입니다.</p></div></div>
+            </div>
+            
+            <div id="content-online" class="content-section">
+                <div class="text-center mb-6"><h2 class="text-2xl font-bold">'강남역 햄버거' 키워드 석권</h2><p class="text-gray-600 mt-1">네이버 검색 결과 1위를 차지하며, 가장 치열한 상권에서 온라인 여론을 주도하고 있습니다.</p></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto mb-8">
+                    <div class="kpi-card text-center bg-green-50 border-green-200"><p class="text-sm font-bold text-green-800">네이버 통합검색</p><p class="text-3xl font-bold text-green-600 mt-2">1위</p></div>
+                    <div class="kpi-card text-center bg-green-50 border-green-200"><p class="text-sm font-bold text-green-800">플레이스 검색</p><p class="text-3xl font-bold text-green-600 mt-2">1위</p></div>
+                    <div class="kpi-card text-center bg-green-50 border-green-200"><p class="text-sm font-bold text-green-800">방문자 리뷰</p><p class="text-3xl font-bold text-green-600 mt-2">354건+</p></div>
+                    <div class="kpi-card text-center bg-green-50 border-green-200"><p class="text-sm font-bold text-green-800">블로그 리뷰</p><p class="text-3xl font-bold text-green-600 mt-2">235건+</p></div>
                 </div>
-                <div class="chart-container" style="max-width: 450px;">
-                    <canvas id="menuChart"></canvas>
-                </div>
-                <div class="text-center mt-12 mb-6">
-                    <h2 class="text-2xl font-bold">시장의 판도를 바꾼 K-시그니처, '갈비'</h2>
-                    <p class="text-gray-600 mt-1 max-w-2xl mx-auto">전체 갈비맛 버거 라인업은 버거 판매량의 20.8%를 차지하며, 슬램버거의 독보적인 정체성을 구축했습니다.</p>
-                </div>
-                <div class="max-w-2xl mx-auto px-4">
-                    <div class="w-full bg-gray-200 rounded-full h-8 dark:bg-gray-700 mb-4">
-                        <div class="bg-amber-600 h-8 rounded-full text-white font-bold flex items-center justify-center" style="width: 20.8%">
-                            20.8%
-                        </div>
-                    </div>
-                     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-left">
-                        <h3 class="text-lg font-bold text-amber-700">심층 분석: 왜 '갈비 버거'인가?</h3>
-                        <p class="mt-2 text-gray-700">
-                            슬램버거의 '갈비' 라인업은 단순한 메뉴를 넘어, 시장을 재정의하는 K-버거의 상징입니다. 대부분의 브랜드가 소고기(牛)와 치킨(鷄) 패티에 집중할 때, 슬램버거는 한국인이 가장 사랑하는 '단짠'의 정수인 갈비 맛을 돼지고기(豚) 패티에 완벽하게 구현했습니다.
-                        </p>
-                        <p class="mt-3 text-gray-700">
-                           이는 전체 버거 판매량의 **5분의 1**을 차지하는 압도적인 수치로 증명되었으며, 경쟁사가 모방할 수 없는 강력한 해자를 구축했음을 의미합니다. 이는 단순한 돼지고기 버거가 아닌, **'한국식 BBQ'라는 새로운 버거 카테고리를 개척**한 것입니다.
-                        </p>
-                    </div>
-                </div>
+                <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-sm border"><h3 class="text-lg font-bold text-amber-700">홍보 관점의 시사점</h3><p class="mt-2 text-gray-700">네이버 검색 결과 1위는 단순한 순위 이상의 의미를 가집니다. 이는 광고 비용 없이도 **매일 수많은 잠재 고객에게 브랜드를 노출**시키는 강력한 마케팅 채널이며, **실제 방문객의 긍정적인 리뷰**는 그 어떤 광고보다 높은 신뢰도를 형성합니다. 이와 같은 압도적인 온라인 존재감은 '강남역 대표 맛집'이라는 인식을 공고히 하고, 2호점 확장을 위한 가장 강력한 자산이 될 것입니다.</p></div>
             </div>
         </main>
     </div>
@@ -296,8 +187,8 @@
             const chartInstances = {};
             const tabs = document.querySelectorAll('.nav-tab');
             const contents = document.querySelectorAll('.content-section');
-            const chartDefaultOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: "'Noto Sans KR', sans-serif", size: 14 } } }, tooltip: { bodyFont: { family: "'Noto Sans KR', sans-serif" }, titleFont: { family: "'Noto Sans KR', sans-serif" } } }, scales: { x: { ticks: { font: { family: "'Noto Sans KR', sans-serif" } } }, y: { ticks: { font: { family: "'Noto Sans KR', sans-serif" } } } } };
-            const miniChartYAxisFormatter = { callback: function(value) { return (value / 10000000).toFixed(1) + '천만'; }, font: { family: "'Noto Sans KR', sans-serif", size: 10 } };
+            const chartDefaultOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: "'Pretendard', sans-serif", size: 14 } } }, tooltip: { bodyFont: { family: "'Pretendard', sans-serif" }, titleFont: { family: "'Pretendard', sans-serif" } } }, scales: { x: { ticks: { font: { family: "'Pretendard', sans-serif" } } }, y: { ticks: { font: { family: "'Pretendard', sans-serif" } } } } };
+            const miniChartYAxisFormatter = { callback: function(value) { return (value / 10000000).toFixed(1) + '천만'; }, font: { family: "'Pretendard', sans-serif", size: 10 } };
             const monthLabels = ['5월', '6월', '7월', '8월', '9월(예상)'];
 
             function destroyChart(chartId) {
@@ -311,7 +202,6 @@
                 destroyChart('salesChart');
                 destroyChart('hallSalesChart');
                 destroyChart('deliverySalesChart');
-
                 const hallSales = [28574194, 28538710, 30109100, 30865556, 28000712];
                 const deliverySales = [23378886, 27099495, 32834610, 32581414, 36999288];
                 const salesData = { labels: monthLabels, datasets: [ { label: '홀 매출', data: hallSales, backgroundColor: ['#EA580C', '#EA580C', '#EA580C', '#EA580C', 'rgba(234, 88, 12, 0.5)'], borderRadius: 4 }, { label: '배달 매출', data: deliverySales, backgroundColor: ['#FDBA74', '#FDBA74', '#FDBA74', '#FDBA74', 'rgba(253, 186, 116, 0.5)'], borderRadius: 4 } ] };
@@ -323,10 +213,8 @@
             function initLoyaltyCharts() {
                 destroyChart('revisitRateChart');
                 destroyChart('newCustomerChart');
-
                 const revisitRateData = { labels: ['6월', '7월', '8월', '9월'], datasets: [{ label: '홀 고객 월 재방문율 (%)', data: [28.02, 38.07, 47.56, 50.07], fill: true, backgroundColor: 'rgba(234, 88, 12, 0.1)', borderColor: '#EA580C', tension: 0.1 }] };
                 chartInstances.revisitRateChart = new Chart(document.getElementById('revisitRateChart').getContext('2d'), { type: 'line', data: revisitRateData, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: false, min: 20, ticks: { callback: function(v) { return v + '%'; } } } }, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return ' 재방문율: ' + c.parsed.y + '%'; } } } } } });
-                
                 const monthlyNewCustomers = [2043, 1439, 1708, 1690, 1488];
                 const cumulativeNewCustomers = [];
                 monthlyNewCustomers.reduce((a, v) => { const s = a + v; cumulativeNewCustomers.push(s); return s; }, 0);

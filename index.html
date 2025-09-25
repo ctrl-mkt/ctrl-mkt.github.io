@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬램버거 | 홍보 데이터베이스</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #F9FAFB;
+        }
+        .search-highlight {
+            background-color: #FEF3C7;
+            font-weight: bold;
+            color: #D97706;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <img src="https://slamburger.co.kr/cdn/shop/files/data_927d7bed-178b-4778-96fa-9b6560a82161.png?v=1745315012&width=150" alt="SlamBurger Logo" class="mx-auto h-12 mb-4">
+            <h1 class="text-3xl font-bold text-gray-800">홍보 데이터베이스</h1>
+            <p class="text-gray-500 mt-2">슬램버거의 모든 성과 데이터를 검색하고 확인하세요.</p>
+        </header>
+
+        <div class="mb-8">
+            <div class="relative">
+                <input type="search" id="search-input" placeholder="키워드 검색 (예: 갈비, 재방문율, 네이버)" class="w-full p-4 pl-12 text-lg border-2 border-gray-200 rounded-full focus:ring-amber-500 focus:border-amber-500 transition">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-bold text-gray-700 mb-4">데이터 목록</h2>
+            <div id="results-container" class="space-y-4">
+                <!-- 검색 결과가 여기에 동적으로 삽입됩니다. -->
+            </div>
+            <div id="no-results" class="text-center py-12 text-gray-500 hidden">
+                <p class="text-lg">검색 결과가 없습니다.</p>
+                <p class="text-sm">다른 키워드로 검색해 보세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const database = [
+            {
+                title: '슬램버거 강남 직영점 오픈 성과 분석 보고서',
+                date: '2025-09-25',
+                description: '강남 직영점의 오픈 이후 매출, 고객, 메뉴, 온라인 영향력 등 종합적인 성과를 분석한 데이터 대시보드입니다. K-시그니처 갈비 버거의 성공 요인과 완결형 고객 여정 퍼널을 확인하세요.',
+                url: './2025-09-25.html',
+                keywords: ['슬램버거', '강남', '매출', '성과', '고객', '충성도', '메뉴', '갈비', '온라인', '네이버', '퍼널', '전환율', '재방문율', '2030', 'CCTV', '유동인구']
+            }
+        ];
+
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results-container');
+        const noResultsMessage = document.getElementById('no-results');
+
+        function highlightText(text, highlight) {
+            if (!highlight) {
+                return text;
+            }
+            const regex = new RegExp(`(${highlight})`, 'gi');
+            return text.replace(regex, '<span class="search-highlight">$1</span>');
+        }
+
+        function renderResults(query = '') {
+            resultsContainer.innerHTML = '';
+            const lowerCaseQuery = query.toLowerCase().trim();
+
+            const filteredData = database.filter(item => {
+                if (!lowerCaseQuery) return true;
+                const searchableText = [item.title, item.description, ...item.keywords].join(' ').toLowerCase();
+                return searchableText.includes(lowerCaseQuery);
+            });
+
+            if (filteredData.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+            }
+
+            filteredData.forEach(item => {
+                const card = `
+                    <a href="${item.url}" target="_blank" class="block bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-amber-600 mb-2">${highlightText(item.title, query)}</h3>
+                            <span class="text-sm text-gray-400 font-medium">${item.date}</span>
+                        </div>
+                        <p class="text-gray-600">${highlightText(item.description, query)}</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${item.keywords.slice(0, 5).map(kw => `<span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">${highlightText(kw, query)}</span>`).join('')}
+                        </div>
+                    </a>
+                `;
+                resultsContainer.innerHTML += card;
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderResults(e.target.value);
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

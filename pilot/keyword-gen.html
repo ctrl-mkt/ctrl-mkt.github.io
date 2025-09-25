@@ -147,33 +147,10 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="action-buttons-container" class="text-center mt-8">
+                    <div class="text-center mt-8">
                         <button id="showAllBtn" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-900 transition duration-300">
                             <i class="fa-solid fa-unlock mr-2"></i>전체 키워드 리스트(50+) 확인하기
                         </button>
-                    </div>
-
-                    <!-- Naver Login Form (hidden by default) -->
-                    <div id="naver-setup-form-container" class="mt-8 hidden fade-in">
-                        <h4 class="text-xl font-bold mb-4 text-gray-800">광고 세팅 정보 입력</h4>
-                        <p class="text-gray-600 mb-6">네이버 광고 계정 정보를 입력해주시면 분석된 키워드를 바탕으로 광고 세팅을 진행해드립니다.</p>
-                        <form id="naverLoginForm">
-                            <div class="mb-4">
-                                <label for="naverId" class="block text-sm font-medium text-gray-700 mb-1">네이버 아이디</label>
-                                <input type="text" id="naverId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="naverPassword" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-                                <input type="password" id="naverPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
-                            </div>
-                            <div class="flex items-start mb-6">
-                                <div class="flex items-center h-5">
-                                    <input id="naver-agree" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-indigo-300" required>
-                                </div>
-                                <label for="naver-agree" class="ml-2 text-sm font-medium text-gray-900">네이버 계정 정보 활용에 동의합니다.</label>
-                            </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition duration-300">제출하기</button>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -199,11 +176,11 @@
                 </div>
                  <div class="flex items-start mb-6">
                     <div class="flex items-center h-5">
-                        <input id="personal-info-agree" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-indigo-300" required>
+                        <input id="marketing-agree" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-indigo-300" required>
                     </div>
-                    <label for="personal-info-agree" class="ml-2 text-sm font-medium text-gray-900">개인정보 수집 및 활용에 동의합니다.</label>
+                    <label for="marketing-agree" class="ml-2 text-sm font-medium text-gray-900">개인정보 수집 및 마케팅 정보 수신에 동의합니다.</label>
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition duration-300">전체 리포트 확인하기</button>
+                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition duration-300">전체 리포트 받기</button>
             </form>
         </div>
     </div>
@@ -226,12 +203,8 @@
         const modal = document.getElementById('modal');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const leadForm = document.getElementById('leadForm');
-        const naverLoginForm = document.getElementById('naverLoginForm');
 
-        // Data variables
         let allKeywordsData = [];
-        let userEmail = '';
-        let userPhone = '';
         const budgetTiers = {
             starter: { name: '시작형', slice: 15, budget: 10000 },
             growth: { name: '성장형', slice: 35, budget: 30000 },
@@ -243,8 +216,6 @@
         showAllBtn.addEventListener('click', () => modal.classList.remove('hidden'));
         closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
         leadForm.addEventListener('submit', handleFormSubmit);
-        naverLoginForm.addEventListener('submit', handleNaverFormSubmit);
-
         budgetTiersContainer.addEventListener('click', (e) => {
             const button = e.target.closest('.budget-tier-btn');
             if (button) {
@@ -280,52 +251,18 @@
         
         function handleFormSubmit(e) {
             e.preventDefault();
-            const emailInput = document.getElementById('email');
-            const phoneInput = document.getElementById('phone');
-            const consent = document.getElementById('personal-info-agree').checked;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const consent = document.getElementById('marketing-agree').checked;
 
-            if (emailInput.value && phoneInput.value && consent) {
-                // Store user info to use later
-                userEmail = emailInput.value;
-                userPhone = phoneInput.value;
-
-                console.log('Lead captured:', { email: userEmail, phone: userPhone });
+            if (email && phone && consent) {
+                // Here you would typically send the lead info to your server
+                console.log('Lead captured:', { email, phone });
                 modal.classList.add('hidden');
                 displayFullKeywordList();
             } else {
-                // In a real app, use a custom modal, not alert.
+                 // In a real app, use a custom modal, not alert.
                 alert('모든 항목을 입력하고 동의해주세요.');
-            }
-        }
-
-        function handleNaverFormSubmit(e) {
-            e.preventDefault();
-            const naverId = document.getElementById('naverId').value;
-            const naverPassword = document.getElementById('naverPassword').value;
-            const naverConsent = document.getElementById('naver-agree').checked;
-
-            if (naverId && naverPassword && naverConsent) {
-                const finalData = {
-                    email: userEmail,
-                    phone: userPhone,
-                    naverId: naverId,
-                    // In a real application, NEVER log or transmit passwords in plaintext.
-                    // This is for demonstration purposes only.
-                };
-
-                console.log('Final Submission Data:', finalData);
-
-                // Replace form with a success message
-                const formContainer = document.getElementById('naver-setup-form-container');
-                formContainer.innerHTML = `
-                    <div class="text-center p-8 bg-green-50 border-2 border-green-200 rounded-lg">
-                        <i class="fa-solid fa-check-circle text-5xl text-green-500 mb-4"></i>
-                        <h4 class="text-xl font-bold text-gray-800">제출이 완료되었습니다.</h4>
-                        <p class="text-gray-600 mt-2">담당자가 확인 후 24시간 이내에 연락드릴 예정입니다.</p>
-                    </div>
-                `;
-            } else {
-                alert('네이버 아이디, 비밀번호를 입력하고 정보 활용에 동의해주세요.');
             }
         }
         
@@ -360,28 +297,11 @@
         
         function displayFullKeywordList() {
             renderKeywordTable(allKeywordsData);
-            document.querySelector('#results .bg-white h4').textContent = `전체 추천 키워드 (${allKeywordsData.length}개)`;
-            document.querySelector('#results .bg-white h4 + p').textContent = '가게 특성에 맞춰 생성된 전체 키워드 리스트입니다. 아래에서 원하는 다음 단계를 선택하세요.';
+            document.querySelector('#results h4').textContent = `전체 추천 키워드 (${allKeywordsData.length}개)`;
+            document.querySelector('#results h4 + p').textContent = '가게 특성에 맞춰 생성된 전체 키워드 리스트입니다. CSV 파일로 다운로드하여 광고 관리자에서 활용해보세요.';
+            showAllBtn.parentElement.innerHTML = '<button id="downloadCsvBtn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition duration-300"><i class="fa-solid fa-file-csv mr-2"></i>CSV로 다운로드</button>';
             
-            const actionContainer = document.getElementById('action-buttons-container');
-            actionContainer.innerHTML = `
-                <div class="flex flex-col md:flex-row gap-4 justify-center">
-                    <button id="selfSetupBtn" class="flex-1 bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition duration-300">
-                        <i class="fa-solid fa-file-csv mr-2"></i>제가 직접 세팅할게요 (CSV 다운로드)
-                    </button>
-                    <button id="delegateSetupBtn" class="flex-1 bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition duration-300">
-                        <i class="fa-solid fa-magic-wand-sparkles mr-2"></i>광고 세팅을 맡기고 싶어요
-                    </button>
-                </div>
-            `;
-            
-            document.getElementById('selfSetupBtn').addEventListener('click', downloadCsv);
-            document.getElementById('delegateSetupBtn').addEventListener('click', showNaverSetupForm);
-        }
-
-        function showNaverSetupForm() {
-            document.getElementById('action-buttons-container').classList.add('hidden');
-            document.getElementById('naver-setup-form-container').classList.remove('hidden');
+            document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
         }
 
         function renderKeywordTable(data) {

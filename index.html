@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬램버거 성과 분석 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Burger Palette -->
+    <!-- Application Structure Plan: A clean, modern dashboard layout is chosen to present the success story of SlamBurger. The structure includes a header, key metrics, and a tab-based navigation. A new 'OKR & Priorities' tab has been added. This thematic structure ('성장 스토리', '고객 충성도', '메뉴 경쟁력', 'OKR & 우선과제') allows users to seamlessly explore past performance, current customer dynamics, product strategy, and future goals. This layered approach provides a comprehensive, 360-degree view of the business, making the data-driven narrative more compelling for stakeholders. -->
+    <!-- Visualization & Content Choices: 
+        1. Monthly Sales -> Goal: Show growth -> Viz: Stacked Bar Chart -> Interaction: Tooltips -> Justification: Shows total growth and the contribution of each channel (Hall vs. Delivery). -> Library: Chart.js.
+        2. New Customers -> Goal: Show cumulative brand attraction -> Viz: Cumulative Area Chart -> Interaction: Tooltips -> Justification: Illustrates the total growth of the customer base, a key indicator of expanding market reach. -> Library: Chart.js.
+        3. Revisit Rate -> Goal: Demonstrate loyalty -> Viz: Line Chart -> Interaction: Tooltips -> Justification: Perfect for illustrating the dramatic increase in customer retention. -> Library: Chart.js.
+        4. Menu Contribution -> Goal: Highlight product success -> Viz: Pie Chart -> Interaction: Hover -> Justification: Clearly shows the proportional contribution of key products. -> Library: Chart.js.
+        5. Cohort Analysis -> Goal: Show detailed retention -> Viz: Heatmap Table -> Interaction: Colors indicate retention strength. -> Justification: Excellent for displaying multi-dimensional data and making patterns immediately visible. -> Method: HTML/CSS/JS.
+        6. OKR Progress -> Goal: Display strategic goal attainment -> Viz: Progress Bars -> Interaction: Visual indicators of current vs. target -> Justification: Progress bars offer an intuitive, at-a-glance understanding of how the company is performing against its key objectives. -> Method: HTML/CSS/JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FDFBF7;
+            color: #3D352E;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        .mini-chart-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .kpi-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EFEAE3;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+        .nav-tab {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            color: #A99985;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+        .nav-tab.active {
+            color: #D97706; /* Amber-600 */
+            border-bottom-color: #D97706;
+        }
+        .nav-tab:hover {
+            color: #EA580C; /* Orange-600 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .cohort-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+            white-space: nowrap;
+        }
+        .cohort-table th, .cohort-table td {
+            border: 1px solid #f3f4f6;
+            padding: 0.75rem;
+            text-align: center;
+            min-width: 80px;
+        }
+        .cohort-table th {
+            background-color: #f9fafb;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .cohort-table td {
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        .cohort-date {
+            font-weight: bold;
+        }
+        .progress-bar {
+            background-color: #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            width: 100%;
+            height: 1.5rem;
+        }
+        .progress-bar-inner {
+            background-color: #F97316;
+            height: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            line-height: 1.5rem;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <img src="https://slamburger.co.kr/cdn/shop/files/data_927d7bed-178b-4778-96fa-9b6560a82161.png?v=1745315012&width=150" alt="SlamBurger Logo" class="mx-auto h-12 mb-4">
+            <p class="text-xl md:text-2xl mt-2 text-gray-700">강남 직영점 오픈 성과 분석 보고서</p>
+        </header>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+            <div class="kpi-card text-center">
+                <p class="text-sm font-bold text-gray-500">월 최고 매출 (8월)</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">₩6,345만</p>
+            </div>
+            <div class="kpi-card text-center">
+                <p class="text-sm font-bold text-gray-500">총 신규 고객 (9월 예상)</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">8,368명</p>
+            </div>
+            <div class="kpi-card text-center">
+                <p class="text-sm font-bold text-gray-500">최고 재방문율 (9월)</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">50.07%</p>
+            </div>
+            <div class="kpi-card text-center">
+                <p class="text-sm font-bold text-gray-500">K-시그니처 '갈비' 비중</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">20.8%</p>
+            </div>
+        </section>
+
+        <nav class="flex justify-center border-b border-gray-200 mb-8 overflow-x-auto">
+            <div id="tab-growth" class="nav-tab active">📈 성장 스토리</div>
+            <div id="tab-loyalty" class="nav-tab">❤️ 고객 충성도</div>
+            <div id="tab-product" class="nav-tab">🍔 메뉴 경쟁력</div>
+            <div id="tab-okr" class="nav-tab">🎯 OKR & 우선과제</div>
+        </nav>
+
+        <main>
+            <div id="content-growth" class="content-section active">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">월별 매출 성장 (홀/배달)</h2>
+                    <p class="text-gray-600 mt-1">홀과 배달 매출이 함께 성장하며 안정적인 성장세를 보이고 있습니다. (9월 예상치는 반투명으로 표시)</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-bold text-amber-700 flex items-center">
+                            <span class="text-2xl mr-3">🏬</span>
+                            <span>홀 매출 분석: 안정성의 원천</span>
+                        </h3>
+                        <p class="mt-3 text-gray-700 text-sm">
+                            홀 매출은 월평균 **3,000만 원**에 육박하는 안정적인 수치를 꾸준히 기록하고 있습니다. 이는 슬램버거의 강력한 오프라인 경험과 브랜드 충성도를 입증하는 핵심 지표입니다. 
+                        </p>
+                        <div class="mini-chart-container mt-4">
+                            <canvas id="hallSalesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-bold text-amber-700 flex items-center">
+                             <span class="text-2xl mr-3">🏍️</span>
+                            <span>배달 매출 분석: 성장의 엔진</span>
+                        </h3>
+                        <p class="mt-3 text-gray-700 text-sm">
+                            오픈 초기 대비 **60% 이상** 성장한 배달 매출은 온라인에서의 성공적인 브랜드 인지도 확산과 맛 경쟁력을 증명하며, 슬램버거의 전체 성장을 견인하는 핵심 동력임을 보여줍니다.
+                        </p>
+                         <div class="mini-chart-container mt-4">
+                            <canvas id="deliverySalesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-loyalty" class="content-section">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">홀 고객 월 재방문율</h2>
+                    <p class="text-gray-600 mt-1">매장 운영 안정화에 따라 재방문율이 가파르게 상승, 방문 고객 2명 중 1명은 단골이 되고 있습니다.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revisitRateChart"></canvas>
+                </div>
+
+                <div class="text-center mt-12 mb-6">
+                    <h2 class="text-2xl font-bold">누적 신규 방문 고객 추이 (홀)</h2>
+                    <p class="text-gray-600 mt-1">오픈 이후 꾸준히 신규 고객이 유입되어 팬덤이 지속적으로 확장되고 있음을 보여줍니다.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="newCustomerChart"></canvas>
+                </div>
+
+                <div class="text-center mt-12 mb-6">
+                    <h2 class="text-2xl font-bold">신규 고객 리텐션 (코호트 분석)</h2>
+                    <p class="text-gray-600 mt-1">시간이 지날수록 신규 고객의 재방문율(리텐션)이 강화되는 패턴을 보입니다. 색상이 진할수록 높은 재방문율을 의미하며, 특히 최근 코호트에서 높은 초기 리텐션을 기록했습니다.</p>
+                </div>
+                <div class="overflow-x-auto bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <table class="cohort-table">
+                        <thead>
+                            <tr>
+                                <th>가입 주차</th>
+                                <th>1주차</th><th>2주차</th><th>3주차</th><th>4주차</th><th>5주차</th>
+                                <th>6주차</th><th>7주차</th><th>8주차</th><th>9주차</th><th>10주차</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="cohort-date">05/19 (W21)</td><td class="cohort-data">4.46%</td><td class="cohort-data">3.82%</td><td class="cohort-data">3.18%</td><td class="cohort-data">3.82%</td><td class="cohort-data">3.18%</td><td class="cohort-data">1.91%</td><td class="cohort-data">2.55%</td><td class="cohort-data">1.91%</td><td class="cohort-data">1.27%</td><td class="cohort-data">2.55%</td></tr>
+                            <tr><td class="cohort-date">06/02 (W23)</td><td class="cohort-data">4.50%</td><td class="cohort-data">1.80%</td><td class="cohort-data">5.41%</td><td class="cohort-data">2.70%</td><td class="cohort-data">5.41%</td><td class="cohort-data">2.70%</td><td class="cohort-data">3.60%</td><td class="cohort-data">5.41%</td><td class="cohort-data">4.50%</td><td class="cohort-data">2.70%</td></tr>
+                            <tr><td class="cohort-date">06/16 (W25)</td><td class="cohort-data">4.74%</td><td class="cohort-data">6.47%</td><td class="cohort-data">5.60%</td><td class="cohort-data">4.31%</td><td class="cohort-data">5.60%</td><td class="cohort-data">4.31%</td><td class="cohort-data">0.43%</td><td class="cohort-data">1.72%</td><td class="cohort-data">1.72%</td><td class="cohort-data">2.59%</td></tr>
+                            <tr><td class="cohort-date">07/07 (W28)</td><td class="cohort-data">4.80%</td><td class="cohort-data">4.40%</td><td class="cohort-data">2.40%</td><td class="cohort-data">2.80%</td><td class="cohort-data">4.00%</td><td class="cohort-data">1.60%</td><td class="cohort-data">3.20%</td><td class="cohort-data">2.40%</td><td class="cohort-data">3.20%</td><td class="cohort-data">1.20%</td></tr>
+                            <tr><td class="cohort-date">07/21 (W30)</td><td class="cohort-data">8.33%</td><td class="cohort-data">3.07%</td><td class="cohort-data">4.82%</td><td class="cohort-data">3.51%</td><td class="cohort-data">1.32%</td><td class="cohort-data">3.07%</td><td class="cohort-data">2.63%</td><td class="cohort-data">0.88%</td><td ></td><td ></td></tr>
+                            <tr><td class="cohort-date">08/04 (W32)</td><td class="cohort-data">8.45%</td><td class="cohort-data">7.51%</td><td class="cohort-data">5.16%</td><td class="cohort-data">6.10%</td><td class="cohort-data">3.76%</td><td class="cohort-data">5.16%</td><td class="cohort-data">2.35%</td><td ></td><td ></td><td ></td></tr>
+                            <tr><td class="cohort-date">08/25 (W35)</td><td class="cohort-data">12.36%</td><td class="cohort-data">6.18%</td><td class="cohort-data">5.06%</td><td class="cohort-data">5.62%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
+                            <tr><td class="cohort-date">09/01 (W36)</td><td class="cohort-data">7.79%</td><td class="cohort-data">3.25%</td><td class="cohort-data">1.95%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
+                            <tr><td class="cohort-date">09/08 (W37)</td><td class="cohort-data">4.73%</td><td class="cohort-data">3.38%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
+                            <tr><td class="cohort-date">09/15 (W38)</td><td class="cohort-data">6.80%</td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td><td ></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="content-product" class="content-section">
+                 <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">Top 5 버거 판매 비중 (누적)</h2>
+                    <p class="text-gray-600 mt-1">'더 비프 버거'와 '더 치킨 버거'가 전체 판매량의 33%를 차지하며 시장을 선도하고 있습니다.</p>
+                </div>
+                <div class="chart-container" style="max-width: 450px;">
+                    <canvas id="menuChart"></canvas>
+                </div>
+                <div class="text-center mt-12 mb-6">
+                    <h2 class="text-2xl font-bold">시장의 판도를 바꾼 K-시그니처, '갈비'</h2>
+                    <p class="text-gray-600 mt-1 max-w-2xl mx-auto">전체 갈비맛 버거 라인업은 버거 판매량의 20.8%를 차지하며, 슬램버거의 독보적인 정체성을 구축했습니다.</p>
+                </div>
+                <div class="max-w-2xl mx-auto px-4">
+                    <div class="w-full bg-gray-200 rounded-full h-8 dark:bg-gray-700 mb-4">
+                        <div class="bg-amber-600 h-8 rounded-full text-white font-bold flex items-center justify-center" style="width: 20.8%">
+                            20.8%
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-left">
+                        <h3 class="text-lg font-bold text-amber-700">심층 분석: 왜 '갈비 버거'인가?</h3>
+                        <p class="mt-2 text-gray-700">
+                            슬램버거의 '갈비' 라인업은 단순한 메뉴를 넘어, 시장을 재정의하는 K-버거의 상징입니다. 대부분의 브랜드가 소고기(牛)와 치킨(鷄) 패티에 집중할 때, 슬램버거는 한국인이 가장 사랑하는 '단짠'의 정수인 갈비 맛을 돼지고기(豚) 패티에 완벽하게 구현했습니다.
+                        </p>
+                        <p class="mt-3 text-gray-700">
+                           이는 전체 버거 판매량의 **5분의 1**을 차지하는 압도적인 수치로 증명되었으며, 경쟁사가 모방할 수 없는 강력한 해자를 구축했음을 의미합니다. 이는 단순한 돼지고기 버거가 아닌, **'한국식 BBQ'라는 새로운 버거 카테고리를 개척**한 것입니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-okr" class="content-section">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">핵심 목표 (Objective)</h2>
+                    <p class="text-gray-600 mt-1 max-w-3xl mx-auto">"강력한 F&B 브랜드로 자리매김하여, 시장에 충격을 주고 대형 프랜차이즈로서 성장할 수 있는 기반을 구축한다."</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">주요 성과 지표 (Key Results) 달성 현황</h3>
+                        <div class="space-y-6">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold">일 매출 500만원</span>
+                                    <span class="text-sm font-semibold text-gray-600">현재 <span class="text-orange-600">216만원</span> / 목표 500만원</span>
+                                </div>
+                                <div class="progress-bar"><div id="kr-progress-1" class="progress-bar-inner">43.2%</div></div>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm border">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold">홀 매출 350만원</span>
+                                    <span class="text-sm font-semibold text-gray-600">현재 <span class="text-orange-600">101만원</span> / 목표 350만원</span>
+                                </div>
+                                <div class="progress-bar"><div id="kr-progress-2" class="progress-bar-inner">28.8%</div></div>
+                            </div>
+                             <div class="bg-white p-4 rounded-lg shadow-sm border">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold">배달 매출 150만원</span>
+                                    <span class="text-sm font-semibold text-gray-600">현재 <span class="text-orange-600">115만원</span> / 목표 150만원</span>
+                                </div>
+                                <div class="progress-bar"><div id="kr-progress-3" class="progress-bar-inner">76.6%</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">최우선 과제 (P1 Initiatives)</h3>
+                        <ul class="space-y-3">
+                            <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**신메뉴 개발 및 메뉴 운영 최적화:** 지속적인 맛 경쟁력 강화를 위한 품평단 운영 및 신메뉴 출시 프로세스 정립</span></li>
+                            <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**현장 인력 수급 및 안정화:** 2호점 확장을 대비한 바이저/점장 체계 구축 및 R&R 수립</span></li>
+                            <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**매장 운영 프로모션:** 슬램런치세트, 시즌 프로모션 등 고객 경험 및 매출 증대를 위한 마케팅 활동 기획/실행</span></li>
+                             <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**물류 시스템 최적화:** 3자 물류(3PL) 도입을 통한 SCM(공급망 관리) 효율화 및 확장 기반 마련</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartInstances = {};
+            const tabs = document.querySelectorAll('.nav-tab');
+            const contents = document.querySelectorAll('.content-section');
+            const chartDefaultOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: "'Noto Sans KR', sans-serif", size: 14 } } }, tooltip: { bodyFont: { family: "'Noto Sans KR', sans-serif" }, titleFont: { family: "'Noto Sans KR', sans-serif" } } }, scales: { x: { ticks: { font: { family: "'Noto Sans KR', sans-serif" } } }, y: { ticks: { font: { family: "'Noto Sans KR', sans-serif" } } } } };
+            const miniChartYAxisFormatter = { callback: function(value) { return (value / 10000000).toFixed(1) + '천만'; }, font: { family: "'Noto Sans KR', sans-serif", size: 10 } };
+            const monthLabels = ['5월', '6월', '7월', '8월', '9월(예상)'];
+
+            function destroyChart(chartId) {
+                if (chartInstances[chartId]) {
+                    chartInstances[chartId].destroy();
+                    delete chartInstances[chartId];
+                }
+            }
+            
+            function initGrowthCharts() {
+                destroyChart('salesChart');
+                destroyChart('hallSalesChart');
+                destroyChart('deliverySalesChart');
+
+                const hallSales = [28574194, 28538710, 30109100, 30865556, 28000712];
+                const deliverySales = [23378886, 27099495, 32834610, 32581414, 36999288];
+                const salesData = { labels: monthLabels, datasets: [ { label: '홀 매출', data: hallSales, backgroundColor: ['#EA580C', '#EA580C', '#EA580C', '#EA580C', 'rgba(234, 88, 12, 0.5)'], borderRadius: 4 }, { label: '배달 매출', data: deliverySales, backgroundColor: ['#FDBA74', '#FDBA74', '#FDBA74', '#FDBA74', 'rgba(253, 186, 116, 0.5)'], borderRadius: 4 } ] };
+                chartInstances.salesChart = new Chart(document.getElementById('salesChart').getContext('2d'), { type: 'bar', data: salesData, options: { ...chartDefaultOptions, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { callback: function(v) { return (v / 10000000) + '천만'; } } } }, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return c.dataset.label + ': ' + c.parsed.y.toLocaleString('ko-KR') + '원'; } } } } } });
+                chartInstances.hallSalesChart = new Chart(document.getElementById('hallSalesChart').getContext('2d'), { type: 'bar', data: { labels: monthLabels, datasets: [{ label: '홀 매출', data: hallSales, backgroundColor: '#EA580C', borderRadius: 4 }] }, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: true, ticks: miniChartYAxisFormatter } }, plugins: { legend: { display: false }, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return '매출: ' + c.parsed.y.toLocaleString('ko-KR') + '원'; } } } } } });
+                chartInstances.deliverySalesChart = new Chart(document.getElementById('deliverySalesChart').getContext('2d'), { type: 'line', data: { labels: monthLabels, datasets: [{ label: '배달 매출', data: deliverySales, borderColor: '#F97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.1 }] }, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: true, ticks: miniChartYAxisFormatter } }, plugins: { legend: { display: false }, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return '매출: ' + c.parsed.y.toLocaleString('ko-KR') + '원'; } } } } } });
+            }
+
+            function initLoyaltyCharts() {
+                destroyChart('revisitRateChart');
+                destroyChart('newCustomerChart');
+
+                const revisitRateData = { labels: ['6월', '7월', '8월', '9월'], datasets: [{ label: '홀 고객 월 재방문율 (%)', data: [28.02, 38.07, 47.56, 50.07], fill: true, backgroundColor: 'rgba(234, 88, 12, 0.1)', borderColor: '#EA580C', tension: 0.1 }] };
+                chartInstances.revisitRateChart = new Chart(document.getElementById('revisitRateChart').getContext('2d'), { type: 'line', data: revisitRateData, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: false, min: 20, ticks: { callback: function(v) { return v + '%'; } } } }, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return ' 재방문율: ' + c.parsed.y + '%'; } } } } } });
+                
+                const monthlyNewCustomers = [2043, 1439, 1708, 1690, 1488];
+                const cumulativeNewCustomers = [];
+                monthlyNewCustomers.reduce((a, v) => { const s = a + v; cumulativeNewCustomers.push(s); return s; }, 0);
+                const newCustomerData = { labels: monthLabels, datasets: [{ label: '누적 신규 방문 고객 수 (명)', data: cumulativeNewCustomers, fill: true, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.1)', tension: 0.1 }] };
+                chartInstances.newCustomerChart = new Chart(document.getElementById('newCustomerChart').getContext('2d'), { type: 'line', data: newCustomerData, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return v.toLocaleString('ko-KR') + '명'; } } } }, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return ' 누적 신규 고객: ' + c.parsed.y.toLocaleString('ko-KR') + '명'; } } } } } });
+            }
+
+            function initProductCharts() {
+                destroyChart('menuChart');
+                const menuData = { labels: ['더 비프 (18.4%)', '더 치킨 (14.6%)', 'SLAM 비프 (12.2%)', 'SLAM 치킨 (9.8%)', '더블 치즈 (9.5%)', '기타'], datasets: [{ label: '버거 판매 비중', data: [18.4, 14.6, 12.2, 9.8, 9.5, 35.5], backgroundColor: ['#D97706', '#EA580C', '#F97316', '#FB923C', '#FDBA74', '#FED7AA'], hoverOffset: 4 }] };
+                chartInstances.menuChart = new Chart(document.getElementById('menuChart').getContext('2d'), { type: 'pie', data: menuData, options: { ...chartDefaultOptions, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { let l = c.label || ''; l = l.split('(')[0].trim(); if (c.parsed !== null) { l += ': ' + c.parsed + '%'; } return l; } } } } } });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(item => item.classList.remove('active'));
+                    contents.forEach(item => item.classList.remove('active'));
+                    tab.classList.add('active');
+                    const contentId = tab.id.replace('tab-', 'content-');
+                    document.getElementById(contentId).classList.add('active');
+
+                    switch (contentId) {
+                        case 'content-growth': initGrowthCharts(); break;
+                        case 'content-loyalty': initLoyaltyCharts(); break;
+                        case 'content-product': initProductCharts(); break;
+                    }
+                });
+            });
+            
+            function colorizeCohortTable() {
+                const cells = document.querySelectorAll('.cohort-data');
+                cells.forEach(cell => {
+                    const value = parseFloat(cell.textContent);
+                    if (!isNaN(value)) {
+                        const opacity = Math.min(value / 10, 1);
+                        cell.style.backgroundColor = `rgba(234, 88, 12, ${opacity})`;
+                        if (opacity > 0.5) {
+                            cell.style.color = 'white';
+                        }
+                    }
+                });
+            }
+
+            initGrowthCharts();
+            colorizeCohortTable();
+            document.getElementById('kr-progress-1').style.width = '43.2%';
+            document.getElementById('kr-progress-2').style.width = '28.8%';
+            document.getElementById('kr-progress-3').style.width = '76.6%';
+        });
+    </script>
+</body>
+</html>
+

@@ -13,11 +13,11 @@
     <!-- Application Structure Plan: A clean, modern dashboard layout is chosen to present the success story of SlamBurger. The structure includes a header, key metrics, and a tab-based navigation. A new 'OKR & Priorities' tab has been added. This thematic structure ('성장 스토리', '고객 충성도', '메뉴 경쟁력', 'OKR & 우선과제') allows users to seamlessly explore past performance, current customer dynamics, product strategy, and future goals. This layered approach provides a comprehensive, 360-degree view of the business, making the data-driven narrative more compelling for stakeholders. -->
     <!-- Visualization & Content Choices: 
         1. Monthly Sales -> Goal: Show growth -> Viz: Stacked Bar Chart -> Interaction: Tooltips -> Justification: Shows total growth and the contribution of each channel (Hall vs. Delivery). -> Library: Chart.js.
-        2. New Customers -> Goal: Show cumulative brand attraction -> Viz: Cumulative Area Chart -> Interaction: Tooltips -> Justification: Illustrates the total growth of the customer base, a key indicator of expanding market reach. -> Library: Chart.js.
+        2. Customer Funnel -> Goal: Show conversion journey -> Viz: Visual Funnel Diagram -> Interaction: None -> Justification: Clearly illustrates the customer journey from foot traffic to purchase, highlighting key conversion points. -> Method: HTML/CSS.
         3. Revisit Rate -> Goal: Demonstrate loyalty -> Viz: Line Chart -> Interaction: Tooltips -> Justification: Perfect for illustrating the dramatic increase in customer retention. -> Library: Chart.js.
-        4. Menu Contribution -> Goal: Highlight product success -> Viz: Pie Chart -> Interaction: Hover -> Justification: Clearly shows the proportional contribution of key products. -> Library: Chart.js.
+        4. Demographics -> Goal: Show target audience -> Viz: Doughnut Chart -> Interaction: Hover -> Justification: Clearly visualizes the composition of the visitor base, confirming the 2030 demographic focus. -> Library: Chart.js.
         5. Cohort Analysis -> Goal: Show detailed retention -> Viz: Heatmap Table -> Interaction: Colors indicate retention strength. -> Justification: Excellent for displaying multi-dimensional data and making patterns immediately visible. -> Method: HTML/CSS/JS.
-        6. OKR Progress -> Goal: Display strategic goal attainment -> Viz: Progress Bars -> Interaction: Visual indicators of current vs. target -> Justification: Progress bars offer an intuitive, at-a-glance understanding of how the company is performing against its key objectives. -> Method: HTML/CSS/JS.
+        6. Menu Contribution -> Goal: Highlight product success -> Viz: Pie Chart -> Interaction: Hover -> Justification: Clearly shows the proportional contribution of key products. -> Library: Chart.js.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -104,22 +104,6 @@
         .cohort-date {
             font-weight: bold;
         }
-        .progress-bar {
-            background-color: #e5e7eb;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            width: 100%;
-            height: 1.5rem;
-        }
-        .progress-bar-inner {
-            background-color: #F97316;
-            height: 100%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            line-height: 1.5rem;
-            transition: width 0.5s ease-in-out;
-        }
     </style>
 </head>
 <body>
@@ -131,20 +115,20 @@
 
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             <div class="kpi-card text-center">
-                <p class="text-sm font-bold text-gray-500">월 최고 매출 (8월)</p>
-                <p class="text-3xl font-bold text-orange-600 mt-2">₩6,345만</p>
+                <p class="text-sm font-bold text-gray-500">구매 전환율 (28일)</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">41.0%</p>
             </div>
             <div class="kpi-card text-center">
-                <p class="text-sm font-bold text-gray-500">총 신규 고객 (9월 예상)</p>
-                <p class="text-3xl font-bold text-orange-600 mt-2">8,368명</p>
+                <p class="text-sm font-bold text-gray-500">객단가 (28일)</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">₩10,333</p>
             </div>
             <div class="kpi-card text-center">
                 <p class="text-sm font-bold text-gray-500">최고 재방문율 (9월)</p>
                 <p class="text-3xl font-bold text-orange-600 mt-2">50.07%</p>
             </div>
             <div class="kpi-card text-center">
-                <p class="text-sm font-bold text-gray-500">K-시그니처 '갈비' 비중</p>
-                <p class="text-3xl font-bold text-orange-600 mt-2">20.8%</p>
+                <p class="text-sm font-bold text-gray-500">방문 전환율 (28일)</p>
+                <p class="text-3xl font-bold text-orange-600 mt-2">3.84%</p>
             </div>
         </section>
 
@@ -152,7 +136,6 @@
             <div id="tab-growth" class="nav-tab active">📈 성장 스토리</div>
             <div id="tab-loyalty" class="nav-tab">❤️ 고객 충성도</div>
             <div id="tab-product" class="nav-tab">🍔 메뉴 경쟁력</div>
-            <div id="tab-okr" class="nav-tab">🎯 OKR & 우선과제</div>
         </nav>
 
         <main>
@@ -194,14 +177,43 @@
             </div>
 
             <div id="content-loyalty" class="content-section">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold">홀 고객 월 재방문율</h2>
-                    <p class="text-gray-600 mt-1">매장 운영 안정화에 따라 재방문율이 가파르게 상승, 방문 고객 2명 중 1명은 단골이 되고 있습니다.</p>
+                 <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold">고객 여정 퍼널 분석 (최근 28일)</h2>
+                    <p class="text-gray-600 mt-1">유동인구를 실제 매출로 연결하는 각 단계별 전환율을 통해 슬램버거의 강력한 영업력을 확인할 수 있습니다.</p>
                 </div>
-                <div class="chart-container">
-                    <canvas id="revisitRateChart"></canvas>
+                <div class="bg-white p-6 rounded-lg shadow-sm border max-w-6xl mx-auto mb-12">
+                     <div class="flex flex-col md:flex-row items-center justify-around text-center space-y-4 md:space-y-0">
+                        <div>
+                            <p class="text-sm font-bold text-gray-500">매장 앞 유동인구</p>
+                            <p class="text-2xl font-bold">145,197명</p>
+                        </div>
+                        <div class="text-amber-600 font-bold text-center px-2">
+                            <p class="text-2xl">→</p>
+                            <p class="text-sm">방문 전환율<br><span class="font-bold">3.84%</span></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-500">매장 방문</p>
+                            <p class="text-2xl font-bold">5,576명</p>
+                        </div>
+                        <div class="text-amber-600 font-bold text-center px-2">
+                            <p class="text-2xl">→</p>
+                            <p class="text-sm">구매 전환율<br><span class="font-bold">41.0%</span></p>
+                        </div>
+                         <div>
+                            <p class="text-sm font-bold text-gray-500">총 구매</p>
+                            <p class="text-2xl font-bold">2,284건</p>
+                        </div>
+                        <div class="text-amber-600 font-bold text-center px-2">
+                            <p class="text-2xl">→</p>
+                            <p class="text-sm">객단가<br><span class="font-bold">₩10,333</span></p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-500">홀 매출</p>
+                            <p class="text-2xl font-bold">₩2,360만</p>
+                        </div>
+                    </div>
                 </div>
-
+                
                 <div class="text-center mt-12 mb-6">
                     <h2 class="text-2xl font-bold">누적 신규 방문 고객 추이 (홀)</h2>
                     <p class="text-gray-600 mt-1">오픈 이후 꾸준히 신규 고객이 유입되어 팬덤이 지속적으로 확장되고 있음을 보여줍니다.</p>
@@ -211,8 +223,16 @@
                 </div>
 
                 <div class="text-center mt-12 mb-6">
+                    <h2 class="text-2xl font-bold">홀 고객 월 재방문율</h2>
+                    <p class="text-gray-600 mt-1">매장 운영 안정화에 따라 재방문율이 가파르게 상승, 방문 고객 2명 중 1명은 단골이 되고 있습니다.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revisitRateChart"></canvas>
+                </div>
+
+                <div class="text-center mt-12 mb-6">
                     <h2 class="text-2xl font-bold">신규 고객 리텐션 (코호트 분석)</h2>
-                    <p class="text-gray-600 mt-1">시간이 지날수록 신규 고객의 재방문율(리텐션)이 강화되는 패턴을 보입니다. 색상이 진할수록 높은 재방문율을 의미하며, 특히 최근 코호트에서 높은 초기 리텐션을 기록했습니다.</p>
+                    <p class="text-gray-600 mt-1">시간이 지날수록 신규 고객의 재방문율(리텐션)이 강화되는 패턴을 보입니다. 색상이 진할수록 높은 재방문율을 의미합니다.</p>
                 </div>
                 <div class="overflow-x-auto bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <table class="cohort-table">
@@ -268,51 +288,6 @@
                     </div>
                 </div>
             </div>
-
-            <div id="content-okr" class="content-section">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold">핵심 목표 (Objective)</h2>
-                    <p class="text-gray-600 mt-1 max-w-3xl mx-auto">"강력한 F&B 브랜드로 자리매김하여, 시장에 충격을 주고 대형 프랜차이즈로서 성장할 수 있는 기반을 구축한다."</p>
-                </div>
-
-                <div class="max-w-4xl mx-auto space-y-8">
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">주요 성과 지표 (Key Results) 달성 현황</h3>
-                        <div class="space-y-6">
-                            <div class="bg-white p-4 rounded-lg shadow-sm border">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="font-bold">일 매출 500만원</span>
-                                    <span class="text-sm font-semibold text-gray-600">현재 <span class="text-orange-600">216만원</span> / 목표 500만원</span>
-                                </div>
-                                <div class="progress-bar"><div id="kr-progress-1" class="progress-bar-inner">43.2%</div></div>
-                            </div>
-                             <div class="bg-white p-4 rounded-lg shadow-sm border">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="font-bold">홀 매출 350만원</span>
-                                    <span class="text-sm font-semibold text-gray-600">현재 <span class="text-orange-600">101만원</span> / 목표 350만원</span>
-                                </div>
-                                <div class="progress-bar"><div id="kr-progress-2" class="progress-bar-inner">28.8%</div></div>
-                            </div>
-                             <div class="bg-white p-4 rounded-lg shadow-sm border">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="font-bold">배달 매출 150만원</span>
-                                    <span class="text-sm font-semibold text-gray-600">현재 <span class="text-orange-600">115만원</span> / 목표 150만원</span>
-                                </div>
-                                <div class="progress-bar"><div id="kr-progress-3" class="progress-bar-inner">76.6%</div></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">최우선 과제 (P1 Initiatives)</h3>
-                        <ul class="space-y-3">
-                            <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**신메뉴 개발 및 메뉴 운영 최적화:** 지속적인 맛 경쟁력 강화를 위한 품평단 운영 및 신메뉴 출시 프로세스 정립</span></li>
-                            <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**현장 인력 수급 및 안정화:** 2호점 확장을 대비한 바이저/점장 체계 구축 및 R&R 수립</span></li>
-                            <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**매장 운영 프로모션:** 슬램런치세트, 시즌 프로모션 등 고객 경험 및 매출 증대를 위한 마케팅 활동 기획/실행</span></li>
-                             <li class="bg-white p-4 rounded-lg shadow-sm border flex items-start"><span class="text-amber-600 font-bold mr-3">✓</span> <span>**물류 시스템 최적화:** 3자 물류(3PL) 도입을 통한 SCM(공급망 관리) 효율화 및 확장 기반 마련</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
@@ -348,6 +323,7 @@
             function initLoyaltyCharts() {
                 destroyChart('revisitRateChart');
                 destroyChart('newCustomerChart');
+                destroyChart('demographicsChart');
 
                 const revisitRateData = { labels: ['6월', '7월', '8월', '9월'], datasets: [{ label: '홀 고객 월 재방문율 (%)', data: [28.02, 38.07, 47.56, 50.07], fill: true, backgroundColor: 'rgba(234, 88, 12, 0.1)', borderColor: '#EA580C', tension: 0.1 }] };
                 chartInstances.revisitRateChart = new Chart(document.getElementById('revisitRateChart').getContext('2d'), { type: 'line', data: revisitRateData, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: false, min: 20, ticks: { callback: function(v) { return v + '%'; } } } }, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return ' 재방문율: ' + c.parsed.y + '%'; } } } } } });
@@ -357,6 +333,9 @@
                 monthlyNewCustomers.reduce((a, v) => { const s = a + v; cumulativeNewCustomers.push(s); return s; }, 0);
                 const newCustomerData = { labels: monthLabels, datasets: [{ label: '누적 신규 방문 고객 수 (명)', data: cumulativeNewCustomers, fill: true, borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.1)', tension: 0.1 }] };
                 chartInstances.newCustomerChart = new Chart(document.getElementById('newCustomerChart').getContext('2d'), { type: 'line', data: newCustomerData, options: { ...chartDefaultOptions, scales: { y: { beginAtZero: true, ticks: { callback: function(v) { return v.toLocaleString('ko-KR') + '명'; } } } }, plugins: { ...chartDefaultOptions.plugins, tooltip: { ...chartDefaultOptions.plugins.tooltip, callbacks: { label: function(c) { return ' 누적 신규 고객: ' + c.parsed.y.toLocaleString('ko-KR') + '명'; } } } } } });
+
+                const demographicsData = { labels: ['20대 (37.1%)', '30대 (30.8%)', '기타 (32.1%)'], datasets: [{ data: [37.1, 30.8, 32.1], backgroundColor: ['#D97706', '#F97316', '#FDBA74'], hoverOffset: 4 }] };
+                chartInstances.demographicsChart = new Chart(document.getElementById('demographicsChart').getContext('2d'), { type: 'doughnut', data: demographicsData, options: { ...chartDefaultOptions, plugins: { ...chartDefaultOptions.plugins, tooltip: { callbacks: { label: function(c) { return c.label; } } } } } });
             }
 
             function initProductCharts() {
@@ -397,9 +376,6 @@
 
             initGrowthCharts();
             colorizeCohortTable();
-            document.getElementById('kr-progress-1').style.width = '43.2%';
-            document.getElementById('kr-progress-2').style.width = '28.8%';
-            document.getElementById('kr-progress-3').style.width = '76.6%';
         });
     </script>
 </body>

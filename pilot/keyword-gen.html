@@ -129,7 +129,7 @@
                     </div>
                 </div>
 
-                <!-- Keywords Table -->
+                <!-- Keywords Table & Actions -->
                 <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-100">
                     <h4 class="text-xl font-bold mb-4 text-gray-800">핵심 추천 키워드 TOP 10</h4>
                     <p class="text-gray-600 mb-6">가장 효율이 좋을 것으로 예상되는 핵심 키워드 10개입니다. 전체 키워드 목록은 하단의 버튼을 통해 확인하실 수 있습니다.</p>
@@ -147,10 +147,32 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-center mt-8">
+                    <div id="action-container" class="text-center mt-8">
                         <button id="showAllBtn" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-900 transition duration-300">
                             <i class="fa-solid fa-unlock mr-2"></i>전체 키워드 리스트(50+) 확인하기
                         </button>
+                    </div>
+                     <!-- Hidden Form for Ad Agency Service -->
+                    <div id="delegate-form-container" class="mt-8 pt-8 border-t border-gray-200 hidden">
+                        <h4 class="text-lg font-bold text-center mb-4">광고 세팅 대행 신청</h4>
+                        <p class="text-center text-gray-600 mb-6">광고를 세팅할 네이버 계정 정보를 입력해주세요.<br>전문가가 확인 후 신속하게 처리해 드립니다.</p>
+                        <form id="naverLoginForm" class="max-w-sm mx-auto">
+                            <div class="mb-4">
+                                <label for="naverId" class="block text-sm font-medium text-gray-700 mb-1">네이버 아이디</label>
+                                <input type="text" id="naverId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="naverPw" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+                                <input type="password" id="naverPw" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            <div class="flex items-start mb-6">
+                                <div class="flex items-center h-5">
+                                    <input id="naver-account-agree" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-indigo-300" required>
+                                </div>
+                                <label for="naver-account-agree" class="ml-2 text-sm font-medium text-gray-900">네이버 계정 정보 제공 및 광고 세팅 위임에 동의합니다.</label>
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition duration-300">전문가에게 제출하기</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -178,7 +200,7 @@
                     <div class="flex items-center h-5">
                         <input id="marketing-agree" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-indigo-300" required>
                     </div>
-                    <label for="marketing-agree" class="ml-2 text-sm font-medium text-gray-900">개인정보 수집 및 마케팅 정보 수신에 동의합니다.</label>
+                    <label for="marketing-agree" class="ml-2 text-sm font-medium text-gray-900">리포트 제공을 위한 개인정보 수집 및 마케팅 정보 수신에 동의합니다.</label>
                 </div>
                 <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition duration-300">전체 리포트 받기</button>
             </form>
@@ -204,49 +226,61 @@
         const closeModalBtn = document.getElementById('closeModalBtn');
         const leadForm = document.getElementById('leadForm');
 
+        // --- CONFIGURATION ---
+        const BACKEND_API_URL = 'http://127.0.0.1:5000/analyze'; 
+
         let allKeywordsData = [];
+        let userLeadInfo = {};
         const budgetTiers = {
             starter: { name: '시작형', slice: 15, budget: 10000 },
             growth: { name: '성장형', slice: 35, budget: 30000 },
-            competitive: { name: '경쟁형', slice: -1, budget: 50000 } // -1 means all
+            competitive: { name: '경쟁형', slice: -1, budget: 50000 }
         };
 
         // Event Listeners
         analyzeBtn.addEventListener('click', handleAnalysis);
-        showAllBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        showAllBtn?.addEventListener('click', () => modal.classList.remove('hidden'));
         closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
         leadForm.addEventListener('submit', handleFormSubmit);
         budgetTiersContainer.addEventListener('click', (e) => {
             const button = e.target.closest('.budget-tier-btn');
-            if (button) {
+            if (button && allKeywordsData.length > 0) {
                 const tier = button.dataset.tier;
                 updateBudgetDisplay(tier);
             }
         });
 
-
         // --- Core Functions ---
 
-        function handleAnalysis() {
+        async function handleAnalysis() {
             const url = placeUrlInput.value.trim();
             if (!isValidNaverMapUrl(url)) {
                 showError('유효한 네이버 플레이스 주소를 입력해주세요.');
                 return;
             }
             hideError();
-            
             showLoading(true);
             resultsDiv.classList.add('hidden');
-            
-            // Simulate API call and analysis
-            setTimeout(() => {
-                const storeInfo = mockAnalyzeUrl(url);
-                const generatedKeywords = mockGenerateKeywords(storeInfo);
-                allKeywordsData = mockEstimateMetrics(generatedKeywords);
-                
-                displayResults(storeInfo, allKeywordsData);
+
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ naver_map_url: url }),
+                });
+
+                if (!response.ok) throw new Error(`서버 오류: ${response.statusText}`);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                allKeywordsData = data.keywords;
+                displayResults(data.storeInfo, data.keywords);
+            } catch (error) {
+                console.error('분석 중 오류 발생:', error);
+                showError(`분석에 실패했습니다. (${error.message})`);
+            } finally {
                 showLoading(false);
-            }, 2500);
+            }
         }
         
         function handleFormSubmit(e) {
@@ -256,13 +290,12 @@
             const consent = document.getElementById('marketing-agree').checked;
 
             if (email && phone && consent) {
-                // Here you would typically send the lead info to your server
-                console.log('Lead captured:', { email, phone });
+                userLeadInfo = { email, phone };
+                console.log('Lead captured:', userLeadInfo);
                 modal.classList.add('hidden');
                 displayFullKeywordList();
             } else {
-                 // In a real app, use a custom modal, not alert.
-                alert('모든 항목을 입력하고 동의해주세요.');
+                showErrorInModal('모든 항목을 입력하고 동의해주세요.');
             }
         }
         
@@ -270,12 +303,11 @@
             storeNameEl.textContent = `'${storeInfo.name}' 맞춤 광고 전략 분석`;
             totalKeywordsEl.textContent = `${keywordData.length}개`;
             renderKeywordTable(keywordData.slice(0, 10));
-            updateBudgetDisplay('starter'); // Default to starter tier
+            updateBudgetDisplay('starter');
             resultsDiv.classList.remove('hidden');
         }
 
         function updateBudgetDisplay(tier) {
-            // Update button styles
             document.querySelectorAll('.budget-tier-btn').forEach(btn => {
                 btn.classList.remove('border-indigo-600', 'bg-indigo-50');
                 btn.classList.add('border-gray-300', 'bg-white');
@@ -284,24 +316,79 @@
             selectedBtn.classList.add('border-indigo-600', 'bg-indigo-50');
             selectedBtn.classList.remove('border-gray-300', 'bg-white');
             
-            // Calculate metrics for the selected tier
             const tierInfo = budgetTiers[tier];
             const keywordSlice = tierInfo.slice === -1 ? allKeywordsData : allKeywordsData.slice(0, tierInfo.slice);
-
             const totalBudget = keywordSlice.reduce((sum, item) => sum + item.dailyCost, 0);
             const totalClicks = keywordSlice.reduce((sum, item) => sum + item.clicks, 0);
-
             totalBudgetEl.textContent = `약 ${totalBudget.toLocaleString()}원`;
             totalClicksEl.textContent = `~ ${totalClicks.toLocaleString()}회`;
         }
         
         function displayFullKeywordList() {
             renderKeywordTable(allKeywordsData);
-            document.querySelector('#results h4').textContent = `전체 추천 키워드 (${allKeywordsData.length}개)`;
-            document.querySelector('#results h4 + p').textContent = '가게 특성에 맞춰 생성된 전체 키워드 리스트입니다. CSV 파일로 다운로드하여 광고 관리자에서 활용해보세요.';
-            showAllBtn.parentElement.innerHTML = '<button id="downloadCsvBtn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition duration-300"><i class="fa-solid fa-file-csv mr-2"></i>CSV로 다운로드</button>';
-            
-            document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
+            const resultHeader = document.querySelector('#results .bg-white h4');
+            if (resultHeader) {
+                resultHeader.textContent = `전체 추천 키워드 (${allKeywordsData.length}개)`;
+                const p = resultHeader.nextElementSibling;
+                if(p) p.textContent = '전체 키워드 리스트입니다. 어떻게 광고를 세팅하시겠어요?';
+            }
+
+            const actionContainer = document.getElementById('action-container');
+            actionContainer.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-4 justify-center">
+                    <button id="diyBtn" class="flex-1 bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition duration-300">
+                        <i class="fa-solid fa-download mr-2"></i>제가 직접 세팅할게요 (CSV)
+                    </button>
+                    <button id="delegateBtn" class="flex-1 bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition duration-300">
+                        <i class="fa-solid fa-user-tie mr-2"></i>광고 세팅을 맡기고 싶어요
+                    </button>
+                </div>
+            `;
+            document.getElementById('diyBtn').addEventListener('click', handleDiy);
+            document.getElementById('delegateBtn').addEventListener('click', handleDelegate);
+        }
+
+        function handleDiy() {
+            downloadCsv();
+            const actionContainer = document.getElementById('action-container');
+            actionContainer.innerHTML = `<p class="text-green-600 font-bold">✓ CSV 파일이 다운로드되었습니다. 광고 관리자에서 활용해보세요!</p>`;
+        }
+
+        function handleDelegate() {
+            const actionContainer = document.getElementById('action-container');
+            actionContainer.innerHTML = ''; // Hide the buttons
+            const delegateFormContainer = document.getElementById('delegate-form-container');
+            delegateFormContainer.classList.remove('hidden');
+            delegateFormContainer.classList.add('fade-in');
+            document.getElementById('naverLoginForm').addEventListener('submit', handleNaverFormSubmit);
+        }
+
+        async function handleNaverFormSubmit(e) {
+            e.preventDefault();
+            const naverId = document.getElementById('naverId').value;
+            const naverPw = document.getElementById('naverPw').value;
+            const consent = document.getElementById('naver-account-agree').checked;
+
+            if (naverId && naverPw && consent) {
+                const finalPayload = {
+                    ...userLeadInfo,
+                    naverId: naverId,
+                    // NOTE: In a real app, passwords must be handled securely (e.g., sent over HTTPS and not stored in plain text).
+                    // This is for demonstration purposes only.
+                    naverPassword: '***' // Masked for security console log
+                };
+                console.log('Delegation request submitted:', finalPayload);
+                
+                // You would send `finalPayload` to your backend here.
+                
+                const delegateFormContainer = document.getElementById('delegate-form-container');
+                delegateFormContainer.innerHTML = `<div class="text-center p-8 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 class="text-xl font-bold text-green-800">성공적으로 제출되었습니다.</h4>
+                    <p class="text-green-700 mt-2">영업일 기준 1-2일 내에 담당자가 연락드릴 예정입니다.</p>
+                </div>`;
+            } else {
+                showErrorInNaverForm('아이디, 비밀번호를 입력하고 동의해주세요.');
+            }
         }
 
         function renderKeywordTable(data) {
@@ -309,39 +396,22 @@
             const typeExplanation = {
                 'store': '가게의 이름과 직접 관련된 핵심 키워드입니다.',
                 'location': '가게 위치와 업종을 조합한 지역 타겟 키워드입니다.',
-                'nlp': '방문객 리뷰를 AI로 분석해 발굴한 잠재 키워드입니다.',
+                'nlp': '방문객 리뷰를 Gemini AI로 분석해 발굴한 잠재 키워드입니다.',
                 'modifier': '맛집, 추천 등 구매의도가 높은 단어를 조합한 키워드입니다.'
             };
-
             data.forEach(item => {
                 const isHighValue = item.type === 'modifier' || item.type === 'nlp';
-                const row = `
-                    <tr class="border-b hover:bg-gray-50 transition-colors">
-                        <td class="p-3 font-medium">
-                            <span>${item.keyword}</span>
-                            ${isHighValue ? '<span class="ml-2 text-xs font-semibold text-white bg-indigo-500 px-2 py-1 rounded-full">고효율</span>' : ''}
-                            <div class="tooltip inline-block ml-1">
-                                <i class="fa-solid fa-circle-question text-gray-400 cursor-pointer"></i>
-                                <span class="tooltiptext">${typeExplanation[item.type] || '기본 조합 키워드입니다.'}</span>
-                            </div>
-                        </td>
-                        <td class="p-3 text-right text-gray-700">${item.cpc.toLocaleString()}원</td>
-                        <td class="p-3 text-right text-gray-700">${item.clicks}회</td>
-                    </tr>
-                `;
+                const row = `<tr class="border-b hover:bg-gray-50 transition-colors"><td class="p-3 font-medium"><span>${item.keyword}</span> ${isHighValue ? '<span class="ml-2 text-xs font-semibold text-white bg-indigo-500 px-2 py-1 rounded-full">고효율</span>' : ''} <div class="tooltip inline-block ml-1"><i class="fa-solid fa-circle-question text-gray-400 cursor-pointer"></i><span class="tooltiptext">${typeExplanation[item.type] || '기본 조합 키워드입니다.'}</span></div></td><td class="p-3 text-right text-gray-700">${item.cpc.toLocaleString()}원</td><td class="p-3 text-right text-gray-700">${item.clicks}회</td></tr>`;
                 keywordTableBody.innerHTML += row;
             });
         }
         
         function downloadCsv() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Add BOM for Excel compatibility
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM for Excel
             csvContent += "추천 키워드,키워드 타입,예상 CPC,일 예상 클릭수\n";
-            
             allKeywordsData.forEach(row => {
-                let csvRow = [row.keyword, row.type, row.cpc, row.clicks].join(",");
-                csvContent += csvRow + "\n";
+                csvContent += [row.keyword, row.type, row.cpc, row.clicks].join(",") + "\n";
             });
-            
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -351,21 +421,32 @@
             document.body.removeChild(link);
         }
 
-        // --- Helper & Mock Functions ---
-        
-        function isValidNaverMapUrl(url) {
-            return url.startsWith('http://map.naver.com/') || url.startsWith('https://map.naver.com/');
-        }
-
+        // --- Helper Functions ---
+        function isValidNaverMapUrl(url) { return url.startsWith('http://map.naver.com/') || url.startsWith('https://map.naver.com/'); }
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.classList.remove('hidden');
         }
-
-        function hideError() {
-            errorMessage.classList.add('hidden');
+        function showErrorInModal(message) {
+            let errorEl = leadForm.querySelector('.form-error');
+            if (!errorEl) {
+                errorEl = document.createElement('p');
+                errorEl.className = 'form-error text-red-500 text-sm mt-2 text-center';
+                leadForm.querySelector('button').insertAdjacentElement('afterend', errorEl);
+            }
+            errorEl.textContent = message;
         }
-
+        function showErrorInNaverForm(message) {
+            const form = document.getElementById('naverLoginForm');
+            let errorEl = form.querySelector('.form-error');
+            if (!errorEl) {
+                errorEl = document.createElement('p');
+                errorEl.className = 'form-error text-red-500 text-sm mt-2 text-center';
+                form.querySelector('button').insertAdjacentElement('afterend', errorEl);
+            }
+            errorEl.textContent = message;
+        }
+        function hideError() { errorMessage.classList.add('hidden'); }
         function showLoading(isLoading) {
             if (isLoading) {
                 loadingDiv.classList.remove('hidden');
@@ -377,73 +458,7 @@
                 analyzeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
-        
-        function mockAnalyzeUrl(url) {
-             let name = '강남 쉐이크쉑';
-            let location = '강남역';
-            
-            if (url.includes('hongdae')) {
-                name = '홍대 버거킹';
-                location = '홍대입구역';
-            } else if (url.includes('jongno')) {
-                name = '종로 다운타우너';
-                location = '종각역';
-            } else if (url.includes('bundang')) {
-                 name = '분당 크라이치즈버거';
-                 location = '정자역';
-            }
-            return { name, location, reviews: ["패티가 육즙 가득", "치즈가 풍부해요", "인생버거 등극"] };
-        }
-
-        function mockGenerateKeywords({ name, location, reviews }) {
-            const baseKeywords = ['햄버거', '수제버거', '버거'];
-            const modifiers = ['맛집', '추천', '점심', '저녁', '데이트', '배달'];
-            const generated = new Map();
-
-            // Type: store
-            generated.set(name, { keyword: name, type: 'store' });
-            generated.set(`${location} ${name}`, { keyword: `${location} ${name}`, type: 'store' });
-
-            // Type: location
-            baseKeywords.forEach(base => {
-                generated.set(`${location} ${base}`, { keyword: `${location} ${base}`, type: 'location' });
-            });
-
-            // Type: nlp (from reviews)
-            reviews.forEach(review => {
-                if (review.includes('육즙')) generated.set('육즙버거', { keyword: '육즙버거', type: 'nlp' });
-                if (review.includes('치즈')) generated.set(`${location} 치즈버거`, { keyword: `${location} 치즈버거`, type: 'nlp' });
-            });
-            
-            // Type: modifier
-            for(let i = 0; i < 50; i++) {
-                const base = baseKeywords[Math.floor(Math.random() * baseKeywords.length)];
-                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
-                const keyword = `${location} ${base} ${mod}`;
-                if (!generated.has(keyword)) {
-                    generated.set(keyword, { keyword, type: 'modifier' });
-                }
-            }
-            
-            return Array.from(generated.values());
-        }
-
-        function mockEstimateMetrics(keywords) {
-             return keywords.map(kwObj => {
-                const isHighValue = kwObj.type === 'modifier' || kwObj.type === 'nlp';
-                const cpc = Math.floor(Math.random() * (isHighValue ? 500 : 300)) + (isHighValue ? 400 : 200); // 200 ~ 900
-                const clicks = Math.floor(Math.random() * (isHighValue ? 20 : 10)) + (isHighValue ? 10 : 5); // 5 ~ 30
-                return {
-                    ...kwObj,
-                    cpc: Math.round(cpc / 10) * 10, // Round to nearest 10
-                    clicks: clicks,
-                    dailyCost: Math.round((cpc * clicks) / 20) // Simple cost modeling
-                };
-            }).sort((a, b) => b.dailyCost - a.dailyCost);
-        }
-
     </script>
-
 </body>
 </html>
 

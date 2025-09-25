@@ -227,6 +227,8 @@
         const leadForm = document.getElementById('leadForm');
 
         // --- CONFIGURATION ---
+        // 백엔드 API 대신 파일럿용 Mock 데이터를 사용하도록 설정
+        const USE_MOCK_DATA = true; 
         const BACKEND_API_URL = 'http://127.0.0.1:5000/analyze'; 
 
         let allKeywordsData = [];
@@ -262,6 +264,27 @@
             showLoading(true);
             resultsDiv.classList.add('hidden');
 
+            if (USE_MOCK_DATA) {
+                // 파일럿 모드: Mock 데이터 사용
+                setTimeout(() => {
+                    try {
+                        const storeInfo = mockAnalyzeUrl(url);
+                        const nlpKeywords = mockGeminiApi(storeInfo);
+                        const generatedKeywords = mockGenerateKeywordsAndMetrics(storeInfo, nlpKeywords);
+                        
+                        allKeywordsData = generatedKeywords;
+                        displayResults(storeInfo, allKeywordsData);
+                    } catch (error) {
+                         console.error('Mock 분석 중 오류 발생:', error);
+                         showError(`분석에 실패했습니다. (Mock Error)`);
+                    } finally {
+                        showLoading(false);
+                    }
+                }, 2000); // 실제 API 호출처럼 보이게 2초 지연
+                return;
+            }
+
+            // 실제 백엔드 연동 모드
             try {
                 const response = await fetch(BACKEND_API_URL, {
                     method: 'POST',
@@ -373,13 +396,9 @@
                 const finalPayload = {
                     ...userLeadInfo,
                     naverId: naverId,
-                    // NOTE: In a real app, passwords must be handled securely (e.g., sent over HTTPS and not stored in plain text).
-                    // This is for demonstration purposes only.
-                    naverPassword: '***' // Masked for security console log
+                    naverPassword: '***' // Masked for security
                 };
                 console.log('Delegation request submitted:', finalPayload);
-                
-                // You would send `finalPayload` to your backend here.
                 
                 const delegateFormContainer = document.getElementById('delegate-form-container');
                 delegateFormContainer.innerHTML = `<div class="text-center p-8 bg-green-50 border border-green-200 rounded-lg">
@@ -421,7 +440,7 @@
             document.body.removeChild(link);
         }
 
-        // --- Helper Functions ---
+        // --- Helper & Mock Functions ---
         function isValidNaverMapUrl(url) { return url.startsWith('http://map.naver.com/') || url.startsWith('https://map.naver.com/'); }
         function showError(message) {
             errorMessage.textContent = message;
@@ -457,6 +476,58 @@
                 analyzeBtn.disabled = false;
                 analyzeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
+        }
+
+        // --- MOCK DATA FUNCTIONS FOR PILOT VERSION ---
+        function mockAnalyzeUrl(url) {
+            let name = '강남 쉐이크쉑';
+            let location = '강남역';
+            if (url.includes('hongdae')) { name = '홍대 버거킹'; location = '홍대입구역'; }
+            else if (url.includes('jongno')) { name = '종로 다운타우너'; location = '종각역'; }
+            else if (url.includes('bundang')) { name = '분당 크라이치즈버거'; location = '정자역';}
+            return { name, location, reviews: ["패티가 육즙 가득", "치즈가 풍부해요", "인생버거 등극"] };
+        }
+
+        function mockGeminiApi(storeInfo) {
+            console.log("Mock Gemini API called with:", storeInfo);
+            return [`${storeInfo.location} 인생버거`, `${storeInfo.location} 데이트 맛집`, "육즙 가득 수제버거"];
+        }
+
+        function mockGenerateKeywordsAndMetrics(storeInfo, nlpKeywords) {
+            const baseKeywords = ['햄버거', '수제버거', '버거'];
+            const modifiers = ['맛집', '추천', '점심', '저녁', '데이트', '배달'];
+            const generated = {};
+
+            const { name, location } = storeInfo;
+
+            generated[name] = { keyword: name, type: 'store' };
+            generated[`${location} ${name}`] = { keyword: `${location} ${name}`, type: 'store' };
+
+            baseKeywords.forEach(base => { generated[`${location} ${base}`] = { keyword: `${location} ${base}`, type: 'location' }; });
+            nlpKeywords.forEach(kw => { generated[kw] = { keyword: kw, type: 'nlp' }; });
+            
+            while (Object.keys(generated).length < 50) {
+                const base = baseKeywords[Math.floor(Math.random() * baseKeywords.length)];
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                const kw = `${location} ${base} ${mod}`;
+                if (!generated[kw]) {
+                    generated[kw] = { keyword: kw, type: 'modifier' };
+                }
+            }
+            
+            const finalKeywords = Object.values(generated).map(kwObj => {
+                const isHighValue = kwObj.type === 'modifier' || kwObj.type === 'nlp';
+                const cpc = Math.floor(Math.random() * (isHighValue ? 500 : 300)) + (isHighValue ? 400 : 200);
+                const clicks = Math.floor(Math.random() * (isHighValue ? 20 : 10)) + (isHighValue ? 10 : 5);
+                return {
+                    ...kwObj,
+                    cpc: Math.round(cpc / 10) * 10,
+                    clicks: clicks,
+                    dailyCost: Math.round((cpc * clicks) / 20) 
+                };
+            });
+            
+            return finalKeywords.sort((a, b) => b.dailyCost - a.dailyCost);
         }
     </script>
 </body>

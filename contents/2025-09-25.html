@@ -208,6 +208,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                }
+            });
+
             const passcodeModal = document.getElementById('passcode-modal');
             const mainContent = document.getElementById('main-content');
             const passcodeSubmit = document.getElementById('passcode-submit');

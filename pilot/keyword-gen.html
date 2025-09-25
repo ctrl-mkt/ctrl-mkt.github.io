@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사장님 가게 광고 추천 키워드 50개, 60초 만에 무료로 받아보세요!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 160px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -80px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto px-4 py-8 md:py-16 max-w-4xl">
+        <!-- Header Section -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">사장님 가게 광고 추천 키워드 50개,</h1>
+            <h2 class="text-4xl md:text-5xl font-bold text-indigo-600 mb-4">60초 만에 무료로 받아보세요!</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">네이버 플레이스 주소만 입력하면, AI가 가게 정보를 분석하여 맞춤 광고 전략을 즉시 제안합니다.</p>
+        </header>
+
+        <!-- Input Section -->
+        <main id="main-content">
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="relative flex-grow">
+                        <i class="fa-solid fa-map-location-dot absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="placeUrl" placeholder="https://map.naver.com/p/entry/place/..." class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300">
+                    </div>
+                    <button id="analyzeBtn" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>무료 분석 시작하기
+                    </button>
+                </div>
+                <p id="error-message" class="text-red-500 text-sm mt-2 hidden"></p>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="text-center py-12 hidden">
+                <div class="loader inline-block"></div>
+                <p class="mt-4 text-lg font-medium text-gray-700">가게 정보와 리뷰를 분석해 키워드를 생성하는 중입니다.<br>잠시만 기다려주세요...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="mt-10 hidden fade-in">
+                <div class="text-center mb-8">
+                     <h3 id="storeName" class="text-2xl font-bold text-gray-900"></h3>
+                </div>
+                
+                <!-- Budget Tiers Section -->
+                <div class="mb-8">
+                    <h4 class="text-xl font-bold text-center mb-4 text-gray-800">맞춤 예산 플랜 선택</h4>
+                    <div id="budgetTiers" class="flex justify-center gap-4">
+                        <button data-tier="starter" class="budget-tier-btn flex-1 p-4 border-2 border-indigo-600 bg-indigo-50 rounded-lg text-center">
+                            <p class="font-bold text-indigo-700">시작형</p>
+                            <p class="text-sm text-indigo-600">핵심 키워드 집중</p>
+                        </button>
+                        <button data-tier="growth" class="budget-tier-btn flex-1 p-4 border border-gray-300 bg-white rounded-lg text-center">
+                            <p class="font-bold text-gray-700">성장형</p>
+                            <p class="text-sm text-gray-600">도달 범위 확장</p>
+                        </button>
+                        <button data-tier="competitive" class="budget-tier-btn flex-1 p-4 border border-gray-300 bg-white rounded-lg text-center">
+                            <p class="font-bold text-gray-700">경쟁형</p>
+                            <p class="text-sm text-gray-600">노출 극대화</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
+                        <p class="text-sm font-medium text-gray-500">추천 일 예산</p>
+                        <p id="totalBudget" class="text-3xl font-bold text-indigo-600"></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
+                        <p class="text-sm font-medium text-gray-500">일 예상 총 클릭 수</p>
+                        <p id="totalClicks" class="text-3xl font-bold text-gray-900"></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow border border-gray-100 text-center">
+                        <p class="text-sm font-medium text-gray-500">총 추천 키워드</p>
+                        <p id="totalKeywords" class="text-3xl font-bold text-gray-900"></p>
+                    </div>
+                </div>
+
+                <!-- Keywords Table -->
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-100">
+                    <h4 class="text-xl font-bold mb-4 text-gray-800">핵심 추천 키워드 TOP 10</h4>
+                    <p class="text-gray-600 mb-6">가장 효율이 좋을 것으로 예상되는 핵심 키워드 10개입니다. 전체 키워드 목록은 하단의 버튼을 통해 확인하실 수 있습니다.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    <th class="p-3 font-semibold text-gray-600">추천 키워드</th>
+                                    <th class="p-3 font-semibold text-gray-600 text-right">예상 CPC</th>
+                                    <th class="p-3 font-semibold text-gray-600 text-right">일 예상 클릭</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keyword-table-body">
+                                <!-- Keyword rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-8">
+                        <button id="showAllBtn" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-900 transition duration-300">
+                            <i class="fa-solid fa-unlock mr-2"></i>전체 키워드 리스트(50+) 확인하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative fade-in">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-times text-2xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-center mb-2">마지막 한 단계 남았습니다!</h2>
+            <p class="text-center text-gray-600 mb-6">전체 키워드 리스트와 광고 꿀팁을 받아보세요.</p>
+            <form id="leadForm">
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대전화번호</label>
+                    <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                 <div class="flex items-start mb-6">
+                    <div class="flex items-center h-5">
+                        <input id="marketing-agree" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-indigo-300" required>
+                    </div>
+                    <label for="marketing-agree" class="ml-2 text-sm font-medium text-gray-900">개인정보 수집 및 마케팅 정보 수신에 동의합니다.</label>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition duration-300">전체 리포트 받기</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const placeUrlInput = document.getElementById('placeUrl');
+        const loadingDiv = document.getElementById('loading');
+        const resultsDiv = document.getElementById('results');
+        const errorMessage = document.getElementById('error-message');
+        const keywordTableBody = document.getElementById('keyword-table-body');
+        const storeNameEl = document.getElementById('storeName');
+        const totalBudgetEl = document.getElementById('totalBudget');
+        const totalClicksEl = document.getElementById('totalClicks');
+        const totalKeywordsEl = document.getElementById('totalKeywords');
+        const budgetTiersContainer = document.getElementById('budgetTiers');
+        
+        const showAllBtn = document.getElementById('showAllBtn');
+        const modal = document.getElementById('modal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const leadForm = document.getElementById('leadForm');
+
+        let allKeywordsData = [];
+        const budgetTiers = {
+            starter: { name: '시작형', slice: 15, budget: 10000 },
+            growth: { name: '성장형', slice: 35, budget: 30000 },
+            competitive: { name: '경쟁형', slice: -1, budget: 50000 } // -1 means all
+        };
+
+        // Event Listeners
+        analyzeBtn.addEventListener('click', handleAnalysis);
+        showAllBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        leadForm.addEventListener('submit', handleFormSubmit);
+        budgetTiersContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.budget-tier-btn');
+            if (button) {
+                const tier = button.dataset.tier;
+                updateBudgetDisplay(tier);
+            }
+        });
+
+
+        // --- Core Functions ---
+
+        function handleAnalysis() {
+            const url = placeUrlInput.value.trim();
+            if (!isValidNaverMapUrl(url)) {
+                showError('유효한 네이버 플레이스 주소를 입력해주세요.');
+                return;
+            }
+            hideError();
+            
+            showLoading(true);
+            resultsDiv.classList.add('hidden');
+            
+            // Simulate API call and analysis
+            setTimeout(() => {
+                const storeInfo = mockAnalyzeUrl(url);
+                const generatedKeywords = mockGenerateKeywords(storeInfo);
+                allKeywordsData = mockEstimateMetrics(generatedKeywords);
+                
+                displayResults(storeInfo, allKeywordsData);
+                showLoading(false);
+            }, 2500);
+        }
+        
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const consent = document.getElementById('marketing-agree').checked;
+
+            if (email && phone && consent) {
+                // Here you would typically send the lead info to your server
+                console.log('Lead captured:', { email, phone });
+                modal.classList.add('hidden');
+                displayFullKeywordList();
+            } else {
+                 // In a real app, use a custom modal, not alert.
+                alert('모든 항목을 입력하고 동의해주세요.');
+            }
+        }
+        
+        function displayResults(storeInfo, keywordData) {
+            storeNameEl.textContent = `'${storeInfo.name}' 맞춤 광고 전략 분석`;
+            totalKeywordsEl.textContent = `${keywordData.length}개`;
+            renderKeywordTable(keywordData.slice(0, 10));
+            updateBudgetDisplay('starter'); // Default to starter tier
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function updateBudgetDisplay(tier) {
+            // Update button styles
+            document.querySelectorAll('.budget-tier-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-600', 'bg-indigo-50');
+                btn.classList.add('border-gray-300', 'bg-white');
+            });
+            const selectedBtn = document.querySelector(`.budget-tier-btn[data-tier="${tier}"]`);
+            selectedBtn.classList.add('border-indigo-600', 'bg-indigo-50');
+            selectedBtn.classList.remove('border-gray-300', 'bg-white');
+            
+            // Calculate metrics for the selected tier
+            const tierInfo = budgetTiers[tier];
+            const keywordSlice = tierInfo.slice === -1 ? allKeywordsData : allKeywordsData.slice(0, tierInfo.slice);
+
+            const totalBudget = keywordSlice.reduce((sum, item) => sum + item.dailyCost, 0);
+            const totalClicks = keywordSlice.reduce((sum, item) => sum + item.clicks, 0);
+
+            totalBudgetEl.textContent = `약 ${totalBudget.toLocaleString()}원`;
+            totalClicksEl.textContent = `~ ${totalClicks.toLocaleString()}회`;
+        }
+        
+        function displayFullKeywordList() {
+            renderKeywordTable(allKeywordsData);
+            document.querySelector('#results h4').textContent = `전체 추천 키워드 (${allKeywordsData.length}개)`;
+            document.querySelector('#results h4 + p').textContent = '가게 특성에 맞춰 생성된 전체 키워드 리스트입니다. CSV 파일로 다운로드하여 광고 관리자에서 활용해보세요.';
+            showAllBtn.parentElement.innerHTML = '<button id="downloadCsvBtn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition duration-300"><i class="fa-solid fa-file-csv mr-2"></i>CSV로 다운로드</button>';
+            
+            document.getElementById('downloadCsvBtn').addEventListener('click', downloadCsv);
+        }
+
+        function renderKeywordTable(data) {
+            keywordTableBody.innerHTML = '';
+            const typeExplanation = {
+                'store': '가게의 이름과 직접 관련된 핵심 키워드입니다.',
+                'location': '가게 위치와 업종을 조합한 지역 타겟 키워드입니다.',
+                'nlp': '방문객 리뷰를 AI로 분석해 발굴한 잠재 키워드입니다.',
+                'modifier': '맛집, 추천 등 구매의도가 높은 단어를 조합한 키워드입니다.'
+            };
+
+            data.forEach(item => {
+                const isHighValue = item.type === 'modifier' || item.type === 'nlp';
+                const row = `
+                    <tr class="border-b hover:bg-gray-50 transition-colors">
+                        <td class="p-3 font-medium">
+                            <span>${item.keyword}</span>
+                            ${isHighValue ? '<span class="ml-2 text-xs font-semibold text-white bg-indigo-500 px-2 py-1 rounded-full">고효율</span>' : ''}
+                            <div class="tooltip inline-block ml-1">
+                                <i class="fa-solid fa-circle-question text-gray-400 cursor-pointer"></i>
+                                <span class="tooltiptext">${typeExplanation[item.type] || '기본 조합 키워드입니다.'}</span>
+                            </div>
+                        </td>
+                        <td class="p-3 text-right text-gray-700">${item.cpc.toLocaleString()}원</td>
+                        <td class="p-3 text-right text-gray-700">${item.clicks}회</td>
+                    </tr>
+                `;
+                keywordTableBody.innerHTML += row;
+            });
+        }
+        
+        function downloadCsv() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Add BOM for Excel compatibility
+            csvContent += "추천 키워드,키워드 타입,예상 CPC,일 예상 클릭수\n";
+            
+            allKeywordsData.forEach(row => {
+                let csvRow = [row.keyword, row.type, row.cpc, row.clicks].join(",");
+                csvContent += csvRow + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "맞춤_광고_키워드.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- Helper & Mock Functions ---
+        
+        function isValidNaverMapUrl(url) {
+            return url.startsWith('http://map.naver.com/') || url.startsWith('https://map.naver.com/');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        function showLoading(isLoading) {
+            if (isLoading) {
+                loadingDiv.classList.remove('hidden');
+                analyzeBtn.disabled = true;
+                analyzeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                loadingDiv.classList.add('hidden');
+                analyzeBtn.disabled = false;
+                analyzeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+        
+        function mockAnalyzeUrl(url) {
+             let name = '강남 쉐이크쉑';
+            let location = '강남역';
+            
+            if (url.includes('hongdae')) {
+                name = '홍대 버거킹';
+                location = '홍대입구역';
+            } else if (url.includes('jongno')) {
+                name = '종로 다운타우너';
+                location = '종각역';
+            } else if (url.includes('bundang')) {
+                 name = '분당 크라이치즈버거';
+                 location = '정자역';
+            }
+            return { name, location, reviews: ["패티가 육즙 가득", "치즈가 풍부해요", "인생버거 등극"] };
+        }
+
+        function mockGenerateKeywords({ name, location, reviews }) {
+            const baseKeywords = ['햄버거', '수제버거', '버거'];
+            const modifiers = ['맛집', '추천', '점심', '저녁', '데이트', '배달'];
+            const generated = new Map();
+
+            // Type: store
+            generated.set(name, { keyword: name, type: 'store' });
+            generated.set(`${location} ${name}`, { keyword: `${location} ${name}`, type: 'store' });
+
+            // Type: location
+            baseKeywords.forEach(base => {
+                generated.set(`${location} ${base}`, { keyword: `${location} ${base}`, type: 'location' });
+            });
+
+            // Type: nlp (from reviews)
+            reviews.forEach(review => {
+                if (review.includes('육즙')) generated.set('육즙버거', { keyword: '육즙버거', type: 'nlp' });
+                if (review.includes('치즈')) generated.set(`${location} 치즈버거`, { keyword: `${location} 치즈버거`, type: 'nlp' });
+            });
+            
+            // Type: modifier
+            for(let i = 0; i < 50; i++) {
+                const base = baseKeywords[Math.floor(Math.random() * baseKeywords.length)];
+                const mod = modifiers[Math.floor(Math.random() * modifiers.length)];
+                const keyword = `${location} ${base} ${mod}`;
+                if (!generated.has(keyword)) {
+                    generated.set(keyword, { keyword, type: 'modifier' });
+                }
+            }
+            
+            return Array.from(generated.values());
+        }
+
+        function mockEstimateMetrics(keywords) {
+             return keywords.map(kwObj => {
+                const isHighValue = kwObj.type === 'modifier' || kwObj.type === 'nlp';
+                const cpc = Math.floor(Math.random() * (isHighValue ? 500 : 300)) + (isHighValue ? 400 : 200); // 200 ~ 900
+                const clicks = Math.floor(Math.random() * (isHighValue ? 20 : 10)) + (isHighValue ? 10 : 5); // 5 ~ 30
+                return {
+                    ...kwObj,
+                    cpc: Math.round(cpc / 10) * 10, // Round to nearest 10
+                    clicks: clicks,
+                    dailyCost: Math.round((cpc * clicks) / 20) // Simple cost modeling
+                };
+            }).sort((a, b) => b.dailyCost - a.dailyCost);
+        }
+
+    </script>
+
+</body>
+</html>
+

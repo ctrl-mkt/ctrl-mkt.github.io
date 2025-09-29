@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬램버거 강남점 - 마케팅 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f1f5f9;
+        }
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        .chart-container {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        .kpi-title {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .kpi-change {
+            font-size: 0.875rem;
+        }
+        .comparison-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .comparison-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        .comparison-label {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .comparison-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">슬램버거 강남점 마케팅 대시보드</h1>
+            <p class="text-gray-600 mt-2">데이터 기반 고객 여정 분석 및 성과 개선 방안 (분석 기간: 2025.04 ~ 2025.09)</p>
+        </header>
+
+        <!-- KPI 요약 -->
+        <h2 class="text-2xl font-bold text-gray-700 mb-4">종합 성과 (9월)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="kpi-card">
+                <div class="kpi-title">매장 앞 유동인구</div>
+                <div class="kpi-value">123,456 명</div>
+                <div class="kpi-change text-green-500">+5.2% (전월 대비)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">매장 방문 고객</div>
+                <div class="kpi-value">3,703 명</div>
+                <div class="kpi-change text-green-500">+3.1% (전월 대비)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">총 매출</div>
+                <div class="kpi-value">₩ 25,921,000</div>
+                <div class="kpi-change text-red-500">-1.5% (전월 대비)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">고객 객단가 (ATV)</div>
+                <div class="kpi-value">₩ 15,558</div>
+                <div class="kpi-change text-red-500">-5.6% (전월 대비)</div>
+            </div>
+        </div>
+
+        <!-- 기간별 성과 비교 -->
+        <h2 class="text-2xl font-bold text-gray-700 mb-4">기간별 성과 비교</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="comparison-card">
+                <h3 class="comparison-title">금주 vs 전주 (W39 vs W38)</h3>
+                <div class="comparison-item">
+                    <span class="comparison-label">매출</span>
+                    <div>
+                        <span class="comparison-value">₩ 7,510,000</span>
+                        <span class="text-sm ml-2 text-green-600">▲ 4.2%</span>
+                    </div>
+                </div>
+                 <div class="comparison-item">
+                    <span class="comparison-label">방문객</span>
+                    <div>
+                        <span class="comparison-value">550 명</span>
+                        <span class="text-sm ml-2 text-red-600">▼ 1.8%</span>
+                    </div>
+                </div>
+                 <div class="comparison-item">
+                    <span class="comparison-label">객단가</span>
+                    <div>
+                        <span class="comparison-value">₩ 13,654</span>
+                        <span class="text-sm ml-2 text-green-600">▲ 6.1%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="comparison-card">
+                <h3 class="comparison-title">당월 vs 전월 (9월 vs 8월)</h3>
+                <div class="comparison-item">
+                    <span class="comparison-label">매출</span>
+                    <div>
+                        <span class="comparison-value">₩ 25,921,000</span>
+                        <span class="text-sm ml-2 text-red-600">▼ 1.5%</span>
+                    </div>
+                </div>
+                 <div class="comparison-item">
+                    <span class="comparison-label">방문객</span>
+                    <div>
+                        <span class="comparison-value">3,703 명</span>
+                        <span class="text-sm ml-2 text-green-600">▲ 3.1%</span>
+                    </div>
+                </div>
+                 <div class="comparison-item">
+                    <span class="comparison-label">객단가</span>
+                    <div>
+                        <span class="comparison-value">₩ 15,558</span>
+                        <span class="text-sm ml-2 text-red-600">▼ 5.6%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 고객 여정 분석 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-1 chart-container">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">고객 구매 여정 (Funnel)</h2>
+                <div id="funnel-chart"></div>
+            </div>
+            <div class="lg:col-span-2 chart-container">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">주간 매출 및 방문객 추이</h2>
+                <div id="weekly-trend-chart"></div>
+            </div>
+        </div>
+        
+        <!-- 시간대별/메뉴별 분석 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="chart-container">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">시간대별 방문객 및 매출</h2>
+                 <div id="hourly-chart"></div>
+            </div>
+            <div class="chart-container">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">Top 5 판매 메뉴 (수량 기준)</h2>
+                <div id="top-menu-quantity-chart"></div>
+            </div>
+        </div>
+
+        <!-- 문제 진단 및 개선 방안 -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">데이터 기반 문제 진단 및 개선 방안 🚀</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-sky-600">1. 고객 유입: '매장 방문 전환율'이 다소 낮습니다. (현재 3.0%)</h3>
+                    <p class="text-gray-700 mt-1"><strong class="font-semibold">[진단]</strong> 매장 앞 유동인구 대비 실제 방문객이 적습니다. 매장 외부의 매력도가 부족하거나 고객의 시선을 끄는 요소가 약하다는 신호일 수 있습니다.</p>
+                    <p class="text-gray-700 mt-2 bg-sky-50 p-3 rounded-lg">
+                        <strong class="font-semibold text-sky-800">[대안]</strong><br>
+                        - <strong class="text-gray-800">A/B 테스트:</strong> '오늘의 버거' 혹은 '점심 특선 세트' 등 매력적인 문구의 입간판을 주차별로 변경하며 방문 전환율이 높은 문구를 찾습니다.<br>
+                        - <strong class="text-gray-800">시각적 유도:</strong> 저녁 시간에는 조명을 더 밝게 하거나, 눈에 띄는 네온사인, 버거 이미지를 활용한 윈도우 시트지를 부착하여 주목도를 높입니다.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-amber-600">2. 전환: 방문객의 '구매 전환율'은 양호하나, 개선 여지가 있습니다. (현재 45%)</h3>
+                    <p class="text-gray-700 mt-1"><strong class="font-semibold">[진단]</strong> 매장에 들어온 고객 10명 중 4-5명이 구매합니다. 나머지 5-6명은 메뉴를 고민하다 이탈하고 있음을 의미합니다.</p>
+                     <p class="text-gray-700 mt-2 bg-amber-50 p-3 rounded-lg">
+                        <strong class="font-semibold text-amber-800">[대안]</strong><br>
+                        - <strong class="text-gray-800">메뉴판 개선:</strong> 인기 메뉴(SLAM 갈비 버거 SET)를 메뉴판 상단에 배치하고, 'BEST', 'SIGNATURE' 표시로 고객의 메뉴 선택을 돕습니다.<br>
+                        - <strong class="text-gray-800">빠른 주문 경험:</strong> 키오스크 UI를 개선하여 주문 단계를 줄이거나, 대기 줄이 길어질 경우 직원이 태블릿으로 주문을 받는 '큐 버스팅' 도입을 고려합니다.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-emerald-600">3. 객단가: '사이드' 및 '음료' 추가 주문 비율이 낮습니다.</h3>
+                     <p class="text-gray-700 mt-1"><strong class="font-semibold">[진단]</strong> 버거 단품 매출에 비해 세트 메뉴나 사이드 메뉴의 추가 주문 비율이 상대적으로 낮습니다. 객단가 상승 기회를 놓치고 있습니다.</p>
+                     <p class="text-gray-700 mt-2 bg-emerald-50 p-3 rounded-lg">
+                        <strong class="font-semibold text-emerald-800">[대안]</strong><br>
+                        - <strong class="text-gray-800">적극적인 업셀링:</strong> 주문 시 "세트로 변경하시면 할인된 가격에 감자튀김과 음료를 즐기실 수 있습니다." 와 같이 구체적인 멘트로 업셀링을 유도합니다.<br>
+                        - <strong class="text-gray-800">매력적인 세트 구성:</strong> '더블 패티 버거 + 케이준 프라이 + 쉐이크' 같은 '프리미엄 세트'를 구성하여 더 높은 가격대의 메뉴를 자연스럽게 제안합니다.</p>
+                </div>
+                 <div>
+                    <h3 class="text-lg font-semibold text-violet-600">4. 시간대별 운영: 점심/저녁 피크 타임과 달리 오후 시간대 매출이 저조합니다.</h3>
+                     <p class="text-gray-700 mt-1"><strong class="font-semibold">[진단]</strong> 방문객과 매출이 특정 시간대(12-14시, 18-20시)에 집중되어 있으며, 오후(15-17시) 시간대에는 방문객이 급감하여 매출 기회 손실이 발생합니다.</p>
+                     <p class="text-gray-700 mt-2 bg-violet-50 p-3 rounded-lg">
+                        <strong class="font-semibold text-violet-800">[대안]</strong><br>
+                        - <strong class="text-gray-800">피크 타임 전략 (회전율 증대):</strong> 런치 세트 메뉴를 강화하고, 키오스크에 '빠른 주문' 기능을 추가하여 회전율을 높입니다. 저녁에는 '버맥 세트(버거+맥주)' 등 고단가 메뉴를 프로모션합니다.<br>
+                        - <strong class="text-gray-800">오프 피크 전략 (고객 유인):</strong> 15-17시 사이 방문 고객에게 '사이드 메뉴 1+1' 또는 '음료 무료' 혜택을 제공하는 '해피아워'를 도입하여 시간대별 매출을 균등화합니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Chart 1: Funnel Chart
+            var funnelOptions = {
+                chart: { type: 'bar', height: 350, toolbar: { show: false }},
+                series: [{ name: '고객 수', data: [123456, 3703, 1666] }],
+                plotOptions: { bar: { horizontal: true, barHeight: '60%', isFunnel: true, dataLabels: { position: 'top' }}},
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val, opt) {
+                        const conversionRate = (opt.dataPointIndex > 0) ? `(전환율: ${ (val / opt.w.globals.series[0][opt.dataPointIndex-1] * 100).toFixed(1) }% )` : '';
+                        if (opt.dataPointIndex === 0) return `${val.toLocaleString()} 명`;
+                        return `${val.toLocaleString()} 명 ${conversionRate}`;
+                    },
+                    style: { fontSize: '12px', colors: ["#333"] },
+                    offsetX: 10
+                },
+                xaxis: { categories: ['유동인구', '매장 방문', '구매 전환'], labels: { show: false }},
+                yaxis: { labels: { style: { fontSize: '14px', fontWeight: 600 }}},
+                colors: ['#0ea5e9', '#f59e0b', '#10b981'],
+                tooltip: { y: { formatter: (val) => val.toLocaleString() + " 명" }}
+            };
+            new ApexCharts(document.querySelector("#funnel-chart"), funnelOptions).render();
+
+            // Chart 2: Weekly Trend
+            var weeklyTrendOptions = {
+                chart: { type: 'line', height: 350, toolbar: { show: false }},
+                series: [{ name: '매출 (만원)', type: 'column', data: [120, 150, 110, 180, 160, 210, 190, 170] }, { name: '방문객 수', type: 'line', data: [220, 250, 200, 310, 280, 350, 330, 300] }],
+                stroke: { width: [0, 4] },
+                dataLabels: { enabled: true, enabledOnSeries: [1] },
+                labels: ['W20', 'W21', 'W22', 'W23', 'W24', 'W25', 'W26', 'W27'],
+                xaxis: { type: 'category' },
+                yaxis: [{ title: { text: '매출 (만원)' }}, { opposite: true, title: { text: '방문객 수 (명)' }}],
+                tooltip: {
+                    shared: true, intersect: false,
+                    y: { formatter: (y, { seriesIndex }) => (typeof y !== "undefined") ? (seriesIndex === 0 ? y.toFixed(0) + "만원" : y.toFixed(0) + "명") : y }
+                }
+            };
+            new ApexCharts(document.querySelector("#weekly-trend-chart"), weeklyTrendOptions).render();
+            
+            // Chart 3: Hourly Chart
+            var hourlyOptions = {
+                chart: { type: 'line', height: 350, toolbar: { show: false }},
+                series: [{ name: '매출 (만원)', type: 'column', data: [50, 80, 180, 220, 150, 110, 130, 190, 250, 210, 160, 90] }, { name: '방문객 수', type: 'line', data: [30, 50, 110, 150, 100, 80, 90, 120, 180, 140, 100, 60] }],
+                stroke: { width: [0, 4], curve: 'smooth' },
+                labels: ['11시', '12시', '13시', '14시', '15시', '16시', '17시', '18시', '19시', '20시', '21시', '22시'],
+                xaxis: { type: 'category' },
+                yaxis: [{ title: { text: '매출 (만원)' }}, { opposite: true, title: { text: '방문객 수 (명)' }}],
+                tooltip: {
+                    shared: true, intersect: false,
+                    y: { formatter: (y, { seriesIndex }) => (typeof y !== "undefined") ? (seriesIndex === 0 ? y.toFixed(0) + "만원" : y.toFixed(0) + "명") : y }
+                }
+            };
+            new ApexCharts(document.querySelector("#hourly-chart"), hourlyOptions).render();
+
+            // Chart 4: Top 5 Menu (Quantity)
+            var topMenuOptions = {
+                chart: { type: 'bar', height: 350, toolbar: { show: false }},
+                series: [{ name: '판매 수량', data: [450, 410, 380, 320, 280] }],
+                plotOptions: { bar: { horizontal: true, distributed: true }},
+                dataLabels: { enabled: true },
+                xaxis: { categories: ['SLAM 갈비 버거 SET', '더 비프 버거', '케이준 프라이', '코카콜라', 'SLAM 갈비 버거'] },
+                legend: { show: false },
+                tooltip: { y: { formatter: (val) => val + " 개" }}
+            };
+            new ApexCharts(document.querySelector("#top-menu-quantity-chart"), topMenuOptions).render();
+        });
+    </script>
+</body>
+</html>
+

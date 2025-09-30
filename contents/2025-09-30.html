@@ -268,6 +268,19 @@
                         title: pos.title,
                         image: pos.isOurStore ? slamBurgerImage : competitorImage
                     });
+
+                    const iwContent = `<div style="padding:5px; font-size:12px; font-weight:bold;">${pos.title}</div>`;
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: iwContent
+                    });
+
+                    kakao.maps.event.addListener(marker, 'mouseover', function() {
+                        infowindow.open(map, marker);
+                    });
+
+                    kakao.maps.event.addListener(marker, 'mouseout', function() {
+                        infowindow.close();
+                    });
                 });
                 
                 const trafficData = {

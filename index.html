@@ -29,7 +29,7 @@
 
         <div class="mb-8">
             <div class="relative">
-                <input type="search" id="search-input" placeholder="키워드 검색 (예: 갈비, 재방문율, 네이버)" class="w-full p-4 pl-12 text-lg border-2 border-gray-200 rounded-full focus:ring-amber-500 focus:border-amber-500 transition">
+                <input type="search" id="search-input" placeholder="키워드 검색 (예: 갈비, 재방문율, 네이버, 대학로)" class="w-full p-4 pl-12 text-lg border-2 border-gray-200 rounded-full focus:ring-amber-500 focus:border-amber-500 transition">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -53,6 +53,13 @@
     <script>
         const database = [
             {
+                title: '슬램버거 대학로점 오픈 전략 대시보드',
+                date: '2025-09-30',
+                description: '대학로 2호점 오픈을 위한 시장, 고객, 프로모션 전략을 담은 기획 대시보드입니다. 상권 분석, 타겟 페르소나, 3단계 프로모션 계획을 확인하세요.',
+                url: './contents/2025-09-30.html',
+                keywords: ['대학로', '2호점', '전략', '기획', '상권분석', '페르소나', '프로모션', '오픈', '신규']
+            },
+            {
                 title: '슬램버거 강남 직영점 오픈 성과 분석 보고서',
                 date: '2025-09-25',
                 description: '강남 직영점의 오픈 이후 매출, 고객, 메뉴, 온라인 영향력 등 종합적인 성과를 분석한 데이터 대시보드입니다. K-시그니처 갈비 버거의 성공 요인과 완결형 고객 여정 퍼널을 확인하세요.',
@@ -69,7 +76,7 @@
             if (!highlight) {
                 return text;
             }
-            const regex = new RegExp(`(${highlight})`, 'gi');
+            const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
             return text.replace(regex, '<span class="search-highlight">$1</span>');
         }
 

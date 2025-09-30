@@ -7,14 +7,16 @@
     <title>슬램버거 대학로점 오픈 전략</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- 중요: 카카오 지도 API를 사용하려면 실제 발급받은 App Key를 아래 YOUR_APP_KEY 부분에 입력해야 합니다. -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0c0bb447482e20990a0c07967b8bd925"></script>
     <!-- Chosen Palette: Urban Premiere (Bold Red, Deep Black, Creamy Off-White, Dark Grey) -->
     <!-- Application Structure Plan: A top-down narrative structure. It starts with the main brand concept, then delves into the 'Why' (Market Analysis & Audience) and finally the 'How' (Phased Promotion Plan). Navigation is handled by a sticky header. This structure guides the user logically from the high-level strategy to the detailed execution, which is more intuitive for understanding a business plan than a simple chronological report. -->
-    <!-- Visualization & Content Choices: Market/Competitors -> Goal: Compare -> Method: Interactive Map (JS) -> Interaction: Hover reveals competitor data. Foot Traffic -> Goal: Change -> Method: Dynamic Bar Chart (Chart.js) -> Interaction: Buttons change time of day. Promotions -> Goal: Organize -> Method: Tabbed Interface (JS) -> Interaction: Click tabs for Pre/D-Day/Post phases. These choices turn static data into an exploratory experience, enhancing comprehension and engagement. CONFIRMED: NO SVG/Mermaid. -->
+    <!-- Visualization & Content Choices: Market/Competitors -> Goal: Compare -> Method: Interactive Map (Kakao Maps API) -> Interaction: Pan, zoom, and hover on markers. Foot Traffic -> Goal: Change -> Method: Dynamic Bar Chart (Chart.js) -> Interaction: Buttons change time of day. Promotions -> Goal: Organize -> Method: Tabbed Interface (JS) -> Interaction: Click tabs. These choices turn static data into an exploratory experience. CONFIRMED: NO SVG/Mermaid. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: 'Pretendard', sans-serif;
             background-color: #FDFBF7; 
         }
         .font-black {
@@ -120,10 +122,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     <div class="bg-white p-6 rounded-xl shadow-lg">
                         <h3 class="text-xl font-bold mb-4 text-center">주요 경쟁사 및 상권 지도</h3>
-                        <div class="relative w-full h-[400px] bg-gray-100 rounded-lg overflow-hidden">
-                            <img src="https://i.imgur.com/GzXy0bV.png" alt="대학로 지도" class="w-full h-full object-cover opacity-80">
-                            <div id="map-points"></div>
-                        </div>
+                        <div id="kakao-map" class="w-full h-[400px] rounded-lg shadow-inner"></div>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-lg">
                         <h3 class="text-xl font-bold mb-4 text-center">시간대별 유동인구 분석</h3>
@@ -213,9 +212,12 @@
             passcodeForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (passcodeInput.value === correctPasscode) {
-                    passcodeScreen.style.display = 'none';
-                    mainContent.style.display = 'block';
-                    initializeApp();
+                    // Correct passcode entered. Now, load the map API and initialize the app.
+                    kakao.maps.load(function() {
+                        passcodeScreen.style.display = 'none';
+                        mainContent.style.display = 'block';
+                        initializeApp();
+                    });
                 } else {
                     errorMessage.textContent = '패스코드가 올바르지 않습니다.';
                     passcodeInput.value = '';
@@ -223,26 +225,51 @@
             });
 
             function initializeApp() {
-                const mapPointsData = [
-                    { id: 'slam-burger', name: 'SLAM BURGER', top: '70%', left: '55%', color: 'red-500', size: '6' },
-                    { id: 'mcdonalds', name: "McDonald's", top: '35%', left: '40%', color: 'yellow-400', size: '4' },
-                    { id: 'burger-king', name: 'Burger King', top: '25%', left: '80%', color: 'blue-500', size: '4' },
-                    { id: 'kfc', name: 'KFC', top: '80%', left: '75%', color: 'red-700', size: '4' },
+                // Kakao Map initialization
+                const mapContainer = document.getElementById('kakao-map'); 
+                const mapOption = { 
+                    center: new kakao.maps.LatLng(37.5824, 127.0019), // 혜화역 부근
+                    level: 4 // 지도의 확대 레벨
+                };
+                const map = new kakao.maps.Map(mapContainer, mapOption); 
+
+                const positions = [
+                    {
+                        title: 'SLAM BURGER', 
+                        latlng: new kakao.maps.LatLng(37.5821, 127.0022),
+                        isOurStore: true
+                    },
+                    {
+                        title: 'McDonald\'s', 
+                        latlng: new kakao.maps.LatLng(37.5830, 127.0008),
+                        isOurStore: false
+                    },
+                    {
+                        title: 'Burger King', 
+                        latlng: new kakao.maps.LatLng(37.5828, 127.0035),
+                        isOurStore: false
+                    },
+                    {
+                        title: 'KFC', 
+                        latlng: new kakao.maps.LatLng(37.5819, 127.0025),
+                        isOurStore: false
+                    }
                 ];
 
-                const mapContainer = document.getElementById('map-points');
-                mapPointsData.forEach(point => {
-                    const pointEl = document.createElement('div');
-                    pointEl.className = `absolute transform -translate-x-1/2 -translate-y-1/2 w-${point.size} h-${point.size} bg-${point.color} rounded-full cursor-pointer group`;
-                    pointEl.style.top = point.top;
-                    pointEl.style.left = point.left;
+                const slamBurgerSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png';
+                const competitorSrc = 'http://t1.daumcdn.net/mapjsapi/images/marker.png';
+                const imageSize = new kakao.maps.Size(24, 35);
+                
+                const slamBurgerImage = new kakao.maps.MarkerImage(slamBurgerSrc, new kakao.maps.Size(30, 42));
+                const competitorImage = new kakao.maps.MarkerImage(competitorSrc, imageSize);
 
-                    const tooltip = document.createElement('span');
-                    tooltip.className = 'absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity';
-                    tooltip.innerText = point.name;
-                    
-                    pointEl.appendChild(tooltip);
-                    mapContainer.appendChild(pointEl);
+                positions.forEach(function(pos) {
+                    const marker = new kakao.maps.Marker({
+                        map: map,
+                        position: pos.latlng,
+                        title: pos.title,
+                        image: pos.isOurStore ? slamBurgerImage : competitorImage
+                    });
                 });
                 
                 const trafficData = {

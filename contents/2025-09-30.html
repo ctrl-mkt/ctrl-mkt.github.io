@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <!-- 중요: 카카오 지도 API를 사용하려면 실제 발급받은 App Key를 아래 YOUR_APP_KEY 부분에 입력해야 합니다. -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0c0bb447482e20990a0c07967b8bd925"></script>
     <!-- Chosen Palette: Urban Premiere (Bold Red, Deep Black, Creamy Off-White, Dark Grey) -->
     <!-- Application Structure Plan: A top-down narrative structure. It starts with the main brand concept, then delves into the 'Why' (Market Analysis & Audience) and finally the 'How' (Phased Promotion Plan). Navigation is handled by a sticky header. This structure guides the user logically from the high-level strategy to the detailed execution, which is more intuitive for understanding a business plan than a simple chronological report. -->
     <!-- Visualization & Content Choices: Market/Competitors -> Goal: Compare -> Method: Interactive Map (Kakao Maps API) -> Interaction: Pan, zoom, and hover on markers. Foot Traffic -> Goal: Change -> Method: Dynamic Bar Chart (Chart.js) -> Interaction: Buttons change time of day. Promotions -> Goal: Organize -> Method: Tabbed Interface (JS) -> Interaction: Click tabs. These choices turn static data into an exploratory experience. CONFIRMED: NO SVG/Mermaid. -->
@@ -212,17 +210,28 @@
             passcodeForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (passcodeInput.value === correctPasscode) {
-                    // Correct passcode entered. Now, load the map API and initialize the app.
-                    kakao.maps.load(function() {
-                        passcodeScreen.style.display = 'none';
-                        mainContent.style.display = 'block';
-                        initializeApp();
-                    });
+                    loadMapAndInit();
                 } else {
                     errorMessage.textContent = '패스코드가 올바르지 않습니다.';
                     passcodeInput.value = '';
                 }
             });
+
+            function loadMapAndInit() {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=0c0bb447482e20990a0c07967b8bd925&autoload=false`;
+                
+                script.onload = () => {
+                    kakao.maps.load(() => {
+                        passcodeScreen.style.display = 'none';
+                        mainContent.style.display = 'block';
+                        initializeApp();
+                    });
+                };
+
+                document.head.appendChild(script);
+            }
 
             function initializeApp() {
                 // Kakao Map initialization

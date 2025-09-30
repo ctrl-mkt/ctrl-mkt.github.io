@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬램버거 대학로점 오픈 전략 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Urban Premiere (Bold Red, Deep Black, Creamy Off-White, Dark Grey) -->
+    <!-- Application Structure Plan: A top-down narrative structure. It starts with the main brand concept, then delves into the 'Why' (Market Analysis & Audience) and finally the 'How' (Phased Promotion Plan). Navigation is handled by a sticky header. This structure guides the user logically from the high-level strategy to the detailed execution, which is more intuitive for understanding a business plan than a simple chronological report. -->
+    <!-- Visualization & Content Choices: Market/Competitors -> Goal: Compare -> Method: Interactive Map (JS) -> Interaction: Hover reveals competitor data. Foot Traffic -> Goal: Change -> Method: Dynamic Bar Chart (Chart.js) -> Interaction: Buttons change time of day. Promotions -> Goal: Organize -> Method: Tabbed Interface (JS) -> Interaction: Click tabs for Pre/D-Day/Post phases. These choices turn static data into an exploratory experience, enhancing comprehension and engagement. CONFIRMED: NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FDFBF7; 
+        }
+        .font-black {
+            font-weight: 900;
+        }
+        .nav-item.active {
+            color: #E53E3E;
+            border-bottom: 2px solid #E53E3E;
+        }
+        .btn-time.active {
+            background-color: #E53E3E;
+            color: white;
+        }
+        .tab-btn.active {
+            border-color: #E53E3E;
+            background-color: #E53E3E;
+            color: white;
+        }
+        .persona-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .persona-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .promo-card {
+            border-left: 4px solid #E53E3E;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FDFBF7] text-gray-800">
+
+    <header class="bg-black text-white sticky top-0 z-50 shadow-lg">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-2xl font-black text-red-500">SLAM <span class="text-white">BURGER</span></h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#concept" class="nav-item px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">컨셉</a>
+                        <a href="#market" class="nav-item px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">상권 분석</a>
+                        <a href="#audience" class="nav-item px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">고객</a>
+                        <a href="#promotion" class="nav-item px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700">프로모션</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="concept" class="text-center py-16">
+            <h2 class="text-base text-red-600 font-semibold tracking-wider uppercase">Act II. DAEHANGNO</h2>
+            <p class="mt-2 text-4xl md:text-5xl font-black text-gray-900">
+                The Art of the <span class="text-red-600">SLAM</span>
+            </p>
+            <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
+                한편의 예술적인 슬램버거, 대학로의 막이 오르다! <br class="hidden sm:block">
+                강렬한 맛(SLAM)과 문화예술(Art)의 완벽한 조화. 단순한 버거를 넘어, 하나의 '문화 이벤트'를 선사합니다.
+            </p>
+        </section>
+
+        <section id="market" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-gray-900">대학로: 기회의 무대</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                    대학로는 문화와 젊음이 공존하는 역동적인 상권입니다. 우리는 이 무대의 중심에서 새로운 막을 올리고자 합니다. 이 섹션에서는 대학로 상권의 특징과 경쟁 환경, 그리고 유동인구 패턴을 시각적으로 탐색하여 우리가 발견한 기회를 확인할 수 있습니다.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 text-center">주요 경쟁사 및 상권 지도</h3>
+                    <div class="relative w-full h-[400px] bg-gray-100 rounded-lg overflow-hidden">
+                        <img src="https://i.imgur.com/GzXy0bV.png" alt="대학로 지도" class="w-full h-full object-cover opacity-80">
+                        <div id="map-points"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 text-center">시간대별 유동인구 분석</h3>
+                    <div class="flex justify-center space-x-2 mb-4">
+                        <button class="btn-time active px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 hover:bg-red-500 hover:text-white transition" data-time="noon">낮(11-17시)</button>
+                        <button class="btn-time px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 hover:bg-red-500 hover:text-white transition" data-time="evening">저녁(17-21시)</button>
+                        <button class="btn-time px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 hover:bg-red-500 hover:text-white transition" data-time="late-evening">밤(21-23시)</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="audience" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-gray-900">우리의 관객: 3가지 페르소나</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                    우리는 대학로의 다양한 방문객 중 세 가지 핵심 고객 그룹에 집중합니다. 이들은 슬램버거의 팬이 될 잠재적 주인공들입니다. 각 카드를 통해 그들의 특징과 우리가 어떻게 그들의 마음을 사로잡을 수 있는지 알아보세요.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="persona-card bg-white p-8 rounded-xl shadow-lg text-center">
+                    <div class="text-5xl mb-4">🎓</div>
+                    <h3 class="text-xl font-bold mb-2">문화를 향유하는 대학생</h3>
+                    <p class="text-gray-600">스터디와 공연 관람을 즐기며, 가성비와 트렌드에 민감합니다. SNS를 통해 경험을 공유하는 것을 즐깁니다.</p>
+                </div>
+                <div class="persona-card bg-white p-8 rounded-xl shadow-lg text-center">
+                    <div class="text-5xl mb-4">🎭</div>
+                    <h3 class="text-xl font-bold mb-2">예술가 지망생 & 긱 워커</h3>
+                    <p class="text-gray-600">불규칙한 스케줄 속에서 빠르고 든든한 식사를 선호합니다. 브랜드의 진정성 있는 스토리에 깊이 공감합니다.</p>
+                </div>
+                <div class="persona-card bg-white p-8 rounded-xl shadow-lg text-center">
+                    <div class="text-5xl mb-4">❤️</div>
+                    <h3 class="text-xl font-bold mb-2">데이트 커플 & 젊은 직장인</h3>
+                    <p class="text-gray-600">공연 전후 특별한 경험을 원하며, 분위기 있는 공간과 개성 있는 메뉴를 찾아다니는 목적성 소비층입니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="promotion" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black text-gray-900">The Playbill: 3막 구성의 프로모션</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                    슬램버거 대학로점 오픈은 3막으로 구성된 한 편의 연극과 같습니다. 각 막은 고객의 기대를 점진적으로 높이고, 오픈 당일 최고의 경험을 선사하며, 그 이후에도 계속해서 우리를 찾게 만드는 체계적인 전략으로 구성되어 있습니다. 탭을 클릭하여 각 막의 세부 계획을 확인하세요.
+                </p>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-6 flex justify-center border-b border-gray-200">
+                    <button class="tab-btn active text-lg font-bold py-3 px-6 -mb-px border-b-2 border-transparent" data-tab="act1">Act I. 오픈 전</button>
+                    <button class="tab-btn text-lg font-bold py-3 px-6 -mb-px border-b-2 border-transparent" data-tab="act2">Act II. D-DAY</button>
+                    <button class="tab-btn text-lg font-bold py-3 px-6 -mb-px border-b-2 border-transparent" data-tab="act3">Act III. 오픈 후</button>
+                </div>
+                <div id="promo-content" class="space-y-6">
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <footer class="bg-black text-white py-6 text-center">
+        <p>&copy; 2025 SLAM BURGER. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapPointsData = [
+                { id: 'slam-burger', name: 'SLAM BURGER', top: '70%', left: '55%', color: 'red-500', size: '6' },
+                { id: 'mcdonalds', name: "McDonald's", top: '35%', left: '40%', color: 'yellow-400', size: '4' },
+                { id: 'burger-king', name: 'Burger King', top: '25%', left: '80%', color: 'blue-500', size: '4' },
+                { id: 'kfc', name: 'KFC', top: '80%', left: '75%', color: 'red-700', size: '4' },
+            ];
+
+            const mapContainer = document.getElementById('map-points');
+            mapPointsData.forEach(point => {
+                const pointEl = document.createElement('div');
+                pointEl.className = `absolute transform -translate-x-1/2 -translate-y-1/2 w-${point.size} h-${point.size} bg-${point.color} rounded-full cursor-pointer group`;
+                pointEl.style.top = point.top;
+                pointEl.style.left = point.left;
+
+                const tooltip = document.createElement('span');
+                tooltip.className = 'absolute bottom-full mb-2 w-max px-2 py-1 text-xs text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity';
+                tooltip.innerText = point.name;
+                
+                pointEl.appendChild(tooltip);
+                mapContainer.appendChild(pointEl);
+            });
+            
+            const trafficData = {
+                'noon': {
+                    labels: ['대학생', '청년층', '연구원/교직원'],
+                    data: [45, 35, 20],
+                    title: '낮: 점심과 스터디가 중심'
+                },
+                'evening': {
+                    labels: ['연극 관객', '대학생/청년층', '직장인'],
+                    data: [50, 30, 20],
+                    title: '저녁: 유동인구 최대 피크'
+                },
+                'late-evening': {
+                    labels: ['대학생', '청년층 (술자리)'],
+                    data: [60, 40],
+                    title: '밤: 공연 종료 후 2차 모임'
+                }
+            };
+            
+            let trafficChart;
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            
+            function renderChart(time) {
+                if (trafficChart) {
+                    trafficChart.destroy();
+                }
+                trafficChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: trafficData[time].labels,
+                        datasets: [{
+                            label: '유동인구 구성 (%)',
+                            data: trafficData[time].data,
+                            backgroundColor: ['#EF4444', '#F87171', '#FCA5A5'],
+                            borderColor: '#DC2626',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: trafficData[time].title,
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderChart('noon');
+
+            const timeButtons = document.querySelectorAll('.btn-time');
+            timeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    timeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderChart(button.dataset.time);
+                });
+            });
+
+            const promoData = {
+                'act1': [
+                    { icon: '🎤', title: 'VIP 시식 품평회', description: '협력 극단 배우, 인플루언서, 기존 고객을 대상으로 신메뉴 시식회를 진행하고, 이를 콘텐츠화하여 오픈 전 기대감을 조성합니다.' },
+                    { icon: '🎫', title: "'슬램 골든 티켓' 찾기", description: "대학로 곳곳에 숨겨진 '골든 티켓(상품권)'을 찾는 보물찾기 이벤트를 통해, 온라인과 오프라인에서 흥미를 유발하고 자발적인 바이럴을 유도합니다." }
+                ],
+                'act2': [
+                    { icon: '🎉', title: '오프닝 액트', description: "오픈 직전, 매장 앞에서 거리 공연을 펼쳐 기다리는 줄을 '공연을 기다리는 관객'의 경험으로 전환시키고 축제 분위기를 극대화합니다." },
+                    { icon: '🍔', title: '오픈런 이벤트', description: "오픈 후 3일간, 매일 선착순 300명에게 '슬램갈비버거'를 무료로 증정하여 강력한 이슈를 만듭니다." },
+                    { icon: '🤫', title: 'VIP 프리 오픈', description: '연극영화과 학생, 리뷰 인스타그램 운영자 등 타겟 인플루언서를 대상으로 한 프라이빗 초청 행사를 진행하여, 진정성 있는 초기 리뷰를 확보합니다.' },
+                    { icon: '🌶️', title: '오픈 단독 프로모션', description: "'초크슬램 시리즈'를 오픈 주간 동안 단독으로 판매하여 방문 가치를 높입니다." }
+                ],
+                'act3': [
+                    { icon: '🤝', title: "'커튼콜 동맹' 프로모션", description: "대학로 공연 예술인, 인근 대학생, 당일 공연 관람객 대상 30% 할인 혜택을 제공하여 '대학로의 아지트'로 자리매김합니다." },
+                    { icon: '🎬', title: '릴스 챌린지', description: '협력 극단 배우들과 고객이 함께 참여하는 연기/미션 챌린지를 통해, 화제성을 지속시키고 팬덤을 형성합니다.' }
+                ]
+            };
+
+            const promoContent = document.getElementById('promo-content');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            
+            function renderPromoContent(act) {
+                promoContent.innerHTML = '';
+                promoData[act].forEach(item => {
+                    const card = `
+                        <div class="bg-white p-6 rounded-lg shadow-md flex items-start space-x-4 promo-card">
+                            <div class="text-4xl">${item.icon}</div>
+                            <div>
+                                <h4 class="text-lg font-bold">${item.title}</h4>
+                                <p class="text-gray-600 mt-1">${item.description}</p>
+                            </div>
+                        </div>
+                    `;
+                    promoContent.innerHTML += card;
+                });
+            }
+
+            renderPromoContent('act1');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderPromoContent(button.dataset.tab);
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 70) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if(link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

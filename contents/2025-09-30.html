@@ -226,15 +226,15 @@
                 // Kakao Map initialization
                 const mapContainer = document.getElementById('kakao-map'); 
                 const mapOption = { 
-                    center: new kakao.maps.LatLng(37.5824, 127.0019), // 혜화역 부근
+                    center: new kakao.maps.LatLng(37.5832, 127.0011), // 지도 중심을 재조정
                     level: 4 // 지도의 확대 레벨
                 };
                 const map = new kakao.maps.Map(mapContainer, mapOption); 
 
                 const positions = [
                     {
-                        title: 'SLAM BURGER', 
-                        latlng: new kakao.maps.LatLng(37.5821, 127.0022),
+                        title: 'SLAM BURGER (대학로 10길 5)', 
+                        latlng: new kakao.maps.LatLng(37.5825, 127.0017),
                         isOurStore: true
                     },
                     {
@@ -244,12 +244,12 @@
                     },
                     {
                         title: 'Burger King', 
-                        latlng: new kakao.maps.LatLng(37.5828, 127.0035),
+                        latlng: new kakao.maps.LatLng(37.5828, 127.0011),
                         isOurStore: false
                     },
                     {
                         title: 'KFC', 
-                        latlng: new kakao.maps.LatLng(37.5819, 127.0025),
+                        latlng: new kakao.maps.LatLng(37.5836, 127.0006),
                         isOurStore: false
                     }
                 ];
@@ -351,7 +351,6 @@
                         { icon: '🎫', title: "'슬램 골든 티켓' 찾기", description: "대학로 곳곳에 숨겨진 '골든 티켓(상품권)'을 찾는 보물찾기 이벤트를 통해, 온라인과 오프라인에서 흥미를 유발하고 자발적인 바이럴을 유도합니다." }
                     ],
                     'act2': [
-                        { icon: '🎉', title: '오프닝 액트', description: "오픈 직전, 매장 앞에서 거리 공연을 펼쳐 기다리는 줄을 '공연을 기다리는 관객'의 경험으로 전환시키고 축제 분위기를 극대화합니다." },
                         { icon: '🍔', title: '오픈런 이벤트', description: "오픈 후 3일간, 매일 선착순 300명에게 '슬램갈비버거'를 무료로 증정하여 강력한 이슈를 만듭니다." },
                         { icon: '🤫', title: 'VIP 프리 오픈', description: '연극영화과 학생, 리뷰 인스타그램 운영자 등 타겟 인플루언서를 대상으로 한 프라이빗 초청 행사를 진행하여, 진정성 있는 초기 리뷰를 확보합니다.' },
                         { icon: '🌶️', title: '오픈 단독 프로모션', description: "'초크슬램 시리즈'를 오픈 주간 동안 단독으로 판매하여 방문 가치를 높입니다." }

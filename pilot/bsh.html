@@ -394,12 +394,19 @@
                 });
 
                 const coords = await getCoords();
-                const competitors = ['맥도날드', '버거킹', 'KFC', '롯데리아', '맘스터치'];
+                // Expanded list of competitors including generic term '햄버거' to find all hamburger stores
+                const competitors = ['맥도날드', '버거킹', 'KFC', '롯데리아', '맘스터치', '쉐이크쉑', '프랭크버거', '노브랜드버거', '햄버거'];
                 const competitorPromises = competitors.map(c => searchNearby(coords, c, 300));
                 const competitorResults = await Promise.all(competitorPromises);
                 
-                const totalCompetitors = competitorResults.reduce((sum, r) => sum + r.count, 0);
-                const competitorPlaces = competitorResults.flatMap(r => r.places);
+                // Flatten the array of places from all search results
+                const allPlaces = competitorResults.flatMap(r => r.places);
+
+                // Remove duplicates using a Map, keyed by the place ID
+                const uniquePlaces = Array.from(new Map(allPlaces.map(place => [place.id, place])).values());
+                
+                const totalCompetitors = uniquePlaces.length;
+                const competitorPlaces = uniquePlaces;
 
                 const subwayResult = await searchNearby(coords, '지하철역', 500);
                 const nearestSubwayDist = subwayResult.places.length > 0 ? parseInt(subwayResult.places[0].distance) : 9999;
@@ -529,36 +536,51 @@
                 salesLevels.forEach(s => tableHtml += `<th scope="col" class="px-4 py-3">${s.toLocaleString()}만</th>`);
                 tableHtml += `</tr></thead><tbody>`;
 
-                const rows = {
-                    "매출액": (s) => s * 10000,
-                    "(-) 원재료비": (s) => s * 10000 * constants.cogsRate,
-                    "(-) 배달수수료": (s) => s * 10000 * deliveryRatio * constants.deliveryFeeRate,
-                    "매출총이익": (s, results) => results["매출액"] - results["(-) 원재료비"] - results["(-) 배달수수료"],
-                    "(-) 임대료": (s) => userInput.rent * 10000,
-                    "(-) 인건비": (s) => s * 10000 * constants.laborRate,
-                    "(-) 공과잡비": (s) => constants.utilities * 10000,
-                    "(-) 기타비용": (s) => constants.otherCosts * 10000,
-                    "(-) 카드수수료": (s) => s * 10000 * constants.cardFeeRate,
-                    "세전이익": (s, results) => results["매출총이익"] - results["(-) 임대료"] - results["(-) 인건비"] - results["(-) 공과잡비"] - results["(-) 기타비용"] - results["(-) 카드수수료"],
-                    "마진율": (s, results) => (results["세전이익"] / results["매출액"]) * 100
-                };
+                const rowsInOrder = [
+                    { key: "매출액", calc: (s, res) => s * 10000 },
+                    { key: "(-) 원재료비", calc: (s, res) => s * 10000 * constants.cogsRate },
+                    { key: "(-) 배달수수료", calc: (s, res) => s * 10000 * deliveryRatio * constants.deliveryFeeRate },
+                    { key: "매출총이익", calc: (s, res) => res["매출액"] - res["(-) 원재료비"] - res["(-) 배달수수료"] },
+                    { key: "(-) 임대료", calc: (s, res) => userInput.rent * 10000 },
+                    { key: "(-) 인건비", calc: (s, res) => s * 10000 * constants.laborRate },
+                    { key: "(-) 공과잡비", calc: (s, res) => constants.utilities * 10000 },
+                    { key: "(-) 기타비용", calc: (s, res) => constants.otherCosts * 10000 },
+                    { key: "(-) 카드수수료", calc: (s, res) => s * 10000 * constants.cardFeeRate },
+                    { key: "세전이익", calc: (s, res) => res["매출총이익"] - res["(-) 임대료"] - res["(-) 인건비"] - res["(-) 공과잡비"] - res["(-) 기타비용"] - res["(-) 카드수수료"] },
+                    { key: "마진율", calc: (s, res) => (res["세전이익"] / res["매출액"]) * 100 }
+                ];
                 
-                Object.entries(rows).forEach(([title, calcFn]) => {
+                // Pre-calculate all data, column by column
+                const tableData = salesLevels.map(s => {
+                    const columnResults = {};
+                    rowsInOrder.forEach(row => {
+                        columnResults[row.key] = row.calc(s, columnResults);
+                    });
+                    return columnResults;
+                });
+
+                // Build the HTML table from the pre-calculated data
+                rowsInOrder.forEach(row => {
+                    const title = row.key;
                     const isProfitRow = title === '세전이익';
                     const isMarginRow = title === '마진율';
                     const isHeaderRow = title === '매출총이익';
 
                     tableHtml += `<tr class="border-b ${isHeaderRow ? 'bg-gray-50' : 'bg-white'}"><td class="px-4 py-2 font-medium text-gray-900 text-left ${isProfitRow ? 'font-bold' : ''}">${title}</td>`;
-                    let resultsCache = {};
-                    salesLevels.forEach(s => {
-                         const salesData = Object.fromEntries(Object.entries(rows).map(([key, fn]) => [key, fn(s, {})]));
-                         const value = calcFn(s, salesData);
-                         const profitColor = value > 0 ? 'text-green-600' : 'text-red-600';
+                    
+                    tableData.forEach(column => {
+                        const value = column[title];
+                        if (isNaN(value)) {
+                            tableHtml += `<td class="px-4 py-2">N/A</td>`;
+                            return;
+                        }
+                        const profitColor = value > 0 ? 'text-green-600' : 'text-red-600';
 
-                         tableHtml += `<td class="px-4 py-2 ${isProfitRow || isMarginRow ? `font-bold ${profitColor}` : ''}">${isMarginRow ? `${value.toFixed(1)}%` : formatCurrency(value)}</td>`;
+                        tableHtml += `<td class="px-4 py-2 ${isProfitRow || isMarginRow ? `font-bold ${profitColor}` : ''}">${isMarginRow ? `${value.toFixed(1)}%` : formatCurrency(value)}</td>`;
                     });
                     tableHtml += `</tr>`;
                 });
+
                 tableHtml += `</tbody></table>`;
                 profitContainer.innerHTML = tableHtml;
             }

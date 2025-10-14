@@ -354,7 +354,7 @@
 
                 try {
                     const apiData = await analyzeWithKakaoAPI(address);
-                    const analysisData = generateAnalysisData(userInput, apiData);
+                    const analysisData = generateAnalysisData(userInput, apiData, address);
                     
                     resultsSection.classList.remove('hidden');
                     initialMessage.classList.add('hidden');
@@ -394,8 +394,8 @@
                 });
 
                 const coords = await getCoords();
-                // Expanded list of competitors including generic term '햄버거' to find all hamburger stores
-                const competitors = ['맥도날드', '버거킹', 'KFC', '롯데리아', '맘스터치', '쉐이크쉑', '프랭크버거', '노브랜드버거', '햄버거'];
+                // Competitor search narrowed down to hamburger and sandwich specialty stores.
+                const competitors = ['햄버거', '수제버거', '샌드위치', '서브웨이'];
                 const competitorPromises = competitors.map(c => searchNearby(coords, c, 300));
                 const competitorResults = await Promise.all(competitorPromises);
                 
@@ -460,9 +460,22 @@
                     markers.push(marker);
                 });
             }
+            
+            // Function to create a consistent hash from a string
+            function simpleHash(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash |= 0; // Convert to 32bit integer
+                }
+                return Math.abs(hash);
+            }
 
-            function generateAnalysisData(userInput, apiData) {
+            function generateAnalysisData(userInput, apiData, address) {
                 const data = {};
+                const addressHash = simpleHash(address);
+
                 let competitionScore = 100 - (apiData.totalCompetitors * 15);
                 competitionScore = Math.max(10, competitionScore);
                 let accessibilityScore = 0;
@@ -477,8 +490,12 @@
                 let costScore = 100 - ((costMetric - 1500) / 4500) * 100;
                 costScore = Math.round(Math.max(10, Math.min(100, costScore)));
                 
-                data['상권 잠재력'] = { score: Math.floor(Math.random() * 61) + 40, details: {'2030 매출 비중': `${(40 + Math.random() * 35).toFixed(1)}%`} };
-                data['유동인구'] = { score: Math.floor(Math.random() * 61) + 40, details: {'주중 점심 (12-13시)': `${Math.floor(600 + Math.random() * 400)}명`} };
+                // Use the hash to generate consistent scores for simulated data
+                const potentialScore = 40 + (addressHash % 61); // Consistent score between 40-100
+                const trafficScore = 40 + Math.floor(addressHash / 10000) % 61; // Consistent score between 40-100
+
+                data['상권 잠재력'] = { score: potentialScore, details: {'2030 매출 비중': `${(40 + (addressHash % 35)).toFixed(1)}%`} };
+                data['유동인구'] = { score: trafficScore, details: {'주중 점심 (12-13시)': `${600 + (addressHash % 400)}명`} };
                 data['경쟁 환경'] = { score: competitionScore, details: { '주요 경쟁사 수 (반경 300m)': `${apiData.totalCompetitors}개` } };
                 data['접근성 및 가시성'] = { score: accessibilityScore, details: { '가장 가까운 지하철역': `${apiData.nearestSubwayDist}m`, '버스정류장 수 (반경 100m)': `${apiData.busStopCount}개` } };
                 data['비용 효율성'] = { score: costScore, details: { '보증금': `${userInput.deposit.toLocaleString()} 만원`, '월 임대료': `${userInput.rent.toLocaleString()} 만원` } };

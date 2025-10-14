@@ -89,9 +89,28 @@
             <section class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
                 <h2 class="text-2xl font-semibold mb-4 border-b pb-2">분석 정보 입력</h2>
                 
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="address" class="block text-sm font-medium text-gray-700 mb-2">분석 대상 주소</label>
                     <input type="text" id="address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="예: 서울특별시 강남구 테헤란로 123">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="floor" class="block text-sm font-medium text-gray-700 mb-2">층 수</label>
+                        <input type="number" id="floor" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 1">
+                    </div>
+                    <div>
+                        <label for="area" class="block text-sm font-medium text-gray-700 mb-2">평수</label>
+                        <input type="number" id="area" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 30">
+                    </div>
+                    <div>
+                        <label for="deposit" class="block text-sm font-medium text-gray-700 mb-2">보증금 (만원)</label>
+                        <input type="number" id="deposit" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 15000">
+                    </div>
+                    <div>
+                        <label for="rent" class="block text-sm font-medium text-gray-700 mb-2">월 임대료 (만원)</label>
+                        <input type="number" id="rent" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="예: 1000">
+                    </div>
                 </div>
 
                 <button id="analyzeBtn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
@@ -160,8 +179,8 @@
                 '유동인구': { weight: 20, details: ['주중 점심 (12-13시)', '주중 저녁 (18-19시)', '주말 점심 (12-13시)', '주말 저녁 (18-19시)'] },
                 '경쟁 환경': { weight: 15, details: ['주요 경쟁사 수 (반경 300m)', '경쟁사 평균 매출', '비경쟁 트래픽 유발 매장'] },
                 '접근성 및 가시성': { weight: 15, details: ['지하철역 도보 거리 (분)', '버스정류장 갯수 (반경 100m)', '코너 위치 여부', '전면 가시성'] },
-                '비용 효율성': { weight: 15, details: ['보증금', '월 임대료 및 관리비', '권리금'] },
-                '물리적 조건': { weight: 10, details: ['전용 면적 (평)', '매장 전면 길이 (m)', '주차 가능 여부'] },
+                '비용 효율성': { weight: 15, details: ['보증금', '월 임대료', '권리금'] },
+                '물리적 조건': { weight: 10, details: ['전용 면적 (평)', '층 수', '매장 전면 길이 (m)', '주차 가능 여부'] },
             };
 
             const weightsContainer = document.getElementById('weights-container');
@@ -220,10 +239,17 @@
 
             // 분석 버튼 클릭 이벤트
             analyzeBtn.addEventListener('click', () => {
-                if (addressInput.value.trim() === '') {
-                    alert('분석할 주소를 입력해주세요.');
+                const address = addressInput.value.trim();
+                const floor = parseInt(document.getElementById('floor').value);
+                const area = parseInt(document.getElementById('area').value);
+                const deposit = parseInt(document.getElementById('deposit').value);
+                const rent = parseInt(document.getElementById('rent').value);
+
+                if (address === '' || isNaN(floor) || isNaN(area) || isNaN(deposit) || isNaN(rent)) {
+                    alert('모든 분석 정보를 빠짐없이 입력해주세요.');
                     return;
                 }
+
                 const totalWeight = Object.values(currentWeights).reduce((sum, val) => sum + val, 0);
                 if (totalWeight !== 100) {
                     alert('가중치의 총합은 100%가 되어야 합니다. 현재: ' + totalWeight + '%');
@@ -233,29 +259,62 @@
                 resultsSection.classList.remove('hidden');
                 initialMessage.classList.add('hidden');
 
-                document.getElementById('analyzed-address').textContent = addressInput.value;
+                document.getElementById('analyzed-address').textContent = address;
                 
-                // 실제 API 호출 대신, 시뮬레이션 데이터 생성
-                const analysisData = generateAnalysisData();
+                const userInput = { floor, area, deposit, rent };
+                const analysisData = generateAnalysisData(userInput);
                 displayResults(analysisData);
             });
 
-            // 시뮬레이션 데이터 생성 함수
-            function generateAnalysisData() {
+            // 분석 데이터 생성 함수
+            function generateAnalysisData(userInput) {
                 const data = {};
+
+                // '물리적 조건' 점수 계산
+                let physicalScore = 0;
+                // 층수 점수 (1층=100, 2층=70, 그 외=20)
+                if (userInput.floor === 1) physicalScore += 100;
+                else if (userInput.floor === 2) physicalScore += 70;
+                else physicalScore += 20;
+                // 평수 점수 (25평 미만=20, 25-35평=85, 35-50평=100, 50평 초과=90)
+                if (userInput.area < 25) physicalScore += 20;
+                else if (userInput.area <= 35) physicalScore += 85;
+                else if (userInput.area <= 50) physicalScore += 100;
+                else physicalScore += 90;
+                physicalScore = Math.round(physicalScore / 2); // 층수와 평수 점수 평균
+
+                // '비용 효율성' 점수 계산
+                // (보증금/10 + 임대료)를 비용 지표로 사용. 지표가 낮을수록 점수 높음.
+                const costMetric = (userInput.deposit / 10) + userInput.rent;
+                let costScore = 100 - ((costMetric - 1500) / 4500) * 100; // 1500(최상)~6000(최악) 범위로 점수화
+                costScore = Math.round(Math.max(10, Math.min(100, costScore)));
+
+
                 for (const key in criteria) {
-                    data[key] = {
-                        score: Math.floor(Math.random() * 71) + 30, // 30 ~ 100점
-                        details: generateDetailData(key)
-                    };
+                    if (key === '물리적 조건') {
+                        data[key] = {
+                            score: Math.min(100, physicalScore + Math.floor(Math.random() * 10) - 5), // 약간의 랜덤성 추가
+                            details: generateDetailData(key, userInput)
+                        };
+                    } else if (key === '비용 효율성') {
+                         data[key] = {
+                            score: Math.max(10, costScore - Math.floor(Math.random() * 10)), // 약간의 랜덤성 추가
+                            details: generateDetailData(key, userInput)
+                        };
+                    } else {
+                        data[key] = {
+                            score: Math.floor(Math.random() * 71) + 30, // 30 ~ 100점
+                            details: generateDetailData(key, {})
+                        };
+                    }
                 }
                 return data;
             }
 
-            // 세부 항목별 시뮬레이션 데이터 생성
-            function generateDetailData(category) {
+            // 세부 항목별 데이터 생성
+            function generateDetailData(category, userInput) {
                 const details = {};
-                const baseScore = Math.random(); // 0 ~ 1 사이의 기본 점수
+                const baseScore = Math.random(); 
 
                 switch (category) {
                     case '상권 잠재력':
@@ -281,14 +340,15 @@
                         details['전면 가시성'] = (baseScore > 0.5) ? '우수' : '보통';
                         break;
                     case '비용 효율성':
-                        details['보증금'] = `${(5 - baseScore * 4).toFixed(1)}억원`;
-                        details['월 임대료 및 관리비'] = `${Math.floor(2500 - baseScore * 1500)}만원`;
-                        details['권리금'] = (baseScore < 0.3) ? '있음' : '없음';
+                        details['보증금'] = `${userInput.deposit.toLocaleString()} 만원`;
+                        details['월 임대료'] = `${userInput.rent.toLocaleString()} 만원`;
+                        details['권리금'] = (baseScore > 0.7) ? '없음' : `${(Math.floor(Math.random() * 5) * 1000).toLocaleString()} 만원`;
                         break;
                     case '물리적 조건':
-                        details['전용 면적 (평)'] = `${Math.floor(25 + baseScore * 25)}평`;
-                        details['매장 전면 길이 (m)'] = `${(6 + baseScore * 6).toFixed(1)}m`;
-                        details['주차 가능 여부'] = (baseScore > 0.6) ? '가능 (3대)' : '불가';
+                        details['전용 면적 (평)'] = `${userInput.area} 평`;
+                        details['층 수'] = `${userInput.floor} 층`;
+                        details['매장 전면 길이 (m)'] = `${(5 + baseScore * 7).toFixed(1)}m`;
+                        details['주차 가능 여부'] = (baseScore > 0.6) ? '가능' : '불가';
                         break;
                 }
                 return details;
@@ -300,7 +360,6 @@
                 const scoresContainer = document.getElementById('scores-container');
                 scoresContainer.innerHTML = '';
                 
-                // 가중치 합계로 정규화
                 const totalWeight = Object.values(currentWeights).reduce((sum, val) => sum + val, 0);
 
                 for (const key in data) {
@@ -370,12 +429,7 @@
                 const strengths = getItemsByScore(data, 80, 100);
                 const weaknesses = getItemsByScore(data, 0, 50);
                 
-                let swot = {
-                    S: [],
-                    W: [],
-                    O: [],
-                    T: []
-                };
+                let swot = { S: [], W: [], O: [], T: [] };
 
                 // Strengths
                 if(strengths.length > 0) {
@@ -386,6 +440,7 @@
                 }
                 if (data['상권 잠재력'].score > 80) swot.S.push(`핵심 타겟(2030)의 강력한 소비력`);
                 if (data['유동인구'].score > 85) swot.S.push(`풍부한 유동인구를 통한 높은 매장 노출 효과`);
+                if (data['물리적 조건'].details['층 수'] === '1 층') swot.S.push('1층에 위치하여 접근성 및 가시성 우수');
 
                 // Weaknesses
                 if(weaknesses.length > 0) {
@@ -434,3 +489,4 @@
     </script>
 </body>
 </html>
+

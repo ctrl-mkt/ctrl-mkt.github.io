@@ -76,6 +76,12 @@
             color: #718096;
             margin-top: -5px;
         }
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -145,8 +151,8 @@
                     <h2 class="text-2xl font-semibold">종합 분석 결과: <span id="analyzed-address" class="text-indigo-600"></span></h2>
                 </div>
 
-                <div class="flex flex-col items-center justify-center mb-8">
-                     <div class="gauge-container">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+                     <div class="gauge-container flex-shrink-0">
                         <div class="gauge-background"></div>
                         <div id="gauge-fill" class="gauge-fill" style="transform: rotate(0deg);"></div>
                         <div class="gauge-cover">
@@ -154,6 +160,7 @@
                             <div class="gauge-label">총 적합도</div>
                         </div>
                     </div>
+                    <div id="map" class="w-full h-64 md:h-auto"></div>
                 </div>
 
                 <div class="mb-8">
@@ -171,14 +178,14 @@
                 </div>
 
                 <div class="mt-8">
-                    <h3 class="text-xl font-semibold mb-4">수익성 분석 (월 매출 기준)</h3>
+                    <h3 class="text-xl font-semibold mb-4">수익성 분석 (월 단위)</h3>
                     <div id="profit-analysis" class="overflow-x-auto">
                         <!-- Profit table will be injected here -->
                     </div>
                 </div>
 
                 <div class="mt-8">
-                    <h3 class="text-xl font-semibold mb-4">예상 필요 인력</h3>
+                    <h3 class="text-xl font-semibold mb-4">예상 필요 인력 (주간 시간표)</h3>
                     <div id="staffing-estimation">
                         <!-- Staffing table will be injected here -->
                     </div>
@@ -198,14 +205,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
             const criteria = {
-                '상권 잠재력': { weight: 25 },
-                '유동인구': { weight: 20 },
-                '경쟁 환경': { weight: 15 },
-                '접근성 및 가시성': { weight: 15 },
-                '비용 효율성': { weight: 15 },
-                '물리적 조건': { weight: 10 },
+                '상권 잠재력': { weight: 25 }, '유동인구': { weight: 20 }, '경쟁 환경': { weight: 15 },
+                '접근성 및 가시성': { weight: 15 }, '비용 효율성': { weight: 15 }, '물리적 조건': { weight: 10 },
             };
 
             const weightsContainer = document.getElementById('weights-container');
@@ -217,6 +219,9 @@
             const salesRatioSlider = document.getElementById('salesRatio');
             const deliveryRatioEl = document.getElementById('deliveryRatio');
             const dineInRatioEl = document.getElementById('dineInRatio');
+            const mapContainer = document.getElementById('map');
+            let map = null;
+            let markers = [];
 
             let currentWeights = {};
             
@@ -262,20 +267,16 @@
             analyzeBtn.addEventListener('click', async () => {
                 const address = addressInput.value.trim();
                 const userInput = {
-                    floor: parseInt(document.getElementById('floor').value),
-                    area: parseInt(document.getElementById('area').value),
-                    deposit: parseInt(document.getElementById('deposit').value),
-                    rent: parseInt(document.getElementById('rent').value),
+                    floor: parseInt(document.getElementById('floor').value), area: parseInt(document.getElementById('area').value),
+                    deposit: parseInt(document.getElementById('deposit').value), rent: parseInt(document.getElementById('rent').value),
                     salesRatio: parseInt(salesRatioSlider.value),
                 };
 
                 if (address === '' || Object.values(userInput).some(isNaN)) {
-                    alert('모든 분석 정보를 빠짐없이 입력해주세요.');
-                    return;
+                    alert('모든 분석 정보를 빠짐없이 입력해주세요.'); return;
                 }
                 if (Object.values(currentWeights).reduce((s, v) => s + v, 0) !== 100) {
-                    alert('가중치의 총합은 100%가 되어야 합니다.');
-                    return;
+                    alert('가중치의 총합은 100%가 되어야 합니다.'); return;
                 }
                 
                 analyzeBtn.disabled = true;
@@ -289,6 +290,7 @@
                     initialMessage.classList.add('hidden');
                     document.getElementById('analyzed-address').textContent = address;
                     
+                    displayMap(apiData.mainCoords, apiData.competitorPlaces);
                     displayResults(analysisData);
                     calculateAndDisplayProfitability(userInput);
                     calculateAndDisplayStaffing(analysisData);
@@ -309,9 +311,7 @@
                     geocoder.addressSearch(address, (result, status) => {
                         if (status === kakao.maps.services.Status.OK) {
                             resolve({ lat: result[0].y, lng: result[0].x });
-                        } else {
-                            reject(new Error('유효한 주소를 찾을 수 없습니다.'));
-                        }
+                        } else { reject(new Error('유효한 주소를 찾을 수 없습니다.')); }
                     });
                 });
 
@@ -319,60 +319,89 @@
                     places.keywordSearch(keyword, (result, status, pagination) => {
                         if (status === kakao.maps.services.Status.OK) {
                             resolve({ count: pagination.totalCount, places: result });
-                        } else {
-                            resolve({ count: 0, places: [] });
-                        }
-                    }, {
-                        location: new kakao.maps.LatLng(coords.lat, coords.lng),
-                        radius: radius
-                    });
+                        } else { resolve({ count: 0, places: [] }); }
+                    }, { location: new kakao.maps.LatLng(coords.lat, coords.lng), radius: radius });
                 });
 
                 const coords = await getCoords();
-                
                 const competitors = ['맥도날드', '버거킹', 'KFC', '롯데리아', '맘스터치'];
                 const competitorPromises = competitors.map(c => searchNearby(coords, c, 300));
                 const competitorResults = await Promise.all(competitorPromises);
+                
                 const totalCompetitors = competitorResults.reduce((sum, r) => sum + r.count, 0);
+                const competitorPlaces = competitorResults.flatMap(r => r.places);
 
                 const subwayResult = await searchNearby(coords, '지하철역', 500);
                 const nearestSubwayDist = subwayResult.places.length > 0 ? parseInt(subwayResult.places[0].distance) : 9999;
-
                 const busStopResult = await searchNearby(coords, '버스정류장', 100);
 
                 return {
+                    mainCoords: coords,
                     totalCompetitors,
+                    competitorPlaces,
                     nearestSubwayDist,
                     busStopCount: busStopResult.count,
                 };
             }
+            
+            function displayMap(mainCoords, competitorPlaces) {
+                const mapOption = { 
+                    center: new kakao.maps.LatLng(mainCoords.lat, mainCoords.lng), 
+                    level: 4 
+                };
+                if (!map) {
+                    map = new kakao.maps.Map(mapContainer, mapOption);
+                } else {
+                    map.setCenter(new kakao.maps.LatLng(mainCoords.lat, mainCoords.lng));
+                }
+
+                markers.forEach(marker => marker.setMap(null));
+                markers = [];
+
+                const mainMarkerImage = new kakao.maps.MarkerImage(
+                    'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                    new kakao.maps.Size(64, 69), 
+                    {offset: new kakao.maps.Point(27, 69)}
+                );
+                const mainMarker = new kakao.maps.Marker({
+                    position: map.getCenter(),
+                    image: mainMarkerImage
+                });
+                mainMarker.setMap(map);
+                markers.push(mainMarker);
+
+                competitorPlaces.forEach(place => {
+                    const marker = new kakao.maps.Marker({
+                        map: map,
+                        position: new kakao.maps.LatLng(place.y, place.x)
+                    });
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: `<div style="padding:5px;font-size:12px;">${place.place_name}</div>`
+                    });
+                    kakao.maps.event.addListener(marker, 'mouseover', () => infowindow.open(map, marker));
+                    kakao.maps.event.addListener(marker, 'mouseout', () => infowindow.close());
+                    markers.push(marker);
+                });
+            }
 
             function generateAnalysisData(userInput, apiData) {
                 const data = {};
-                // API 기반 점수 계산
                 let competitionScore = 100 - (apiData.totalCompetitors * 15);
                 competitionScore = Math.max(10, competitionScore);
-
                 let accessibilityScore = 0;
-                accessibilityScore += Math.max(0, 100 - (apiData.nearestSubwayDist / 5)); // 500m -> 0점
-                accessibilityScore += Math.min(100, apiData.busStopCount * 25); // 4개 이상 만점
+                accessibilityScore += Math.max(0, 100 - (apiData.nearestSubwayDist / 5));
+                accessibilityScore += Math.min(100, apiData.busStopCount * 25);
                 accessibilityScore = Math.round(accessibilityScore / 2);
-
-                // 사용자 입력 기반 점수 계산
                 let physicalScore = 0;
                 if (userInput.floor === 1) physicalScore += 100; else if (userInput.floor === 2) physicalScore += 70; else physicalScore += 20;
                 if (userInput.area < 25) physicalScore += 20; else if (userInput.area <= 35) physicalScore += 85; else if (userInput.area <= 50) physicalScore += 100; else physicalScore += 90;
                 physicalScore = Math.round(physicalScore / 2);
-
                 const costMetric = (userInput.deposit / 10) + userInput.rent;
                 let costScore = 100 - ((costMetric - 1500) / 4500) * 100;
                 costScore = Math.round(Math.max(10, Math.min(100, costScore)));
                 
-                // 시뮬레이션 데이터
                 data['상권 잠재력'] = { score: Math.floor(Math.random() * 61) + 40, details: {'2030 매출 비중': `${(40 + Math.random() * 35).toFixed(1)}%`} };
                 data['유동인구'] = { score: Math.floor(Math.random() * 61) + 40, details: {'주중 점심 (12-13시)': `${Math.floor(600 + Math.random() * 400)}명`} };
-                
-                // 실제 데이터 기반
                 data['경쟁 환경'] = { score: competitionScore, details: { '주요 경쟁사 수 (반경 300m)': `${apiData.totalCompetitors}개` } };
                 data['접근성 및 가시성'] = { score: accessibilityScore, details: { '가장 가까운 지하철역': `${apiData.nearestSubwayDist}m`, '버스정류장 수 (반경 100m)': `${apiData.busStopCount}개` } };
                 data['비용 효율성'] = { score: costScore, details: { '보증금': `${userInput.deposit.toLocaleString()} 만원`, '월 임대료': `${userInput.rent.toLocaleString()} 만원` } };
@@ -386,7 +415,6 @@
                 const scoresContainer = document.getElementById('scores-container');
                 scoresContainer.innerHTML = '';
                 const totalWeight = Object.values(currentWeights).reduce((sum, val) => sum + val, 0);
-
                 for (const key in data) {
                     const weight = currentWeights[key];
                     const score = data[key].score;
@@ -397,81 +425,69 @@
                         detailsHtml += `<li>${detailKey}: <span class="font-medium text-gray-700">${data[key].details[detailKey]}</span></li>`;
                     }
                     detailsHtml += '</ul>';
-
                     const scoreItem = document.createElement('div');
                     scoreItem.className = 'bg-gray-50 p-4 rounded-lg border';
-                    scoreItem.innerHTML = `
-                        <div class="flex justify-between items-center">
-                            <span class="font-semibold text-sm">${key}</span>
-                            <span class="font-bold text-lg text-indigo-700">${score}점</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                            <div class="${scoreColor} h-2 rounded-full" style="width: ${score}%"></div>
-                        </div>
-                        ${detailsHtml}
-                    `;
+                    scoreItem.innerHTML = `<div class="flex justify-between items-center"><span class="font-semibold text-sm">${key}</span><span class="font-bold text-lg text-indigo-700">${score}점</span></div><div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div class="${scoreColor} h-2 rounded-full" style="width: ${score}%"></div></div>${detailsHtml}`;
                     scoresContainer.appendChild(scoreItem);
                 }
-                
                 totalScore = Math.round(totalScore);
                 const totalScoreEl = document.getElementById('total-score');
                 const gaugeFillEl = document.getElementById('gauge-fill');
-                
                 let currentAnimatedScore = 0;
                 const interval = setInterval(() => {
                     currentAnimatedScore++;
-                    if (currentAnimatedScore >= totalScore) {
-                        clearInterval(interval);
-                    }
+                    if (currentAnimatedScore >= totalScore) clearInterval(interval);
                     totalScoreEl.textContent = Math.min(totalScore, currentAnimatedScore);
                 }, 20);
-                
                 gaugeFillEl.style.transform = `rotate(${(totalScore / 100) * 180}deg)`;
                 displaySwot(data);
+            }
+            
+            function formatCurrency(num) {
+                return `${(num / 10000).toLocaleString('ko-KR')} 만원`;
             }
 
             function calculateAndDisplayProfitability(userInput) {
                 const profitContainer = document.getElementById('profit-analysis');
-                const monthlySalesLevels = [60000000, 80000000, 100000000, 120000000, 150000000];
+                const salesLevels = [6000, 8000, 10000, 12000, 15000]; // 만원 단위
                 const dineInRatio = userInput.salesRatio / 100;
                 const deliveryRatio = 1 - dineInRatio;
 
-                const constants = { cogsRate: 0.38, deliveryFeeRate: 0.45, laborRate: 0.16, utilities: 1800000, otherCosts: 1000000, cardFeeRate: 0.015 };
+                const constants = { cogsRate: 0.38, deliveryFeeRate: 0.45, laborRate: 0.16, utilities: 180, otherCosts: 100, cardFeeRate: 0.015 };
                 
-                let tableHtml = `
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">월 매출</th>
-                                <th scope="col" class="px-6 py-3">세전 이익</th>
-                                <th scope="col" class="px-6 py-3">예상 마진율</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
+                let tableHtml = `<table class="w-full text-sm text-center text-gray-600"><thead class="text-xs text-gray-700 uppercase bg-gray-100"><tr><th scope="col" class="px-4 py-3 text-left">항목</th>`;
+                salesLevels.forEach(s => tableHtml += `<th scope="col" class="px-4 py-3">${s.toLocaleString()}만</th>`);
+                tableHtml += `</tr></thead><tbody>`;
 
-                monthlySalesLevels.forEach(sales => {
-                    const deliverySales = sales * deliveryRatio;
-                    const totalCogs = sales * constants.cogsRate;
-                    const totalDeliveryFee = deliverySales * constants.deliveryFeeRate;
-                    const grossProfit = sales - totalCogs - totalDeliveryFee;
-                    
-                    const rentCost = userInput.rent * 10000;
-                    const laborCost = sales * constants.laborRate;
-                    const cardFeeCost = sales * constants.cardFeeRate;
-                    const totalExpenses = rentCost + laborCost + constants.utilities + constants.otherCosts + cardFeeCost;
-                    
-                    const preTaxProfit = grossProfit - totalExpenses;
-                    const marginRate = (preTaxProfit / sales) * 100;
-                    const profitColor = preTaxProfit > 0 ? 'text-green-600' : 'text-red-600';
+                const rows = {
+                    "매출액": (s) => s * 10000,
+                    "(-) 원재료비": (s) => s * 10000 * constants.cogsRate,
+                    "(-) 배달수수료": (s) => s * 10000 * deliveryRatio * constants.deliveryFeeRate,
+                    "매출총이익": (s, results) => results["매출액"] - results["(-) 원재료비"] - results["(-) 배달수수료"],
+                    "(-) 임대료": (s) => userInput.rent * 10000,
+                    "(-) 인건비": (s) => s * 10000 * constants.laborRate,
+                    "(-) 공과잡비": (s) => constants.utilities * 10000,
+                    "(-) 기타비용": (s) => constants.otherCosts * 10000,
+                    "(-) 카드수수료": (s) => s * 10000 * constants.cardFeeRate,
+                    "세전이익": (s, results) => results["매출총이익"] - results["(-) 임대료"] - results["(-) 인건비"] - results["(-) 공과잡비"] - results["(-) 기타비용"] - results["(-) 카드수수료"],
+                    "마진율": (s, results) => (results["세전이익"] / results["매출액"]) * 100
+                };
+                
+                Object.entries(rows).forEach(([title, calcFn]) => {
+                    const isProfitRow = title === '세전이익';
+                    const isMarginRow = title === '마진율';
+                    const isHeaderRow = title === '매출총이익';
 
-                    tableHtml += `
-                        <tr class="bg-white border-b">
-                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${(sales/10000).toLocaleString()} 만원</th>
-                            <td class="px-6 py-4 font-bold ${profitColor}">${Math.round(preTaxProfit/10000).toLocaleString()} 만원</td>
-                            <td class="px-6 py-4 font-bold ${profitColor}">${marginRate.toFixed(1)}%</td>
-                        </tr>
-                    `;
+                    tableHtml += `<tr class="border-b ${isHeaderRow ? 'bg-gray-50' : 'bg-white'}"><td class="px-4 py-2 font-medium text-gray-900 text-left ${isProfitRow ? 'font-bold' : ''}">${title}</td>`;
+                    let resultsCache = {};
+                    salesLevels.forEach(s => {
+                         const salesData = Object.fromEntries(Object.entries(rows).map(([key, fn]) => [key, fn(s, {})]));
+                         const value = calcFn(s, salesData);
+                         const profitColor = value > 0 ? 'text-green-600' : 'text-red-600';
+
+                         tableHtml += `<td class="px-4 py-2 ${isProfitRow || isMarginRow ? `font-bold ${profitColor}` : ''}">${isMarginRow ? `${value.toFixed(1)}%` : formatCurrency(value)}</td>`;
+                    });
+                    tableHtml += `</tr>`;
                 });
                 tableHtml += `</tbody></table>`;
                 profitContainer.innerHTML = tableHtml;
@@ -480,37 +496,51 @@
             function calculateAndDisplayStaffing(data) {
                 const staffingContainer = document.getElementById('staffing-estimation');
                 const salesProxy = data['유동인구'].score;
-                const salesFactor = Math.round((salesProxy - 50) / 25);
-                const baseStaff = 2, peakBonus = 2, weekendBonus = 1;
+                const salesFactor = Math.round((salesProxy - 60) / 20); // 60점 기준, 20점마다 1명 증감
+                
+                const staff = {
+                    weekday: { open: 2, middle: 3, close: 2 },
+                    weekend: { open: 2, middle: 4, close: 3 }
+                };
 
-                const weekday_peak = Math.max(2, baseStaff + peakBonus + salesFactor);
-                const weekday_offpeak = Math.max(1, baseStaff + salesFactor);
-                const weekend_peak = Math.max(2, baseStaff + peakBonus + weekendBonus + salesFactor);
-                const weekend_offpeak = Math.max(2, baseStaff + weekendBonus + salesFactor);
+                const finalStaff = {
+                    weekday: {
+                        open: Math.max(1, staff.weekday.open + salesFactor),
+                        middle: Math.max(2, staff.weekday.middle + salesFactor),
+                        close: Math.max(1, staff.weekday.close + salesFactor)
+                    },
+                    weekend: {
+                        open: Math.max(1, staff.weekend.open + salesFactor),
+                        middle: Math.max(2, staff.weekend.middle + salesFactor + 1), // 주말 미들 1명 추가
+                        close: Math.max(2, staff.weekend.close + salesFactor)
+                    }
+                };
                 
                 staffingContainer.innerHTML = `
-                    <table class="w-full text-sm text-left text-gray-500">
+                    <table class="w-full text-sm text-center text-gray-500">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                             <tr>
                                 <th scope="col" class="px-6 py-3">구분</th>
-                                <th scope="col" class="px-6 py-3">피크타임 (11-14시, 17-20시)</th>
-                                <th scope="col" class="px-6 py-3">오프피크타임</th>
+                                <th scope="col" class="px-6 py-3">오픈 (10~17시)</th>
+                                <th scope="col" class="px-6 py-3">미들 (12~21시)</th>
+                                <th scope="col" class="px-6 py-3">마감 (16~23시)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="bg-white border-b">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900">평일</th>
-                                <td class="px-6 py-4">${weekday_peak} 명</td>
-                                <td class="px-6 py-4">${weekday_offpeak} 명</td>
+                                <td class="px-6 py-4">${finalStaff.weekday.open} 명</td>
+                                <td class="px-6 py-4">${finalStaff.weekday.middle} 명</td>
+                                <td class="px-6 py-4">${finalStaff.weekday.close} 명</td>
                             </tr>
-                            <tr class="bg-white border-b">
+                            <tr class="bg-white">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900">주말/공휴일</th>
-                                <td class="px-6 py-4">${weekend_peak} 명</td>
-                                <td class="px-6 py-4">${weekend_offpeak} 명</td>
+                                <td class="px-6 py-4">${finalStaff.weekend.open} 명</td>
+                                <td class="px-6 py-4">${finalStaff.weekend.middle} 명</td>
+                                <td class="px-6 py-4">${finalStaff.weekend.close} 명</td>
                             </tr>
                         </tbody>
-                    </table>
-                `;
+                    </table>`;
             }
             
             function displaySwot(data) {

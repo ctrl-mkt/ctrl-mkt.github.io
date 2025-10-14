@@ -394,8 +394,12 @@
                 });
 
                 const coords = await getCoords();
-                // Competitor search narrowed down to hamburger and sandwich specialty stores.
-                const competitors = ['햄버거', '수제버거', '샌드위치', '서브웨이'];
+                // Specific list of burger and sandwich competitors
+                const competitors = [
+                    '맥도날드', '버거킹', '롯데리아', '맘스터치', '버거리', 
+                    '프랭크버거', 'KFC', '파파이스', '쉐이크쉑', '파이브가이즈', 
+                    '크라이치즈버거', '바스버거', '써브웨이', '퀴즈노스', '버거'
+                ];
                 const competitorPromises = competitors.map(c => searchNearby(coords, c, 300));
                 const competitorResults = await Promise.all(competitorPromises);
                 

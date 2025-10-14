@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬램버거 입점 적합도 분석기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* 커스텀 스크롤바 스타일 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .swot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .gauge-container {
+            position: relative;
+            width: 150px;
+            height: 75px;
+            overflow: hidden;
+        }
+        .gauge-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(from -90deg at 50% 100%, #e0e0e0 0%, #e0e0e0 100%);
+            border-radius: 150px 150px 0 0;
+        }
+        .gauge-fill {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(from -90deg at 50% 100%, #4c51bf 0%, #667eea 100%);
+            border-radius: 150px 150px 0 0;
+            transform-origin: 50% 100%;
+            transition: transform 1.5s ease-out;
+        }
+        .gauge-cover {
+            position: absolute;
+            width: 120px;
+            height: 60px;
+            background: #f7fafc;
+            border-radius: 120px 120px 0 0;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .gauge-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .gauge-label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: -5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-700">🍔 슬램버거 입점 적합도 분석기</h1>
+            <p class="text-gray-600 mt-2">최적의 비즈니스 위치를 과학적으로 탐색하고 분석합니다.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 왼쪽: 입력 및 가중치 설정 -->
+            <section class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">분석 정보 입력</h2>
+                
+                <div class="mb-6">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2">분석 대상 주소</label>
+                    <input type="text" id="address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="예: 서울특별시 강남구 테헤란로 123">
+                </div>
+
+                <button id="analyzeBtn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
+                    분석 실행
+                </button>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold mb-4">평가항목별 가중치 설정</h3>
+                    <div id="weights-container" class="space-y-4">
+                        <!-- 가중치 슬라이더가 여기에 동적으로 추가됩니다. -->
+                    </div>
+                    <div class="mt-4 text-right font-bold text-indigo-600">
+                        총합: <span id="total-weight">100</span>%
+                    </div>
+                </div>
+            </section>
+
+            <!-- 오른쪽: 분석 결과 -->
+            <section id="results-section" class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-semibold">종합 분석 결과: <span id="analyzed-address" class="text-indigo-600"></span></h2>
+                </div>
+
+                <div class="flex flex-col items-center justify-center mb-8">
+                     <div class="gauge-container">
+                        <div class="gauge-background"></div>
+                        <div id="gauge-fill" class="gauge-fill" style="transform: rotate(0deg);"></div>
+                        <div class="gauge-cover">
+                            <div id="total-score" class="gauge-score">0</div>
+                            <div class="gauge-label">총 적합도</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">항목별 적합도 점수</h3>
+                    <div id="scores-container" class="space-y-3">
+                        <!-- 항목별 점수가 여기에 동적으로 추가됩니다. -->
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">SWOT 분석</h3>
+                    <div id="swot-analysis" class="swot-grid">
+                        <!-- SWOT 분석 내용이 여기에 동적으로 추가됩니다. -->
+                    </div>
+                </div>
+            </section>
+             <section id="initial-message" class="lg:col-span-2 flex items-center justify-center bg-white p-6 rounded-2xl shadow-lg">
+                <div class="text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-semibold text-gray-900">분석을 기다리고 있습니다.</h3>
+                    <p class="mt-1 text-sm text-gray-500">주소를 입력하고 '분석 실행' 버튼을 눌러주세요.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 평가 항목 및 가중치 기본값 정의
+            const criteria = {
+                '상권 잠재력': { weight: 25, details: ['2030 매출 비중', '패스트푸드 업종 월 평균 매출', '상권 내 유사업종 수'] },
+                '유동인구': { weight: 20, details: ['주중 점심 (12-13시)', '주중 저녁 (18-19시)', '주말 점심 (12-13시)', '주말 저녁 (18-19시)'] },
+                '경쟁 환경': { weight: 15, details: ['주요 경쟁사 수 (반경 300m)', '경쟁사 평균 매출', '비경쟁 트래픽 유발 매장'] },
+                '접근성 및 가시성': { weight: 15, details: ['지하철역 도보 거리 (분)', '버스정류장 갯수 (반경 100m)', '코너 위치 여부', '전면 가시성'] },
+                '비용 효율성': { weight: 15, details: ['보증금', '월 임대료 및 관리비', '권리금'] },
+                '물리적 조건': { weight: 10, details: ['전용 면적 (평)', '매장 전면 길이 (m)', '주차 가능 여부'] },
+            };
+
+            const weightsContainer = document.getElementById('weights-container');
+            const totalWeightEl = document.getElementById('total-weight');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const addressInput = document.getElementById('address');
+            const resultsSection = document.getElementById('results-section');
+            const initialMessage = document.getElementById('initial-message');
+
+            let currentWeights = {};
+
+            // 가중치 슬라이더 초기화
+            function initializeWeights() {
+                weightsContainer.innerHTML = '';
+                let totalWeight = 0;
+                for (const key in criteria) {
+                    currentWeights[key] = criteria[key].weight;
+                    totalWeight += criteria[key].weight;
+                    
+                    const weightItem = document.createElement('div');
+                    weightItem.innerHTML = `
+                        <label for="${key}-weight" class="block text-sm font-medium text-gray-700">${key}</label>
+                        <div class="flex items-center space-x-3">
+                            <input type="range" id="${key}-weight" name="${key}-weight" min="0" max="50" value="${currentWeights[key]}" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
+                            <span class="font-semibold text-indigo-600 w-12 text-right">${currentWeights[key]}%</span>
+                        </div>
+                    `;
+                    weightsContainer.appendChild(weightItem);
+                }
+                updateTotalWeight();
+            }
+
+            // 총 가중치 업데이트
+            function updateTotalWeight() {
+                const total = Object.values(currentWeights).reduce((sum, val) => sum + val, 0);
+                totalWeightEl.textContent = total;
+                if (total !== 100) {
+                    totalWeightEl.parentElement.classList.remove('text-indigo-600');
+                    totalWeightEl.parentElement.classList.add('text-red-600');
+                } else {
+                    totalWeightEl.parentElement.classList.add('text-indigo-600');
+                    totalWeightEl.parentElement.classList.remove('text-red-600');
+                }
+            }
+            
+            // 슬라이더 이벤트 리스너
+            weightsContainer.addEventListener('input', (e) => {
+                if (e.target.type === 'range') {
+                    const key = e.target.name.replace('-weight', '');
+                    const value = parseInt(e.target.value);
+                    currentWeights[key] = value;
+                    e.target.nextElementSibling.textContent = `${value}%`;
+                    updateTotalWeight();
+                }
+            });
+
+            // 분석 버튼 클릭 이벤트
+            analyzeBtn.addEventListener('click', () => {
+                if (addressInput.value.trim() === '') {
+                    alert('분석할 주소를 입력해주세요.');
+                    return;
+                }
+                const totalWeight = Object.values(currentWeights).reduce((sum, val) => sum + val, 0);
+                if (totalWeight !== 100) {
+                    alert('가중치의 총합은 100%가 되어야 합니다. 현재: ' + totalWeight + '%');
+                    return;
+                }
+                
+                resultsSection.classList.remove('hidden');
+                initialMessage.classList.add('hidden');
+
+                document.getElementById('analyzed-address').textContent = addressInput.value;
+                
+                // 실제 API 호출 대신, 시뮬레이션 데이터 생성
+                const analysisData = generateAnalysisData();
+                displayResults(analysisData);
+            });
+
+            // 시뮬레이션 데이터 생성 함수
+            function generateAnalysisData() {
+                const data = {};
+                for (const key in criteria) {
+                    data[key] = {
+                        score: Math.floor(Math.random() * 71) + 30, // 30 ~ 100점
+                        details: generateDetailData(key)
+                    };
+                }
+                return data;
+            }
+
+            // 세부 항목별 시뮬레이션 데이터 생성
+            function generateDetailData(category) {
+                const details = {};
+                const baseScore = Math.random(); // 0 ~ 1 사이의 기본 점수
+
+                switch (category) {
+                    case '상권 잠재력':
+                        details['2030 매출 비중'] = `${(40 + baseScore * 35).toFixed(1)}%`;
+                        details['패스트푸드 업종 월 평균 매출'] = `${(1.2 + baseScore * 1.5).toFixed(1)}억원`;
+                        details['상권 내 유사업종 수'] = `${Math.floor(5 - baseScore * 4)}개`;
+                        break;
+                    case '유동인구':
+                        details['주중 점심 (12-13시)'] = `${Math.floor(600 + baseScore * 400)}명`;
+                        details['주중 저녁 (18-19시)'] = `${Math.floor(500 + baseScore * 500)}명`;
+                        details['주말 점심 (12-13시)'] = `${Math.floor(400 + baseScore * 600)}명`;
+                        details['주말 저녁 (18-19시)'] = `${Math.floor(500 + baseScore * 700)}명`;
+                        break;
+                    case '경쟁 환경':
+                        details['주요 경쟁사 수 (반경 300m)'] = `${Math.floor(4 - baseScore * 3)}개`;
+                        details['경쟁사 평균 매출'] = `${(1.8 - baseScore * 0.8).toFixed(1)}억원`;
+                        details['비경쟁 트래픽 유발 매장'] = (baseScore > 0.6) ? '영화관, 대형서점' : '편의점, 카페';
+                        break;
+                    case '접근성 및 가시성':
+                        details['지하철역 도보 거리 (분)'] = `${Math.floor(10 - baseScore * 9)}분`;
+                        details['버스정류장 갯수 (반경 100m)'] = `${Math.floor(1 + baseScore * 4)}개`;
+                        details['코너 위치 여부'] = (baseScore > 0.7) ? 'Y' : 'N';
+                        details['전면 가시성'] = (baseScore > 0.5) ? '우수' : '보통';
+                        break;
+                    case '비용 효율성':
+                        details['보증금'] = `${(5 - baseScore * 4).toFixed(1)}억원`;
+                        details['월 임대료 및 관리비'] = `${Math.floor(2500 - baseScore * 1500)}만원`;
+                        details['권리금'] = (baseScore < 0.3) ? '있음' : '없음';
+                        break;
+                    case '물리적 조건':
+                        details['전용 면적 (평)'] = `${Math.floor(25 + baseScore * 25)}평`;
+                        details['매장 전면 길이 (m)'] = `${(6 + baseScore * 6).toFixed(1)}m`;
+                        details['주차 가능 여부'] = (baseScore > 0.6) ? '가능 (3대)' : '불가';
+                        break;
+                }
+                return details;
+            }
+
+            // 결과 표시 함수
+            function displayResults(data) {
+                let totalScore = 0;
+                const scoresContainer = document.getElementById('scores-container');
+                scoresContainer.innerHTML = '';
+                
+                // 가중치 합계로 정규화
+                const totalWeight = Object.values(currentWeights).reduce((sum, val) => sum + val, 0);
+
+                for (const key in data) {
+                    const weight = currentWeights[key];
+                    const score = data[key].score;
+                    totalScore += (score * weight / totalWeight);
+
+                    const scoreColor = score >= 80 ? 'bg-blue-500' : score >= 60 ? 'bg-green-500' : score >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+                    
+                    let detailsHtml = '<ul class="text-xs text-gray-500 mt-1 pl-4 list-disc">';
+                    for(const detailKey in data[key].details) {
+                        detailsHtml += `<li>${detailKey}: <span class="font-medium text-gray-700">${data[key].details[detailKey]}</span></li>`;
+                    }
+                    detailsHtml += '</ul>';
+
+                    const scoreItem = document.createElement('div');
+                    scoreItem.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold">${key} (가중치: ${weight}%)</span>
+                                <span class="font-bold text-lg text-indigo-700">${score}점</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                <div class="${scoreColor} h-2.5 rounded-full" style="width: ${score}%"></div>
+                            </div>
+                            ${detailsHtml}
+                        </div>
+                    `;
+                    scoresContainer.appendChild(scoreItem);
+                }
+                
+                totalScore = Math.round(totalScore);
+                const totalScoreEl = document.getElementById('total-score');
+                const gaugeFillEl = document.getElementById('gauge-fill');
+                
+                // 총점 애니메이션
+                let currentAnimatedScore = 0;
+                const interval = setInterval(() => {
+                    if (currentAnimatedScore >= totalScore) {
+                        clearInterval(interval);
+                        currentAnimatedScore = totalScore;
+                    }
+                    totalScoreEl.textContent = currentAnimatedScore;
+                    currentAnimatedScore++;
+                }, 20);
+
+                // 게이지 애니메이션
+                const rotation = (totalScore / 100) * 180;
+                gaugeFillEl.style.transform = `rotate(${rotation}deg)`;
+
+                displaySwot(data);
+            }
+            
+            // SWOT 분석 표시 함수
+            function displaySwot(data) {
+                const swotContainer = document.getElementById('swot-analysis');
+                swotContainer.innerHTML = '';
+                
+                const getTopItem = (data, asc = false) => {
+                    return Object.entries(data).sort((a, b) => asc ? a[1].score - b[1].score : b[1].score - a[1].score)[0];
+                };
+
+                const getItemsByScore = (data, min, max) => {
+                     return Object.entries(data).filter(([key, value]) => value.score >= min && value.score <= max);
+                };
+
+                const strengths = getItemsByScore(data, 80, 100);
+                const weaknesses = getItemsByScore(data, 0, 50);
+                
+                let swot = {
+                    S: [],
+                    W: [],
+                    O: [],
+                    T: []
+                };
+
+                // Strengths
+                if(strengths.length > 0) {
+                    strengths.forEach(item => swot.S.push(`${item[0]} 항목의 높은 점수`));
+                } else {
+                    const topItem = getTopItem(data);
+                    swot.S.push(`상대적으로 우수한 ${topItem[0]}`);
+                }
+                if (data['상권 잠재력'].score > 80) swot.S.push(`핵심 타겟(2030)의 강력한 소비력`);
+                if (data['유동인구'].score > 85) swot.S.push(`풍부한 유동인구를 통한 높은 매장 노출 효과`);
+
+                // Weaknesses
+                if(weaknesses.length > 0) {
+                    weaknesses.forEach(item => swot.W.push(`${item[0]} 항목의 낮은 경쟁력`));
+                } else {
+                    const bottomItem = getTopItem(data, true);
+                    swot.W.push(`개선이 필요한 ${bottomItem[0]} 요소`);
+                }
+                if (data['비용 효율성'].score < 50) swot.W.push(`높은 임대료로 인한 초기 투자 부담 및 수익성 악화 우려`);
+                if (data['경쟁 환경'].score < 60) swot.W.push(`다수의 경쟁사 존재로 인한 출혈 경쟁 가능성`);
+
+                // Opportunities
+                swot.O.push(`주변 오피스/대학가 연계 프로모션 통한 단골 고객 확보 가능성`);
+                if(data['물리적 조건'].score > 70) swot.O.push(`넓고 쾌적한 매장 환경을 활용한 브랜드 이미지 제고`);
+                swot.O.push(`배달 수요가 많은 지역일 경우, 홀 매출 외 추가 수익 창출 용이`);
+
+                // Threats
+                swot.T.push(`경기 침체로 인한 외식 소비 심리 위축 가능성`);
+                if(data['경쟁 환경'].score < 50) swot.T.push(`경쟁사의 공격적인 마케팅 및 신메뉴 출시에 따른 고객 이탈 위험`);
+                swot.T.push(`인근 지역 재개발 또는 상권 이동에 따른 유동인구 변화 가능성`);
+                
+                const swotMapping = {
+                    S: { title: '강점 (Strength)', color: 'blue' },
+                    W: { title: '약점 (Weakness)', color: 'red' },
+                    O: { title: '기회 (Opportunity)', color: 'green' },
+                    T: { title: '위협 (Threat)', color: 'yellow' }
+                };
+
+                for (const key in swotMapping) {
+                    const { title, color } = swotMapping[key];
+                    let itemsHtml = swot[key].map(item => `<li class="flex items-start"><span class="text-${color}-500 mr-2">✓</span>${item}</li>`).join('');
+                    swotContainer.innerHTML += `
+                        <div class="bg-gray-50 p-4 rounded-lg border border-${color}-200">
+                            <h4 class="font-bold text-lg text-${color}-700 mb-2">${title}</h4>
+                            <ul class="space-y-1 text-sm text-gray-700">
+                                ${itemsHtml}
+                            </ul>
+                        </div>
+                    `;
+                }
+            }
+            
+            // 초기화 함수 호출
+            initializeWeights();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나는야 사입왕 - F&B 식자재 최저가 검색</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(to right, #4ade80, #3b82f6);
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- 전체 레이아웃 -->
+    <div class="min-h-screen flex flex-col">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-md sticky top-0 z-10">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <h1 class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">
+                    <a href="#">👑 나는야 사입왕</a>
+                </h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600 hidden sm:block">
+                        <span class="font-bold">ABC 식당</span>님, 환영합니다!
+                    </span>
+                    <button id="upgradeButtonHeader" class="bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition duration-300 text-sm">
+                        ⭐ PRO 업그레이드
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-800">로그아웃</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="flex-grow container mx-auto p-4 md:p-6">
+            
+            <!-- 위시리스트 관리 -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">나의 위시리스트</h2>
+                        <p class="text-gray-500 mt-1">현재 <span class="font-bold text-green-500">7개</span>의 상품을 추적 중입니다. (무료 플랜: 10개까지)</p>
+                    </div>
+                    <button id="addProductBtn" class="mt-4 md:mt-0 w-full md:w-auto bg-blue-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-blue-600 transition duration-300 flex items-center justify-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        <span>상품 추가하기</span>
+                    </button>
+                </div>
+
+                <!-- 위시리스트 테이블 -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="border-b-2 border-gray-200">
+                            <tr>
+                                <th class="p-4 text-sm font-bold text-gray-600">상품 정보</th>
+                                <th class="p-4 text-sm font-bold text-gray-600 text-center">나의 기준가</th>
+                                <th class="p-4 text-sm font-bold text-gray-600 text-center">현재 최저가</th>
+                                <th class="p-4 text-sm font-bold text-gray-600 text-center hidden md:table-cell">단위 가격</th>
+                                <th class="p-4 text-sm font-bold text-gray-600 text-center">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 샘플 상품 1 -->
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="p-4 flex items-center space-x-4">
+                                    <img src="https://placehold.co/80x80/EFEFEF/333333?text=상품이미지" alt="상품 이미지" class="w-16 h-16 rounded-lg object-cover">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">백설 진한 참기름 500ml</p>
+                                        <p class="text-xs text-gray-500">마지막 업데이트: 2시간 전</p>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <p class="text-gray-700">6,500원</p>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <p class="font-bold text-lg text-red-500">6,150원</p>
+                                    <span class="text-xs px-2 py-0.5 bg-red-100 text-red-600 rounded-full">-5.4%</span>
+                                </td>
+                                <td class="p-4 text-center hidden md:table-cell">
+                                    <p class="text-gray-700">1,230원/100ml</p>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button class="viewPriceBtn text-blue-500 hover:underline text-sm font-semibold">가격비교</button>
+                                </td>
+                            </tr>
+                            <!-- 샘플 상품 2 -->
+                            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                <td class="p-4 flex items-center space-x-4">
+                                    <img src="https://placehold.co/80x80/EFEFEF/333333?text=상품이미지" alt="상품 이미지" class="w-16 h-16 rounded-lg object-cover">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">오뚜기 업소용 마요네즈 3.2kg</p>
+                                        <p class="text-xs text-gray-500">마지막 업데이트: 2시간 전</p>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <p class="text-gray-700">14,000원</p>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <p class="font-bold text-lg text-blue-500">14,200원</p>
+                                    <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full">+1.4%</span>
+                                </td>
+                                <td class="p-4 text-center hidden md:table-cell">
+                                    <p class="text-gray-700">444원/100g</p>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button class="viewPriceBtn text-blue-500 hover:underline text-sm font-semibold">가격비교</button>
+                                </td>
+                            </tr>
+                            <!-- 추가 상품들... -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- 푸터 -->
+        <footer class="text-center p-4 text-sm text-gray-500">
+            © 2025 나는야 사입왕. All Rights Reserved.
+        </footer>
+    </div>
+    
+    <!-- 모달: 상품 추가하기 -->
+    <div id="addProductModal" class="fixed inset-0 w-full h-full flex items-center justify-center modal-backdrop z-20 hidden">
+        <div class="bg-white w-full max-w-md m-4 p-6 rounded-2xl shadow-xl transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">새 상품 추가</h3>
+                <button id="closeAddModal" class="text-gray-400 hover:text-gray-700">&times;</button>
+            </div>
+            <form>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">상품명</label>
+                        <input type="text" placeholder="예: 백설 진한 참기름 500ml" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">네이버 쇼핑 카탈로그 링크</label>
+                        <input type="url" placeholder="상품을 정확히 식별하기 위해 필수입니다." class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">나의 기준 가격 (원)</label>
+                        <input type="number" placeholder="이 가격보다 싸지면 알려드려요" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300">위시리스트에 추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 모달: 가격 비교 결과 -->
+    <div id="priceCompareModal" class="fixed inset-0 w-full h-full flex items-center justify-center modal-backdrop z-20 hidden">
+        <div class="bg-white w-full max-w-2xl m-4 p-6 rounded-2xl shadow-xl transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-xl font-bold">백설 진한 참기름 500ml</h3>
+                    <p class="text-sm text-gray-500">최저가 Top 10</p>
+                </div>
+                <button id="closePriceModal" class="text-gray-400 hover:text-gray-700">&times;</button>
+            </div>
+            <!-- 필터 옵션 -->
+            <div class="flex space-x-2 mb-4">
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">#전체</span>
+                <span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full hover:bg-gray-200 cursor-pointer">#무료배송</span>
+                <span class="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full hover:bg-gray-200 cursor-pointer">#카드할인 포함</span>
+            </div>
+            <!-- 가격 목록 -->
+            <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                <!-- 아이템 1 -->
+                <a href="#" target="_blank" class="block p-3 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition duration-200">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-bold text-lg text-red-500">1.</span>
+                            <p class="font-semibold">네이버쇼핑</p>
+                            <span class="text-xs text-gray-500">스마트스토어 A</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg text-red-500">6,150원</p>
+                            <p class="text-sm text-gray-500">+ 배송비 3,000원</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- 아이템 2 -->
+                <a href="#" target="_blank" class="block p-3 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition duration-200">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-bold text-lg">2.</span>
+                            <p class="font-semibold">쿠팡</p>
+                             <span class="text-xs text-gray-500">로켓배송</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">6,200원</p>
+                            <p class="text-sm text-green-600">와우회원 무료배송</p>
+                        </div>
+                    </div>
+                </a>
+                <!-- ... 추가 아이템들 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달: PRO 업그레이드 -->
+    <div id="upgradeModal" class="fixed inset-0 w-full h-full flex items-center justify-center modal-backdrop z-20 hidden">
+        <div class="bg-white w-full max-w-md m-4 p-8 rounded-2xl shadow-xl text-center transform transition-all">
+            <h3 class="text-2xl font-bold gradient-bg bg-clip-text text-transparent mb-2">PRO 플랜으로 업그레이드</h3>
+            <p class="text-gray-600 mb-6">더 많은 상품을, 더 빠르게 관리하세요!</p>
+            <div class="text-left space-y-3 mb-8">
+                <p class="flex items-center"><span class="text-green-500 mr-2">✔</span> 무제한 상품 등록</p>
+                <p class="flex items-center"><span class="text-green-500 mr-2">✔</span> 더 빠른 가격 업데이트 주기 (개발예정)</p>
+                <p class="flex items-center"><span class="text-green-500 mr-2">✔</span> 가격 변동 알림톡 (개발예정)</p>
+            </div>
+            <div class="mb-6">
+                <p class="text-4xl font-bold">월 9,900원</p>
+                <p class="text-sm text-gray-500">(VAT 포함)</p>
+            </div>
+            <button class="w-full bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300">
+                토스페이로 구독하고 PRO 되기
+            </button>
+            <button id="closeUpgradeModal" class="mt-4 text-sm text-gray-500 hover:underline">나중에 할게요</button>
+        </div>
+    </div>
+
+
+    <script>
+        // 모달 관련 스크립트
+        const addProductBtn = document.getElementById('addProductBtn');
+        const addProductModal = document.getElementById('addProductModal');
+        const closeAddModal = document.getElementById('closeAddModal');
+
+        const priceCompareModal = document.getElementById('priceCompareModal');
+        const closePriceModal = document.getElementById('closePriceModal');
+        const viewPriceBtns = document.querySelectorAll('.viewPriceBtn');
+        
+        const upgradeModal = document.getElementById('upgradeModal');
+        const upgradeButtonHeader = document.getElementById('upgradeButtonHeader');
+        const closeUpgradeModal = document.getElementById('closeUpgradeModal');
+
+
+        addProductBtn.addEventListener('click', () => addProductModal.classList.remove('hidden'));
+        closeAddModal.addEventListener('click', () => addProductModal.classList.add('hidden'));
+
+        viewPriceBtns.forEach(btn => {
+            btn.addEventListener('click', () => priceCompareModal.classList.remove('hidden'));
+        });
+        closePriceModal.addEventListener('click', () => priceCompareModal.classList.add('hidden'));
+
+        upgradeButtonHeader.addEventListener('click', () => upgradeModal.classList.remove('hidden'));
+        closeUpgradeModal.addEventListener('click', () => upgradeModal.classList.add('hidden'));
+
+        // 모달 바깥 클릭 시 닫기
+        window.addEventListener('click', (e) => {
+            if (e.target === addProductModal) addProductModal.classList.add('hidden');
+            if (e.target === priceCompareModal) priceCompareModal.classList.add('hidden');
+            if (e.target === upgradeModal) upgradeModal.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

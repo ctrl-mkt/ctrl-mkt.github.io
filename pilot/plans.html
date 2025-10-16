@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Chosen Palette: Clean & Professional (Slate, Blue, Gray) -->
-    <!-- Application Structure Plan: Interactive pricing page with a monthly/annual toggle. A primary grid of pricing cards for quick comparison, followed by a detailed feature-by-feature comparison table. The goal is to guide users to the best plan through clear, structured information. The toggle provides immediate interactivity and price transparency. -->
-    <!-- Visualization & Content Choices: Report Info -> Pricing Tiers & Features. Goal -> Compare & Choose. Viz/Presentation -> Interactive table/card grid. Interaction -> Monthly/Annual price toggle. Justification -> This is the standard, most effective UX pattern for presenting SaaS pricing, making it easy for users to understand value and cost. Library/Method -> Vanilla JS for the toggle, Tailwind CSS for layout. -->
+    <!-- Application Structure Plan: Interactive pricing page with a monthly/annual toggle. A primary grid of pricing cards for quick comparison, followed by a detailed feature-by-feature comparison table. The goal is to guide users to the best plan through clear, structured information. The toggle provides immediate interactivity and price transparency. Added modal for feature descriptions. -->
+    <!-- Visualization & Content Choices: Report Info -> Pricing Tiers & Features. Goal -> Compare & Choose. Viz/Presentation -> Interactive table/card grid with tooltips. Interaction -> Monthly/Annual price toggle, feature description popups. Justification -> This is the standard, most effective UX pattern for presenting SaaS pricing, making it easy for users to understand value and cost. Library/Method -> Vanilla JS for the toggle and modal, Tailwind CSS for layout. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -21,6 +21,28 @@
         .feature-table th, .feature-table td { padding: 1rem 1.5rem; }
         .feature-icon { color: #3b82f6; }
         .recommended-plan { border-width: 2px; border-color: #3b82f6; }
+        .soon-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            background-color: #e5e7eb;
+            color: #6b7280;
+            vertical-align: middle;
+        }
+        .tooltip-icon {
+            cursor: pointer;
+            color: #94a3b8;
+            margin-left: 8px;
+            transition: color 0.2s;
+        }
+        .tooltip-icon:hover {
+            color: #3b82f6;
+        }
+        #feature-modal.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -70,7 +92,7 @@
                 <a href="#" class="w-full text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors">플랜 시작하기</a>
                 <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Free의 모든 기능</span></li>
-                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI 고객/운영 기본 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI 분석 카드 (고객/매출)</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>이메일/채팅 지원</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>10,000 AI 크레딧</span></li>
                 </ul>
@@ -82,7 +104,7 @@
                     <span class="bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full uppercase">추천 플랜</span>
                 </div>
                 <h2 class="text-2xl font-bold text-blue-600">Deluxe</h2>
-                <p class="text-slate-500 mt-2 mb-6 h-12">성장 매장 / 소형 프랜차이즈</p>
+                <p class="text-slate-500 mt-2 mb-6 h-12">성장 매장</p>
                 <div class="mb-6">
                     <span class="text-4xl font-extrabold" data-price-monthly="29900" data-price-annual="23920">₩29,900</span>
                     <span class="text-slate-500">/ 월</span>
@@ -91,6 +113,7 @@
                 <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Basic의 모든 기능</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI 광고 최적화 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>카카오톡 알림/리포트</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>전화 지원 포함</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>30,000 AI 크레딧</span></li>
                 </ul>
@@ -99,7 +122,7 @@
             <!-- Pro Plan -->
             <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
                 <h2 class="text-2xl font-bold text-slate-900">Pro</h2>
-                <p class="text-slate-500 mt-2 mb-6 h-12">중형 프랜차이즈</p>
+                <p class="text-slate-500 mt-2 mb-6 h-12">다매장/프랜차이즈</p>
                 <div class="mb-6">
                     <span class="text-4xl font-extrabold" data-price-monthly="89900" data-price-annual="71920">₩89,900</span>
                     <span class="text-slate-500">/ 월</span>
@@ -108,7 +131,7 @@
                 <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Deluxe의 모든 기능</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI Vision (CCTV 1대 포함)</span></li>
-                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>본사 전용 대시보드</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>프랜차이즈 기능<span class="soon-badge">출시 예정</span></span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>70,000 AI 크레딧</span></li>
                 </ul>
             </div>
@@ -124,7 +147,7 @@
                 <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Pro의 모든 기능</span></li>
                     <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>솔루션 커스터마이징</span></li>
-                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>전담 성공 매니저 배정</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>전담 성공 매니저<span class="soon-badge">출시 예정</span></span></li>
                 </ul>
             </div>
         </main>
@@ -144,53 +167,61 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
-                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">🤖 AI 고객 인텔리전스</td></tr>
-                        <tr><td>재방문 고객 그룹 식별</td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
-                        <tr><td>이탈 예측 고객 분석</td><td class="text-center">10명/월</td><td class="text-center">50명/월</td><td class="text-center">200명/월</td><td class="text-center">500명/월</td><td class="text-center">무제한</td></tr>
-                        <tr><td>메뉴 조합 추천</td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
-                        <tr><td>개인화 프로모션 자동 생성</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">2건/월</td><td class="text-center">10건/월</td><td class="text-center">30건/월</td><td class="text-center">무제한</td></tr>
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">📊 대시보드 & 리포트</td></tr>
+                        <tr><td>실시간 통합 대시보드<i class="fas fa-question-circle tooltip-icon" data-feature-key="dashboard"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>AI 주간/월간 리포트<i class="fas fa-question-circle tooltip-icon" data-feature-key="report"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>카카오톡 알림 및 리포트 전달<i class="fas fa-question-circle tooltip-icon" data-feature-key="kakao"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
 
-                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">📢 AI 광고 최적화</td></tr>
-                        <tr><td>실시간 ROAS 분석</td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
-                        <tr><td>채널별 예산 재배분 제안</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
-                        <tr><td>경쟁사 분석</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">주변 3곳</td><td class="text-center">주변 10곳</td><td class="text-center">지역구 전체</td><td class="text-center">무제한</td></tr>
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">🤖 AI 에이전트</td></tr>
+                        <tr><td>AI 분석 카드<i class="fas fa-question-circle tooltip-icon" data-feature-key="analysis_card"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center">기본</td><td class="text-center">상세</td><td class="text-center">심화</td><td class="text-center">맞춤</td></tr>
+                        <tr><td>AI 기반 실행 제안<i class="fas fa-question-circle tooltip-icon" data-feature-key="suggestion"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">2건/월</td><td class="text-center">10건/월</td><td class="text-center">30건/월</td><td class="text-center">무제한</td></tr>
+                        <tr><td>AI 챗봇<i class="fas fa-question-circle tooltip-icon" data-feature-key="chatbot"></i></td><td class="text-center">기본 문의</td><td class="text-center">운영 문의</td><td class="text-center">심층 분석</td><td class="text-center">전략 컨설팅</td><td class="text-center">맞춤형</td></tr>
                         
-                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">⚙️ AI 운영 자동화</td></tr>
-                        <tr><td>수요 예측 기반 자동 발주 제안</td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
-                        <tr><td>고객 리뷰 자동 응답</td><td class="text-center">5건/월</td><td class="text-center">20건/월</td><td class="text-center">100건/월</td><td class="text-center">300건/월</td><td class="text-center">무제한</td></tr>
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">📈 마케팅 & 고객 관리</td></tr>
+                        <tr><td>재방문/이탈 고객 분석<i class="fas fa-question-circle tooltip-icon" data-feature-key="customer_analysis"></i></td><td class="text-center">10명/월</td><td class="text-center">50명/월</td><td class="text-center">200명/월</td><td class="text-center">500명/월</td><td class="text-center">무제한</td></tr>
+                        <tr><td>메뉴 조합 추천<i class="fas fa-question-circle tooltip-icon" data-feature-key="menu_recommend"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>실시간 광고(ROAS) 분석<i class="fas fa-question-circle tooltip-icon" data-feature-key="roas"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>채널별 예산 재배분 제안<i class="fas fa-question-circle tooltip-icon" data-feature-key="budget"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>경쟁사 분석<span class="soon-badge">출시 예정</span><i class="fas fa-question-circle tooltip-icon" data-feature-key="competitor"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">주변 3곳</td><td class="text-center">주변 10곳</td><td class="text-center">지역구 전체</td><td class="text-center">무제한</td></tr>
+                        <tr><td>고객 리뷰 자동 응답<span class="soon-badge">출시 예정</span><i class="fas fa-question-circle tooltip-icon" data-feature-key="review_reply"></i></td><td class="text-center">5건/월</td><td class="text-center">20건/월</td><td class="text-center">100건/월</td><td class="text-center">300건/월</td><td class="text-center">무제한</td></tr>
                         
-                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">🏢 프랜차이즈 기능</td></tr>
-                        <tr><td>다수 매장 통합 관리</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">최대 3개</td><td class="text-center">최대 10개</td><td class="text-center">무제한</td></tr>
-                        <tr><td>본사 전용 대시보드</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">⚙️ 운영 자동화</td></tr>
+                        <tr><td>수요 예측 기반 발주 제안<i class="fas fa-question-circle tooltip-icon" data-feature-key="ordering"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>매출 연동 근무 스케줄 최적화<i class="fas fa-question-circle tooltip-icon" data-feature-key="schedule"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">🏢 프랜차이즈 기능<span class="soon-badge">출시 예정</span></td></tr>
+                        <tr><td>다수 매장 통합 관리<i class="fas fa-question-circle tooltip-icon" data-feature-key="multi_store"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">최대 3개</td><td class="text-center">최대 10개</td><td class="text-center">무제한</td></tr>
+                        <tr><td>본사 전용 대시보드<i class="fas fa-question-circle tooltip-icon" data-feature-key="hq_dashboard"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
 
-                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">✨ 부가 기능 및 지원</td></tr>
-                        <tr><td>AI 에이전트 크레딧</td><td class="text-center font-bold">1,000</td><td class="text-center font-bold">10,000</td><td class="text-center font-bold">30,000</td><td class="text-center font-bold">70,000</td><td class="text-center">별도 협의</td></tr>
-                        <tr><td>AI Vision (CCTV)</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">1대 포함</td><td class="text-center">별도 협의</td></tr>
-                        <tr><td>전담 성공 매니저</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
-
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">✨ 고급 기능 및 지원</td></tr>
+                        <tr><td>AI 에이전트 크레딧<i class="fas fa-question-circle tooltip-icon" data-feature-key="credit"></i></td><td class="text-center font-bold">1,000</td><td class="text-center font-bold">10,000</td><td class="text-center font-bold">30,000</td><td class="text-center font-bold">70,000</td><td class="text-center">별도 협의</td></tr>
+                        <tr><td>AI Vision (CCTV 연동)<i class="fas fa-question-circle tooltip-icon" data-feature-key="cctv"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">1대 포함</td><td class="text-center">별도 협의</td></tr>
+                        <tr><td>전담 성공 매니저<span class="soon-badge">출시 예정</span><i class="fas fa-question-circle tooltip-icon" data-feature-key="manager"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
-        <section class="mt-20 text-center">
-             <h3 class="text-3xl font-bold text-center mb-6 text-slate-900">자주 묻는 질문</h3>
-             <div class="max-w-3xl mx-auto text-left space-y-4">
-                 <div class="bg-white p-6 rounded-lg shadow-sm">
-                     <h4 class="font-semibold text-lg mb-2">AI 에이전트 크레딧은 무엇인가요?</h4>
-                     <p class="text-slate-600">AI 크레딧은 리뷰 자동 응답, 광고 문구 생성 등 AI 에이전트 기능을 사용할 때 차감되는 포인트입니다. 플랜별로 매월 정해진 양의 크레딧이 제공되며, 소진 시 추가 구매가 가능합니다. 10,000 크레딧으로는 약 500건의 리뷰 응답 또는 1,000건의 광고 문구 생성이 가능합니다.</p>
-                 </div>
-                 <div class="bg-white p-6 rounded-lg shadow-sm">
-                     <h4 class="font-semibold text-lg mb-2">연간 결제는 어떻게 하나요?</h4>
-                     <p class="text-slate-600">연간 결제를 선택하시면 20% 할인된 금액으로 1년 동안 레스토지니를 이용하실 수 있습니다. 플랜 선택 후 결제 단계에서 연간 결제 옵션을 선택해주세요.</p>
-                 </div>
-             </div>
-        </section>
-
     </div>
+
+    <!-- Feature Description Modal -->
+    <div id="feature-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto transform transition-transform duration-300 scale-95">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modal-title" class="text-xl font-bold text-slate-800">기능 상세 설명</h3>
+                    <button id="modal-close" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <p id="modal-description" class="text-slate-600"></p>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Price Toggle Logic
             const toggle = document.getElementById('billing-toggle');
             const priceElements = document.querySelectorAll('[data-price-monthly]');
             const monthlyLabel = document.getElementById('monthly-label');
@@ -224,8 +255,62 @@
             }
 
             toggle.addEventListener('change', updatePrices);
-            
             updatePrices();
+
+            // Modal Logic
+            const featureDescriptions = {
+                dashboard: { title: '실시간 통합 대시보드', description: 'POS, 배달앱, 네이버, CCTV 등 흩어진 모든 매장 데이터를 한 곳에서 실시간으로 확인하고 비즈니스 현황을 직관적으로 파악할 수 있습니다.' },
+                report: { title: 'AI 주간/월간 리포트', description: 'AI가 매장 데이터를 종합 분석하여 주간 및 월간 성과, 개선점, 성장 포인트를 담은 맞춤형 리포트를 자동으로 생성하고 제공합니다.' },
+                kakao: { title: '카카오톡 알림 및 리포트 전달', description: '일일 매출 마감, 주요 경고 등 핵심 정보를 카카오톡으로 받아보고, 정기 리포트도 간편하게 확인할 수 있습니다.' },
+                analysis_card: { title: 'AI 분석 카드', description: '매출 급상승/하락, 단골 고객 변화 등 주목해야 할 데이터 변화가 감지되면 AI가 자동으로 원인을 분석하여 이해하기 쉬운 카드로 보여줍니다.' },
+                suggestion: { title: 'AI 기반 실행 제안', description: "AI 분석 카드를 바탕으로 '어떤 액션을 취해야 할지' 구체적인 해결책(예: 타겟 프로모션, 신메뉴 조합)을 제안합니다. 클릭 한 번으로 제안을 실행할 수 있습니다." },
+                chatbot: { title: 'AI 챗봇', description: '"오늘 가장 많이 팔린 메뉴 뭐야?" 와 같이 자연어(대화)로 매장 데이터에 대해 질문하고 즉시 답변을 얻을 수 있는 AI 비서입니다.' },
+                customer_analysis: { title: '재방문/이탈 고객 분석', description: '방문 빈도, 주기, 최근 방문일 등을 분석하여 충성 고객과 이탈 가능성이 있는 고객 그룹을 자동으로 식별하고 관리합니다.' },
+                menu_recommend: { title: '메뉴 조합 추천', description: '함께 주문될 확률이 높은 메뉴들을 분석하여 객단가를 높일 수 있는 세트 메뉴나 프로모션 조합을 추천합니다.' },
+                roas: { title: '실시간 광고(ROAS) 분석', description: '배달의민족, 구글, 메타 등 여러 광고 채널의 비용 대비 수익률(ROAS)을 실시간으로 추적하고 비교 분석합니다.' },
+                budget: { title: '채널별 예산 재배분 제안', description: 'ROAS가 높은 채널에 광고 예산을 더 집중하고, 비효율적인 채널의 예산을 줄이도록 AI가 최적의 예산 분배 전략을 제안합니다.' },
+                competitor: { title: '경쟁사 분석', description: '주변 경쟁 매장들의 가격, 메뉴, 리뷰, 프로모션 활동을 분석하여 내 매장의 경쟁력을 강화할 전략적 인사이트를 제공합니다.' },
+                review_reply: { title: '고객 리뷰 자동 응답', description: '고객 리뷰의 긍정/부정 톤을 AI가 분석하여, 상황에 맞는 답글 초안을 자동으로 생성합니다. 클릭 한 번으로 신속하게 고객과 소통할 수 있습니다.' },
+                ordering: { title: '수요 예측 기반 발주 제안', description: '과거 판매 데이터와 요일, 날씨 등을 고려하여 미래 수요를 예측하고, 부족한 식자재에 대한 최적의 발주량을 자동으로 제안합니다.' },
+                schedule: { title: '매출 연동 근무 스케줄 최적화', description: '예상되는 시간대별 손님 수와 매출을 기반으로, 인력이 부족하거나 과도하게 배치되지 않도록 최적의 근무 스케줄 편성을 돕습니다.' },
+                multi_store: { title: '다수 매장 통합 관리', description: '여러 개의 매장을 운영하는 경우, 모든 매장의 핵심 데이터를 하나의 대시보드에서 비교하고 통합 관리할 수 있습니다.' },
+                hq_dashboard: { title: '본사 전용 대시보드', description: '프랜차이즈 본사를 위한 기능으로, 전체 가맹점의 성과를 다각도로 비교 분석하고 우수/부진 매장을 식별하는 등 통합적인 인사이트를 제공합니다.' },
+                credit: { title: 'AI 에이전트 크레딧', description: 'AI 챗봇, 실행 제안, 리뷰 자동 응답 등 AI 에이전트 기능을 사용할 때 차감되는 포인트입니다. 플랜별로 매월 정해진 양이 제공되며, 소진 시 추가 구매가 가능합니다.' },
+                cctv: { title: 'AI Vision (CCTV 연동)', description: '매장 CCTV 영상을 AI가 분석하여 방문객의 성별, 연령대, 동반 유형 등 인구통계 정보를 자동으로 집계하고 리포트를 제공합니다.' },
+                manager: { title: '전담 성공 매니저', description: '레스토지니 활용도를 극대화하고 데이터 기반 성장을 가속화할 수 있도록, 전담 매니저가 정기적인 컨설팅과 맞춤형 지원을 제공합니다.' },
+            };
+
+            const modal = document.getElementById('feature-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalClose = document.getElementById('modal-close');
+            const tooltipIcons = document.querySelectorAll('.tooltip-icon');
+
+            tooltipIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const key = icon.dataset.featureKey;
+                    const feature = featureDescriptions[key];
+                    if (feature) {
+                        modalTitle.textContent = feature.title;
+                        modalDescription.textContent = feature.description;
+                        modal.classList.remove('hidden');
+                        modal.querySelector('div > div').classList.add('scale-100');
+
+                    }
+                });
+            });
+            
+            function closeModal() {
+                modal.querySelector('div > div').classList.remove('scale-100');
+                modal.classList.add('hidden');
+            }
+
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
         });
     </script>
 

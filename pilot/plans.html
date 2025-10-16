@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>레스토지니 요금제 안내</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chosen Palette: Clean & Professional (Slate, Blue, Gray) -->
+    <!-- Application Structure Plan: Interactive pricing page with a monthly/annual toggle. A primary grid of pricing cards for quick comparison, followed by a detailed feature-by-feature comparison table. The goal is to guide users to the best plan through clear, structured information. The toggle provides immediate interactivity and price transparency. -->
+    <!-- Visualization & Content Choices: Report Info -> Pricing Tiers & Features. Goal -> Compare & Choose. Viz/Presentation -> Interactive table/card grid. Interaction -> Monthly/Annual price toggle. Justification -> This is the standard, most effective UX pattern for presenting SaaS pricing, making it easy for users to understand value and cost. Library/Method -> Vanilla JS for the toggle, Tailwind CSS for layout. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
+        .plan-card { transition: all 0.3s ease-in-out; }
+        .plan-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .toggle-bg:after { content: ''; position: absolute; top: 2px; left: 2px; background: white; border-radius: 9999px; width: 2rem; height: 2rem; transition: all .3s; }
+        input:checked + .toggle-bg:after { transform: translateX(100%); }
+        input:checked + .toggle-bg { background-color: #3b82f6; }
+        .feature-table th, .feature-table td { padding: 1rem 1.5rem; }
+        .feature-icon { color: #3b82f6; }
+        .recommended-plan { border-width: 2px; border-color: #3b82f6; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto px-4 py-12 md:py-20">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">당신의 매장에 꼭 맞는 플랜을 선택하세요</h1>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">레스토지니는 개인 점주부터 대형 프랜차이즈까지, 모든 외식업의 성공을 위한 AI 파트너입니다.</p>
+        </header>
+
+        <div class="flex items-center justify-center space-x-4 mb-10">
+            <span class="font-medium text-slate-700" id="monthly-label">월간 결제</span>
+            <label for="billing-toggle" class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="billing-toggle" class="sr-only peer">
+                <div class="w-12 h-9 bg-slate-300 rounded-full toggle-bg peer-focus:ring-4 peer-focus:ring-blue-300"></div>
+            </label>
+            <span class="font-medium text-slate-500" id="annual-label">연간 결제</span>
+            <span class="bg-blue-100 text-blue-800 text-xs font-semibold ml-2 px-2.5 py-0.5 rounded-full">20% 할인</span>
+        </div>
+
+        <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <!-- Free Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-2xl font-bold text-slate-900">Free</h2>
+                <p class="text-slate-500 mt-2 mb-6 h-12">시작하는 개인 점주</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold" data-price-monthly="0" data-price-annual="0">₩0</span>
+                    <span class="text-slate-500">/ 월</span>
+                </div>
+                <a href="#" class="w-full text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors">무료로 시작하기</a>
+                <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>실시간 대시보드</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>기본 리포트</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>1,000 AI 크레딧</span></li>
+                </ul>
+            </div>
+
+            <!-- Basic Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-2xl font-bold text-slate-900">Basic</h2>
+                <p class="text-slate-500 mt-2 mb-6 h-12">개인 점주</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold" data-price-monthly="9900" data-price-annual="7920">₩9,900</span>
+                    <span class="text-slate-500">/ 월</span>
+                </div>
+                <a href="#" class="w-full text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors">플랜 시작하기</a>
+                <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Free의 모든 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI 고객/운영 기본 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>이메일/채팅 지원</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>10,000 AI 크레딧</span></li>
+                </ul>
+            </div>
+
+            <!-- Deluxe Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-lg p-6 flex flex-col recommended-plan relative">
+                 <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full uppercase">추천 플랜</span>
+                </div>
+                <h2 class="text-2xl font-bold text-blue-600">Deluxe</h2>
+                <p class="text-slate-500 mt-2 mb-6 h-12">성장 매장 / 소형 프랜차이즈</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold" data-price-monthly="29900" data-price-annual="23920">₩29,900</span>
+                    <span class="text-slate-500">/ 월</span>
+                </div>
+                <a href="#" class="w-full text-center bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">플랜 시작하기</a>
+                <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Basic의 모든 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI 광고 최적화 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>전화 지원 포함</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>30,000 AI 크레딧</span></li>
+                </ul>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-2xl font-bold text-slate-900">Pro</h2>
+                <p class="text-slate-500 mt-2 mb-6 h-12">중형 프랜차이즈</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold" data-price-monthly="89900" data-price-annual="71920">₩89,900</span>
+                    <span class="text-slate-500">/ 월</span>
+                </div>
+                <a href="#" class="w-full text-center bg-slate-800 text-white font-semibold py-3 rounded-lg hover:bg-slate-900 transition-colors">플랜 시작하기</a>
+                <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Deluxe의 모든 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>AI Vision (CCTV 1대 포함)</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>본사 전용 대시보드</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>70,000 AI 크레딧</span></li>
+                </ul>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-2xl font-bold text-slate-900">Enterprise</h2>
+                <p class="text-slate-500 mt-2 mb-6 h-12">대형 프랜차이즈 / 전략 파트너</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold">별도 문의</span>
+                </div>
+                <a href="#" class="w-full text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors">문의하기</a>
+                <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>Pro의 모든 기능</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>솔루션 커스터마이징</span></li>
+                    <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i><span>전담 성공 매니저 배정</span></li>
+                </ul>
+            </div>
+        </main>
+
+        <section class="mt-20">
+            <h3 class="text-3xl font-bold text-center mb-10 text-slate-900">모든 플랜 기능 비교</h3>
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                <table class="w-full text-left feature-table whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="w-1/4">기능</th>
+                            <th class="text-center">Free</th>
+                            <th class="text-center">Basic</th>
+                            <th class="text-center">Deluxe</th>
+                            <th class="text-center">Pro</th>
+                            <th class="text-center">Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">🤖 AI 고객 인텔리전스</td></tr>
+                        <tr><td>재방문 고객 그룹 식별</td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>이탈 예측 고객 분석</td><td class="text-center">10명/월</td><td class="text-center">50명/월</td><td class="text-center">200명/월</td><td class="text-center">500명/월</td><td class="text-center">무제한</td></tr>
+                        <tr><td>메뉴 조합 추천</td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>개인화 프로모션 자동 생성</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">2건/월</td><td class="text-center">10건/월</td><td class="text-center">30건/월</td><td class="text-center">무제한</td></tr>
+
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">📢 AI 광고 최적화</td></tr>
+                        <tr><td>실시간 ROAS 분석</td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>채널별 예산 재배분 제안</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>경쟁사 분석</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">주변 3곳</td><td class="text-center">주변 10곳</td><td class="text-center">지역구 전체</td><td class="text-center">무제한</td></tr>
+                        
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">⚙️ AI 운영 자동화</td></tr>
+                        <tr><td>수요 예측 기반 자동 발주 제안</td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+                        <tr><td>고객 리뷰 자동 응답</td><td class="text-center">5건/월</td><td class="text-center">20건/월</td><td class="text-center">100건/월</td><td class="text-center">300건/월</td><td class="text-center">무제한</td></tr>
+                        
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">🏢 프랜차이즈 기능</td></tr>
+                        <tr><td>다수 매장 통합 관리</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">최대 3개</td><td class="text-center">최대 10개</td><td class="text-center">무제한</td></tr>
+                        <tr><td>본사 전용 대시보드</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+
+                        <tr><td colspan="6" class="bg-slate-100 font-bold text-slate-700">✨ 부가 기능 및 지원</td></tr>
+                        <tr><td>AI 에이전트 크레딧</td><td class="text-center font-bold">1,000</td><td class="text-center font-bold">10,000</td><td class="text-center font-bold">30,000</td><td class="text-center font-bold">70,000</td><td class="text-center">별도 협의</td></tr>
+                        <tr><td>AI Vision (CCTV)</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center">1대 포함</td><td class="text-center">별도 협의</td></tr>
+                        <tr><td>전담 성공 매니저</td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-times"></i></td><td class="text-center text-slate-400"><i class="fas fa-minus"></i></td><td class="text-center feature-icon"><i class="fas fa-check"></i></td></tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="mt-20 text-center">
+             <h3 class="text-3xl font-bold text-center mb-6 text-slate-900">자주 묻는 질문</h3>
+             <div class="max-w-3xl mx-auto text-left space-y-4">
+                 <div class="bg-white p-6 rounded-lg shadow-sm">
+                     <h4 class="font-semibold text-lg mb-2">AI 에이전트 크레딧은 무엇인가요?</h4>
+                     <p class="text-slate-600">AI 크레딧은 리뷰 자동 응답, 광고 문구 생성 등 AI 에이전트 기능을 사용할 때 차감되는 포인트입니다. 플랜별로 매월 정해진 양의 크레딧이 제공되며, 소진 시 추가 구매가 가능합니다. 10,000 크레딧으로는 약 500건의 리뷰 응답 또는 1,000건의 광고 문구 생성이 가능합니다.</p>
+                 </div>
+                 <div class="bg-white p-6 rounded-lg shadow-sm">
+                     <h4 class="font-semibold text-lg mb-2">연간 결제는 어떻게 하나요?</h4>
+                     <p class="text-slate-600">연간 결제를 선택하시면 20% 할인된 금액으로 1년 동안 레스토지니를 이용하실 수 있습니다. 플랜 선택 후 결제 단계에서 연간 결제 옵션을 선택해주세요.</p>
+                 </div>
+             </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('billing-toggle');
+            const priceElements = document.querySelectorAll('[data-price-monthly]');
+            const monthlyLabel = document.getElementById('monthly-label');
+            const annualLabel = document.getElementById('annual-label');
+
+            function updatePrices() {
+                const isAnnual = toggle.checked;
+                
+                priceElements.forEach(el => {
+                    const priceSpan = el.closest('div').querySelector('.text-4xl');
+                    if (!priceSpan || priceSpan.textContent === '별도 문의' ) return;
+
+                    const monthlyPrice = parseInt(priceSpan.dataset.priceMonthly, 10);
+                    const annualPrice = parseInt(priceSpan.dataset.priceAnnual, 10);
+                    
+                    const priceToShow = isAnnual ? annualPrice : monthlyPrice;
+                    priceSpan.textContent = '₩' + priceToShow.toLocaleString();
+                });
+
+                if (isAnnual) {
+                    monthlyLabel.classList.remove('text-slate-700');
+                    monthlyLabel.classList.add('text-slate-500');
+                    annualLabel.classList.remove('text-slate-500');
+                    annualLabel.classList.add('text-slate-700');
+                } else {
+                    monthlyLabel.classList.add('text-slate-700');
+                    monthlyLabel.classList.remove('text-slate-500');
+                    annualLabel.classList.add('text-slate-500');
+                    annualLabel.classList.remove('text-slate-700');
+                }
+            }
+
+            toggle.addEventListener('change', updatePrices);
+            
+            updatePrices();
+        });
+    </script>
+
+</body>
+</html>
+

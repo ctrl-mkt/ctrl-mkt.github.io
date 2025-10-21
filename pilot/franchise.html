@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SLAM BURGER 가맹점 모집 - BURGER & RICE, THE ULTIMATE BITES</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ADDED: Supersize Webfont Script (Typekit) -->
+    <script>
+      (function(d) {
+        var config = {
+          kitId: 'fgw7fbf',
+          scriptTimeout: 3000,
+          async: true
+        },
+        h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f%7C%7Ca&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+      })(document);
+    </script>
+    
     <style>
         /* SLAM BURGER Custom Colors and Font Configuration */
         /* 기획서 및 BI 가이드라인에 따른 컬러 정의 */
@@ -12,12 +25,12 @@
             --color-slam-orange: #FF7700; /* 메인 CTA 및 강조 */
             --color-slam-red: #F60000;    /* 브랜드 강렬함 및 포인트 */
             --color-slam-green: #008068;   /* 보조 컬러 */
-            /* 기획서의 210 수퍼사이즈 Black / Min Sans 서체와 유사한 볼드한 느낌을 구현하기 위해 Pretendard 사용 */
-            --font-display: 'Pretendard', sans-serif;
-            --font-body: 'Pretendard', sans-serif;
+            /* UPDATED: Supersize-bk 폰트 적용 (210 수퍼사이즈 Black의 의도 반영) */
+            --font-display: "supersize-bk", sans-serif;
+            --font-body: 'Inter', sans-serif; /* 본문 폰트는 시스템 기본 폰트 스택으로 전환 */
         }
         
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        /* REMOVED: @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css'); */
 
         html {
             scroll-behavior: smooth;
@@ -34,7 +47,9 @@
 
         .section-title {
             font-family: var(--font-display);
-            font-weight: 900; /* 210 수퍼사이즈 Black의 느낌을 최대한 표현 */
+            /* UPDATED: 사용자 요청에 따라 supersize-bk의 기본 스타일 적용 */
+            font-weight: 400; 
+            font-style: normal;
         }
 
         .floating-cta {

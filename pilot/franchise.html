@@ -268,25 +268,26 @@
                 <div class="grid md:grid-cols-2 gap-12">
                     <div>
                         <h2 class="text-3xl font-bold">지금 바로 슬램버거 성공 신화의 주인공이 되세요.</h2>
-                        <form class="mt-8 space-y-4">
+                        <!-- Formsubmit.co endpoint -->
+                        <form action="https://formsubmit.co/franchise@ctrl-m.co.kr" method="POST" class="mt-8 space-y-4">
                             <div>
                                 <label for="name" class="sr-only">이름</label>
-                                <input type="text" id="name" placeholder="이름" class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
+                                <input type="text" id="name" name="name" placeholder="이름" required class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
                             </div>
                             <div>
                                 <label for="phone" class="sr-only">연락처</label>
-                                <input type="tel" id="phone" placeholder="연락처" class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
+                                <input type="tel" id="phone" name="phone" placeholder="연락처" required class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
                             </div>
                             <div>
                                 <label for="region" class="sr-only">창업 희망 지역</label>
-                                <input type="text" id="region" placeholder="창업 희망 지역" class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
+                                <input type="text" id="region" name="region" placeholder="창업 희망 지역" required class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
                             </div>
                              <div>
                                 <label for="message" class="sr-only">문의 내용</label>
-                                <textarea id="message" placeholder="간단한 문의 내용" rows="4" class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]"></textarea>
+                                <textarea id="message" name="message" placeholder="간단한 문의 내용" rows="4" class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]"></textarea>
                             </div>
                             <div class="flex items-start">
-                                <input id="privacy" type="checkbox" class="h-4 w-4 text-[#FF7700] bg-gray-800 border-gray-600 rounded focus:ring-[#FF7700]">
+                                <input id="privacy" type="checkbox" name="privacy-agreement" value="agreed" required class="h-4 w-4 text-[#FF7700] bg-gray-800 border-gray-600 rounded focus:ring-[#FF7700]">
                                 <label for="privacy" class="ml-2 text-sm text-gray-400">개인정보 수집 및 이용에 동의합니다.</label>
                             </div>
                             <button type="submit" class="w-full bg-[#F60000] hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md transition-colors">가맹 상담 신청하기</button>

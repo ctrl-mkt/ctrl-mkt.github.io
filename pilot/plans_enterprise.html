@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoGenie Enterprise Plan | 레스토지니</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chosen Palette: Corporate & Trustworthy (Slate, Indigo, White) -->
+    <!-- Application Structure Plan: A single-page landing page for B2B decision-makers. The structure is reordered to lead with the pricing structure, followed by a detailed feature breakdown of the core offering (Access Plan), the phased rollout model, and a clear call-to-action. This prioritizes cost and value upfront, which is critical for enterprise sales. -->
+    <!-- Visualization & Content Choices: Report Info -> Enterprise BM, Phased rollout, B2C Pro features. Goal -> Inform & Persuade. Viz/Presentation -> Clear pricing tables, structured feature lists, and a process diagram (HTML/CSS). Interaction -> Tooltip popups for complex terms. Justification -> For a B2B audience, a clear, logical flow from price to value to process is more effective than complex interactions. Library/Method -> Tailwind CSS for layout, Vanilla JS for modals. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .hero-gradient { background: linear-gradient(135deg, #4338ca 0%, #312e81 100%); }
+        .feature-card { transition: all 0.3s; }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07); }
+        .highlight-text { color: #4f46e5; }
+        .tooltip-icon {
+            cursor: pointer;
+            color: #94a3b8;
+            margin-left: 6px;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        .tooltip-icon:hover {
+            color: #4f46e5;
+        }
+        #feature-modal.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-700">
+
+    <!-- Hero Section -->
+    <header class="hero-gradient text-white py-20 px-4">
+        <div class="container mx-auto max-w-4xl text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4">프랜차이즈의 모든 매장을 위한<br>AI 경영 솔루션, RestoGenie Enterprise</h1>
+            <p class="text-lg md:text-xl text-indigo-200 max-w-2xl mx-auto">
+                흩어진 가맹점 데이터를 하나로 통합하고, 본사의 의사결정을 AI로 혁신하여 브랜드의 지속가능한 성장을 만듭니다.
+            </p>
+            <a href="#contact" class="mt-8 inline-block bg-white text-indigo-700 font-bold py-3 px-8 rounded-full text-lg hover:bg-indigo-50 transition">
+                도입 문의하기
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-5xl py-16 px-4">
+
+        <!-- Pricing Section -->
+        <section class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 text-center mb-12">Enterprise 요금제 구성</h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-8">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6">단계별 맞춤형 도입 플랜</h3>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="py-3 font-semibold text-slate-600">항목</th>
+                                <th class="py-3 font-semibold text-slate-600">내용</th>
+                                <th class="py-3 font-semibold text-slate-600 text-right">비용</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="py-5 font-bold text-indigo-600 align-top" rowspan="3">1단계 (Access)</td>
+                                <td class="py-4">
+                                    <p class="font-semibold">초기 구축비 <i class="fas fa-question-circle tooltip-icon" data-feature-key="initial_setup"></i></p>
+                                    <div class="text-sm text-slate-500 mt-3 pl-4 border-l-2">
+                                        <p class="font-medium text-slate-700">1. 자체 LLM 솔루션 구축:</p>
+                                        <p class="mt-1">본사 운영 매뉴얼, 레시피 등 핵심 비정형 데이터를 정제/벡터화하고, 브랜드 전용 Private LLM 모델을 구축하여 맞춤형 AI를 구현합니다.</p>
+                                        <p class="mt-3 font-medium text-slate-700">2. 데이터 시스템 통합:</p>
+                                        <p class="mt-1">질의응답 정확도 향상을 위한 RAG 시스템을 구축하고, 全 가맹점 POS 및 외부 채널(배달앱, 광고) 데이터 연동 파이프라인을 설계/개발합니다.</p>
+                                    </div>
+                                </td>
+                                <td class="py-4 text-right font-bold text-lg align-top">₩ 10,000,000</td>
+                            </tr>
+                             <tr class="border-b">
+                                <td colspan="2" class="pt-2 pb-4 text-sm text-slate-500">※ 초기 구축비는 200개 가맹점 기준이며, 초과 시 규모에 따라 추가 비용이 발생할 수 있습니다. (별도 협의)</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-4">
+                                    <p class="font-semibold">월 이용료 (가맹점당)</p>
+                                    <p class="text-sm text-slate-500">AI 챗봇, 점포별 대시보드 및 리포트 제공 (상세 기능은 하단 참조)</p>
+                                </td>
+                                <td class="py-4 text-right font-bold text-lg">₩ 50,000</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="py-5 font-bold text-indigo-600 align-top" rowspan="2">2단계 (Control)<br><span class="text-xs font-normal text-slate-500">(선택)</span></td>
+                                <td class="py-4">
+                                    <p class="font-semibold">본사 통합 대시보드 <i class="fas fa-question-circle tooltip-icon" data-feature-key="hq_dashboard_option"></i></p>
+                                    <p class="text-sm text-slate-500">전 가맹점 데이터 통합 및 비교 분석, 자동 요약 리포트 기능을 추가하여 본사의 데이터 기반 의사결정을 지원합니다.</p>
+                                </td>
+                                <td class="py-4 text-right font-bold text-lg align-top">가맹점당 월 +₩15,000</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4">
+                                    <p class="font-semibold">ERP 연동 <i class="fas fa-question-circle tooltip-icon" data-feature-key="erp_integration"></i></p>
+                                    <p class="text-sm text-slate-500">본사 ERP 시스템 연동을 통해 원가, 재고 데이터를 통합하여 브랜드 전체의 수익성을 심층 분석하고 최적화합니다.</p>
+                                </td>
+                                <td class="py-4 text-right font-bold text-lg align-top">별도 문의</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="bg-slate-100 p-6 text-center text-sm text-slate-600">
+                    <p>※ 가맹점 수에 따른 볼륨 할인 정책이 적용됩니다. 자세한 내용은 별도 문의 바랍니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Included Features Section -->
+        <section class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 text-center mb-12">가맹점 월 5만원 플랜 (Access Plan) 상세 기능</h2>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <p class="text-center text-slate-600 mb-10">각 가맹점은 B2C Pro 요금제에 준하는 강력한 AI 기능들을 제공받아, 데이터 기반으로 매장을 운영하고 매출을 증대시킬 수 있습니다.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">📊 데이터 & 리포트</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> POS/배달/광고 데이터 통합</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> AI 주간/월간 리포트</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 카카오톡 알림 및 리포트</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">🤖 AI 에이전트</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 50,000 AI 크레딧/월</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> AI 분석 카드 (심화)</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> AI 기반 실행 제안 (20건/월)</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> AI 챗봇 (전략 컨설팅)</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> AI 컨텍스트 학습 (무제한)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">📈 마케팅 & 고객 관리</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 온라인 리뷰 AI 응답 (100건/월)</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 재방문/이탈 고객 분석</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 메뉴 조합 추천</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">⚙️ 운영 자동화 <span class="text-xs font-normal text-amber-600">(출시예정)</span></h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 수요 예측 기반 발주 제안</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 매출 연동 근무 스케줄 최적화</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">🏢 본사-가맹점 연동</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 본사 매뉴얼 기반 AI 챗봇</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 본사 공지사항 실시간 확인</li>
+                        </ul>
+                    </div>
+                     <div>
+                        <h4 class="text-lg font-bold text-indigo-600 border-b-2 border-indigo-200 pb-2 mb-4">✨ 고객 지원</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 우선 지원 채널 제공</li>
+                            <li><i class="fa-solid fa-check text-green-500 w-5"></i> 전담 성공 매니저 배정</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phased Rollout -->
+        <section class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 text-center mb-12">단계별 도입 프로세스</h2>
+            <!-- Phase 1 -->
+            <div class="mb-12">
+                <div class="flex items-center mb-6">
+                    <div class="bg-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">1</div>
+                    <h3 class="text-2xl font-bold text-slate-800 ml-4">Access: 가맹점 운영 효율 극대화</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <h4 class="font-bold text-lg mb-2">가맹점 전용 AI 비서</h4>
+                        <p class="text-sm text-slate-600">본사 매뉴얼, 공지, 레시피를 학습한 AI 챗봇이 가맹점주의 모든 질문에 24시간 답변하며, 슈퍼바이저의 반복 업무를 줄여줍니다.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <h4 class="font-bold text-lg mb-2">데이터 기반 점포 운영</h4>
+                        <p class="text-sm text-slate-600">각 가맹점의 POS, 배달, 광고 데이터를 분석하여 AI 분석 카드와 리포트를 제공, 점주가 데이터에 기반한 의사결정을 내리도록 돕습니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center my-8">
+                <i class="fa-solid fa-arrow-down text-3xl text-slate-400"></i>
+            </div>
+
+            <!-- Phase 2 -->
+            <div>
+                <div class="flex items-center mb-6">
+                    <div class="bg-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">2</div>
+                    <h3 class="text-2xl font-bold text-slate-800 ml-4">Control: 본사 통합 관리 및 전략 수립</h3>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <h4 class="font-bold text-lg mb-2">본사 통합 대시보드</h4>
+                        <p class="text-sm text-slate-600">전 가맹점의 핵심 성과 지표(KPI)를 실시간으로 비교 분석하여, 브랜드 전체의 현황을 한눈에 파악합니다.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <h4 class="font-bold text-lg mb-2">자동 요약 리포트</h4>
+                        <p class="text-sm text-slate-600">AI가 매주 우수/부진 가맹점 현황과 주요 이슈를 요약한 리포트를 자동 생성하여, 본사의 신속한 의사결정을 지원합니다.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+                        <h4 class="font-bold text-lg mb-2">ERP 연동 (선택)</h4>
+                        <p class="text-sm text-slate-600">본사 ERP와 연동하여 원가, 재고 데이터를 통합 분석하고 브랜드 전체의 수익성을 극대화하는 전략을 수립합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Contact Section -->
+        <section id="contact" class="mt-20 text-center bg-white py-16 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">지금 바로 AI 혁신을 시작하세요</h2>
+            <p class="text-slate-600 mb-8 max-w-xl mx-auto">전문 컨설턴트가 방문하여 귀사의 비즈니스에 최적화된 맞춤형 도입 전략과 기대효과를 상세히 안내해 드립니다.</p>
+            <a href="mailto:contact@ctrl-m.com?subject=RestoGenie Enterprise 도입 문의" class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-indigo-700 transition">
+                전문가와 상담하기
+            </a>
+        </section>
+
+    </main>
+    
+    <!-- Feature Description Modal -->
+    <div id="feature-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto transform transition-transform duration-300 scale-95">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modal-title" class="text-xl font-bold text-slate-800">기능 상세 설명</h3>
+                    <button id="modal-close" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <p id="modal-description" class="text-slate-600"></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://kit.fontawesome.com/41a84f227b.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const featureDescriptions = {
+                initial_setup: { title: '초기 구축비', description: '브랜드 맞춤형 AI 환경을 구축하기 위한 일회성 전문 서비스 비용입니다. 본사의 고유한 운영 방식과 데이터를 AI에 완벽하게 통합하여, 타사와 차별화된 독보적인 경쟁력을 확보합니다. 200개 가맹점 기준이며, 초과 시 별도 협의가 필요합니다.' },
+                hq_dashboard_option: { title: '본사 통합 대시보드', description: '전체 가맹점의 데이터를 실시간으로 집계, 비교, 분석하는 본사 전용 관제 시스템입니다. 브랜드 전체의 성과를 직관적으로 파악하고, 우수/부진 매장 식별, 캠페인 효과 분석 등 데이터 기반의 신속한 의사결정을 지원합니다.' },
+                erp_integration: { title: 'ERP 연동', description: '본사에서 이미 사용 중인 ERP(전사적 자원 관리) 시스템과 레스토지니를 연동하는 고도의 기술 통합 서비스입니다. 원가, 재고, 물류 데이터를 AI 분석에 포함시켜 브랜드 전체의 수익성을 극대화하는 정교한 전략 수립이 가능해집니다. (별도 기술 컨설팅 및 구축 비용 발생)' },
+            };
+
+            const modal = document.getElementById('feature-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalClose = document.getElementById('modal-close');
+            const tooltipIcons = document.querySelectorAll('.tooltip-icon');
+
+            tooltipIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const key = icon.dataset.featureKey;
+                    const feature = featureDescriptions[key];
+                    if (feature) {
+                        modalTitle.textContent = feature.title;
+                        modalDescription.textContent = feature.description;
+                        modal.classList.remove('hidden');
+                        modal.querySelector('div > div').classList.add('scale-100');
+                    }
+                });
+            });
+            
+            function closeModal() {
+                modal.querySelector('div > div').classList.remove('scale-100');
+                modal.classList.add('hidden');
+            }
+
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

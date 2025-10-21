@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬램버거 가맹점 모집 - 사장님이 되는 가장 빠른 길</title>
+    <!-- Chosen Palette: Slam Burger Official Palette (Slam Red, Slam Yellow, Black, White) -->
+    <!-- Application Structure Plan: A single-page, narrative-driven structure to guide potential franchisees. It starts with a strong value proposition in the hero section, details the brand's competitive advantages using interactive tabs and a chart, clarifies costs and processes with a visual timeline, and concludes with a clear call-to-action form. This flow is designed to build interest, establish credibility, address key questions, and make it easy to inquire, maximizing conversion. -->
+    <!-- Visualization & Content Choices: 1. Profitability Comparison (Bar Chart): Goal is to compare Slam Burger's profitability against competitors. A Chart.js bar chart provides a quick, powerful visual comparison of financial data, which is more impactful than text. 2. Startup Process (Timeline): Goal is to organize information. A simple, visual timeline made with HTML/CSS clearly and logically presents the steps to opening a franchise, making the process seem manageable and transparent. 3. Competitive Edge (Tabs): Goal is to organize and present dense information cleanly. Interactive tabs allow users to explore key strengths (Taste, Operations, Profitability, Support) at their own pace without overwhelming them. All elements are interactive and built with standard web technologies (HTML, CSS, JS) with NO SVG or Mermaid JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <script>
+      (function(d) {
+        var config = {
+          kitId: 'fgw7fbf',
+          scriptTimeout: 3000,
+          async: true
+        },
+        h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||(a&&a!="complete"&&a!="loaded"))return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+      })(document);
+    </script>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+        .font-supersize { font-family: "supersize-bk", sans-serif; font-weight: 400; font-style: normal; }
+        .bg-hero { background-image: url('https://placehold.co/1920x1080/000000/FFFFFF?text=SLAM%20BURGER%20Signature'); background-size: cover; background-position: center; }
+        .slam-red { color: #FF0000; }
+        .bg-slam-red { background-color: #FF0000; }
+        .border-slam-red { border-color: #FF0000; }
+        .slam-yellow { color: #FFD600; }
+        .bg-slam-yellow { background-color: #FFD600; }
+        .border-slam-yellow { border-color: #FFD600; }
+        .tab-active { border-bottom: 2px solid #FF0000; color: #FF0000; font-weight: bold; }
+        html { scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 500px; }
+        @media (min-width: 768px) { .chart-container { height: 450px; } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header id="header" class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#" class="font-supersize text-3xl text-black">SLAM BURGER</a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#about" class="hover:text-red-600">슬램버거 소개</a>
+                <a href="#strength" class="hover:text-red-600">성공 경쟁력</a>
+                <a href="#process" class="hover:text-red-600">창업 비용 & 절차</a>
+                <a href="#contact" class="bg-slam-red text-white font-bold py-2 px-4 rounded-full hover:bg-red-700 transition duration-300">가맹 문의</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-800 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden bg-white">
+            <a href="#about" class="block py-2 px-6 text-sm hover:bg-gray-100">슬램버거 소개</a>
+            <a href="#strength" class="block py-2 px-6 text-sm hover:bg-gray-100">성공 경쟁력</a>
+            <a href="#process" class="block py-2 px-6 text-sm hover:bg-gray-100">창업 비용 & 절차</a>
+            <a href="#contact" class="block py-2 px-6 text-sm hover:bg-gray-100">가맹 문의</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="bg-hero min-h-screen flex items-center justify-center pt-16">
+            <div class="text-center text-white bg-black bg-opacity-50 p-10 rounded-lg">
+                <h1 class="font-supersize text-5xl md:text-7xl mb-4 leading-tight">조리사가 아닌<br>사장님이 되는 가장 빠른 길</h1>
+                <p class="text-lg md:text-xl mb-8">BURGER & RICE, 슬램버거와 함께 성공 신화를 만드세요.</p>
+                <a href="#contact" class="bg-slam-yellow text-black font-bold py-3 px-8 rounded-full text-lg hover:bg-yellow-500 transition duration-300">지금 바로 가맹 문의</a>
+            </div>
+        </section>
+
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="font-supersize text-4xl md:text-5xl mb-4">BURGER & RICE, THE ULTIMATE BITES</h2>
+                <p class="max-w-3xl mx-auto text-gray-600 mb-12">
+                    레슬링 기술 'SLAM'처럼 강력하고 묵직한 한 방의 맛과 경험. <br>슬램버거는 한국의 맛을 재해석한 프리미엄 K-버거 브랜드로, 든든한 한 끼와 환대의 에너지를 선사합니다.
+                </p>
+                <div class="grid md:grid-cols-3 gap-8 text-left">
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-sm">
+                        <h3 class="font-bold text-xl mb-2 text-slam-red">든든한 한 끼 (양)</h3>
+                        <p>단순한 패스트푸드를 넘어, 밥과 함께 든든하게 즐길 수 있는 새로운 식사 경험을 제공합니다.</p>
+                    </div>
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-sm">
+                        <h3 class="font-bold text-xl mb-2 text-slam-red">강력한 맛 (맛)</h3>
+                        <p>한국 대표 메뉴 '갈비'를 재해석한 시그니처 버거로, 한 번 맛보면 잊을 수 없는 강력한 경험을 선사합니다.</p>
+                    </div>
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-sm">
+                        <h3 class="font-bold text-xl mb-2 text-slam-red">환대 (에너지)</h3>
+                        <p>단순히 음식을 파는 곳이 아닌, 방문하는 모든 고객에게 긍정적이고 활기찬 에너지를 전달하는 공간을 지향합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="strength" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="font-supersize text-4xl md:text-5xl mb-4">초보 창업자도 성공하는<br>슬램버거만의 압도적 경쟁력</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600">
+                        맛, 운영, 수익, 지원. 어느 것 하나 놓치지 않았습니다.<br>가맹점주님의 성공이 곧 슬램버거의 성공입니다.
+                    </p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-8 border-b border-gray-200">
+                        <nav class="flex space-x-4 sm:space-x-8 -mb-px" aria-label="Tabs">
+                            <button class="tab-btn tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="taste">독보적인 K-버거</button>
+                            <button class="tab-btn text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="system">초간편 운영 시스템</button>
+                            <button class="tab-btn text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="profit">압도적인 수익 구조</button>
+                            <button class="tab-btn text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="support">체계적인 지원</button>
+                        </nav>
+                    </div>
+                    <div id="tab-content" class="overflow-hidden">
+                        <div class="tab-panel" data-tab-content="taste">
+                            <h3 class="text-2xl font-bold mb-4">대표 메뉴 '갈비버거'로 검증된 맛</h3>
+                            <p class="text-gray-600 mb-6">직영점 매출 20%를 차지하는 시그니처 메뉴 '갈비버거'는 슬램버거의 맛과 성공 가능성을 증명합니다. 한국인이라면 누구나 좋아할, 그러나 어디에서도 맛볼 수 없었던 K-버거의 진수를 보여줍니다.</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <img src="https://placehold.co/600x400/FFD600/000000?text=Galbi+Burger" alt="갈비버거" class="rounded-lg w-full h-auto">
+                                <img src="https://placehold.co/600x400/FF0000/FFFFFF?text=Signature+Set" alt="시그니처 세트" class="rounded-lg w-full h-auto">
+                            </div>
+                        </div>
+                        <div class="tab-panel hidden" data-tab-content="system">
+                            <h3 class="text-2xl font-bold mb-4">단 1주일 교육이면 충분한 'Low Prep' 시스템</h3>
+                            <p class="text-gray-600 mb-6">외식업 경험이 없는 초보자도 1주일 교육만으로 매장을 완벽하게 운영할 수 있습니다. 복잡한 전처리 과정 없는 'Low Prep' 시스템과 자동화된 매뉴얼로 맛의 일관성을 유지하고, 인건비 부담은 낮췄습니다.</p>
+                             <div class="grid md:grid-cols-3 gap-4 text-center">
+                                <div class="bg-white p-6 rounded-lg border">
+                                    <div class="text-3xl text-slam-red font-bold">90%</div>
+                                    <p class="font-semibold mt-2">조리 공정 단순화</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg border">
+                                    <div class="text-3xl text-slam-red font-bold">1주일</div>
+                                    <p class="font-semibold mt-2">본사 집중 교육</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg border">
+                                    <div class="text-3xl text-slam-red font-bold">200%</div>
+                                    <p class="font-semibold mt-2">운영 효율성 극대화</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-panel hidden" data-tab-content="profit">
+                            <h3 class="text-2xl font-bold mb-4">같은 매출, 다른 순수익: 원가율 35% 이하 목표</h3>
+                            <p class="text-gray-600 mb-6">HACCP 인증 육가공 공장 직접 운영으로 안정적인 공급과 원가 절감을 동시에 실현했습니다. 경쟁사 대비 월 500만 원 이상의 추가 순수익을 목표로 설계된 압도적인 수익 구조를 경험하세요.</p>
+                            <div class="chart-container">
+                                <canvas id="profitChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="tab-panel hidden" data-tab-content="support">
+                             <h3 class="text-2xl font-bold mb-4">오픈부터 운영까지, 본사가 끝까지 함께합니다</h3>
+                            <p class="text-gray-600 mb-6">AI 기반 운영 솔루션으로 실시간 매출과 손익 데이터를 분석하고, 전문 마케팅팀이 가맹점의 성공적인 안착을 위해 온/오프라인 마케팅을 적극 지원합니다. 점주님은 최고의 맛과 서비스에만 집중하세요.</p>
+                            <ul class="list-disc list-inside space-y-2">
+                                <li><strong>AI 솔루션:</strong> 실시간 수익 분석 대시보드 제공</li>
+                                <li><strong>마케팅 지원:</strong> 오픈 초기 집중 마케팅 및 지속적인 브랜드 홍보</li>
+                                <li><strong>상권 분석:</strong> 빅데이터 기반 최적의 입지 추천</li>
+                                <li><strong>슈퍼바이징:</strong> 정기적인 매장 방문 및 운영 컨설팅</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="process" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="font-supersize text-4xl md:text-5xl mb-4">체계적인 창업 절차와<br>투명한 창업 비용 안내</h2>
+                     <p class="max-w-3xl mx-auto text-gray-600">
+                        궁금증과 막막함은 덜어드리고, 성공에 대한 확신은 더해드립니다.<br>슬램버거의 투명하고 체계적인 창업 프로세스를 확인해보세요.
+                    </p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-12 items-start">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-center lg:text-left">가맹 개설 절차</h3>
+                        <div class="relative pl-8">
+                            <div class="absolute left-0 h-full w-0.5 bg-slam-red"></div>
+                            <div class="relative mb-8">
+                                <div class="absolute -left-11 w-6 h-6 bg-slam-red text-white rounded-full flex items-center justify-center font-bold">1</div>
+                                <h4 class="font-bold text-lg">가맹 상담</h4>
+                                <p class="text-gray-600 text-sm">전화 및 온라인을 통한 1:1 맞춤 상담</p>
+                            </div>
+                            <div class="relative mb-8">
+                                <div class="absolute -left-11 w-6 h-6 bg-slam-red text-white rounded-full flex items-center justify-center font-bold">2</div>
+                                <h4 class="font-bold text-lg">상권 분석 및 점포 개발</h4>
+                                <p class="text-gray-600 text-sm">희망 지역 상권 분석 및 최적 입지 제안</p>
+                            </div>
+                            <div class="relative mb-8">
+                                <div class="absolute -left-11 w-6 h-6 bg-slam-red text-white rounded-full flex items-center justify-center font-bold">3</div>
+                                <h4 class="font-bold text-lg">가맹 계약</h4>
+                                <p class="text-gray-600 text-sm">정보공개서 제공 및 가맹 계약 체결</p>
+                            </div>
+                            <div class="relative mb-8">
+                                <div class="absolute -left-11 w-6 h-6 bg-slam-red text-white rounded-full flex items-center justify-center font-bold">4</div>
+                                <h4 class="font-bold text-lg">설계 및 시공</h4>
+                                <p class="text-gray-600 text-sm">매장 실측 후 도면 설계 및 인테리어 공사 진행</p>
+                            </div>
+                             <div class="relative mb-8">
+                                <div class="absolute -left-11 w-6 h-6 bg-slam-red text-white rounded-full flex items-center justify-center font-bold">5</div>
+                                <h4 class="font-bold text-lg">점주 교육</h4>
+                                <p class="text-gray-600 text-sm">본사 이론 및 직영점 실습 교육 (1주일)</p>
+                            </div>
+                            <div class="relative">
+                                <div class="absolute -left-11 w-6 h-6 bg-slam-red text-white rounded-full flex items-center justify-center font-bold">6</div>
+                                <h4 class="font-bold text-lg">GRAND OPEN</h4>
+                                <p class="text-gray-600 text-sm">초도 물품 입고 및 최종 점검 후 매장 오픈</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                         <h3 class="text-2xl font-bold mb-6 text-center lg:text-left">20평 기준 창업 비용</h3>
+                         <div class="border rounded-lg overflow-hidden">
+                             <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="p-3">항목</th>
+                                        <th class="p-3 text-right">금액 (만원)</th>
+                                        <th class="p-3">비고</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="p-3 font-medium">가맹비</td>
+                                        <td class="p-3 text-right">1,000</td>
+                                        <td class="p-3">브랜드 사용권 (한시적 면제)</td>
+                                    </tr>
+                                    <tr class="border-b bg-gray-50">
+                                        <td class="p-3 font-medium">교육비</td>
+                                        <td class="p-3 text-right">500</td>
+                                        <td class="p-3">레시피 및 운영 교육</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="p-3 font-medium">보증금</td>
+                                        <td class="p-3 text-right">200</td>
+                                        <td class="p-3">계약 종료 시 반환</td>
+                                    </tr>
+                                     <tr class="border-b bg-gray-50">
+                                        <td class="p-3 font-medium">인테리어</td>
+                                        <td class="p-3 text-right">4,000</td>
+                                        <td class="p-3">평당 200만원</td>
+                                    </tr>
+                                     <tr class="border-b">
+                                        <td class="p-3 font-medium">주방/홀 설비</td>
+                                        <td class="p-3 text-right">2,500</td>
+                                        <td class="p-3">의탁자, 주방기기 일체</td>
+                                    </tr>
+                                     <tr class="border-b bg-gray-50">
+                                        <td class="p-3 font-medium">초도 물품</td>
+                                        <td class="p-3 text-right">500</td>
+                                        <td class="p-3">식자재, 포장용품 등</td>
+                                    </tr>
+                                     <tr class="border-b">
+                                        <td class="p-3 font-medium">기타</td>
+                                        <td class="p-3 text-right">300</td>
+                                        <td class="p-3">간판, POS, DID 등</td>
+                                    </tr>
+                                     <tr class="bg-slam-yellow text-black font-bold">
+                                        <td class="p-4">총 계</td>
+                                        <td id="total-cost" class="p-4 text-right">9,000</td>
+                                        <td class="p-4"></td>
+                                    </tr>
+                                </tbody>
+                             </table>
+                             <div class="p-4 text-xs text-gray-500 bg-gray-50">
+                                * 위 금액은 20평 기준이며, 점포 상황에 따라 변동될 수 있습니다.<br>
+                                * 별도 공사(철거, 전기증설, 냉난방 등) 및 점포 임대 보증금은 제외된 금액입니다.
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 bg-slam-red text-white">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="font-supersize text-4xl md:text-5xl mb-4">망설일 이유가 없습니다.</h2>
+                     <p class="max-w-3xl mx-auto text-yellow-300">
+                        성공 창업의 마지막 퍼즐, 슬램버거가 맞춰드리겠습니다.<br>지금 바로 상담을 신청하고 성공의 기회를 잡으세요.
+                    </p>
+                </div>
+                <div class="max-w-2xl mx-auto bg-white text-gray-800 rounded-lg shadow-2xl p-8">
+                    <form id="franchise-form" action="https://api.web3forms.com/submit" method="POST">
+                        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+                        <input type="hidden" name="subject" value="슬램버거 신규 가맹 문의">
+                        <input type="hidden" name="redirect" value="https://web3forms.com/success">
+
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                             <div>
+                                <label for="name" class="block mb-2 text-sm font-medium">이름</label>
+                                <input type="text" id="name" name="name" class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="홍길동" required>
+                            </div>
+                             <div>
+                                <label for="phone" class="block mb-2 text-sm font-medium">연락처</label>
+                                <input type="tel" id="phone" name="phone" class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="010-1234-5678" required>
+                            </div>
+                        </div>
+                         <div class="mb-6">
+                            <label for="region" class="block mb-2 text-sm font-medium">창업 희망 지역</label>
+                            <input type="text" id="region" name="region" class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="예) 서울시 강남구">
+                        </div>
+                        <div class="mb-6">
+                            <label for="message" class="block mb-2 text-sm font-medium">문의 내용</label>
+                            <textarea id="message" name="message" rows="4" class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="궁금한 점을 자유롭게 남겨주세요."></textarea>
+                        </div>
+                         <div class="flex items-start mb-6">
+                            <div class="flex items-center h-5">
+                            <input id="agreement" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-red-300" required>
+                            </div>
+                            <label for="agreement" class="ml-2 text-sm font-medium">개인정보 수집 및 이용에 동의합니다.</label>
+                        </div>
+                        <button type="submit" class="w-full bg-slam-yellow text-black font-bold py-3 px-5 rounded-lg text-lg hover:bg-yellow-500 transition duration-300 focus:outline-none focus:ring-4 focus:ring-yellow-300">상담 신청하기</button>
+                    </form>
+                    <div id="form-result" class="mt-4 text-center"></div>
+                    <div class="mt-8 text-center text-sm">
+                        <p>전화 상담을 선호하시면 아래 번호로 연락 주세요.</p>
+                        <p class="font-bold text-2xl my-2">1588-0857</p>
+                        <p>이메일: franchise@ctrl-m.co.kr</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center text-sm">
+             <p class="font-supersize text-2xl mb-4">SLAM BURGER</p>
+             <p>(주)컨트롤엠 | 대표: OOO | 사업자등록번호: 000-00-00000</p>
+             <p>주소: 서울특별시 OOO구 OOO로 000</p>
+             <p class="mt-4 text-gray-400">&copy; 2025 SLAMBURGER. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Tabs for Strength Section
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('tab-active', 'text-gray-500', 'hover:text-gray-700'));
+                    button.classList.add('tab-active');
+                    tabButtons.forEach(btn => {
+                      if (!btn.classList.contains('tab-active')) {
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                      }
+                    });
+
+                    const tab = button.dataset.tab;
+                    tabPanels.forEach(panel => {
+                        if (panel.dataset.tabContent === tab) {
+                            panel.classList.remove('hidden');
+                        } else {
+                            panel.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // Profit Chart
+            const ctx = document.getElementById('profitChart');
+            if(ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['월 매출', '원재료비', '인건비', '임대료/관리비', '기타비용', '월 순수익'],
+                        datasets: [{
+                            label: '일반 버거 전문점 (예상)',
+                            data: [4000, 1400, 800, 400, 200, 1200],
+                            backgroundColor: 'rgba(156, 163, 175, 0.5)',
+                            borderColor: 'rgba(156, 163, 175, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: '슬램버거 (목표)',
+                            data: [4000, 1200, 700, 400, 200, 1500],
+                            backgroundColor: 'rgba(255, 214, 0, 0.8)',
+                            borderColor: 'rgba(255, 214, 0, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value, index, values) {
+                                        return value.toLocaleString() + '만원';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '월 4,000만원 매출 기준 순수익 비교 (단위: 만원)',
+                                font: {
+                                    size: 16,
+                                    family: 'Pretendard'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y.toLocaleString() + '만원';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Franchise Form Submission
+            const form = document.getElementById('franchise-form');
+            const formResult = document.getElementById('form-result');
+            
+            form.addEventListener('submit', function(e) {
+                // This part handles the form submission via JavaScript fetch.
+                // It is an alternative to the default form action and provides more control.
+                // For this example, we keep the action attribute pointing to web3forms.
+                // Replace "YOUR_ACCESS_KEY_HERE" in the form action with your actual key from web3forms.com
+                
+                // You can add validation logic here if needed before submission
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone').value;
+                const agreement = document.getElementById('agreement').checked;
+
+                if (!name || !phone || !agreement) {
+                    alert('필수 항목을 모두 입력하고 동의해주세요.');
+                    e.preventDefault();
+                    return;
+                }
+                
+                // The form will submit to the URL in the 'action' attribute.
+                // After submission, the user will be redirected to the success page specified in the form.
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -100,7 +100,7 @@
     <div id="sticky-header" class="sticky top-0 z-40 bg-white shadow-md transition duration-300 ease-in-out">
         <div class="container main-container mx-auto px-4 py-3 flex justify-between items-center">
              <a href="../index.html">
-                <img src="https://rg-proto.jp.ngrok.io/logo_purple.png" alt="RestoGenie 로고" class="h-8 md:h-10" onerror="this.onerror=null;this.src='https://placehold.co/150x40/ffffff/4f46e5?text=RestoGenie';">
+                <img src="https://www.ctrl-m.co.kr/ado/images/session02_0527_logo.svg" alt="RestoGenie 로고" class="h-8 md:h-10">
             </a>
             <!-- Desktop Nav -->
             <nav class="hidden md:flex items-center space-x-6">
@@ -119,12 +119,12 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 w-full">
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 w-full z-30">
             <nav class="flex flex-col p-4 space-y-3">
-                <a href="../index.html#features" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">핵심 기능</a>
-                <a href="../index.html#integration" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">연동 안내</a>
+                <a href="../index.html#features" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition mobile-nav-link">핵심 기능</a>
+                <a href="../index.html#integration" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition mobile-nav-link">연동 안내</a>
                 <a href="plans.html" class="block py-2 px-3 rounded-md text-base font-bold text-indigo-600 bg-indigo-50 transition">요금제</a> <!-- Active State -->
-                <a href="../index.html#waitlist" class="block w-full text-center bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-md text-base hover:bg-indigo-700 transition">
+                <a href="../index.html#waitlist" class="block w-full text-center bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-md text-base hover:bg-indigo-700 transition mobile-nav-link">
                     대기자 등록
                 </a>
             </nav>
@@ -242,7 +242,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-             // Mobile Menu Toggle
+            // Mobile Menu Toggle
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             if (mobileMenuBtn && mobileMenu) {
@@ -250,7 +250,7 @@
                     mobileMenu.classList.toggle('hidden');
                 });
                 // Close menu when a link is clicked
-                mobileMenu.querySelectorAll('a').forEach(link => {
+                mobileMenu.querySelectorAll('a.mobile-nav-link').forEach(link => {
                     link.addEventListener('click', () => {
                         mobileMenu.classList.add('hidden');
                     });
@@ -354,7 +354,7 @@
                 </tbody>`;
             b2cFeatureTableContainer.innerHTML = b2cFeatureTable;
 
-            // Enterprise Content Data (Restoring details including phased rollout)
+            // Enterprise Content Data (Restoring details)
             const enterpriseContentHTML = `
                 <section class="mb-12 md:mb-16">
                     <h2 class="text-xl md:text-3xl font-bold text-slate-900 text-center mb-8 md:mb-10">Enterprise 요금제 구성</h2>
@@ -536,8 +536,6 @@
                          // Remove previous highlights
                          featureTable.querySelectorAll('td, th').forEach(cell => {
                             cell.classList.remove('highlighted-col');
-                            cell.style.borderLeft = '';
-                            cell.style.borderRight = '';
                          });
 
                          // Apply new highlights after a short delay

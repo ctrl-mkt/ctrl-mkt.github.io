@@ -8,25 +8,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Chosen Palette: Corporate & Trustworthy (Slate, Indigo, White) -->
     <!-- Application Structure Plan: A single page with a tabbed interface to switch between B2C and Enterprise pricing plans. This structure cleanly separates the two distinct user journeys. Each tab contains the previously designed, now mobile-optimized, content for that audience. The Enterprise tab has been enhanced with detailed, bullet-pointed descriptions for its setup fee to justify the cost. A new Gemini API-powered feature has been added to the B2C tab to provide an interactive demo. -->
-    <!-- Visualization & Content Choices: Report Info -> B2C & Enterprise pricing models. Goal -> Inform & Compare & Demo. Viz/Presentation -> Tabbed layout with interactive pricing cards, detailed tables, and an AI-powered text generator. Interaction -> Tab switching, monthly/annual toggle (B2C), feature description popups, Gemini API call. Justification -> Adding an interactive demo directly showcases the product's core value proposition powered by Gemini. Library/Method -> Vanilla JS for interactions, Tailwind CSS for layout. -->
+    <!-- Visualization & Content Choices: Report Info -> B2C & Enterprise pricing models. Goal -> Inform & Compare & Demo. Viz/Presentation -> Tabbed layout with interactive pricing cards, detailed tables, and an AI-powered text generator. Interaction -> Tab switching, monthly/annual toggle (B2C), feature description popups, Gemini API call, scroll-to & highlight interaction. Justification -> Adding an interactive demo directly showcases the product's core value proposition powered by Gemini. Library/Method -> Vanilla JS for interactions, Tailwind CSS for layout. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-size: 14px; /* Mobile base font size */ }
         .tab-btn.active { border-color: #4f46e5; background-color: #eef2ff; color: #4f46e5; }
         .plan-card { transition: all 0.3s ease-in-out; }
         .plan-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
         .toggle-bg:after { content: ''; position: absolute; top: 2px; left: 2px; background: white; border-radius: 9999px; width: 1.5rem; height: 1.5rem; transition: all .3s; }
         input:checked + .toggle-bg:after { transform: translateX(100%); }
         input:checked + .toggle-bg { background-color: #3b82f6; }
-        .feature-table th, .feature-table td { padding: 0.75rem 1rem; font-size: 0.875rem;}
+        .feature-table th, .feature-table td { padding: 0.75rem 0.5rem; font-size: 0.8rem; text-align: center; } /* Mobile table padding */
+        .feature-table th:first-child, .feature-table td:first-child { text-align: left; padding-left: 1rem; }
         .feature-icon { color: #3b82f6; }
         .recommended-plan { border-width: 2px; border-color: #3b82f6; }
         .soon-badge, .promo-badge {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 600;
-            margin-left: 6px;
-            padding: 2px 6px;
+            margin-left: 4px;
+            padding: 2px 5px;
             border-radius: 9999px;
             vertical-align: middle;
         }
@@ -35,101 +37,112 @@
         .tooltip-icon {
             cursor: pointer;
             color: #94a3b8;
-            margin-left: 6px;
-            font-size: 0.9em;
+            margin-left: 4px;
+            font-size: 0.8em;
             transition: color 0.2s;
         }
         .tooltip-icon:hover { color: #4f46e5; }
         #feature-modal.hidden { display: none; }
-        .annual-total { display: none; font-size: 0.75rem; }
+        .annual-total { display: none; font-size: 0.7rem; }
         .detail-list { list-style-type: disc; list-style-position: inside; } /* Changed list style */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #4f46e5;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 24px; /* Smaller loader */
+            height: 24px;
             animation: spin 1s linear infinite;
         }
+        .highlighted-col { background-color: #eef2ff !important; } /* Highlight style */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* Desktop styles */
         @media (min-width: 768px) {
-            .feature-table th, .feature-table td { padding: 1rem 1.5rem; font-size: 1rem;}
+            body { font-size: 16px; /* Desktop base font size */ }
+            .feature-table th, .feature-table td { padding: 1rem 1.5rem; font-size: 0.95rem;}
+            .feature-table th:first-child, .feature-table td:first-child { padding-left: 1.5rem; }
+            .soon-badge, .promo-badge { font-size: 0.7rem; }
+            .tooltip-icon { font-size: 0.9em; margin-left: 6px; }
+            .annual-total { font-size: 0.75rem; }
+            .loader { width: 30px; height: 30px; }
+        }
+        @media (min-width: 1280px) {
+            .container { max-width: 1200px; } /* Max width for large screens */
         }
     </style>
 </head>
 <body class="text-slate-800">
 
-    <div class="container mx-auto px-4 py-12 md:py-16">
+    <div class="container mx-auto px-4 py-8 md:py-16">
 
         <!-- Tab Navigation -->
-        <div class="max-w-md mx-auto mb-10 p-1 bg-slate-200 rounded-full flex items-center space-x-1">
-            <button id="b2c-tab-btn" class="tab-btn w-1/2 py-2 px-4 rounded-full text-center font-semibold transition active">B2C 요금제</button>
-            <button id="enterprise-tab-btn" class="tab-btn w-1/2 py-2 px-4 rounded-full text-center font-semibold transition">Enterprise 요금제</button>
+        <div class="max-w-md mx-auto mb-8 p-1 bg-slate-200 rounded-full flex items-center space-x-1">
+            <button id="b2c-tab-btn" class="tab-btn w-1/2 py-2 px-3 md:px-4 text-xs md:text-sm rounded-full text-center font-semibold transition active">B2C 요금제</button>
+            <button id="enterprise-tab-btn" class="tab-btn w-1/2 py-2 px-3 md:px-4 text-xs md:text-sm rounded-full text-center font-semibold transition">Enterprise 요금제</button>
         </div>
 
         <!-- B2C Content -->
         <div id="b2c-content">
-            <header class="text-center mb-12">
-                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">당신의 매장에 꼭 맞는 플랜을 선택하세요</h1>
-                <p class="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">레스토지니는 개인 점주부터 대형 프랜차이즈까지, 모든 외식업의 성공을 위한 AI 파트너입니다.</p>
+            <header class="text-center mb-8 md:mb-12">
+                <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3 md:mb-4">당신의 매장에 꼭 맞는 플랜을 선택하세요</h1>
+                <p class="text-sm md:text-lg text-slate-600 max-w-2xl mx-auto">레스토지니는 개인 점주부터 대형 프랜차이즈까지, 모든 외식업의 성공을 위한 AI 파트너입니다.</p>
             </header>
-            <div class="flex items-center justify-center space-x-3 mb-10">
-                <span class="font-medium text-slate-700 text-sm md:text-base" id="monthly-label">월간 결제</span>
+            <div class="flex items-center justify-center space-x-2 md:space-x-3 mb-8 md:mb-10">
+                <span class="font-medium text-slate-700 text-xs md:text-base" id="monthly-label">월간 결제</span>
                 <label for="billing-toggle" class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="billing-toggle" class="sr-only peer">
-                    <div class="w-11 h-7 bg-slate-300 rounded-full toggle-bg peer-focus:ring-4 peer-focus:ring-blue-300"></div>
+                    <div class="w-10 h-6 md:w-11 md:h-7 bg-slate-300 rounded-full toggle-bg peer-focus:ring-4 peer-focus:ring-blue-300"></div>
                 </label>
-                <span class="font-medium text-slate-500 text-sm md:text-base" id="annual-label">연간 결제</span>
+                <span class="font-medium text-slate-500 text-xs md:text-base" id="annual-label">연간 결제</span>
                 <span class="bg-blue-100 text-blue-800 text-xs font-semibold ml-2 px-2.5 py-0.5 rounded-full">20% 할인</span>
             </div>
-            <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            <main class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6">
                 <!-- B2C plans will be dynamically inserted here -->
             </main>
 
             <!-- Gemini API Feature Section -->
-            <section class="mt-16 bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl md:text-3xl font-bold text-slate-900">✨ Gemini AI로 만드는 우리 가게 마케팅 문구</h2>
-                    <p class="text-slate-600 mt-2">간단한 정보만 입력하면, Gemini AI가 고객의 시선을 사로잡는 SNS 홍보 문구를 만들어 드립니다.</p>
+            <section class="mt-12 md:mt-16 bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <div class="text-center mb-6 md:mb-8">
+                    <h2 class="text-xl md:text-3xl font-bold text-slate-900">✨ Gemini AI로 만드는 우리 가게 마케팅 문구</h2>
+                    <p class="text-slate-600 mt-2 text-sm md:text-base">간단한 정보만 입력하면, Gemini AI가 고객의 시선을 사로잡는 SNS 홍보 문구를 만들어 드립니다.</p>
                 </div>
-                <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start">
                     <div>
-                        <div class="space-y-4">
+                        <div class="space-y-3">
                             <div>
-                                <label for="restaurant-type" class="block text-sm font-medium text-slate-700 mb-1">가게 종류</label>
-                                <input type="text" id="restaurant-type" class="w-full border-slate-300 rounded-md shadow-sm" placeholder="예: 수제버거 전문점">
+                                <label for="restaurant-type" class="block text-xs md:text-sm font-medium text-slate-700 mb-1">가게 종류</label>
+                                <input type="text" id="restaurant-type" class="w-full border-slate-300 rounded-md shadow-sm text-sm" placeholder="예: 수제버거 전문점">
                             </div>
                             <div>
-                                <label for="menu-item" class="block text-sm font-medium text-slate-700 mb-1">메뉴 이름</label>
-                                <input type="text" id="menu-item" class="w-full border-slate-300 rounded-md shadow-sm" placeholder="예: 더블치즈 트러플 버거">
+                                <label for="menu-item" class="block text-xs md:text-sm font-medium text-slate-700 mb-1">메뉴 이름</label>
+                                <input type="text" id="menu-item" class="w-full border-slate-300 rounded-md shadow-sm text-sm" placeholder="예: 더블치즈 트러플 버거">
                             </div>
                             <div>
-                                <label for="promotion-details" class="block text-sm font-medium text-slate-700 mb-1">특별 할인 / 이벤트 (선택)</label>
-                                <input type="text" id="promotion-details" class="w-full border-slate-300 rounded-md shadow-sm" placeholder="예: 오늘만 20% 할인">
+                                <label for="promotion-details" class="block text-xs md:text-sm font-medium text-slate-700 mb-1">특별 할인 / 이벤트 (선택)</label>
+                                <input type="text" id="promotion-details" class="w-full border-slate-300 rounded-md shadow-sm text-sm" placeholder="예: 오늘만 20% 할인">
                             </div>
                         </div>
-                        <button id="generate-btn" class="mt-6 w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 transition flex items-center justify-center">
+                        <button id="generate-btn" class="mt-4 md:mt-6 w-full bg-indigo-600 text-white font-bold py-2.5 md:py-3 px-4 rounded-md hover:bg-indigo-700 transition flex items-center justify-center text-sm md:text-base">
                             <i class="fas fa-magic-sparkles mr-2"></i> AI 문구 생성하기
                         </button>
                     </div>
-                    <div class="bg-slate-100 rounded-md p-4 min-h-[250px] relative">
+                    <div class="bg-slate-100 rounded-md p-4 min-h-[200px] md:min-h-[250px] relative">
                         <div id="loading-indicator" class="hidden absolute inset-0 bg-slate-100/80 flex items-center justify-center">
                             <div class="loader"></div>
                         </div>
-                        <p id="gemini-output" class="text-slate-700 whitespace-pre-wrap"></p>
-                        <button id="copy-btn" class="hidden absolute top-2 right-2 bg-slate-200 text-slate-600 hover:bg-slate-300 px-3 py-1 rounded-md text-sm font-medium">
+                        <p id="gemini-output" class="text-slate-700 whitespace-pre-wrap text-sm md:text-base"></p>
+                        <button id="copy-btn" class="hidden absolute top-2 right-2 bg-slate-200 text-slate-600 hover:bg-slate-300 px-2 py-0.5 md:px-3 md:py-1 rounded-md text-xs md:text-sm font-medium">
                             <i class="fas fa-copy mr-1"></i> 복사
                         </button>
-                        <div id="copy-success" class="hidden absolute bottom-2 right-2 bg-green-500 text-white px-3 py-1 rounded-md text-sm font-medium">복사 완료!</div>
+                        <div id="copy-success" class="hidden absolute bottom-2 right-2 bg-green-500 text-white px-2 py-0.5 md:px-3 md:py-1 rounded-md text-xs md:text-sm font-medium">복사 완료!</div>
                     </div>
                 </div>
             </section>
 
-             <section class="mt-16">
-                <h3 class="text-2xl md:text-3xl font-bold text-center mb-10 text-slate-900">모든 플랜 기능 비교</h3>
+             <section class="mt-12 md:mt-16" id="b2c-feature-comparison">
+                <h3 class="text-xl md:text-3xl font-bold text-center mb-8 md:mb-10 text-slate-900">모든 플랜 기능 비교</h3>
                 <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                     <table id="b2c-feature-table" class="w-full text-left feature-table whitespace-nowrap">
                         <!-- B2C feature table will be dynamically inserted here -->
@@ -140,9 +153,9 @@
 
         <!-- Enterprise Content -->
         <div id="enterprise-content" class="hidden">
-            <header class="text-center mb-12">
-                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">프랜차이즈를 위한 AI 경영 솔루션</h1>
-                <p class="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
+            <header class="text-center mb-8 md:mb-12">
+                <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3 md:mb-4">프랜차이즈를 위한 AI 경영 솔루션</h1>
+                <p class="text-sm md:text-lg text-slate-600 max-w-2xl mx-auto">
                     흩어진 가맹점 데이터를 하나로 통합하고, 본사의 의사결정을 AI로 혁신하여 브랜드의 지속가능한 성장을 만듭니다.
                 </p>
             </header>
@@ -157,8 +170,8 @@
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto transform transition-transform duration-300 scale-95">
             <div class="p-6">
                 <div class="flex justify-between items-start mb-4">
-                    <h3 id="modal-title" class="text-xl font-bold text-slate-800"></h3>
-                    <button id="modal-close" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-2xl"></i></button>
+                    <h3 id="modal-title" class="text-lg md:text-xl font-bold text-slate-800"></h3>
+                    <button id="modal-close" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl md:text-2xl"></i></button>
                 </div>
                 <div id="modal-description" class="text-slate-600 text-sm md:text-base"></div>
             </div>
@@ -174,56 +187,56 @@
 
             // B2C Plans Data
             const b2cPlans = `
-                <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
-                    <h2 class="text-xl font-bold text-slate-900">Free</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6 h-16">Basic 플랜 1개월 무료 체험</p>
-                    <div class="mb-6"><span class="text-3xl font-extrabold" data-price-monthly="0">₩0</span></div>
-                    <a href="#" class="w-full mt-auto text-center bg-slate-800 text-white font-semibold py-3 rounded-lg hover:bg-slate-900 transition-colors text-sm">1개월 무료 체험</a>
+                <div class="plan-card bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col" data-plan-index="0">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900">Free</h2>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 mb-4 md:mb-6 h-12 md:h-16">Basic 플랜 1개월 무료 체험</p>
+                    <div class="mb-4 md:mb-6"><span class="text-2xl md:text-3xl font-extrabold" data-price-monthly="0">₩0</span></div>
+                    <button class="b2c-start-btn w-full mt-auto text-center bg-slate-800 text-white font-semibold py-2 md:py-3 rounded-lg hover:bg-slate-900 transition-colors text-xs md:text-sm" data-plan-index="0">1개월 무료 체험</button>
                 </div>
-                <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
-                    <h2 class="text-xl font-bold text-slate-900">Basic</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6 h-16">데이터 기반 관리의 시작</p>
-                    <div class="mb-6" data-retail-price="9900">
-                        <span class="text-3xl font-extrabold">₩9,900</span><span class="text-slate-500 text-sm">/ 월</span>
+                <div class="plan-card bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col" data-plan-index="1">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900">Basic</h2>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 mb-4 md:mb-6 h-12 md:h-16">데이터 기반 관리의 시작</p>
+                    <div class="mb-4 md:mb-6" data-retail-price="9900">
+                        <span class="text-2xl md:text-3xl font-extrabold">₩9,900</span><span class="text-slate-500 text-xs md:text-sm">/ 월</span>
                         <p class="annual-total">연간 ₩95,040</p>
                     </div>
-                    <a href="#" class="w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors text-sm">플랜 시작하기</a>
+                    <button class="b2c-start-btn w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-2 md:py-3 rounded-lg hover:bg-slate-300 transition-colors text-xs md:text-sm" data-plan-index="1">플랜 시작하기</button>
                 </div>
-                <div class="plan-card bg-white rounded-xl shadow-lg p-6 flex flex-col recommended-plan relative">
-                     <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span class="bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full uppercase">추천</span></div>
-                    <h2 class="text-xl font-bold text-blue-600">Deluxe</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6 h-16">본격적인 AI 마케팅 분석</p>
-                    <div class="mb-6" data-promo="true" data-retail-price="29900" data-promo-price="9900">
-                        <div><span class="text-xl font-bold text-slate-400 line-through">₩29,900</span><span class="promo-badge">6개월 할인가</span></div>
-                        <span class="text-3xl font-extrabold text-red-600">₩9,900</span><span class="text-slate-500 text-sm">/ 월</span>
+                <div class="plan-card bg-white rounded-xl shadow-lg p-4 md:p-6 flex flex-col recommended-plan relative" data-plan-index="2">
+                     <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2"><span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">추천</span></div>
+                    <h2 class="text-lg md:text-xl font-bold text-blue-600">Deluxe</h2>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 mb-4 md:mb-6 h-12 md:h-16">본격적인 AI 마케팅 분석</p>
+                    <div class="mb-4 md:mb-6" data-promo="true" data-retail-price="29900" data-promo-price="9900">
+                        <div><span class="text-lg md:text-xl font-bold text-slate-400 line-through">₩29,900</span><span class="promo-badge">6개월 할인가</span></div>
+                        <span class="text-2xl md:text-3xl font-extrabold text-red-600">₩9,900</span><span class="text-slate-500 text-xs md:text-sm">/ 월</span>
                         <p class="annual-total">연간 ₩287,040</p>
                     </div>
-                    <a href="#" class="w-full mt-auto text-center bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm">플랜 시작하기</a>
+                    <button class="b2c-start-btn w-full mt-auto text-center bg-blue-600 text-white font-semibold py-2 md:py-3 rounded-lg hover:bg-blue-700 transition-colors text-xs md:text-sm" data-plan-index="2">플랜 시작하기</button>
                 </div>
-                <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
-                    <h2 class="text-xl font-bold text-slate-900">Pro</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6 h-16">AI 운영 자동화 & 심화 분석</p>
-                     <div class="mb-6" data-promo="true" data-retail-price="49900" data-promo-price="29900">
-                        <div><span class="text-xl font-bold text-slate-400 line-through">₩49,900</span><span class="promo-badge">6개월 할인가</span></div>
-                        <span class="text-3xl font-extrabold text-red-600">₩29,900</span><span class="text-slate-500 text-sm">/ 월</span>
+                <div class="plan-card bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col" data-plan-index="3">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900">Pro</h2>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 mb-4 md:mb-6 h-12 md:h-16">AI 운영 자동화 & 심화 분석</p>
+                     <div class="mb-4 md:mb-6" data-promo="true" data-retail-price="49900" data-promo-price="29900">
+                        <div><span class="text-lg md:text-xl font-bold text-slate-400 line-through">₩49,900</span><span class="promo-badge">6개월 할인가</span></div>
+                        <span class="text-2xl md:text-3xl font-extrabold text-red-600">₩29,900</span><span class="text-slate-500 text-xs md:text-sm">/ 월</span>
                         <p class="annual-total">연간 ₩479,040</p>
                     </div>
-                    <a href="#" class="w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors text-sm">플랜 시작하기</a>
+                    <button class="b2c-start-btn w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-2 md:py-3 rounded-lg hover:bg-slate-300 transition-colors text-xs md:text-sm" data-plan-index="3">플랜 시작하기</button>
                 </div>
-                <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
-                    <h2 class="text-xl font-bold text-slate-900">Pro+</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6 h-16">CCTV 연동으로 방문 고객까지 완벽 분석</p>
-                    <div class="mb-6" data-retail-price="89900">
-                        <span class="text-3xl font-extrabold">₩89,900</span><span class="text-slate-500 text-sm">/ 월</span>
+                <div class="plan-card bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col" data-plan-index="4">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900">Pro+</h2>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 mb-4 md:mb-6 h-12 md:h-16">CCTV 연동으로 방문 고객까지 완벽 분석</p>
+                    <div class="mb-4 md:mb-6" data-retail-price="89900">
+                        <span class="text-2xl md:text-3xl font-extrabold">₩89,900</span><span class="text-slate-500 text-xs md:text-sm">/ 월</span>
                         <p class="annual-total">연간 ₩863,040</p>
                     </div>
-                    <a href="#" class="w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors text-sm">플랜 시작하기</a>
+                    <button class="b2c-start-btn w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-2 md:py-3 rounded-lg hover:bg-slate-300 transition-colors text-xs md:text-sm" data-plan-index="4">플랜 시작하기</button>
                 </div>
-                <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
-                    <h2 class="text-xl font-bold text-slate-900">Enterprise</h2>
-                    <p class="text-sm text-slate-500 mt-2 mb-6 h-16">대형 프랜차이즈를 위한 맞춤 솔루션</p>
-                    <div class="mb-6"><span class="text-3xl font-extrabold">별도 문의</span></div>
-                    <a href="#" id="b2c-enterprise-contact" class="w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition-colors text-sm">문의하기</a>
+                <div class="plan-card bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col" data-plan-index="5">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900">Enterprise</h2>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 md:mt-2 mb-4 md:mb-6 h-12 md:h-16">대형 프랜차이즈를 위한 맞춤 솔루션</p>
+                    <div class="mb-4 md:mb-6"><span class="text-2xl md:text-3xl font-extrabold">별도 문의</span></div>
+                    <button id="b2c-enterprise-contact" class="w-full mt-auto text-center bg-slate-200 text-slate-800 font-semibold py-2 md:py-3 rounded-lg hover:bg-slate-300 transition-colors text-xs md:text-sm" data-plan-index="5">문의하기</button>
                 </div>
             `;
             b2cContentContainer.innerHTML = b2cPlans;
@@ -361,7 +374,11 @@
                 b2cEnterpriseContactBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     switchToEnterprise();
-                    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+                    // Smooth scroll to the contact section within the Enterprise tab
+                    const contactSection = enterpriseContentDiv.querySelector('#contact');
+                    if (contactSection) {
+                         contactSection.scrollIntoView({ behavior: 'smooth' });
+                    }
                 });
             }
 
@@ -373,10 +390,10 @@
                 const isAnnual = toggle.checked;
                 b2cContentDiv.querySelectorAll('.plan-card').forEach(card => {
                     const priceContainer = card.querySelector('div[data-retail-price], div[data-price-monthly="9900"], div:has(> span[data-price-monthly="0"])'); // Adjusted selector
-                    if (!priceContainer || card.querySelector('span.text-3xl.font-extrabold')?.textContent === '별도 문의') return;
+                    if (!priceContainer || card.querySelector('span.text-3xl.font-extrabold, span.text-2xl.font-extrabold')?.textContent === '별도 문의') return; // Added check for smaller price spans
 
 
-                    const priceSpan = priceContainer.querySelector('.text-3xl, .text-red-600');
+                    const priceSpan = priceContainer.querySelector('.text-3xl, .text-2xl, .text-red-600'); // Added check for smaller price spans
                     if (!priceSpan) return;
                     
                     const annualTotalEl = priceContainer.querySelector('.annual-total');
@@ -390,7 +407,7 @@
                          const basePriceEl = card.querySelector('span[data-price-monthly]');
                          if (basePriceEl && basePriceEl.dataset.priceMonthly !== "0") {
                               retailPrice = parseInt(basePriceEl.dataset.priceMonthly, 10);
-                         } else if (priceSpan.dataset.priceMonthly === "0") {
+                         } else if (priceContainer.querySelector('span[data-price-monthly="0"]')) { // Check specifically for free plan
                              retailPrice = 0; // Free plan
                          }
                          else {
@@ -441,6 +458,53 @@
                 toggle.addEventListener('change', updateB2CPrices);
                 updateB2CPrices(); // Initial call
              }
+
+            // B2C "Start Plan" button scroll & highlight
+            const b2cStartButtons = document.querySelectorAll('.b2c-start-btn');
+            const featureTableBody = b2cFeatureTableContainer.querySelector('tbody');
+
+            b2cStartButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const planIndex = parseInt(button.dataset.planIndex, 10) + 1; // +1 because first column is feature name
+                    const featureComparisonSection = document.getElementById('b2c-feature-comparison');
+
+                    if (featureComparisonSection && featureTableBody) {
+                        featureComparisonSection.scrollIntoView({ behavior: 'smooth' });
+
+                        // Remove previous highlights
+                        featureTableBody.querySelectorAll('td, th').forEach(cell => {
+                            cell.classList.remove('highlighted-col');
+                            cell.style.borderLeft = '';
+                            cell.style.borderRight = '';
+                         });
+                         featureTableBody.querySelectorAll('thead th').forEach(cell => {
+                            cell.classList.remove('highlighted-col');
+                            cell.style.borderLeft = '';
+                            cell.style.borderRight = '';
+                         });
+
+
+                        // Highlight the selected column's header
+                         const headerCells = b2cFeatureTableContainer.querySelectorAll('thead th');
+                         if (headerCells[planIndex]) {
+                              headerCells[planIndex].classList.add('highlighted-col');
+                              headerCells[planIndex].style.borderLeft = '2px solid #4f46e5';
+                              headerCells[planIndex].style.borderRight = '2px solid #4f46e5';
+                         }
+
+                        // Highlight the selected column's body cells
+                        featureTableBody.querySelectorAll('tr').forEach(row => {
+                           const cells = row.querySelectorAll('td');
+                           if (cells[planIndex]) {
+                                cells[planIndex].classList.add('highlighted-col');
+                                cells[planIndex].style.borderLeft = '2px solid #4f46e5';
+                                cells[planIndex].style.borderRight = '2px solid #4f46e5';
+                           }
+                        });
+                    }
+                });
+            });
 
 
             // Gemini API call

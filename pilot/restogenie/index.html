@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Chosen Palette: Based on Demo Site (Indigo, Slate, White) -->
-    <!-- Application Structure Plan: One-page landing site following the 기획서. Sections: Hero (Hook), Problem, Solution (Turning Point), Core Features, Integration Vision, Final CTA (Waitlist). Designed as a funnel to capture leads pre-launch. Sticky header for persistent CTA. ChannelTalk integrated. Waitlist form connected via Google Apps Script. -->
+    <!-- Application Structure Plan: One-page landing site following the 기획서. Sections: Hero (Hook), Problem, Solution (Turning Point), Core Features, Integration Vision, Final CTA (Waitlist). Designed as a funnel to capture leads pre-launch. Sticky header with full navigation (including mobile hamburger) added. ChannelTalk integrated. Waitlist form connected via Google Apps Script. -->
     <!-- Visualization & Content Choices: Based on 기획서 & Demo. Hero: Benefit-driven headline. Problem: Empathetic stats/icons. Solution: UI mockup showing data->insight. Features: Tab/Accordion with benefit-focused descriptions & UI mockups. Integration: Logo wall. CTA: Simple form with clear benefits. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -26,7 +26,7 @@
             .feature-icon { width: 64px; height: 64px; }
         }
         @media (min-width: 1280px) {
-            .container.main-container { max-width: 1200px; } /* Max width for large screens */
+            .container.main-container { max-width: 1200px; } /* Max width 1200px */
         }
          /* Modal Styles */
         #waitlist-modal.hidden, #form-success-modal.hidden, #form-error-modal.hidden { display: none; } /* Added error modal */
@@ -52,15 +52,40 @@
     <!-- Sticky Header -->
     <div id="sticky-header" class="sticky top-0 z-40 bg-white shadow-md transition duration-300 ease-in-out">
         <div class="container main-container mx-auto px-4 py-3 flex justify-between items-center">
-            <img src="https://rg-proto.jp.ngrok.io/logo_purple.png" alt="RestoGenie 로고" class="h-8 md:h-10" onerror="this.onerror=null;this.src='https://placehold.co/150x40/ffffff/4f46e5?text=RestoGenie';">
-            <a href="#waitlist" class="bg-indigo-600 text-white font-bold py-2 px-4 md:py-2.5 md:px-6 rounded-full text-xs md:text-sm hover:bg-indigo-700 transition">
-                대기자 명단 등록
+             <a href="index.html">
+                <img src="https://rg-proto.jp.ngrok.io/logo_purple.png" alt="RestoGenie 로고" class="h-8 md:h-10" onerror="this.onerror=null;this.src='https://placehold.co/150x40/ffffff/4f46e5?text=RestoGenie';">
             </a>
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="#features" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">핵심 기능</a>
+                <a href="#integration" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">연동 안내</a>
+                <a href="plans/plans.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">요금제</a>
+                <a href="#waitlist" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-full text-sm hover:bg-indigo-700 transition">
+                    대기자 등록
+                </a>
+            </nav>
+            <!-- Mobile Nav Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="text-slate-900 text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 w-full">
+            <nav class="flex flex-col p-4 space-y-3">
+                <a href="#features" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">핵심 기능</a>
+                <a href="#integration" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">연동 안내</a>
+                <a href="plans/plans.html" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">요금제</a>
+                <a href="#waitlist" class="block w-full text-center bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-md text-base hover:bg-indigo-700 transition">
+                    대기자 등록
+                </a>
+            </nav>
         </div>
     </div>
 
     <!-- Section 1: Hero -->
-    <section class="hero-gradient text-white pt-24 pb-20 md:pt-32 md:pb-28 px-4 fade-in">
+    <section id="hero" class="hero-gradient text-white pt-24 pb-20 md:pt-32 md:pb-28 px-4 fade-in">
         <div class="container main-container mx-auto max-w-4xl text-center">
             <h1 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">사장님은 음식에만 집중하세요.<br>돈 새는 구멍은 AI가 막아드립니다.</h1>
             <p class="text-base md:text-xl text-indigo-200 max-w-2xl mx-auto mb-8">
@@ -74,7 +99,7 @@
     </section>
 
     <!-- Section 2: Problem -->
-    <section class="py-16 md:py-24 px-4 bg-slate-100">
+    <section id="problem" class="py-16 md:py-24 px-4 bg-slate-100">
         <div class="container main-container mx-auto max-w-5xl">
             <h2 class="text-2xl md:text-4xl font-bold text-slate-900 text-center mb-12 md:mb-16">사장님, 혹시 이런 고민 하고 계신가요?</h2>
             <div class="grid md:grid-cols-3 gap-8 md:gap-12 text-center">
@@ -101,7 +126,7 @@
     </section>
 
     <!-- Section 3: Turning Point -->
-    <section class="py-16 md:py-24 px-4">
+    <section id="solution" class="py-16 md:py-24 px-4">
          <div class="container main-container mx-auto max-w-5xl text-center">
              <h2 class="text-2xl md:text-4xl font-bold text-slate-900 mb-4">이제, 똑똑한 AI 파트너 '레스토지니'에게 맡기세요.</h2>
              <p class="text-base md:text-lg text-slate-600 mb-12 max-w-3xl mx-auto">
@@ -113,7 +138,7 @@
     </section>
 
     <!-- Section 4: Core Features -->
-    <section class="py-16 md:py-24 px-4 bg-slate-100">
+    <section id="features" class="py-16 md:py-24 px-4 bg-slate-100">
         <div class="container main-container mx-auto max-w-5xl">
             <h2 class="text-2xl md:text-4xl font-bold text-slate-900 text-center mb-12 md:mb-16">레스토지니 핵심 기능</h2>
             <div class="space-y-12 md:space-y-16">
@@ -170,7 +195,7 @@
     </section>
 
      <!-- Section 5: Integration -->
-    <section class="py-16 md:py-24 px-4">
+    <section id="integration" class="py-16 md:py-24 px-4">
         <div class="container main-container mx-auto max-w-5xl text-center">
             <h2 class="text-2xl md:text-4xl font-bold text-slate-900 mb-4">사장님이 이미 사용 중인 프로그램과<br class="md:hidden"> 완벽하게 연동됩니다.</h2>
              <p class="text-base md:text-lg text-slate-600 mb-12 max-w-3xl mx-auto">
@@ -268,6 +293,21 @@
      <script>
         document.addEventListener('DOMContentLoaded', function () {
 
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+                // Close menu when a link is clicked
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+
             const waitlistForm = document.getElementById('waitlist-form');
             const successModal = document.getElementById('form-success-modal');
             const successModalClose = document.getElementById('success-modal-close');
@@ -304,33 +344,51 @@
                     submitSpinner.classList.remove('hidden');
 
                     const formData = new FormData(waitlistForm);
-                    const data = Object.fromEntries(formData.entries());
-
+                    
                     try {
                         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                             method: 'POST',
-                             // Apps Script doPost(e)는 'application/x-www-form-urlencoded'를 기본으로 파싱
-                             // e.parameter.storeName 등으로 접근
+                            mode: 'cors', // Use CORS mode
+                            credentials: 'omit',
+                            // FormData를 Apps Script로 보낼 때, GAS는 e.parameter로 받습니다.
+                            // 별도 헤더 설정이 필요 없습니다.
                             body: formData, 
                         });
 
-                        // 'response'가 불투명(opaque) 응답일 수 있음 (CORS 리디렉션 등)
-                        // 이 경우, 성공으로 간주하고 팝업을 띄움
-                        if (response.ok || response.type === 'opaque') {
-                            console.log('Form submission succeeded (or assumed success for opaque response).');
+                        if (!response.ok) {
+                             // CORS 오류 등 네트워크 레벨 문제가 아닌, 서버의 4xx, 5xx 응답을 처리
+                             let errorText = await response.text();
+                             try {
+                                 const errorJson = JSON.parse(errorText); // 서버가 JSON 에러를 보냈는지 확인
+                                 throw new Error(errorJson.message || `서버 응답 오류: ${response.status}`);
+                             } catch(e) {
+                                 // JSON이 아니면 텍스트 그대로 에러 메시지로 사용
+                                 throw new Error(errorText || `서버 응답 오류: ${response.status}`);
+                             }
+                        }
+
+                        // 응답이 OK일 경우, JSON 파싱 시도
+                        const result = await response.json();
+                        console.log('Apps Script JSON response:', result);
+
+                        if (result.result === 'success') {
                             waitlistForm.reset();
                             successModal.classList.remove('hidden', 'modal-leave-active', 'modal-leave');
                             successModal.classList.add('modal-enter', 'modal-enter-active');
                             setTimeout(() => successModal.classList.remove('modal-enter', 'modal-enter-active'), 300);
                         } else {
-                             // 서버가 에러 응답을 반환한 경우 (e.g., 500)
-                             let errorText = await response.text();
-                             throw new Error(errorText || `서버 응답 오류: ${response.status}`);
+                            throw new Error(result.message || 'Apps Script에서 오류를 반환했습니다.');
                         }
 
                     } catch (error) {
+                        // 네트워크 오류 또는 위에서 throw된 오류 처리
                         console.error('Error sending form data:', error);
-                        errorModalMessage.innerHTML = `죄송합니다. 요청 처리 중 오류가 발생했습니다.<br>잠시 후 다시 시도하거나 고객센터로 문의해주세요.`;
+                        // CORS 오류는 보통 이 catch 블록으로 잡힙니다.
+                        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                             errorModalMessage.innerHTML = `죄송합니다. 폼 제출에 실패했습니다.<br>CORS 설정을 확인하거나 관리자에게 문의하세요.`;
+                        } else {
+                             errorModalMessage.innerHTML = `죄송합니다. 요청 처리 중 오류가 발생했습니다.<br>잠시 후 다시 시도해주세요. (${error.message})`;
+                        }
                         errorModal.classList.remove('hidden', 'modal-leave-active', 'modal-leave');
                         errorModal.classList.add('modal-enter', 'modal-enter-active');
                          setTimeout(() => errorModal.classList.remove('modal-enter', 'modal-enter-active'), 300);

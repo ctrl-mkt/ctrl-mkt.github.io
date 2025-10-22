@@ -52,7 +52,7 @@
     <!-- Sticky Header -->
     <div id="sticky-header" class="sticky top-0 z-40 bg-white shadow-md transition duration-300 ease-in-out">
         <div class="container main-container mx-auto px-4 py-3 flex justify-between items-center">
-            <img src="https://rg-proto.jp.ngrok.io/logo_purple.png" alt="RestoGenie 로고" class="h-8 md:h-10">
+            <img src="https://rg-proto.jp.ngrok.io/logo_purple.png" alt="RestoGenie 로고" class="h-8 md:h-10" onerror="this.onerror=null;this.src='https://placehold.co/150x40/ffffff/4f46e5?text=RestoGenie';">
             <a href="#waitlist" class="bg-indigo-600 text-white font-bold py-2 px-4 md:py-2.5 md:px-6 rounded-full text-xs md:text-sm hover:bg-indigo-700 transition">
                 대기자 명단 등록
             </a>
@@ -254,7 +254,7 @@
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto p-6 text-center">
             <i class="fa-solid fa-circle-exclamation text-5xl text-red-500 mb-4"></i>
             <h3 class="text-xl font-bold text-slate-800 mb-2">오류 발생</h3>
-            <p class="text-slate-600 mb-6 text-sm">죄송합니다. 요청 처리 중 오류가 발생했습니다.<br>잠시 후 다시 시도하거나 고객센터로 문의해주세요.</p>
+            <p id="error-modal-message" class="text-slate-600 mb-6 text-sm">죄송합니다. 요청 처리 중 오류가 발생했습니다.<br>잠시 후 다시 시도하거나 고객센터로 문의해주세요.</p>
             <button id="error-modal-close" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 transition text-sm">확인</button>
         </div>
     </div>
@@ -273,12 +273,13 @@
             const successModalClose = document.getElementById('success-modal-close');
             const errorModal = document.getElementById('form-error-modal');
             const errorModalClose = document.getElementById('error-modal-close');
+            const errorModalMessage = document.getElementById('error-modal-message');
             const submitButton = document.getElementById('submit-button');
             const submitText = document.getElementById('submit-text');
             const submitSpinner = document.getElementById('submit-spinner');
 
-             // --- !!! IMPORTANT: 2단계에서 배포한 본인의 Google Apps Script 웹 앱 URL로 교체하세요 !!! ---
-             const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuDvGKClt8EIobA0eA4fVmpuxpf3nVeC9SgWPeUDQMKeJmk9wx7-EHP0VScFJ1JM1I2Q/exec'; // 제공해주신 URL로 업데이트했습니다.
+             // --- !!! Google Apps Script 웹 앱 URL !!! ---
+             const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuDvGKClt8EIobA0eA4fVmpuxpf3nVeC9SgWPeUDQMKeJmk9wx7-EHP0VScFJ1JM1I2Q/exec';
 
             if (waitlistForm) {
                 waitlistForm.addEventListener('submit', async function (e) {
@@ -305,58 +306,31 @@
                     const formData = new FormData(waitlistForm);
                     const data = Object.fromEntries(formData.entries());
 
-                     if (GOOGLE_APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxuDvGKClt8EIobA0eA4fVmpuxpf3nVeC9SgWPeUDQMKeJmk9wx7-EHP0VScFJ1JM1I2Q/exec') {
-                         console.error("Google Apps Script URL이 설정되지 않았습니다!");
-                         alert('폼 제출 설정 오류입니다. 관리자에게 문의하세요.');
-                         submitButton.disabled = false;
-                         submitText.classList.remove('invisible');
-                         submitSpinner.classList.add('hidden');
-                         return;
-                     }
-
                     try {
-                        // Apps Script는 JSONP 또는 리디렉션을 통한 응답을 주로 사용하므로,
-                        // 'no-cors' 모드는 응답을 읽을 수 없게 만듭니다.
-                        // 'cors' 모드를 사용하되, Apps Script에서 JSON 응답을 명시적으로 반환해야 합니다.
-                        // (제공된 .gs 코드는 JSON.stringify를 사용하므로 'cors' 모드가 적합합니다.)
                         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                             method: 'POST',
-                            mode: 'cors', // CORS 모드 사용
-                            credentials: 'omit', // 자격 증명 미포함
-                            headers: {
-                                'Content-Type': 'application/json', // Apps Script가 JSON을 파싱하도록 설정
-                            },
-                             body: JSON.stringify(data) // 데이터를 JSON 문자열로 전송
+                             // Apps Script doPost(e)는 'application/x-www-form-urlencoded'를 기본으로 파싱
+                             // e.parameter.storeName 등으로 접근
+                            body: formData, 
                         });
 
-                        // fetch는 네트워크 오류가 아닌 이상 4xx, 5xx 응답도 'ok: false'로 반환
-                        if (!response.ok) {
-                             // 응답 본문을 텍스트로 읽어 에러 메시지 확인
-                             let errorText = await response.text();
-                             try {
-                                 // 에러가 JSON 형식일 경우 파싱
-                                 const errorJson = JSON.parse(errorText);
-                                 throw new Error(errorJson.message || `서버 응답 오류: ${response.status}`);
-                             } catch(e) {
-                                 // JSON이 아니면 텍스트 그대로 에러 메시지로 사용
-                                 throw new Error(errorText || `서버 응답 오류: ${response.status}`);
-                             }
-                        }
-
-                        const result = await response.json();
-                        console.log('Apps Script JSON response:', result);
-
-                        if (result.result === 'success') {
+                        // 'response'가 불투명(opaque) 응답일 수 있음 (CORS 리디렉션 등)
+                        // 이 경우, 성공으로 간주하고 팝업을 띄움
+                        if (response.ok || response.type === 'opaque') {
+                            console.log('Form submission succeeded (or assumed success for opaque response).');
                             waitlistForm.reset();
                             successModal.classList.remove('hidden', 'modal-leave-active', 'modal-leave');
                             successModal.classList.add('modal-enter', 'modal-enter-active');
                             setTimeout(() => successModal.classList.remove('modal-enter', 'modal-enter-active'), 300);
                         } else {
-                            throw new Error(result.message || 'Apps Script에서 오류를 반환했습니다.');
+                             // 서버가 에러 응답을 반환한 경우 (e.g., 500)
+                             let errorText = await response.text();
+                             throw new Error(errorText || `서버 응답 오류: ${response.status}`);
                         }
 
                     } catch (error) {
                         console.error('Error sending form data:', error);
+                        errorModalMessage.innerHTML = `죄송합니다. 요청 처리 중 오류가 발생했습니다.<br>잠시 후 다시 시도하거나 고객센터로 문의해주세요.`;
                         errorModal.classList.remove('hidden', 'modal-leave-active', 'modal-leave');
                         errorModal.classList.add('modal-enter', 'modal-enter-active');
                          setTimeout(() => errorModal.classList.remove('modal-enter', 'modal-enter-active'), 300);
@@ -370,11 +344,11 @@
              // Function to close modals with animation
             function closeModalWithAnimation(modalElement) {
                 modalElement.classList.add('modal-leave', 'modal-leave-active');
-                modalElement.classList.remove('modal-enter', 'modal-enter-active'); // Ensure enter classes are removed
+                modalElement.classList.remove('modal-enter', 'modal-enter-active');
                 setTimeout(() => {
                     modalElement.classList.add('hidden');
-                    modalElement.classList.remove('modal-leave', 'modal-leave-active'); // Clean up classes
-                }, 200); // Duration of leave animation
+                    modalElement.classList.remove('modal-leave', 'modal-leave-active');
+                }, 200);
             }
 
             if (successModalClose) {

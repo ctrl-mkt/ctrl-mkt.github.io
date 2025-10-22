@@ -305,7 +305,7 @@
                     const formData = new FormData(waitlistForm);
                     const data = Object.fromEntries(formData.entries());
 
-                     if (GOOGLE_APPS_SCRIPT_URL === 'YOUR_DEPLOYED_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                     if (GOOGLE_APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxuDvGKClt8EIobA0eA4fVmpuxpf3nVeC9SgWPeUDQMKeJmk9wx7-EHP0VScFJ1JM1I2Q/exec') {
                          console.error("Google Apps Script URL이 설정되지 않았습니다!");
                          alert('폼 제출 설정 오류입니다. 관리자에게 문의하세요.');
                          submitButton.disabled = false;

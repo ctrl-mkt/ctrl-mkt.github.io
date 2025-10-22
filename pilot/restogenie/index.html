@@ -45,6 +45,72 @@
          @keyframes spin {
            to { transform: rotate(360deg); }
          }
+         /* Scrollable card container */
+        .scrollable-container {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 1.5rem; /* For scrollbar space */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .scrollable-container::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        .problem-card {
+            flex: 0 0 90%; /* On mobile, 90% width */
+            max-width: 90%;
+            margin-right: 1rem;
+        }
+        @media (min-width: 768px) {
+            .scrollable-container {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                overflow-x: visible;
+                padding-bottom: 0;
+            }
+             .problem-card {
+                max-width: 100%;
+                margin-right: 0;
+            }
+        }
+         /* Integration Logo Card Styles */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns on mobile */
+            gap: 1rem;
+        }
+        .logo-card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .logo-card img {
+            max-height: 40px; /* Mobile logo height */
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.2s ease-in-out;
+        }
+        .logo-card:hover img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        @media (min-width: 768px) {
+            .logo-grid {
+                grid-template-columns: repeat(5, 1fr); /* 5 columns on desktop */
+                gap: 1.5rem;
+            }
+            .logo-card img {
+                max-height: 50px; /* Desktop logo height */
+            }
+        }
     </style>
 </head>
 <body class="text-slate-700">
@@ -72,7 +138,7 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 w-full">
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 w-full z-30">
             <nav class="flex flex-col p-4 space-y-3">
                 <a href="#features" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">핵심 기능</a>
                 <a href="#integration" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">연동 안내</a>
@@ -102,24 +168,48 @@
     <section id="problem" class="py-16 md:py-24 px-4 bg-slate-100">
         <div class="container main-container mx-auto max-w-5xl">
             <h2 class="text-2xl md:text-4xl font-bold text-slate-900 text-center mb-12 md:mb-16">사장님, 혹시 이런 고민 하고 계신가요?</h2>
-            <div class="grid md:grid-cols-3 gap-8 md:gap-12 text-center">
-                <div class="bg-white p-6 rounded-lg shadow-sm fade-in" style="animation-delay: 0.2s;">
+            <div class="scrollable-container md:grid md:grid-cols-3 gap-8 md:gap-12 text-center">
+                <!-- Card 1 -->
+                <div class="problem-card bg-white p-6 rounded-lg shadow-sm fade-in">
                     <i class="fa-solid fa-sack-xmark text-4xl md:text-5xl text-red-500 mb-4"></i>
                     <h3 class="text-lg md:text-xl font-bold mb-2">예측 불가능한 비용</h3>
                     <p class="text-sm md:text-base text-slate-600">버려지는 식자재, 눈덩이처럼 불어나는 수수료... 매달 정산 후 남는 게 없으신가요?</p>
                     <p class="text-xs text-slate-400 mt-3">(재고 손실 비용, 높은 배달 수수료)</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm fade-in" style="animation-delay: 0.4s;">
+                <!-- Card 2 -->
+                <div class="problem-card bg-white p-6 rounded-lg shadow-sm fade-in">
                     <i class="fa-solid fa-person-walking-dashed-line-arrow-right text-4xl md:text-5xl text-amber-500 mb-4"></i>
                     <h3 class="text-lg md:text-xl font-bold mb-2">끝없는 인력난</h3>
                     <p class="text-sm md:text-base text-slate-600">오늘도 직원이 그만뒀나요? 공고를 내도 연락조차 오지 않는 현실...</p>
                      <p class="text-xs text-slate-400 mt-3">(높은 이직률, 구인 어려움)</p>
                 </div>
-                 <div class="bg-white p-6 rounded-lg shadow-sm fade-in" style="animation-delay: 0.6s;">
+                <!-- Card 3 -->
+                 <div class="problem-card bg-white p-6 rounded-lg shadow-sm fade-in">
                      <i class="fa-solid fa-bullhorn text-4xl md:text-5xl text-blue-500 mb-4"></i>
                     <h3 class="text-lg md:text-xl font-bold mb-2">막막한 마케팅</h3>
                     <p class="text-sm md:text-base text-slate-600">배달앱 광고, SNS 운영... 뭐부터 해야 할지, 효과는 있는지 알 수 없어 답답하시죠?</p>
                      <p class="text-xs text-slate-400 mt-3">(광고 효율 측정 불가, 전문성 부족)</p>
+                </div>
+                 <!-- Card 4 (New) -->
+                 <div class="problem-card bg-white p-6 rounded-lg shadow-sm fade-in">
+                     <i class="fa-solid fa-file-invoice-dollar text-4xl md:text-5xl text-green-500 mb-4"></i>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">반복적인 행정 업무</h3>
+                    <p class="text-sm md:text-base text-slate-600">매일 반복되는 매출 정산, 보고서 작성, 리뷰 답변... 본질적인 업무에 집중할 시간이 부족합니다.</p>
+                     <p class="text-xs text-slate-400 mt-3">(행정력 부담, 리뷰 관리의 번거로움)</p>
+                </div>
+                <!-- Card 5 (New) -->
+                 <div class="problem-card bg-white p-6 rounded-lg shadow-sm fade-in">
+                     <i class="fa-solid fa-brain text-4xl md:text-5xl text-cyan-500 mb-4"></i>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">'감'에 의존하는 운영</h3>
+                    <p class="text-sm md:text-base text-slate-600">매출이 떨어져도 원인이 상권 때문인지, 운영 문제인지... 데이터 없이 '정성적 예측'만 하고 계신가요?</p>
+                     <p class="text-xs text-slate-400 mt-3">(정량적 데이터 부재, KPI 측정 불가)</p>
+                </div>
+                 <!-- Card 6 (New) -->
+                 <div class="problem-card bg-white p-6 rounded-lg shadow-sm fade-in">
+                     <i class="fa-solid fa-book-open text-4xl md:text-5xl text-purple-500 mb-4"></i>
+                    <h3 class="text-lg md:text-xl font-bold mb-2">신규 직원 교육</h3>
+                    <p class="text-sm md:text-base text-slate-600">새로운 직원이 올 때마다 똑같은 매뉴얼 교육을 반복하고, 질문에 응대하느라 지치셨나요?</p>
+                     <p class="text-xs text-slate-400 mt-3">(높은 교육 비용, 표준화 어려움)</p>
                 </div>
             </div>
         </div>
@@ -132,8 +222,17 @@
              <p class="text-base md:text-lg text-slate-600 mb-12 max-w-3xl mx-auto">
                 레스토지니는 흩어져 있는 매장 데이터를 하나로 모아, 사장님이 놓치고 있던 문제의 원인을 찾아내고 해결책까지 제시합니다. 복잡한 운영은 AI에게 맡기고, 사장님은 가장 중요한 일에 집중할 수 있습니다.
              </p>
-             <img src="https://rg-proto.jp.ngrok.io/images/solution_overview.png" alt="레스토지니 솔루션 개요 이미지" class="mx-auto mockup-img fade-in max-w-full md:max-w-4xl" onerror="this.onerror=null;this.src='https://placehold.co/1200x600/e2e8f0/94a3b8?text=Demo+Image';">
-             <p class="text-xs text-slate-400 mt-2">* 이해를 돕기 위한 예시 화면입니다.</p>
+             <div class="w-full max-w-4xl mx-auto aspect-video rounded-lg shadow-xl overflow-hidden fade-in">
+                <iframe 
+                    class="w-full h-full" 
+                    src="https://www.youtube.com/embed/4lVFVymrx4c?autoplay=1&mute=1&controls=0&loop=1&playlist=4lVFVymrx4c&rel=0&showinfo=0&modestbranding=1" 
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+             </div>
+             <p class="text-xs text-slate-400 mt-2">* 레스토지니 데모 시연 영상입니다.</p>
         </div>
     </section>
 
@@ -141,55 +240,104 @@
     <section id="features" class="py-16 md:py-24 px-4 bg-slate-100">
         <div class="container main-container mx-auto max-w-5xl">
             <h2 class="text-2xl md:text-4xl font-bold text-slate-900 text-center mb-12 md:mb-16">레스토지니 핵심 기능</h2>
-            <div class="space-y-12 md:space-y-16">
-                <!-- Feature 1: Inventory -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center fade-in">
-                    <div class="order-2 md:order-1">
-                        <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">비용 절감</span>
-                        <h3 class="text-xl md:text-3xl font-bold text-slate-800 mb-4">식자재 폐기율 0%에 도전하세요.</h3>
-                        <p class="text-sm md:text-base text-slate-600 mb-6">판매 데이터를 분석해 필요한 식자재를 정확히 예측하고, 유통기한 임박 상품을 먼저 사용하도록 알려줍니다. <span class="font-semibold text-indigo-600">(Pro 이상 출시 예정)</span> 자동 발주 기능으로 시간과 비용을 동시에 잡으세요.</p>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 수요 예측 기반 발주량 제안</li>
-                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 유통기한 임박 알림</li>
-                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> (출시 예정) 원클릭 자동 발주</li>
-                        </ul>
-                    </div>
-                    <div class="order-1 md:order-2">
-                         <img src="https://rg-proto.jp.ngrok.io/images/feature_inventory.png" alt="AI 재고관리 화면" class="mx-auto mockup-img max-w-full" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/94a3b8?text=Feature+Mockup';">
-                    </div>
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12">
+                
+                <!-- Feature 1: AI Chatbot (from 7bunga) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">AI 비서</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">궁금한 건 AI 비서에게 바로 질문</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">본사 매뉴얼, 레시피, 프로모션 공지를 AI가 모두 학습합니다. "신메뉴 레시피 알려줘", "오늘 마감 매출 얼마야?" 음성이나 텍스트로 물어보면 AI가 24시간 즉시 답변합니다.</p>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 본사 매뉴얼/레시피 기반 질의응답</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 실시간 매장 데이터(매출, 재고) 조회</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> (출시 예정) 신규 직원 자동 교육</li>
+                    </ul>
                 </div>
-                 <!-- Feature 2: Scheduling -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center fade-in">
-                     <div class="order-1">
-                          <img src="https://rg-proto.jp.ngrok.io/images/feature_schedule.png" alt="AI 인력관리 화면" class="mx-auto mockup-img max-w-full" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/94a3b8?text=Feature+Mockup';">
-                    </div>
-                    <div class="order-2">
-                        <span class="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">인력 관리</span>
-                        <h3 class="text-xl md:text-3xl font-bold text-slate-800 mb-4">더 이상 인력 문제로 골치 썩지 마세요.</h3>
-                        <p class="text-sm md:text-base text-slate-600 mb-6">과거 매출, 날씨, 주변 이벤트 데이터를 기반으로 최적의 근무 인원을 추천합니다. <span class="font-semibold text-indigo-600">(Pro 이상 출시 예정)</span> 직원의 피로도는 낮추고, 고객 만족도는 높이는 황금 스케줄을 AI가 만들어 드립니다.</p>
+                
+                <!-- Feature 2: Dashboard (from Demo) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">통합 대시보드</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">모든 매출, 모든 채널을 한눈에</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">POS, 배달의민족, 쿠팡이츠, 네이버 광고... 흩어진 모든 데이터를 한 곳에 모아 실시간으로 보여줍니다. 오늘 얼마를 벌었는지, 어떤 채널이 문제인지 즉시 파악하세요.</p>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> POS, 배달앱, 광고 채널 데이터 통합</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 주간/월간 자동 리포트 제공</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 카카오톡 일일 마감 리포트 발송</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3: Marketing (from 기획서) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">매출 증대</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">AI가 만드는 자동화 마케팅</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">방문 빈도, 선호 메뉴를 분석해 고객 그룹별로 맞춤형 할인 쿠폰이나 신메뉴 소식을 자동으로 발송합니다. 비싼 광고 없이 재방문율을 극대화하세요.</p>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 고객 세분화 및 타겟 마케팅</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 기반 프로모션 자동 생성/발송</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 재방문/이탈 고객 자동 분석</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4: Ad Agent (from 7bunga) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">광고 최적화</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">광고비, AI가 알아서 조절합니다.</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">광고 효율(ROAS)이 떨어지면 AI가 즉시 알려주고, 승인만 누르면 비효율 채널의 광고를 자동으로 중단시킵니다. 영업 종료 시 광고를 끄는 것도 AI가 대신합니다.</p>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 실시간 광고(ROAS) 채널별 분석</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 에이전트 기반 자동 ON/OFF</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> (출시 예정) 우천 등 상황별 광고 자동 조정</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5: Inventory (from 기획서) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">비용 절감</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">식자재 폐기율 0% 도전</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">판매 데이터를 분석해 필요한 식자재를 정확히 예측하고, 유통기한 임박 상품을 먼저 사용하도록 알려줍니다. <span class="font-semibold text-indigo-600">(Pro 이상 출시 예정)</span></p>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 수요 예측 기반 발주량 제안</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 유통기한 임박 알림</li>
+                         <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> (출시 예정) 원클릭 자동 발주</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6: Scheduling (from 기획서) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">인력 관리</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">AI 황금 스케줄</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">과거 매출, 날씨, 주변 이벤트 데이터를 기반으로 최적의 근무 인원을 추천합니다. <span class="font-semibold text-indigo-600">(Pro 이상 출시 예정)</span></p>
                        <ul class="space-y-2 text-sm text-slate-600">
                              <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 시간대별 최적 근무 인원 추천</li>
                              <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 매출/날씨/이벤트 연동 예측</li>
                              <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> (출시 예정) 자동 스케줄 생성 및 공유</li>
                         </ul>
-                    </div>
                 </div>
-                 <!-- Feature 3: Marketing -->
-                <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center fade-in">
-                     <div class="order-2 md:order-1">
-                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">매출 증대</span>
-                        <h3 class="text-xl md:text-3xl font-bold text-slate-800 mb-4">단골손님, AI가 알아서 만들어 드립니다.</h3>
-                        <p class="text-sm md:text-base text-slate-600 mb-6">방문 빈도, 선호 메뉴를 분석해 고객 그룹별로 맞춤형 할인 쿠폰이나 신메뉴 소식을 자동으로 발송합니다. 비싼 광고 없이 재방문율을 극대화하세요.</p>
-                        <ul class="space-y-2 text-sm text-slate-600">
-                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 고객 세분화 및 타겟 마케팅</li>
-                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 기반 프로모션 자동 생성/발송</li>
-                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 광고 채널(배달앱, SNS) ROAS 분석</li>
+
+                <!-- Feature 7: AI Vision (from 7bunga) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">상권 분석</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">매출 부진, 상권 탓? 운영 탓?</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">CCTV를 연동해 매장 앞 유동인구와 방문 전환율을 분석합니다. 매출 하락의 원인이 상권 문제인지, 운영 문제인지 데이터로 정확히 파악하세요. <span class="font-semibold text-indigo-600">(Pro+ 이상)</span></p>
+                       <ul class="space-y-2 text-sm text-slate-600">
+                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 실시간 유동인구 분석</li>
+                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 방문 전환율 측정</li>
+                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 방문객 성별/연령대 분석 (AI Vision)</li>
                         </ul>
-                    </div>
-                    <div class="order-1 md:order-2">
-                         <img src="https://rg-proto.jp.ngrok.io/images/feature_marketing.png" alt="AI 마케팅 화면" class="mx-auto mockup-img max-w-full" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/94a3b8?text=Feature+Mockup';">
-                    </div>
                 </div>
+
+                <!-- Feature 8: Review (from 7bunga) -->
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm fade-in">
+                    <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">리뷰 관리</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">모든 리뷰를 한 곳에서 관리</h3>
+                    <p class="text-sm md:text-base text-slate-600 mb-6">배달앱, 네이버 등 모든 플랫폼의 고객 리뷰를 한 곳에서 모아보고, AI가 생성해주는 답변으로 신속하게 응대하세요. <span class="font-semibold text-indigo-600">(Deluxe 이상 출시 예정)</span></p>
+                       <ul class="space-y-2 text-sm text-slate-600">
+                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> 멀티 플랫폼 리뷰 통합 관리</li>
+                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> AI 기반 리뷰 답글 자동 생성</li>
+                             <li><i class="fa-solid fa-check text-indigo-500 w-5"></i> (출시 예정) 클레임 리뷰 자동 케어</li>
+                        </ul>
+                </div>
+
             </div>
         </div>
     </section>
@@ -201,14 +349,17 @@
              <p class="text-base md:text-lg text-slate-600 mb-12 max-w-3xl mx-auto">
                 배달의민족, 요기요, 쿠팡이츠 같은 배달앱부터 주요 POS 시스템까지. 레스토지니는 흩어진 데이터를 한 곳으로 모아주는 허브 역할을 합니다. 교체할 필요 없이, 지금 그대로 더 강력해지세요.
              </p>
-             <div class="flex flex-wrap justify-center items-center gap-6 md:gap-10 fade-in">
-                 <img src="https://rg-proto.jp.ngrok.io/images/logo_baemin.png" alt="배달의민족 로고" class="h-8 md:h-10 opacity-70" onerror="this.onerror=null;this.style.display='none'">
-                 <img src="https://rg-proto.jp.ngrok.io/images/logo_yogiyo.png" alt="요기요 로고" class="h-8 md:h-10 opacity-70" onerror="this.onerror=null;this.style.display='none'">
-                 <img src="https://rg-proto.jp.ngrok.io/images/logo_coupangeats.png" alt="쿠팡이츠 로고" class="h-8 md:h-10 opacity-70" onerror="this.onerror=null;this.style.display='none'">
-                 <img src="https://rg-proto.jp.ngrok.io/images/logo_okpos.png" alt="OKPOS 로고" class="h-8 md:h-10 opacity-70" onerror="this.onerror=null;this.style.display='none'">
-                 <img src="https://rg-proto.jp.ngrok.io/images/logo_easypos.png" alt="EasyPOS 로고" class="h-8 md:h-10 opacity-70" onerror="this.onerror=null;this.style.display='none'">
-                 <img src="https://rg-proto.jp.ngrok.io/images/logo_tossplace.png" alt="토스플레이스 로고" class="h-8 md:h-10 opacity-70" onerror="this.onerror=null;this.style.display='none'">
-                 <span class="text-slate-400 font-medium">+ 더 많은 연동 지원 예정</span>
+             <div class="logo-grid fade-in">
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_baemin.png" alt="배달의민족 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_yogiyo.png" alt="요기요 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_coupangeats.png" alt="쿠팡이츠 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_okpos.png" alt="OKPOS 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_easypos.png" alt="EasyPOS 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_tossplace.png" alt="토스플레이스 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_naver.png" alt="네이버플레이스 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_meta.png" alt="Meta 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card"><img src="https://rg-proto.jp.ngrok.io/images/logo_payhere.png" alt="페이히어 로고" onerror="this.onerror=null;this.parentElement.style.display='none'"></div>
+                 <div class="logo-card flex justify-center items-center"><span class="text-slate-500 text-sm font-medium">+ 연동 확대 중</span></div>
              </div>
         </div>
     </section>
@@ -300,7 +451,6 @@
                 mobileMenuBtn.addEventListener('click', () => {
                     mobileMenu.classList.toggle('hidden');
                 });
-                // Close menu when a link is clicked
                 mobileMenu.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', () => {
                         mobileMenu.classList.add('hidden');
@@ -319,7 +469,7 @@
             const submitSpinner = document.getElementById('submit-spinner');
 
              // --- !!! Google Apps Script 웹 앱 URL !!! ---
-             const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuDvGKClt8EIobA0eA4fVmpuxpf3nVeC9SgWPeUDQMKeJmk9wx7-EHP0VScFJ1JM1I2Q/exec';
+             const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuDvGKClt8EIobA0eA4fVmpuxpf3nVeC9SgWPeUDQMKeJmk9wx7-EHP0VScFJ1JM1I2Q/exec'; // Your provided URL
 
             if (waitlistForm) {
                 waitlistForm.addEventListener('submit', async function (e) {
@@ -335,7 +485,7 @@
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRegex.test(email)) { alert('올바른 이메일 주소를 입력해주세요.'); return; }
                     const phoneCleaned = phone.replace(/-/g, '');
-                    const phoneRegex = /^\d{10,11}$/; // 10-11자리 숫자
+                    const phoneRegex = /^\d{10,11}$/; // 10-11
                      if (!phoneRegex.test(phoneCleaned)) { alert('올바른 연락처 형식(10-11자리 숫자)을 입력해주세요.'); return; }
                     if (!privacy) { alert('개인정보 처리방침에 동의해주세요.'); return; }
 
@@ -348,26 +498,21 @@
                     try {
                         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                             method: 'POST',
-                            mode: 'cors', // Use CORS mode
+                            mode: 'cors', 
                             credentials: 'omit',
-                            // FormData를 Apps Script로 보낼 때, GAS는 e.parameter로 받습니다.
-                            // 별도 헤더 설정이 필요 없습니다.
                             body: formData, 
                         });
 
                         if (!response.ok) {
-                             // CORS 오류 등 네트워크 레벨 문제가 아닌, 서버의 4xx, 5xx 응답을 처리
                              let errorText = await response.text();
                              try {
-                                 const errorJson = JSON.parse(errorText); // 서버가 JSON 에러를 보냈는지 확인
+                                 const errorJson = JSON.parse(errorText);
                                  throw new Error(errorJson.message || `서버 응답 오류: ${response.status}`);
                              } catch(e) {
-                                 // JSON이 아니면 텍스트 그대로 에러 메시지로 사용
                                  throw new Error(errorText || `서버 응답 오류: ${response.status}`);
                              }
                         }
 
-                        // 응답이 OK일 경우, JSON 파싱 시도
                         const result = await response.json();
                         console.log('Apps Script JSON response:', result);
 
@@ -381,11 +526,9 @@
                         }
 
                     } catch (error) {
-                        // 네트워크 오류 또는 위에서 throw된 오류 처리
                         console.error('Error sending form data:', error);
-                        // CORS 오류는 보통 이 catch 블록으로 잡힙니다.
-                        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-                             errorModalMessage.innerHTML = `죄송합니다. 폼 제출에 실패했습니다.<br>CORS 설정을 확인하거나 관리자에게 문의하세요.`;
+                         if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                             errorModalMessage.innerHTML = `죄송합니다. 폼 제출에 실패했습니다.<br>네트워크 연결을 확인하거나 CORS 설정을 점검하세요.`;
                         } else {
                              errorModalMessage.innerHTML = `죄송합니다. 요청 처리 중 오류가 발생했습니다.<br>잠시 후 다시 시도해주세요. (${error.message})`;
                         }
@@ -422,6 +565,69 @@
             if (errorModal) {
                 errorModal.addEventListener('click', (e) => { if (e.target === errorModal) closeModalWithAnimation(errorModal); });
             }
+            
+            // --- Feature Modal Logic ---
+             // This part should be defined *outside* the 'DOMContentLoaded' if it's referenced by dynamically added content.
+             // But since we re-initialize listeners on tab switch, it's ok here.
+             const featureDescriptions = {
+                initial_setup: { title: '초기 구축비 상세', description: '<ul class="detail-list space-y-2 text-sm"><li class="mb-2">• **자체 LLM 솔루션 구축:** 본사 운영 매뉴얼, 레시피 등 핵심 비정형 데이터를 정제/벡터화하고, 브랜드 전용 Private LLM 모델을 구축하여 맞춤형 AI를 구현합니다.</li><li>• **데이터 시스템 통합:** 질의응답 정확도 향상을 위한 RAG 시스템을 구축하고, 全 가맹점 POS 및 외부 채널(배달앱, 광고) 데이터 연동 파이프라인을 설계/개발합니다.</li></ul>' },
+                hq_dashboard_option: { title: '본사 통합 대시보드', description: '<ul class="detail-list space-y-2 text-sm"><li class="mb-2">• **통합 성과 분석:** 전체 가맹점의 데이터를 실시간으로 집계, 비교, 분석하여 브랜드 전체의 성과를 직관적으로 파악합니다.</li><li>• **신속한 의사결정:** 우수/부진 매장 식별, 캠페인 효과 분석 등 데이터 기반의 신속한 의사결정을 지원합니다.</li></ul>' },
+                erp_integration: { title: 'ERP 연동', description: '<ul class="detail-list space-y-2 text-sm"><li class="mb-2">• **수익성 심층 분석:** 본사에서 이미 사용 중인 ERP 시스템과 레스토지니를 연동하여 원가, 재고, 물류 데이터를 AI 분석에 포함시킵니다.</li><li>• **전략 수립:** 브랜드 전체의 수익성을 극대화하는 정교한 전략 수립이 가능해집니다. (별도 기술 컨설팅 및 구축 비용 발생)</li></ul>' },
+                pos: { title: 'POS 데이터 집계', description: '매장의 POS(Point of Sale) 시스템과 연동하여 모든 주문 및 결제 데이터를 실시간으로 집계하고 분석합니다.' },
+                delivery: { title: '배달 플랫폼 매출 상세 집계', description: '배달의민족, 요기요 등 여러 배달 플랫폼에서 발생하는 매출 데이터를 통합하여 관리하고, 채널별 효율을 비교 분석합니다.' },
+                ads: { title: '네이버/메타 광고 데이터 연동', description: '네이버 플레이스 광고, 인스타그램/페이스북 광고 등 외부 마케팅 채널의 성과 데이터를 연동하여 통합 ROAS를 측정합니다.' },
+                report: { title: 'AI 주간/월간 리포트', description: 'AI가 매장 데이터를 종합 분석하여 주간 및 월간 성과, 개선점, 성장 포인트를 담은 맞춤형 리포트를 자동으로 생성하고 제공합니다.' },
+                kakao: { title: '카카오톡 알림 및 리포트 전달', description: '일일 매출 마감, 주요 경고 등 핵심 정보를 카카오톡으로 받아보고, 정기 리포트도 간편하게 확인할 수 있습니다.' },
+                credit: { title: 'AI 에이전트 크레딧', description: 'AI 챗봇, 실행 제안, 리뷰 자동 응답 등 AI 에이전트 기능을 사용할 때 차감되는 포인트입니다. 플랜별로 매월 정해진 양이 제공되며, 소진 시 추가 구매가 가능합니다.' },
+                analysis_card: { title: 'AI 분석 카드', description: '매출 급상승/하락, 단골 고객 변화 등 주목해야 할 데이터 변화가 감지되면 AI가 자동으로 원인을 분석하여 이해하기 쉬운 카드로 보여줍니다.' },
+                suggestion: { title: 'AI 기반 실행 제안', description: "AI 분석 카드를 바탕으로 '어떤 액션을 취해야 할지' 구체적인 해결책(예: 타겟 프로모션, 신메뉴 조합)을 제안합니다. 클릭 한 번으로 제안을 실행할 수 있습니다." },
+                chatbot: { title: 'AI 챗봇', description: '"오늘 가장 많이 팔린 메뉴 뭐야?" 와 같이 자연어(대화)로 매장 데이터에 대해 질문하고 즉시 답변을 얻을 수 있는 AI 비서입니다.' },
+                context_memory: { title: 'AI 대화 기록 및 컨텍스트 학습', description: '레스토지니가 과거의 대화, 데이터 분석 결과, 실행한 제안들을 기억하여 시간이 지날수록 매장 상황에 맞는 더 정확하고 고도화된 답변을 제공합니다. (구독 해지 시 데이터는 7일 후 영구 삭제됩니다.)'},
+                review_reply: { title: '온라인 리뷰 AI 응답', description: '배달앱, 네이버 등에 등록된 고객 리뷰의 긍정/부정 톤을 AI가 분석하여, 상황에 맞는 답글 초안을 자동으로 생성합니다. 클릭 한 번으로 신속하게 고객과 소통할 수 있습니다. (AI 크레딧 차감)' },
+                customer_analysis: { title: '재방문/이탈 고객 분석', description: '방문 빈도, 주기, 최근 방문일 등을 분석하여 충성 고객과 이탈 가능성이 있는 고객 그룹을 자동으로 식별하고 관리합니다.' },
+                menu_recommend: { title: '메뉴 조합 추천', description: '함께 주문될 확률이 높은 메뉴들을 분석하여 객단가를 높일 수 있는 세트 메뉴나 프로모션 조합을 추천합니다.' },
+                competitor: { title: '경쟁사 분석', description: '주변 경쟁 매장들의 가격, 메뉴, 리뷰, 프로모션 활동을 분석하여 내 매장의 경쟁력을 강화할 전략적 인사이트를 제공합니다.' },
+                ordering: { title: '수요 예측 기반 발주 제안', description: '과거 판매 데이터와 요일, 날씨 등을 고려하여 미래 수요를 예측하고, 부족한 식자재에 대한 최적의 발주량을 자동으로 제안합니다.' },
+                schedule: { title: '매출 연동 근무 스케줄 최적화', description: '예상되는 시간대별 손님 수와 매출을 기반으로, 인력이 부족하거나 과도하게 배치되지 않도록 최적의 근무 스케줄 편성을 돕습니다.' },
+                multi_store: { title: '다수 매장 통합 관리', description: '여러 개의 매장을 운영하는 경우, 모든 매장의 핵심 데이터를 하나의 대시보드에서 비교하고 통합 관리할 수 있습니다.' },
+                hq_dashboard: { title: '본사 전용 대시보드', description: '프랜차이즈 본사를 위한 기능으로, 전체 가맹점의 성과를 다각도로 비교 분석하고 우수/부진 매장을 식별하는 등 통합적인 인사이트를 제공합니다.' },
+                cctv: { title: 'AI Vision (매장별)', description: '매장 CCTV 영상을 AI가 분석하여 방문객의 성별, 연령대 등을 집계합니다. 1개 매장이 기본 포함되며, 매장 추가 시 월 44,000원이 부과됩니다. (10개 초과 시 별도 문의)' },
+                priority_support: { title: '우선 지원', description: '일반 문의보다 우선적으로 답변 및 기술 지원을 받을 수 있는 전용 채널입니다. 더 빠른 문제 해결을 경험하세요.' },
+                manager: { title: '전담 성공 매니저', description: '레스토지니 활용도를 극대화하고 데이터 기반 성장을 가속화할 수 있도록, 전담 매니저가 정기적인 컨설팅과 맞춤형 지원을 제공합니다.' },
+            };
+
+             const modal = document.getElementById('feature-modal');
+             const modalTitle = document.getElementById('modal-title');
+             const modalDescription = document.getElementById('modal-description');
+             const modalClose = document.getElementById('modal-close');
+
+             function openModal(key) {
+                const feature = featureDescriptions[key];
+                if (feature) {
+                    modalTitle.textContent = feature.title;
+                    modalDescription.innerHTML = feature.description;
+                    modal.classList.remove('hidden','modal-leave-active', 'modal-leave');
+                    modal.classList.add('modal-enter','modal-enter-active');
+                     setTimeout(() => modal.classList.remove('modal-enter','modal-enter-active'), 300);
+                }
+             }
+              function initializeTooltips(container) {
+                 container.querySelectorAll('.tooltip-icon').forEach(icon => {
+                     icon.removeEventListener('click', handleTooltipClick);
+                     icon.addEventListener('click', handleTooltipClick);
+                 });
+             }
+             function handleTooltipClick(e) {
+                  const key = e.target.closest('.tooltip-icon').dataset.featureKey;
+                  openModal(key);
+             }
+             initializeTooltips(document.body); // Initial load
+
+             function closeFeatModal() {
+                closeModalWithAnimation(modal);
+             }
+             if(modalClose) modalClose.addEventListener('click', closeFeatModal);
+             if(modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeFeatModal(); });
         });
     </script>
 

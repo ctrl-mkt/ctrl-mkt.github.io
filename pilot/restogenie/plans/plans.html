@@ -22,7 +22,8 @@
         input:checked + .toggle-bg { background-color: #3b82f6; }
         .feature-table th, .feature-table td { padding: 0.75rem 0.5rem; font-size: 0.8rem; text-align: center; } /* Mobile table padding */
         .feature-table th:first-child, .feature-table td:first-child { text-align: left; padding-left: 1rem; position: sticky; left: 0; background-color: inherit; z-index: 10; } /* Sticky first column */
-        .feature-table thead th:first-child { background-color: #f9fafb; z-index: 11;} /* Ensure header sticky is above body sticky */
+        .feature-table thead th { background-color: #f9fafb; z-index: 11; }
+        .feature-table thead th:first-child { z-index: 12; }
         .feature-icon { color: #3b82f6; }
         .recommended-plan { border-width: 2px; border-color: #3b82f6; }
         .soon-badge, .promo-badge {
@@ -54,7 +55,9 @@
             height: 24px;
             animation: spin 1s linear infinite;
         }
-        .highlighted-col { background-color: #eef2ff !important; border-left: 2px solid #818cf8; border-right: 2px solid #818cf8; } /* Highlight style with border */
+        .highlighted-col { background-color: #eef2ff !important; } /* Highlight style */
+        /* Sticky header style */
+        .sticky-header { transition: all 0.3s ease-in-out; }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -72,7 +75,7 @@
         @media (min-width: 1280px) {
             .container.main-container { max-width: 1200px; } /* Max width for large screens */
         }
-        /* Modal Styles */
+         /* Modal Styles */
         #waitlist-modal.hidden, #form-success-modal.hidden, #form-error-modal.hidden { display: none; } /* Added error modal */
         .modal-enter { opacity: 0; transform: scale(0.95); }
         .modal-enter-active { opacity: 1; transform: scale(1); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -92,6 +95,41 @@
     </style>
 </head>
 <body class="text-slate-800">
+
+     <!-- Sticky Header -->
+    <div id="sticky-header" class="sticky top-0 z-40 bg-white shadow-md transition duration-300 ease-in-out">
+        <div class="container main-container mx-auto px-4 py-3 flex justify-between items-center">
+             <a href="../index.html">
+                <img src="https://rg-proto.jp.ngrok.io/logo_purple.png" alt="RestoGenie 로고" class="h-8 md:h-10" onerror="this.onerror=null;this.src='https://placehold.co/150x40/ffffff/4f46e5?text=RestoGenie';">
+            </a>
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="../index.html#features" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">핵심 기능</a>
+                <a href="../index.html#integration" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">연동 안내</a>
+                <a href="plans.html" class="text-sm font-bold text-indigo-600 transition">요금제</a> <!-- Active State -->
+                <a href="../index.html#waitlist" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-full text-sm hover:bg-indigo-700 transition">
+                    대기자 등록
+                </a>
+            </nav>
+            <!-- Mobile Nav Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="text-slate-900 text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute top-full left-0 w-full">
+            <nav class="flex flex-col p-4 space-y-3">
+                <a href="../index.html#features" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">핵심 기능</a>
+                <a href="../index.html#integration" class="block py-2 px-3 rounded-md text-base font-medium text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition">연동 안내</a>
+                <a href="plans.html" class="block py-2 px-3 rounded-md text-base font-bold text-indigo-600 bg-indigo-50 transition">요금제</a> <!-- Active State -->
+                <a href="../index.html#waitlist" class="block w-full text-center bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-md text-base hover:bg-indigo-700 transition">
+                    대기자 등록
+                </a>
+            </nav>
+        </div>
+    </div>
 
     <div class="container main-container mx-auto px-4 py-8 md:py-16">
 
@@ -204,6 +242,21 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+             // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+                // Close menu when a link is clicked
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+            
             // Tab data
             const b2cContentContainer = document.querySelector('#b2c-content > main');
             const enterpriseContentContainer = document.getElementById('enterprise-main-content');
@@ -483,6 +536,8 @@
                          // Remove previous highlights
                          featureTable.querySelectorAll('td, th').forEach(cell => {
                             cell.classList.remove('highlighted-col');
+                            cell.style.borderLeft = '';
+                            cell.style.borderRight = '';
                          });
 
                          // Apply new highlights after a short delay
@@ -632,3 +687,4 @@
 
 </body>
 </html>
+

@@ -268,8 +268,7 @@
                 <div class="grid md:grid-cols-2 gap-12">
                     <div>
                         <h2 class="text-3xl font-bold">지금 바로 슬램버거 성공 신화의 주인공이 되세요.</h2>
-                        <!-- Formsubmit.co endpoint -->
-                        <form action="https://formsubmit.co/franchise@ctrl-m.co.kr" method="POST" class="mt-8 space-y-4">
+                        <form id="contact-form" class="mt-8 space-y-4">
                             <div>
                                 <label for="name" class="sr-only">이름</label>
                                 <input type="text" id="name" name="name" placeholder="이름" required class="w-full bg-gray-800 border border-gray-700 rounded-md py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-[#FF7700]">
@@ -336,12 +335,80 @@
         </div>
     </footer>
 
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-8 max-w-sm mx-auto text-center">
+            <h3 class="text-2xl font-bold text-green-400">접수 완료!</h3>
+            <p class="mt-4 text-gray-300">문의 내용이 성공적으로 접수되었습니다. <br>빠른 시일 내에 연락드리겠습니다.</p>
+            <button id="close-modal-btn" class="mt-6 bg-[#FF7700] hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-md">확인</button>
+        </div>
+    </div>
+
     <!-- Channel.io Script -->
     <script>
       (function(){var w=window;if(w.ChannelIO){return w.console.error("ChannelIO script included twice.");}var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement("script");s.type="text/javascript";s.async=true;s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";var x=document.getElementsByTagName("script")[0];if(x.parentNode){x.parentNode.insertBefore(s,x);}}if(document.readyState==="complete"){l();}else{w.addEventListener("DOMContentLoaded",l);w.addEventListener("load",l);}})();
       ChannelIO('boot', {
         "pluginKey": "6730846e-0cb4-4d5e-8997-7d768be6b050"
       });
+    </script>
+
+    <!-- Form Submission Script -->
+    <script>
+        const form = document.getElementById('contact-form');
+        const successModal = document.getElementById('success-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // --- 중요: 여기에 Google Apps Script 웹 앱 URL을 붙여넣으세요 ---
+            const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; 
+            // ---------------------------------------------------------
+
+            if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                alert('Google Apps Script URL이 설정되지 않았습니다. 스크립트를 배포하고 URL을 붙여넣어 주세요.');
+                return;
+            }
+
+            const formData = new FormData(form);
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '전송 중...';
+            submitButton.disabled = true;
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    form.reset();
+                    successModal.classList.remove('hidden');
+                } else {
+                    throw new Error(data.message || '알 수 없는 오류가 발생했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error!', error);
+                alert('오류가 발생했습니다: ' + error.message);
+            })
+            .finally(() => {
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+            });
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            successModal.classList.add('hidden');
+        });
+
+        // 모달 바깥 영역 클릭 시 닫기
+        window.addEventListener('click', (event) => {
+            if (event.target == successModal) {
+                successModal.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>

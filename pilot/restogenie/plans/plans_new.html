@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoGenie 요금제 안내 (5단계)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
+        .plan-card { transition: all 0.3s ease-in-out; }
+        .plan-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .recommended-plan { border-width: 2px; border-color: #3b82f6; }
+        .promo-badge { font-size: 0.6rem; font-weight: 600; margin-left: 4px; padding: 2px 5px; border-radius: 9999px; background-color: #fee2e2; color: #b91c1c; }
+        .feature-table th, .feature-table td { padding: 0.75rem 0.5rem; font-size: 0.8rem; text-align: center; }
+        .feature-table th:first-child, .feature-table td:first-child { text-align: left; position: sticky; left: 0; background-color: inherit; z-index: 10; }
+        @media (min-width: 768px) {
+            .feature-table th, .feature-table td { padding: 1rem 1.5rem; font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+    <div class="container mx-auto px-4 py-8 md:py-16 max-w-7xl">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">RestoGenie 요금제 안내</h1>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">개인 점주부터 대형 프랜차이즈까지, 모든 외식업의 성공을 위한 AI 파트너</p>
+        </header>
+
+        <!-- Pricing Cards -->
+        <main class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16">
+            <!-- Free -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-900">Free</h2>
+                <p class="text-sm text-slate-500 mt-2 mb-6 h-16">Basic 플랜 1개월 무료 체험</p>
+                <div class="mb-6">
+                    <span class="text-3xl font-extrabold">₩0</span>
+                </div>
+                <button class="w-full mt-auto bg-slate-800 text-white font-semibold py-3 rounded-lg hover:bg-slate-900 transition">1개월 무료 체험</button>
+            </div>
+
+            <!-- Basic -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-900">Basic</h2>
+                <p class="text-sm text-slate-500 mt-2 mb-6 h-16">데이터 기반 관리의 시작</p>
+                <div class="mb-6">
+                    <span class="text-3xl font-extrabold">₩9,900</span>
+                    <span class="text-slate-500 text-sm">/ 월</span>
+                </div>
+                <button class="w-full mt-auto bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition">플랜 시작하기</button>
+            </div>
+
+            <!-- Deluxe (Recommended) -->
+            <div class="plan-card bg-white rounded-xl shadow-lg p-6 flex flex-col recommended-plan relative">
+                <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">추천</span>
+                </div>
+                <h2 class="text-xl font-bold text-blue-600">Deluxe</h2>
+                <p class="text-sm text-slate-500 mt-2 mb-6 h-16">본격적인 AI 인사이트</p>
+                <div class="mb-6">
+                    <div>
+                        <span class="text-xl font-bold text-slate-400 line-through">₩29,900</span>
+                        <span class="promo-badge">6개월 할인</span>
+                    </div>
+                    <span class="text-3xl font-extrabold text-red-600">₩9,900</span>
+                    <span class="text-slate-500 text-sm">/ 월</span>
+                </div>
+                <button class="w-full mt-auto bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">플랜 시작하기</button>
+            </div>
+
+            <!-- Pro -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-900">Pro</h2>
+                <p class="text-sm text-slate-500 mt-2 mb-6 h-16">다중 매장 통합 관리</p>
+                <div class="mb-6">
+                    <div>
+                        <span class="text-xl font-bold text-slate-400 line-through">₩49,900</span>
+                        <span class="promo-badge">6개월 할인</span>
+                    </div>
+                    <span class="text-3xl font-extrabold text-red-600">₩29,900</span>
+                    <span class="text-slate-500 text-sm">/ 월</span>
+                </div>
+                <button class="w-full mt-auto bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition">플랜 시작하기</button>
+            </div>
+
+            <!-- Pro+ -->
+            <div class="plan-card bg-white rounded-xl shadow-md p-6 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-900">Pro+</h2>
+                <p class="text-sm text-slate-500 mt-2 mb-6 h-16">Vision + 다중 매장</p>
+                <div class="mb-6">
+                    <span class="text-3xl font-extrabold">₩89,900</span>
+                    <span class="text-slate-500 text-sm">/ 월</span>
+                </div>
+                <button class="w-full mt-auto bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition">플랜 시작하기</button>
+            </div>
+        </main>
+
+        <!-- Simple Overview Table -->
+        <section class="mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-8">요금제 간단 비교</h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                <table class="w-full text-left feature-table">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="sticky left-0 bg-slate-50 z-10 w-1/4">항목</th>
+                            <th class="text-center">Free</th>
+                            <th class="text-center">Basic</th>
+                            <th class="text-center bg-blue-50">Deluxe</th>
+                            <th class="text-center">Pro</th>
+                            <th class="text-center">Pro+</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr class="bg-yellow-50">
+                            <td class="sticky left-0 bg-yellow-50 z-10 font-bold text-lg">💡 핵심 차별점</td>
+                            <td class="text-center text-sm font-bold">무료 체험</td>
+                            <td class="text-center text-sm font-bold">매출 확인</td>
+                            <td class="text-center text-sm bg-blue-100 font-bold text-blue-700">AI가 실적 해석부터 전략 제안까지</td>
+                            <td class="text-center text-sm font-bold text-green-700">여러 지점 비교</td>
+                            <td class="text-center text-sm font-bold text-purple-700">고객 이용분포 분석</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10 font-semibold">💰 월 요금</td>
+                            <td class="text-center">0원</td>
+                            <td class="text-center">9,900원</td>
+                            <td class="text-center bg-blue-50">
+                                <div class="line-through text-sm text-slate-400">29,900원</div>
+                                <div class="font-bold text-red-600">9,900원</div>
+                                <div class="text-xs text-slate-500">6개월</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="line-through text-sm text-slate-400">49,900원</div>
+                                <div class="font-bold text-red-600">29,900원</div>
+                                <div class="text-xs text-slate-500">6개월</div>
+                            </td>
+                            <td class="text-center font-bold">89,900원</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10 font-semibold">🎴 AI 인사이트 카드</td>
+                            <td class="text-center">
+                                <div class="font-bold">매출만</div>
+                                <div class="text-xs text-slate-500">(요약: 숫자 확인/요약)</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="font-bold">매출만</div>
+                                <div class="text-xs text-slate-500">(요약: 숫자 확인/요약) <br><u>(comment: 아예 빼는 방향도 있을듯)</u></div>
+                            </td>
+                            <td class="text-center bg-blue-50">
+                                <div class="font-bold text-blue-600">매출/메뉴/마진/광고</div>
+                                <div class="text-xs text-blue-600">(상세: 해석부터 전략 제안까지)</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="font-bold text-blue-600">매출/메뉴/마진/광고</div>
+                                <div class="text-xs text-green-600">+ 지점 비교<br>(지원예정)</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="font-bold text-blue-600">매출/메뉴/마진/광고</div>
+                                <div class="text-xs text-green-600">+ 지점 비교</div>
+                                <div class="text-xs text-green-600">+ 고객 분석<br>(지원예정)</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10 font-semibold">💬 AI 채팅 (데이터 질문)</td>
+                            <td class="text-center text-xs">
+                                <div class="font-bold">10회/일</div>
+                                <div class="text-slate-500">"오늘 매출?"</div>
+                                <div class="text-slate-500">(7일 데이터)</div>
+                            </td>
+                            <td class="text-center text-xs">
+                                <div class="font-bold">50회/일</div>
+                                <div class="text-slate-500">"이번 달 매출?"</div>
+                                <div class="text-slate-500">(1개월 데이터)</div>
+                            </td>
+                            <td class="text-center text-xs bg-blue-50">
+                                <div class="font-bold text-blue-600">200회/일</div>
+                                <div class="text-blue-600">"추세 분석해줘"</div>
+                                <div class="text-blue-600">(전체 데이터)</div>
+                            </td>
+                            <td class="text-center text-xs">
+                                <div class="font-bold">500회/일</div>
+                                <div class="text-slate-500">"여러 지점 비교"</div>
+                                <div class="text-slate-500">(전체 데이터)</div>
+                            </td>
+                            <td class="text-center text-xs">
+                                <div class="font-bold">1,000회/일</div>
+                                <div class="text-slate-500">(무제한)</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10 font-semibold">🏪 관리 매장 수</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center bg-blue-50">1개</td>
+                            <td class="text-center font-bold text-green-600">다지점 통합뷰 <br> 별도 제공</td>
+                            <td class="text-center font-bold text-green-600">다지점 통합뷰 <br> 별도 제공</td>
+                        </tr>
+                        <tr class="bg-slate-50 font-bold">
+                            <td class="sticky left-0 bg-slate-50 z-10">✨ 받을 수 있는 도움</td>
+                            <td class="text-center text-xs text-slate-600">숫자만<br>확인</td>
+                            <td class="text-center text-xs text-slate-600">숫자만<br>확인</td>
+                            <td class="text-center text-xs bg-blue-100 text-blue-700">AI가 실적해석부터 <br>전략까지 정리</td>
+                            <td class="text-center text-xs text-green-700">여러 지점<br>한눈에 비교</td>
+                            <td class="text-center text-xs text-purple-700">고객의 동선, 성별, <br>연령대까지 분석</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Toggle for Details -->
+        <div class="text-center mb-8">
+            <button id="toggle-details" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition">
+                <i class="fas fa-chevron-down mr-2"></i>
+                상세 기능 비교 보기
+            </button>
+        </div>
+
+        <!-- Detailed Feature Comparison (Initially Hidden) -->
+        <div id="detailed-features" class="hidden">
+        <!-- Feature Comparison Table -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-10 text-slate-900">AI 기능 상세 비교</h2>
+
+            <!-- AI 카드 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto mb-8">
+                <h3 class="text-xl font-bold p-6 bg-slate-50 border-b">🎴 AI 카드 (AI Analysis Cards)</h3>
+                <table class="w-full text-left feature-table">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="sticky left-0 bg-slate-50 z-10">카드 종류</th>
+                            <th>Free</th>
+                            <th>Basic</th>
+                            <th class="bg-blue-50">Deluxe</th>
+                            <th>Pro</th>
+                            <th>Pro+</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr><td colspan="6" class="sticky left-0 bg-slate-100 font-bold text-slate-700 z-10">B2C 카드 (4개 + 요약카드/이상치 카드 제공)</td></tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">매출 분석 (sales/top_briefing))</td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">메뉴 전략 (menu/top_briefing)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">마진 개선 (margin/top_briefing)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">광고 최적화 (ads/top_briefing)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr><td colspan="6" class="sticky left-0 bg-slate-100 font-bold text-slate-700 z-10">B2B 카드 (3개) - Pro 이상<br>(지원 예정)</td></tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">채널별 지점 비교 (channel_comparison)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">메뉴별 지점 비교 (menu_comparison)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">BEST/WORST 지점 (best_worst_stores)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr><td colspan="6" class="sticky left-0 bg-slate-100 font-bold text-slate-700 z-10">Vision 카드 (1개)</td></tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">방문 고객 분석 (vision_insight)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr class="bg-slate-50 font-bold">
+                            <td class="sticky left-0 bg-slate-50 z-10">총 AI 카드 수</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center bg-blue-100">4개</td>
+                            <td class="text-center">7개</td>
+                            <td class="text-center">8개</td>
+                        </tr>
+                        <tr class="bg-slate-50 font-bold">
+                            <td class="sticky left-0 bg-slate-50 z-10">AI 카드 수준</td>
+                            <td class="text-center">기본</td>
+                            <td class="text-center">기본</td>
+                            <td class="text-center bg-blue-100">상세</td>
+                            <td class="text-center">상세</td>
+                            <td class="text-center">상세</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- AI Chat -->
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto mb-8">
+                <h3 class="text-xl font-bold p-6 bg-slate-50 border-b">💬 AI Chat (Chatbot)</h3>
+                <table class="w-full text-left feature-table">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="sticky left-0 bg-slate-50 z-10">기능</th>
+                            <th>Free</th>
+                            <th>Basic</th>
+                            <th class="bg-blue-50">Deluxe</th>
+                            <th>Pro</th>
+                            <th>Pro+</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">일일 질문 횟수</td>
+                            <td class="text-center">10회</td>
+                            <td class="text-center">50회</td>
+                            <td class="text-center bg-blue-50">200회</td>
+                            <td class="text-center">500회</td>
+                            <td class="text-center">1,000회</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">데이터 조회 범위</td>
+                            <td class="text-center">7일</td>
+                            <td class="text-center">1개월</td>
+                            <td class="text-center bg-blue-50">무제한</td>
+                            <td class="text-center">무제한</td>
+                            <td class="text-center">무제한</td>
+                        </tr>
+                        <tr><td colspan="6" class="sticky left-0 bg-slate-100 font-bold text-slate-700 z-10">Agent Tool 접근</td></tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">1. DB 조회 (OperationalDataTool)</td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">2. RAG 매뉴얼 (ManualSearchTool)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">3. AI 인사이트 (SnapshotAnalysisTool)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">4. 고급 분석 (AnalyticsAgentTool) - 지원예정</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600 bg-blue-50"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        
+                        
+                        <tr class="bg-slate-50 font-bold">
+                            <td class="sticky left-0 bg-slate-50 z-10">총 Tool 개수</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center bg-blue-100">4개</td>
+                            <td class="text-center">4개</td>
+                            <td class="text-center">4개</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- B2B & Others -->
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                <h3 class="text-xl font-bold p-6 bg-slate-50 border-b">🏢 B2B 기능 & 기타</h3>
+                <table class="w-full text-left feature-table">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="sticky left-0 bg-slate-50 z-10">기능</th>
+                            <th>Free</th>
+                            <th>Basic</th>
+                            <th class="bg-blue-50">Deluxe</th>
+                            <th>Pro</th>
+                            <th>Pro+</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <!-- <tr>
+                            <td class="sticky left-0 bg-white z-10">관리 가능 매장 수</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center">1개</td>
+                            <td class="text-center bg-blue-50">1개</td>
+                            <td class="text-center font-bold text-green-600">협의</td>
+                            <td class="text-center font-bold text-green-600">협의</td>
+                        </tr> -->
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">본사 통합 대시보드</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">지점별 알림 시스템</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">게시판 (공지/문의)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                            <td class="text-center text-green-600"><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">AI Vision (CCTV 분석)</td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400 bg-blue-50"><i class="fas fa-times"></i></td>
+                            <td class="text-center text-slate-400"><i class="fas fa-times"></i></td>
+                            <td class="text-center font-bold text-green-600">1개 매장</td>
+                        </tr>
+                        <tr>
+                            <td class="sticky left-0 bg-white z-10">데이터 접근 기간</td>
+                            <td class="text-center">7일</td>
+                            <td class="text-center">1개월</td>
+                            <td class="text-center bg-blue-50">무제한</td>
+                            <td class="text-center">무제한</td>
+                            <td class="text-center">무제한</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- AI 카드 수준 설명 -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-10">AI 카드 수준 차이</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">기본 수준 (Free/Basic)</h3>
+                    <div class="bg-slate-50 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-slate-600 mb-2">제공 항목: <span class="font-bold">summary + analysis</span></p>
+                        <div class="text-xs">
+                            <p class="mb-2"><strong>summary:</strong> "매출 9.9% 증가"</p>
+                            <p><strong>analysis:</strong> "배민 채널이 78% 기여했습니다. 전주 대비 좋은 성과입니다." (Comment: 기본버전에서는 지원 안하는게 맞지 않나 함, 아니면 AI카드를 아예 빼던가, 하나만 띄워주던가)</p>
+                        </div>
+                    </div>
+                    <ul class="text-sm space-y-2">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>숫자 + 간단한 해석</span></li>
+                        <li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i><span>제안(proposal) 없음</span></li>
+                        <li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i><span>질문(questions) 없음</span></li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-blue-500">
+                    <h3 class="text-xl font-bold text-blue-600 mb-4">상세 수준 (Deluxe 이상)</h3>
+                    <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                        <p class="text-sm text-slate-600 mb-2">제공 항목: <span class="font-bold">summary + analysis + proposal + questions</span></p>
+                        <div class="text-xs">
+                            <p class="mb-2"><strong>summary:</strong> "매출 9.9% 증가, 4주 중 1-2번째로 좋음"</p>
+                            <p class="mb-2"><strong>analysis:</strong> "배민 채널이 78% 기여했으나 의존도가 높아 다변화 필요..."</p>
+                            <p class="mb-2"><strong>proposal:</strong> "1. 인기 메뉴 가격 10% 인상<br>2. 배민 광고비 20% 증액..."</p>
+                            <p><strong>questions:</strong> "배민에서 이벤트를 진행했나요?"</p>
+                        </div>
+                    </div>
+                    <ul class="text-sm space-y-2">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>AI 해석 + 구체적 액션</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>실행 가능한 제안 2-3가지</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>외부 요인 확인 질문 3-4개</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Chat Tool 설명 -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-10">AI Chat Tool 4가지</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-slate-200 rounded-full w-10 h-10 flex items-center justify-center font-bold text-slate-700 mr-3">1</div>
+                        <h3 class="text-lg font-bold">데이터 조회</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3"><strong>용도:</strong> DB 적재된 데이터 조회 (기존 대시보드 내 쿼리 재활용)</p>
+                    <p class="text-xs text-slate-500 mb-2"><strong>예시 질문:</strong></p>
+                    <ul class="text-xs space-y-1 mb-3 text-slate-600">
+                        <li>• "오늘 매출은?"</li>
+                        <li>• "베스트 메뉴는?"</li>
+                        <li>• "취소율은?"</li>
+                    </ul>
+                    <div class="bg-slate-50 p-3 rounded text-xs">
+                        <p class="font-semibold mb-1">제공 답변:</p>
+                        <p class="text-slate-600">• 단순 숫자/순위<br>• 표 형태</p>
+                    </div>
+                    <p class="mt-3 text-xs text-green-600 font-bold">✅ 모든 요금제 포함</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-blue-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">2</div>
+                        <h3 class="text-lg font-bold">ManualSearchTool</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3"><strong>용도:</strong> 매뉴얼 RAG 검색</p>
+                    <p class="text-xs text-slate-500 mb-2"><strong>예시 질문:</strong></p>
+                    <ul class="text-xs space-y-1 mb-3 text-slate-600">
+                        <li>• "재고 확인 방법은?"</li>
+                        <li>• "POS 사용법은?"</li>
+                        <li>• "프로모션 설정법?"</li>
+                    </ul>
+                    <div class="bg-blue-50 p-3 rounded text-xs">
+                        <p class="font-semibold mb-1">제공 답변:</p>
+                        <p class="text-slate-600">• 매뉴얼 PDF 내용<br>• 단계별 가이드<br>• 관련 이미지</p>
+                    </div>
+                    <p class="mt-3 text-xs text-blue-600 font-bold">🔒 Deluxe 이상</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-blue-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">3</div>
+                        <h3 class="text-lg font-bold">AI 인사이트 조회</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3"><strong>용도:</strong> AI Card 스냅샷 조회 후 인사이트 제공</p>
+                    <p class="text-xs text-slate-500 mb-2"><strong>예시 질문:</strong></p>
+                    <ul class="text-xs space-y-1 mb-3 text-slate-600">
+                        <li>• "마진 개선 방법은?"</li>
+                        <li>• "메뉴 전략 추천해줘"</li>
+                        <li>• "광고 효율 올리려면?"</li>
+                    </ul>
+                    <div class="bg-blue-50 p-3 rounded text-xs">
+                        <p class="font-semibold mb-1">제공 답변:</p>
+                        <p class="text-slate-600">• AI 카드 B/C Layer<br>• 구체적 액션<br>• 예상 효과</p>
+                    </div>
+                    <p class="mt-3 text-xs text-blue-600 font-bold">🔒 Deluxe 이상</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg border-2 border-blue-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold mr-3">4</div>
+                        <h3 class="text-lg font-bold">AnalyticsAgentTool</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-3"><strong>용도:</strong> 고급 분석 (SQL 생성)</p>
+                    <p class="text-xs text-slate-500 mb-2"><strong>예시 질문:</strong></p>
+                    <ul class="text-xs space-y-1 mb-3 text-slate-600">
+                        <li>• "지난 4주 매출 추세는?"</li>
+                        <li>• "강남 vs 홍대 비교"</li>
+                        <li>• "채널별 성장률은?"</li>
+                    </ul>
+                    <div class="bg-blue-50 p-3 rounded text-xs">
+                        <p class="font-semibold mb-1">제공 답변:</p>
+                        <p class="text-slate-600">• SQL 쿼리 결과<br>• 추세 그래프<br>• 비교 표</p>
+                    </div>
+                    <p class="mt-3 text-xs text-blue-600 font-bold">🔒 Deluxe 이상</p>
+                </div>
+
+                
+            </div>
+        </section>
+
+        <!-- 핵심 차별화 -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-10">핵심 차별화 포인트</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-yellow-800 mb-4">🥉 Basic → Deluxe</h3>
+                    <p class="text-2xl font-bold mb-2">실적에 대한 이해</p>
+                    <p class="text-sm text-slate-600 mb-4">기본 모니터링 → AI 인사이트</p>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="text-xs font-semibold mb-2">차이점:</p>
+                        <ul class="text-xs space-y-1">
+                            <li>• AI 카드: 1개 → 4개 (4배)</li>
+                            <li>• AI Chat Tool: 1개 → 4개 (4배)</li>
+                            <li>• 인사이트: 없음 → 전체</li>
+                        </ul>
+                        <p class="text-sm font-bold text-blue-600 mt-3">가격: +20,000원 (할인 시 동일)</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-green-800 mb-4">🥈 Deluxe → Pro</h3>
+                    <p class="text-2xl font-bold mb-2">다중매장 관리</p>
+                    <p class="text-sm text-slate-600 mb-4">단일 매장 → 다중 매장</p>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="text-xs font-semibold mb-2">차이점:</p>
+                        <ul class="text-xs space-y-1">
+                            <li>• 매장: 1개 → 5개 (5배)</li>
+                            <li>• B2B 대시보드 추가</li>
+                            <li>• 지점 간 비교/알림</li>
+                        </ul>
+                        <p class="text-sm font-bold text-blue-600 mt-3">가격: +20,000원 (할인 시 동일)</p>
+                        <p class="text-xs text-green-600 mt-1">매장당 9,980원</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-purple-800 mb-4">🥇 Pro → Pro+</h3>
+                    <p class="text-2xl font-bold mb-2">Vision Insight</p>
+                    <p class="text-sm text-slate-600 mb-4">온라인 → 오프라인 통합</p>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="text-xs font-semibold mb-2">차이점:</p>
+                        <ul class="text-xs space-y-1">
+                            <li>• Vision 카드 추가</li>
+                            <li>• 매장: 5개 → 10개 (2배)</li>
+                            <li>• 고객 인사이트 제공</li>
+                        </ul>
+                        <p class="text-sm font-bold text-blue-600 mt-3">가격: +40,000원</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </div>
+        <!-- End of Detailed Features -->
+
+        <!-- Footer -->
+        <footer class="text-center py-8 border-t">
+            <p class="text-slate-500">© 2025 Control-M. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Toggle Details
+        const toggleBtn = document.getElementById('toggle-details');
+        const detailsSection = document.getElementById('detailed-features');
+
+        if (toggleBtn && detailsSection) {
+            toggleBtn.addEventListener('click', () => {
+                const isHidden = detailsSection.classList.contains('hidden');
+
+                if (isHidden) {
+                    detailsSection.classList.remove('hidden');
+                    toggleBtn.innerHTML = '<i class="fas fa-chevron-up mr-2"></i>상세 기능 비교 닫기';
+                    // Smooth scroll to details
+                    setTimeout(() => {
+                        detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else {
+                    detailsSection.classList.add('hidden');
+                    toggleBtn.innerHTML = '<i class="fas fa-chevron-down mr-2"></i>상세 기능 비교 보기';
+                    // Scroll back to button
+                    toggleBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

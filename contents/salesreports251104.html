@@ -7,41 +7,34 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Datalabels Plugin (퍼널 차트용) -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    
     <style>
-        /* Inter 폰트 적용 (테일윈드 기본 폰트) */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+        /* Inter 폰트 (Tailwind 기본) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background-color: #f8fafc; /* bg-slate-50 */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .chart-container {
             position: relative;
             height: 350px;
             width: 100%;
         }
-        /* 퍼널 차트용 컨테이너 */
-        .funnel-chart-container {
-            position: relative;
-            height: 300px; /* 퍼널 차트 높이 조정 */
-            width: 100%;
+        .positive-highlight {
+            border-left: 4px solid #22c55e; /* green-500 */
         }
-        /* 카드 호버 효과 */
+        .negative-highlight {
+            border-left: 4px solid #ef4444; /* red-500 */
+        }
         .kpi-card {
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
         }
         .kpi-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-        /* 경고/이슈 하이라이트 */
-        .issue-highlight {
-            border-left: 4px solid #ef4444; /* border-l-red-500 */
-        }
-        .positive-highlight {
-            border-left: 4px solid #22c55e; /* border-l-green-500 */
         }
     </style>
 </head>
@@ -66,7 +59,7 @@
             <h2 class="text-2xl font-bold text-slate-800 mb-4">1. Executive Summary (W44 심층 요약)</h2>
             <div class="bg-slate-100 rounded-lg p-5 border border-slate-200">
                 <p class="text-lg text-slate-700 mb-4">
-                    W44는 전사 직영점 4곳 모두 괄목할 만한 성과를 달성한 '완벽한 턴어라운드' 주차입니다. 전사 매출은 ₩61.7M으로 8주간 최고치를 경신했으며, 직전 4주 평균 대비 <span class="font-bold text-green-600">+48.4%</span> 성장했습니다.
+                    W44는 전사 직영점 4곳 모두 괄목할 만한 성과를 달성한 '완벽한 턴어라운드' 주차입니다. 전사 매출은 **₩64.7M**으로 8주간 최고치를 경신했으며, 직전 4주 평균(₩42.3M) 대비 <span class="font-bold text-green-600">+52.8%</span> 성장했습니다.
                 </p>
                 <ul class="space-y-3">
                     <li class="flex items-start">
@@ -80,7 +73,7 @@
                         <svg class="w-5 h-5 text-indigo-500 mr-2 flex-shrink-0 mt-1" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                         <div>
                             <span class="font-semibold text-indigo-600">[BFT]</span>
-                            역곡점 또한 W43 대비 공헌이익 +273% (₩34만→₩127만)의 극적인 턴어라운드를 달성했으며, 신당점도 4주 평균 대비 매출이 +50.3% 급등하며 8주 최고 실적을 기록했습니다.
+                            역곡점 또한 W43 대비 공헌이익 +273% (₩34만→₩127만)의 극적인 턴어라운드를 달성했으며, 신당점도 4주 평균 대비 매출이 +52.5% 급등하며 8주 최고 실적을 기록했습니다.
                         </div>
                     </li>
                 </ul>
@@ -92,51 +85,51 @@
             <h2 class="text-2xl font-bold text-slate-800 mb-4">2. Key Metrics (W44 성과)</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 
-                <!-- 전사 매출 -->
+                <!-- 전사 매출 (UPDATED) -->
                 <div class="kpi-card bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
                     <div class="text-sm font-medium text-slate-500">전사 매출 (Total Sales)</div>
-                    <div class="text-3xl font-bold text-slate-800 mt-1">₩61.7M</div>
+                    <div class="text-3xl font-bold text-slate-800 mt-1">₩64.7M</div>
                     <div class="flex items-center text-green-600 font-semibold mt-2">
                         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                        +19.4% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
+                        +24.6% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
                     </div>
                     <div class="flex items-center text-green-500 font-bold mt-1">
                         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                        +48.4% <span class="text-sm font-normal text-slate-500 ml-1">(vs 4주 Avg)</span>
+                        +52.8% <span class="text-sm font-normal text-slate-500 ml-1">(vs 4주 Avg)</span>
                     </div>
                 </div>
 
-                <!-- 강남점 매출 -->
+                <!-- 강남점 매출 (UPDATED) -->
                 <div class="kpi-card bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
                     <div class="text-sm font-medium text-slate-500">슬램버거 강남점 매출</div>
-                    <div class="text-3xl font-bold text-slate-800 mt-1">₩19.9M</div>
+                    <div class="text-3xl font-bold text-slate-800 mt-1">₩22.8M</div>
                     <div class="flex items-center text-green-600 font-semibold mt-2">
                         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                        +27.8% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
+                        +22.5% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
                     </div>
                 </div>
 
-                <!-- 대학로점 공헌이익 -->
+                <!-- 대학로점 공헌이익 (From Sales DB - Unchanged) -->
                 <div class="kpi-card bg-green-50 border-green-300 rounded-lg p-5 shadow-sm ring-2 ring-green-500">
                     <div class="text-sm font-medium text-green-700">슬램버거 대학로점 공헌이익</div>
                     <div class="text-3xl font-bold text-green-700 mt-1">₩5.08M</div>
                     <div class="flex items-center text-green-700 font-bold mt-2">
                         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                        +13000% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
+                        +13000% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43 ₩38k 손실)</span>
                     </div>
                 </div>
 
-                <!-- 대학로점 매출 -->
+                <!-- 대학로점 매출 (UPDATED) -->
                 <div class="kpi-card bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
                     <div class="text-sm font-medium text-slate-500">슬램버거 대학로점 매출</div>
-                    <div class="text-3xl font-bold text-slate-800 mt-1">₩35.2M</div>
+                    <div class="text-3xl font-bold text-slate-800 mt-1">₩35.4M</div>
                     <div class="flex items-center text-green-600 font-semibold mt-2">
                         <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                        +10.4% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
+                        +10.9% <span class="text-sm font-normal text-slate-500 ml-1">(vs W43)</span>
                     </div>
                 </div>
 
-                <!-- BFT 신당점 매출 -->
+                <!-- BFT 신당점 매출 (UPDATED) -->
                 <div class="kpi-card bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
                     <div class="text-sm font-medium text-slate-500">BFT 신당점 매출</div>
                     <div class="text-3xl font-bold text-slate-800 mt-1">₩2.37M</div>
@@ -146,7 +139,7 @@
                     </div>
                 </div>
 
-                <!-- BFT 역곡점 매출 -->
+                <!-- BFT 역곡점 매출 (UPDATED) -->
                 <div class="kpi-card bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
                     <div class="text-sm font-medium text-slate-500">BFT 역곡점 매출</div>
                     <div class="text-3xl font-bold text-slate-800 mt-1">₩4.10M</div>
@@ -174,14 +167,14 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 bg-white">
-                        <!-- 전사 -->
+                        <!-- 전사 (UPDATED) -->
                         <tr class="font-bold bg-slate-50">
                             <td class="p-3">전사</td>
                             <td class="p-3">매출</td>
-                            <td class="p-3 text-right text-slate-600">₩41,547,923</td>
-                            <td class="p-3 text-right text-slate-600">₩51,647,290</td>
-                            <td class="p-3 text-right">₩61,669,677</td>
-                            <td class="p-3 text-right text-green-600">+48.4%</td>
+                            <td class="p-3 text-right text-slate-600">₩42,346,810</td>
+                            <td class="p-3 text-right text-slate-600">₩51,911,190</td>
+                            <td class="p-3 text-right">₩64,682,077</td>
+                            <td class="p-3 text-right text-green-600">+52.8%</td>
                         </tr>
                         <tr>
                             <td class="p-3"></td>
@@ -191,14 +184,14 @@
                             <td class="p-3 text-right">₩12,833,130</td>
                             <td class="p-3 text-right text-green-600">+105.4%</td>
                         </tr>
-                        <!-- 강남점 -->
+                        <!-- 강남점 (UPDATED) -->
                         <tr class="font-bold">
                             <td class="p-3" rowspan="2">슬램버거<br>강남점</td>
                             <td class="p-3">매출</td>
-                            <td class="p-3 text-right text-slate-600">₩16,491,375</td>
-                            <td class="p-3 text-right text-slate-600">₩15,576,900</td>
-                            <td class="p-3 text-right">₩19,909,257</td>
-                            <td class="p-3 text-right text-green-600">+20.7%</td>
+                            <td class="p-3 text-right text-slate-600">₩17,241,308</td>
+                            <td class="p-3 text-right text-slate-600">₩18,593,920</td>
+                            <td class="p-3 text-right">₩22,780,257</td>
+                            <td class="p-3 text-right text-green-600">+32.1%</td>
                         </tr>
                         <tr>
                             <td class="p-3 text-slate-600">공헌이익</td>
@@ -207,14 +200,14 @@
                             <td class="p-3 text-right">₩6,478,510</td>
                             <td class="p-3 text-right text-green-600">+83.8%</td>
                         </tr>
-                        <!-- 대학로점 -->
+                        <!-- 대학로점 (UPDATED) -->
                         <tr class="font-bold">
                             <td class="p-3" rowspan="2">슬램버거<br>대학로점</td>
                             <td class="p-3">매출</td>
-                            <td class="p-3 text-right text-slate-600">₩21,168,473</td>
+                            <td class="p-3 text-right text-slate-600">₩21,167,298</td>
                             <td class="p-3 text-right text-slate-600">₩31,955,190</td>
-                            <td class="p-3 text-right">₩35,290,060</td>
-                            <td class="p-3 text-right text-green-600">+66.7%</td>
+                            <td class="p-3 text-right">₩35,431,460</td>
+                            <td class="p-3 text-right text-green-600">+67.4%</td>
                         </tr>
                         <tr class="bg-green-50/50">
                             <td class="p-3 text-green-700 font-bold">공헌이익</td>
@@ -223,14 +216,14 @@
                             <td class="p-3 text-right text-green-700 font-bold">₩5,081,534</td>
                             <td class="p-3 text-right text-green-700 font-bold">+120.1%</td>
                         </tr>
-                        <!-- BFT 신당점 -->
+                        <!-- BFT 신당점 (UPDATED) -->
                         <tr class="font-bold">
                             <td class="p-3" rowspan="2">BFT<br>신당점</td>
                             <td class="p-3">매출</td>
-                            <td class="p-3 text-right text-slate-600">₩1,574,600</td>
+                            <td class="p-3 text-right text-slate-600">₩1,549,600</td>
                             <td class="p-3 text-right text-slate-600">₩1,720,500</td>
                             <td class="p-3 text-right">₩2,367,000</td>
-                            <td class="p-3 text-right text-green-600">+50.3%</td>
+                            <td class="p-3 text-right text-green-600">+52.7%</td>
                         </tr>
                         <tr>
                             <td class="p-3 text-slate-600">공헌이익</td>
@@ -239,14 +232,14 @@
                             <td class="p-3 text-right text-slate-400">N/A</td>
                             <td class="p-3 text-right text-slate-400">-</td>
                         </tr>
-                        <!-- BFT 역곡점 -->
+                        <!-- BFT 역곡점 (UPDATED) -->
                         <tr class="font-bold">
                             <td class="p-3" rowspan="2">BFT<br>역곡점</td>
                             <td class="p-3">매출</td>
-                            <td class="p-3 text-right text-slate-600">₩2,313,475</td>
+                            <td class="p-3 text-right text-slate-600">₩2,288,600</td>
                             <td class="p-3 text-right text-slate-600">₩2,394,700</td>
                             <td class="p-3 text-right">₩4,103,360</td>
-                            <td class="p-3 text-right text-green-600">+77.4%</td>
+                            <td class="p-3 text-right text-green-600">+79.3%</td>
                         </tr>
                         <tr class="bg-green-50/50">
                             <td class="p-3 text-green-700 font-bold">공헌이익</td>
@@ -258,7 +251,7 @@
                     </tbody>
                 </table>
             </div>
-            <p class="text-sm text-slate-500 mt-2 text-right">*전사 공헌이익은 신당점 데이터 제외 후 집계. 대학로 4주 평균은 W40-43 기준.</p>
+            <p class="text-sm text-slate-500 mt-2 text-right">*매출은 `직영점 매출 대시보드` 기준, 공헌이익은 `Sales DB` 기준으로 집계함. 전사 공헌이익은 신당점 제외.</p>
         </section>
 
         <!-- 5. --- 슬램버거 섹션 --- -->
@@ -329,7 +322,7 @@
                         W44에는 W42(₩130만 할인)의 **1/4 비용(₩31만 할인)으로 28% 더 많은 1,197건의 주문**을 확보했습니다. 이는 '갈비' 메뉴 중심의 타겟 프로모션이 신규 고객에게 주효했기 때문입니다.
                     </p>
                     <div class="positive-highlight bg-slate-50 p-4 rounded-md mb-4">
-                        <h4 class="font-semibold text-indigo-700">최근 6주 홀 프로모션 및 주문 추이</h4>
+                        <h4 class="font-semibold text-indigo-700">홀 할인액 vs 홀 주문 수 (Sales DB 기준)</h4>
                         <ul class="space-y-1 text-slate-700">
                             <li><span class="font-semibold">W42 (Promo):</span> 홀 할인액 <span class="font-bold text-indigo-600">₩130.0만</span> → 홀 주문 931건</li>
                             <li><span class="font-semibold">W43 (Normal):</span> 홀 할인액 <span class="font-bold text-slate-600">₩13.2만</span> → 홀 주문 563건</li>
@@ -348,7 +341,7 @@
                         W43의 <strong class="text-red-700">치명적인 배달 손실(-₩2.8M)</strong>이 W44에는 <strong class="text-green-700">배달 이익 +₩4.15M (추정)</strong>로 극적인 턴어라운드에 성공했습니다. W43의 긴급 조치가 정확했음을 증명했습니다.
                     </p>
                     <div class="positive-highlight bg-green-50 p-4 rounded-md mb-4">
-                        <h4 class="font-semibold text-green-700">최근 5주 채널별 공헌이익 ( 상세 DB 기준)</h4>
+                        <h4 class="font-semibold text-green-700">채널별 공헌이익 (Sales DB 기준)</h4>
                         <ul class="space-y-1 text-slate-700">
                             <li><span class="font-semibold">W42 (총 ₩2.6M):</span> 홀 이익 ₩9.1만 + 배달 이익 ₩250.9만</li>
                             <li><span class="font-semibold">W43 (총 -1.9M):</span> 홀 이익 ₩90.3만 + <span class="font-bold text-red-700">배달 손실 ₩-280.5만</span></li>
@@ -393,7 +386,7 @@
                     <p class="text-slate-600 mb-4">
                         역곡점 또한 슬램버거 대학로점과 마찬가지로 W44에 극적인 수익성 턴어라운드를 달성했습니다. 매출이 W43 대비 <span class="font-bold text-green-600">+71.3%</span> 성장하는 동안, 공헌이익은 <span class="font-bold text-green-600">+273%</span> (₩34만→₩127만) 폭증했습니다.
                     </p>
-                    <div class="positive-highlight bg-purple-50 p-4 rounded-md mb-4 border-l-purple-500">
+                    <div class="positive-highlight bg-purple-50 p-4 rounded-md mb-4 border-l-4 border-l-purple-500">
                         <h4 class="font-semibold text-purple-700">역곡점 W43 vs W44 성과</h4>
                         <ul class="space-y-1 text-slate-700">
                             <li><span class="font-semibold">W43 (Normal):</span> 매출 ₩2.39M → 공헌이익 <span class="font-bold text-slate-600">₩340,942</span> (14.2%)</li>
@@ -406,9 +399,9 @@
                 <article class="bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                     <h4 class="text-xl font-bold text-purple-600 mb-3">개선 2: 신당점 - 8주 최고 매출 달성</h4>
                     <p class="text-slate-600 mb-4">
-                        신당점도 W44에 8주간 최고 매출(₩2.37M)을 달성하며 강한 성장세를 보였습니다. 이는 직전 4주 평균(₩1.57M) 대비 <span class="font-bold text-green-600">+50.3%</span> 높은 수치입니다. (공헌이익 데이터 확보 시 추가 분석 필요)
+                        신당점도 W44에 8주간 최고 매출(₩2.37M)을 달성하며 강한 성장세를 보였습니다. 이는 직전 4주 평균(₩1.57M) 대비 <span class="font-bold text-green-600">+52.7%</span> 높은 수치입니다. (공헌이익 데이터 확보 시 추가 분석 필요)
                     </p>
-                    <div class="positive-highlight bg-purple-50 p-4 rounded-md mb-4 border-l-purple-500">
+                    <div class="positive-highlight bg-purple-50 p-4 rounded-md mb-4 border-l-4 border-l-purple-500">
                         <h4 class="font-semibold text-purple-700">신당점 8주 매출 추이 (W37-W44)</h4>
                         <p class="text-slate-600">W37-W43 기간 동안 ₩1.6M ~ ₩1.7M의 안정적인 박스권을 유지하다가, W44에 ₩2.3M 이상으로 크게 성장했습니다.</p>
                     </div>
@@ -479,11 +472,22 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // Datalabels 플러그인 전역 등록
+            // 공통 플러그인 등록
             Chart.register(ChartDataLabels);
-            Chart.defaults.plugins.datalabels.color = '#334155'; // slate-700
+            
+            // 공통 차트 옵션
+            Chart.defaults.font.family = "'Inter', 'Noto Sans KR', sans-serif";
+            Chart.defaults.font.size = 12;
+            Chart.defaults.color = '#334155'; // slate-700
+            Chart.defaults.plugins.legend.position = 'bottom';
+            Chart.defaults.plugins.tooltip.backgroundColor = '#1e293b'; // slate-800
+            Chart.defaults.plugins.tooltip.titleFont.size = 14;
+            Chart.defaults.plugins.tooltip.bodyFont.size = 12;
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.tooltip.boxPadding = 4;
+            Chart.defaults.plugins.datalabels.display = false;
+            Chart.defaults.plugins.datalabels.color = '#fff';
             Chart.defaults.plugins.datalabels.font = { weight: 'bold' };
-            Chart.defaults.plugins.datalabels.anchor = 'end';
             Chart.defaults.plugins.datalabels.align = 'end';
 
             const CHART_COLORS = {
@@ -499,27 +503,30 @@
             };
 
             const numberFormat = (value) => {
-                if (Math.abs(value) >= 1000000) return (value / 1000000).toFixed(1) + 'M';
-                if (Math.abs(value) >= 1000) return (value / 1000).toFixed(1) + 'K';
-                return value;
+                if (Math.abs(value) >= 1000000) {
+                    return (value / 1000000).toLocaleString('ko-KR', { maximumFractionDigits: 1 }) + 'M';
+                }
+                if (Math.abs(value) >= 1000) {
+                    return (value / 1000).toLocaleString('ko-KR', { maximumFractionDigits: 0 }) + 'k';
+                }
+                return value.toLocaleString('ko-KR');
             };
-
             const numberFormatWon = (value) => {
                 return `₩${numberFormat(value)}`;
             }
 
-            // --- 데이터 정의 ---
+            // --- 데이터 정의 (직영점 매출 대시보드 기준) ---
             // 8주 (W37-W44)
             const weeks_8 = ['W37', 'W38', 'W39', 'W40', 'W41', 'W42', 'W43', 'W44'];
-            // 슬램버거
-            const gangnamSales_8 = [17004940, 15157570, 14496180, 14874850, 16919940, 18593920, 15576900, 19909257];
-            const daehakroSales_8 = [null, null, null, 7512000, 18394400, 26806800, 31955190, 35290060];
-            // BFT
+            // 슬램버거 (UPDATED)
+            const gangnamSales_8 = [17004940, 15157570, 14496180, 14874850, 16919940, 18576520, 18593920, 22780257];
+            const daehakroSales_8 = [9118250, 8495100, 8460800, 7512000, 18394400, 26806800, 31955190, 35431460];
+            // BFT (UPDATED)
             const sindangSales_8 = [1601700, 1701400, 1631200, 1304300, 1595000, 1678600, 1720500, 2367000];
             const yeokgokSales_8 = [2564400, 2503000, 2474500, 2066900, 2413100, 2379100, 2394700, 4103360];
             
             // 5주 (W40-W44) - 역곡 이익
-            const weeks_5_bft = ['W40', 'W41', 'W42', 'W43 (Loss)', 'W44 (Recovery)'];
+            const weeks_5_bft = ['W40', 'W41', 'W42', 'W43', 'W44 (Recovery)'];
             const yeokgokProfit_5 = [430477, 493130, 405198, 340942, 1273086];
 
 
@@ -542,6 +549,7 @@
                         {
                             label: '강남점 매출',
                             data: gangnamSales_8,
+                            borderColor: CHART_COLORS.indigo,
                             backgroundColor: CHART_COLORS.indigo,
                             tension: 0.1,
                             pointRadius: createPointStyles(gangnamSales_8).map(s => s.radius),
@@ -557,7 +565,7 @@
                             pointRadius: createPointStyles(daehakroSales_8).map(s => s.radius),
                             pointBorderWidth: createPointStyles(daehakroSales_8).map(s => s.borderWidth),
                             pointHoverRadius: 8,
-                            spanGaps: true, // 데이터가 null인 부분 이어그리기
+                            spanGaps: true,
                         }
                     ]
                 },
@@ -587,18 +595,18 @@
                     labels: ['강남점', '대학로점'],
                     datasets: [
                         {
-                            label: 'W43 공헌이익',
-                            data: [3151146, 38620],
-                            backgroundColor: [CHART_COLORS.green_light, CHART_COLORS.red_light],
-                            borderColor: [CHART_COLORS.green_light, CHART_COLORS.red_light],
-                            borderRadius: 4,
+                            label: 'W43 공헌이익(손실)',
+                            data: [3151146, -38620], // Sales DB
+                            backgroundColor: [CHART_COLORS.indigo_light, CHART_COLORS.red], 
+                            borderColor: [CHART_COLORS.indigo, CHART_COLORS.red],
+                            borderWidth: 1
                         },
                         {
                             label: 'W44 공헌이익',
-                            data: [6478510, 5081534],
-                            backgroundColor: [CHART_COLORS.green, CHART_COLORS.green], 
-                            borderColor: [CHART_COLORS.green, CHART_COLORS.green],
-                            borderRadius: 4,
+                            data: [6478510, 5081534], // Sales DB
+                            backgroundColor: [CHART_COLORS.indigo, CHART_COLORS.green], 
+                            borderColor: [CHART_COLORS.indigo, CHART_COLORS.green],
+                            borderWidth: 1
                         }
                     ]
                 },
@@ -606,16 +614,18 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `${context.dataset.label}: ₩${context.parsed.y.toLocaleString()}`
-                            }
-                        },
-                        legend: { position: 'bottom' }
+                        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${numberFormatWon(c.parsed.y)}` } },
+                        datalabels: {
+                            display: true,
+                            formatter: numberFormatWon,
+                            anchor: 'end',
+                            align: 'top',
+                            color: (c) => c.parsed.y < 0 ? CHART_COLORS.red : CHART_COLORS.slate,
+                            font: { size: 10 }
+                        }
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
                             ticks: { callback: numberFormatWon }
                         }
                     }
@@ -690,7 +700,7 @@
                             data: [51.45, 52.32], // Sales DB 기준
                             backgroundColor: CHART_COLORS.green_light,
                             stack: 'Daehakro',
-                         },
+                        },
                          {
                             label: '대학로: 갈비(Galbi)',
                             data: [28.83, 29.20], // Sales DB 기준
@@ -730,7 +740,7 @@
             new Chart(document.getElementById('gangnamPromoChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['W39', 'W40', 'W41', 'W42 (Promo)', 'W43 (Normal)', 'W44 (Efficient)'],
+                    labels: ['W39', 'W40', 'W41', 'W42 (Promo)', 'W43 (Normal)', 'W44 (Efficient)'], // Sales DB
                     datasets: [
                         {
                             label: '홀 할인액',
@@ -741,43 +751,32 @@
                         {
                             label: '홀 주문 수',
                             data: [531, 554, 610, 931, 563, 1197],
-                            type: 'line',
-                            borderColor: CHART_COLORS.slate,
                             backgroundColor: CHART_COLORS.slate,
+                            borderColor: CHART_COLORS.slate,
                             yAxisID: 'y_count',
-                            tension: 0.1
+                            type: 'line',
+                            tension: 0.1,
+                            pointRadius: 4,
+                            pointBorderWidth: 2
                         }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => {
-                                    if (context.dataset.type === 'line') {
-                                        return `${context.dataset.label}: ${context.parsed.y}건`;
-                                    }
-                                    return `${context.dataset.label}: ₩${context.parsed.y.toLocaleString()}`;
-                                }
-                            }
-                        }
-                    },
+                    responsive: true, maintainAspectRatio: false,
                     scales: {
                         y_won: {
                             type: 'linear',
                             position: 'left',
                             beginAtZero: true,
+                            title: { display: true, text: '홀 할인액 (원)' },
                             ticks: { callback: numberFormatWon }
                         },
                         y_count: {
                             type: 'linear',
                             position: 'right',
                             beginAtZero: true,
-                            grid: { drawOnChartArea: false }, //
-                            ticks: { callback: (val) => `${val}건` }
+                            title: { display: true, text: '홀 주문 수 (건)' },
+                            grid: { drawOnChartArea: false }
                         }
                     }
                 }
@@ -790,19 +789,18 @@
                     datasets: [
                         {
                             label: '홀 이익(손실)',
-                            data: [-36322, -28189, 91200, 903979, 933979],
+                            data: [-36322, -28189, 91200, 903979, 933979], // Sales DB
                             backgroundColor: CHART_COLORS.green,
                         },
                         {
                             label: '배달 이익(손실)',
-                            data: [2210080, 4357299, 2509208, -2805373, 4147555],
+                            data: [2210080, 4357299, 2509208, -2805373, 4147555], // Sales DB
                             backgroundColor: CHART_COLORS.red,
                         }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     scales: {
                         x: { stacked: true },
                         y: {
@@ -811,17 +809,18 @@
                         }
                     },
                     plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `${context.dataset.label}: ₩${context.parsed.y.toLocaleString()}`
-                            }
+                        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${numberFormatWon(c.parsed.y)}` } },
+                        datalabels: {
+                            display: true,
+                            formatter: numberFormat,
+                            color: '#fff',
+                            font: { size: 10 }
                         }
                     }
                 }
             });
 
-            // --- BFT 차트 (6-1) (NEW) ---
+            // --- BFT 차트 (6-1) (NEW & UPDATED) ---
             new Chart(document.getElementById('bftSalesTrendChart'), {
                 type: 'line',
                 data: {

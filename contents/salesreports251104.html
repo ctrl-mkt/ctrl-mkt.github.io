@@ -11,10 +11,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     
     <style>
-        /* Inter 폰트 (Tailwind 기본) */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* Pretendard 폰트 (CDN) */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
         body {
-            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif; /* Pretendard 폰트로 변경 */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -481,7 +482,7 @@
             Chart.register(ChartDataLabels);
             
             // 공통 차트 옵션
-            Chart.defaults.font.family = "'Inter', 'Noto Sans KR', sans-serif";
+            Chart.defaults.font.family = "'Pretendard', 'Noto Sans KR', sans-serif"; /* Pretendard 폰트로 변경 */
             Chart.defaults.font.size = 12;
             Chart.defaults.color = '#334155'; // slate-700
             Chart.defaults.plugins.legend.position = 'bottom';

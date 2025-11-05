@@ -9,12 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Calm Neutrals (bg-stone-50, white, text-slate-700) with a professional 'Indigo' accent (bg-indigo-600) for buttons and charts. -->
-    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard, moving from high-level context to detailed analysis. It starts with (1) Definitions of the 3 key roles (CSM, PO, PM) for essential context. (2) A 'Comparative Dashboard' section features a central Radar Chart to visually compare the 'skill shape' of all 5 candidates across the 3 roles, and a Bar Chart for 'Total Score' ranking. This allows for quick, high-level comparison. (3) A 'Candidate Deep Dive' section uses interactive buttons (one for each candidate) to dynamically load a 'Detail Card'. This card shows the selected candidate's specific scores, qualitative summary (e.g., 'Best Fit'), and detailed analysis text. This interaction allows for focused, one-by-one exploration. (4) A final 'Overall Recommendation' section presents the report's conclusion, grouping candidates (A/B) and stating the final recommendation. This top-down structure (Context -> Comparison -> Detail -> Conclusion) was chosen to guide the user logically through the report's data, making a dense comparison intuitive and explorable, rather than just a static table. -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard, moving from high-level context to detailed analysis. It starts with (1) Definitions of the 3 key roles (CSM, PO, PM) for essential context. (2) A 'Comparative Dashboard' section features a central Radar Chart to visually compare the 'skill shape' of all 5 candidates across the 3 roles, and a Bar Chart for 'Total Score' ranking. This allows for quick, high-level comparison. (3) A 'Candidate Deep Dive' section uses interactive buttons (one for each candidate) to dynamically load a 'Detail Card'. This card shows the selected candidate's specific scores, qualitative summary (e.g., 'Best Fit'), detailed analysis text, and now a career/B2B2C fit review. (4) A final 'Overall Recommendation' section presents the report's conclusion. This top-down structure (Context -> Comparison -> Detail -> Conclusion) was chosen to guide the user logically through the report's data. -->
     <!-- Visualization & Content Choices: 
         1. Report Info: Role Definitions -> Goal: Context -> Viz/Method: 3-col HTML/Tailwind card layout with icons (Unicode) -> Interaction: None -> Justification: Clear, scannable context.
         2. Report Info: All candidate scores (CSM, PO, PM) -> Goal: Compare skill "shape" -> Viz/Method: Radar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Ideal for comparing profiles across multiple standard metrics -> Library: Chart.js (Canvas).
         3. Report Info: All candidate total scores -> Goal: Rank candidates -> Viz/Method: Horizontal Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Clearest way to show ranked list -> Library: Chart.js (Canvas).
-        4. Report Info: Detailed analysis text per candidate -> Goal: Focused deep dive -> Viz/Method: HTML text blocks in a "Detail Card" -> Interaction: JS-powered buttons (one per candidate) update the card's innerHTML -> Justification: Focuses user attention, avoids clutter -> Library: Vanilla JS.
+        4. Report Info: Detailed analysis text per candidate + NEW career review/fit -> Goal: Focused deep dive -> Viz/Method: HTML text blocks in a "Detail Card" -> Interaction: JS-powered buttons (one per candidate) update the card's innerHTML -> Justification: Focuses user attention, avoids clutter -> Library: Vanilla JS.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -183,9 +183,36 @@
                     </div>
                 </div>
                 
-                <div>
-                    <h4 class="text-lg font-semibold text-slate-700 mb-2">종합 의견</h4>
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-slate-700 mb-4">종합 의견</h4>
                     <p id="detail-analysis-text" class="text-slate-600 leading-relaxed"></p>
+                </div>
+
+                <div class="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <h4 class="text-lg font-semibold text-slate-700 mb-2">경력 리뷰 및 B2B2C Fit</h4>
+                    <p id="detail-career-review" class="text-sm text-slate-600 leading-relaxed mb-2"></p>
+                    <h5 class="text-sm font-semibold text-slate-700 mt-3 mb-1">B2B2C 고객사 Fit 평가</h5>
+                    <p id="detail-career-alignment" class="text-sm text-slate-600 leading-relaxed"></p>
+                </div>
+
+                <hr class="border-t border-slate-200 my-6">
+
+                <div>
+                    <h4 class="text-lg font-semibold text-slate-700 mb-4">세부 평가 항목</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h5 class="text-md font-bold text-slate-800 mb-3">1. Customer Success Manager</h5>
+                            <div id="detail-list-csm" class="space-y-3"></div>
+                        </div>
+                        <div>
+                            <h5 class="text-md font-bold text-slate-800 mb-3">2. Mini Product Owner</h5>
+                            <div id="detail-list-po" class="space-y-3"></div>
+                        </div>
+                        <div>
+                            <h5 class="text-md font-bold text-slate-800 mb-3">3. Performance Marketer</h5>
+                            <div id="detail-list-pm" class="space-y-3"></div>
+                        </div>
+                    </div>
                 </div>
             </article>
         </section>
@@ -247,31 +274,161 @@
                     scores: [5, 4.4, 2.3],
                     total: 11.7,
                     summary: "(Best Fit) B2B 영업(CSM)과 서비스 개선(PO) 역량 모두 최상위권.",
-                    analysis: "1순위 추천. B2B 영업(CSM)과 서비스 개선(PO) 두 핵심 역량에서 모두 최상위권의 균형을 보여줍니다. 특히 IT 솔루션(POS, 클라우드) 연동 제안 및 '핸디 POS' PoC 리딩 경험은 직무 Fit이 매우 높습니다."
+                    analysis: "1순위 추천. B2B 영업(CSM)과 서비스 개선(PO) 두 핵심 역량에서 모두 최상위권의 균형을 보여줍니다. 특히 IT 솔루션(POS, 클라우드) 연동 제안 및 '핸디 POS' PoC 리딩 경험은 직무 Fit이 매우 높습니다.",
+                    careerReview: {
+                        review: "약 5년 경력. 카타르 항공에서 서비스 직무(1.8년)를 경험한 후, (주)브이디로보틱스(4.7년)에서 B2C 영업/대리점 관리, 운영 기획(데이터 분석), 법인영업팀장, 청소로봇 시장 개척 등 다양한 역할을 수행하며 성장했습니다.",
+                        alignment: "매우 높음. (주)브이디로보틱스에서 F&B 프랜차이즈 본사 및 가맹점을 대상으로 서빙로봇, POS, IT솔루션 연동 영업(B2B2C)을 직접 수행했습니다. 이는 컨트롤엠/레스토지니의 타겟 고객 및 비즈니스 모델과 99% 일치합니다."
+                    },
+                    details: {
+                        csm: [
+                            { item: "B2B 아웃바운드 영업", score: 5, "근거": "B2B B2C 영업과 제안 기반 세일즈 수행. 법인영업팀장(팀 리딩). (브이디로보틱스)" },
+                            { item: "신규 고객 발굴", score: 5, "근거": "신규 법인 제휴 발굴 및 프랜차이즈 영업/관리. 24개 프랜차이즈 협약 달성. (브이디로보틱스)" },
+                            { item: "영업 자료 제작", score: 5, "근거": "제안서·협약 양식 표준화. 대형 대리점 제안서 작성 지원 (단일 계약 200대). (브이디로보틱스)" },
+                            { item: "고객사 관리(AM)/이탈 방지", score: 5, "근거": "사용량 저조 매장 활용 방안 전환 제안 → 해지 15건 방어. 장기 관계 관리. (브이디로보틱스)" },
+                            { item: "정량 성과", score: 5, "근거": "직접 영업 150건+, 담당 지역 월 4억+ 매출 유지, 단일 계약 200대(20억) 기여. (브이디로보틱스)" }
+                        ],
+                        po: [
+                            { item: "고객 PoC/온보딩", score: 4, "근거": "'핸디 POS 방식' 제안, 현장 상주시험 후 성공적으로 안착. 청소로봇 50대 테스트 운영. (브이디로보틱스)" },
+                            { item: "VOC 수집/우선순위 설정", score: 4, "근거": "가맹점·본사 요청사항 수집·정리, 개발 우선순위 반영 및 기능 개선 F/U. (브이디로보틱스)" },
+                            { item: "개발/디자인 협업", score: 4, "근거": "IT 통합 솔루션(POS, 클라우드) 확장 제안. 개발 우선순위 반영 F/U. (브이디로보틱스)" },
+                            { item: "서비스/제품 개선 기여", score: 5, "근거": "고객 요구 기반 '핸디 POS' 방식 역제안 및 성공. 클라우드 관리 체계 고도화 기획. (브이디로보틱스)" },
+                            { item: "초기 스타트업 경험", score: 5, "근거": "(주)브이디로보틱스 (신설 법인영업팀 리딩, 청소로봇 시장 개척 등)" }
+                        ],
+                        pm: [
+                            { item: "주요 지표(CAC/LTV) 관리", score: 2, "근거": "'해지 방어' (Churn) 경험은 있으나, CAC/LTV 등 마케팅 지표 관리 경험은 없음. (브이디로보틱스)" },
+                            { item: "데이터 기반 성과 분석", score: 3, "근거": "로봇 2,000대 데이터 분석, 활용 기준 수립. 고객사별 리포트 작성. (운영 데이터 중심) (브이디로보틱스)" },
+                            { item: "B2B 콘텐츠 마케팅", score: 1, "근거": "관련 경험 전무." },
+                            { item: "SaaS 비즈니스 이해도", score: 3, "근거": "IT 솔루션(클라우드, POS) 경험은 있으나, SaaS 마케팅 지표 관리 경험은 없음. (브이디로보틱스)" }
+                        ]
+                    }
                 },
                 "김건민": {
                     scores: [4.6, 4.2, 2.0],
                     total: 10.8,
                     summary: "(Best Fit) 압도적 B2B 영업/매출 성과(CSM) + PoC 프로젝트 총괄 경험(PO) 보유.",
-                    analysis: "2순위 추천. 김찬송 지원자와 유사하게 1번(CSM)과 2번(PO) 역량을 겸비했습니다. 특히 120억 매출 기여 등 압도적인 정량 성과와 '테이블오더 고도화' PoC 총괄 경험이 강력한 강점입니다."
+                    analysis: "2순위 추천. 김찬송 지원자와 유사하게 1번(CSM)과 2번(PO) 역량을 겸비했습니다. 특히 120억 매출 기여 등 압도적인 정량 성과와 '테이블오더 고도화' PoC 총괄 경험이 강력한 강점입니다.",
+                    careerReview: {
+                        review: "약 3.6년 경력. (주)브이디로보틱스에서 B2C/대리점 영업 관리로 시작하여, 법인영업팀에서 B2B 영업을 수행하고, '테이블오더' PoC 프로젝트를 총괄하는 등 영업과 기획/PoC 역할을 모두 경험했습니다.",
+                        alignment: "매우 높음. (주)브이디로보틱스에서 서빙로봇, 테이블오더(POS 연동) 솔루션을 F&B 프랜차이즈 및 소형 매장(B2B2C)에 직접 제안/판매/운영한 경험이 있습니다. 컨트롤엠/레스토지니의 타겟 고객과 99% 일치합니다."
+                    },
+                    details: {
+                        csm: [
+                            { item: "B2B 아웃바운드 영업", score: 5, "근거": "B2B B2C 영업, 대리점 관리, 신규 시장 개척. 프랜차이즈 그룹 대상 B2B 기술제안. (브이디로보틱스)" },
+                            { item: "신규 고객 발굴", score: 5, "근거": "신규 법인 제휴처 발굴 (30개 이상 주요 프랜차이즈 MOU) (브이디로보틱스)" },
+                            { item: "영업 자료 제작", score: 4, "근거": "제안서·계약서 양식 표준화. 장비 교육 매뉴얼 제작. (브이디로보틱스)" },
+                            { item: "고객사 관리(AM)/이탈 방지", score: 4, "근거": "법인 고객 영업 관리. 운영 데이터 기반 성능 리포트 제공 (재계약 기반 확보). (브이디로보틱스)" },
+                            { item: "정량 성과", score: 5, "근거": "약 120억원 매출 성과 기여 (직/간접). 누적 매출 60억 원 이상 직접 기여. (브이디로보틱스)" }
+                        ],
+                        po: [
+                            { item: "고객 PoC/온보딩", score: 5, "근거": "'호호식당 선주문 솔루션' 프로젝트 (기획 및 테스트 운영 총괄/개발 협업 리드). (브이디로보틱스)" },
+                            { item: "VOC 수집/우선순위 설정", score: 4, "근거": "브랜드 니즈 파악 및 기술 구현을 위한 내부 개발 협의. (브이디로보틱스)" },
+                            { item: "개발/디자인 협업", score: 4, "근거": "'개발 협업 리드' 역할 수행. 테스트 시나리오 작성 및 사전 검증. (브이디로보틱스)" },
+                            { item: "서비스/제품 개선 기여", score: 4, "근거": "기존 테이블오더 한계 분석 및 대체안(핸디 포스) 설계/구현. (브이디로보틱스)" },
+                            { item: "초기 스타트업 경험", score: 4, "근거": "(주)브이디로보틱스 (TF팀 초기 멤버, 파일럿 조직을 핵심 부서로 확장)" }
+                        ],
+                        pm: [
+                            { item: "주요 지표(CAC/LTV) 관리", score: 2, "근거": "관련 경험 전무." },
+                            { item: "데이터 기반 성과 분석", score: 3, "근거": "제품 운영데이터 기반 전략. 법인별 운영효율 리포트(로봇 회전율 등) 제공. (브이디로보틱스)" },
+                            { item: "B2B 콘텐츠 마케팅", score: 1, "근거": "관련 경험 전무." },
+                            { item: "SaaS 비즈니스 이해도", score: 2, "근거": "테이블오더(POS) 경험은 있으나 SaaS 마케팅 지표 관련 경험은 없음. (브이디로보틱스)" }
+                        ]
+                    }
                 },
                 "이연수": {
                     scores: [3.6, 5, 3.3],
                     total: 11.9,
                     summary: "(PO 특화) 서비스 기획(PO) 역량 1위. B2B 영업 '지원' 및 '데이터 분석' 역량 보유.",
-                    analysis: "2번 'Mini PO' 역량(5/5)이 5명 중 가장 뛰어납니다. B2B 영업 경험이 아웃바운드보다는 '기획/지원'에 가까워 1번(CSM) 점수가 다소 낮습니다. 'Account Manager'보다는 'B2B 서비스 기획자(PO)' 포지션에 더 적합해 보입니다."
+                    analysis: "2번 'Mini PO' 역량(5/5)이 5명 중 가장 뛰어납니다. B2B 영업 경험이 아웃바운드보다는 '기획/지원'에 가까워 1번(CSM) 점수가 다소 낮습니다. 'Account Manager'보다는 'B2B 서비스 기획자(PO)' 포지션에 더 적합해 보입니다.",
+                    careerReview: {
+                        review: "약 4년 경력. (주)닥터나우(PO, 7개월), 비바이노베이션(Biz팀장, 10개월), 룰루메딕(Cell Leader, 2년) 등 헬스케어 플랫폼 스타트업에서 PO, 서비스 기획, 신사업 기획, 영업 지원 등 B2B/B2B2C 전반의 역할을 수행했습니다. 최근 데이터 분석 부트캠프를 이수했습니다.",
+                        alignment: "중간. 헬스케어(병원, 보험사, 기업 임직원 대상) 도메인 경험이 대부분입니다. F&B/리테일 도메인 지식은 부족합니다. 단, B2B2C 플랫폼 비즈니스 모델(SaaS)에 대한 기획/운영 경험은 풍부하여, 비즈니스 구조 자체는 컨트롤엠과 유사성이 높습니다."
+                    },
+                    details: {
+                        csm: [
+                            { item: "B2B 아웃바운드 영업", score: 4, "근거": "B2B/B2B2C 사업 모델 기획 (비바이노베이션, 닥터나우)" },
+                            { item: "신규 고객 발굴", score: 3, "근거": "신사업 시장조사/사업기획/제안서 작성 (룰루메딕). (영업보다는 기획에 가까움)" },
+                            { item: "영업 자료 제작", score: 5, "근거": "회사소개서, 영업도구, IR Deck 제작 (룰루메딕), 영업도구 개발(제안서, 견적서) (비바이노베이션)" },
+                            { item: "고객사 관리(AM)/이탈 방지", score: 4, "근거": "병원/기업 고객사 관리, 고객 불편사항 도출 및 서비스/정책적 개선 (비바이노베이션)" },
+                            { item: "정량 성과", score: 2, "근거": "영업/매출 관련 정량적 성과가 수치로 명시되지 않음." }
+                        ],
+                        po: [
+                            { item: "고객 PoC/온보딩", score: 5, "근거": "고객사 시연용 프로토타이핑 시나리오 작업 및 시연 (비바이노베이션), 챗봇 서비스 설계 (닥터나우)" },
+                            { item: "VOC 수집/우선순위 설정", score: 5, "근거": "VOC 및 브랜드 컨셉에 따른 추가 기능 기획 (닥터나우), 고객 불편사항 도출 (비바이노베이션)" },
+                            { item: "개발/디자인 협업", score: 5, "근거": "PO (닥터나우), 프로젝트 관리(스케줄링, 기획, 회고 등), CRM/Admin 요구사항 정의 (비바이노베이션)" },
+                            { item: "서비스/제품 개선 기여", score: 5, "근거": "고객 인사이트 도출, 신규 기능 기획 (비바이노베이션), 신사업 발굴(룰루메딕)" },
+                            { item: "초기 스타트업 경험", score: 5, "근거": "룰루메딕, 비바이노베이션, 닥터나우 등 다수의 초기 스타트업/신사업 경험" }
+                        ],
+                        pm: [
+                            { item: "주요 지표(CAC/LTV) 관리", score: 3, "근거": "전사적 KPI 수립 및 분기별 OKR 관리 (비바이노베이션), 성과관리 지표 설계 (닥터나우)" },
+                            { item: "데이터 기반 성과 분석", score: 4, "근거": "'실무형 데이터 분석가 양성과정' 이수 (SQL, Python, Tableau). 대시보드 제작 프로젝트. (KDT)" },
+                            { item: "B2B 콘텐츠 마케팅", score: 3, "근거": "마케팅 플랜 수립 및 에이전시 관리 (룰루메딕). (콘텐츠 직접 제작 경험 부족)" },
+                            { item: "SaaS 비즈니스 이해도", score: 3, "근거": "B2B 사업모델 기획 경험은 있으나 SaaS 관련 구체적인 지표 관리 경험은 불명확함. (룰루메딕 등)" }
+                        ]
+                    }
                 },
                 "노인성": {
                     scores: [4.8, 3.6, 2.5],
                     total: 10.9,
                     summary: "(CSM 특화) 1번(CSM) 역량에 매우 특화된 B2B 영업, AM, 이탈방지 전문가.",
-                    analysis: "1번 'CSM' 역량(4.8/5)이 5명 중 가장 뛰어납니다. 전통적인 B2B 영업, AM, 이탈 방지, 업셀링 전문가입니다. 2번(PO), 3번(PM) 역량이 부족하여 하이브리드 롤보다는 '영업/AM' 전담 역할에 적합합니다."
+                    analysis: "1번 'CSM' 역량(4.8/5)이 5명 중 가장 뛰어납니다. 전통적인 B2B 영업, AM, 이탈 방지, 업셀링 전문가입니다. 2번(PO), 3번(PM) 역량이 부족하여 하이브리드 롤보다는 '영업/AM' 전담 역할에 적합합니다.",
+                    careerReview: {
+                        review: "약 8년 경력. NICE평가정보(영업지원, 1.8년), 코리아크레딧뷰로(운영/기획, 4년)에서 금융/인증 서비스 B2B 운영 경력을 쌓았습니다. 이후 (주)페이히어(BD/AM, 1.2년), 한국결제네트웍스(법인영업, 6개월)에서 POS 및 PG/VAN 영업을 수행했습니다.",
+                        alignment: "매우 높음. (주)페이히어에서 F&B/리테일 가맹점(SMB, 프랜차이즈)을 대상으로 POS(SaaS) 영업, 업셀링, 이탈 방어를 직접 수행했습니다. 이는 컨트롤엠/레스토지니의 비즈니스와 타겟 고객이 매우 유사하며 직접적인 연관성이 있습니다."
+                    },
+                    details: {
+                        csm: [
+                            { item: "B2B 아웃바운드 영업", score: 5, "근거": "B2B Sales 및 Closing 수행. 엔터/프랜차이즈 가맹 본사 대상 영업 (페이히어)" },
+                            { item: "신규 고객 발굴", score: 5, "근거": "8개 베이비 프랜차이즈 본사 클로징 완료. SMB/Enterprise/Franchise 컨택. (페이히어)" },
+                            { item: "영업 자료 제작", score: 4, "근거": "이탈(조짐) 가맹점 제안안 구상. AM 업셀링을 위한 스크립트, 가이드 작성. (페이히어)" },
+                            { item: "고객사 관리(AM)/이탈 방지", score: 5, "근거": "Paid Customer 관리, 리텐션(이탈방지), 업셀링. 8개월간 이탈율 2% 이하 유지. (페이히어)" },
+                            { item: "정량 성과", score: 5, "근거": "누적매출 약 2.5억원 (BD), 업셀링 누적매출 약 1.3억 (AM) (페이히어)" }
+                        ],
+                        po: [
+                            { item: "고객 PoC/온보딩", score: 3, "근거": "B2B Customer 서비스 온보딩 프로세스 담당. (PoC보다는 '온보딩' 중심) (페이히어, KCB)" },
+                            { item: "VOC 수집/우선순위 설정", score: 4, "근거": "User-voice 수집 후 프로덕트 고도화 (페이히어). VOC 파악 후 서비스 개선 기획. (KCB, 페이히어)" },
+                            { item: "개발/디자인 협업", score: 3, "근거": "관련 부서 소통 (개발, 법무 등). VOC를 Biz, Product 조직에 공유. (전반적) (직접 협업보다 '전달' 중심)" },
+                            { item: "서비스/제품 개선 기여", score: 4, "근거": "VOC 수집 후 신규 기능 출시, 기존 기능 개선, 불필요한 프로세스 정비. (페이히어)" },
+                            { item: "초기 스타트업 경험", score: 4, "근거": "(주)페이히어 (POS 스타트업) 경험." }
+                        ],
+                        pm: [
+                            { item: "주요 지표(CAC/LTV) 관리", score: 3, "근거": "'이탈율' 지표를 핵심적으로 관리함 (8개월간 2% 이하 유지). CAC/LTV 경험 없음. (페이히어)" },
+                            { item: "데이터 기반 성과 분석", score: 3, "근거": "서비스 데이터 분석을 통한 고객 유지. 파이프 드라이브 인사이트 시각화/정량화. (페이히어)" },
+                            { item: "B2B 콘텐츠 마케팅", score: 1, "근거": "관련 경험 전무." },
+                            { item: "SaaS 비즈니스 이해도", score: 3, "근거": "(주)페이히어 (SaaS 기반 POS) 경험으로 비즈니스 모델 이해도는 높음." }
+                        ]
+                    }
                 },
                 "조해민": {
                     scores: [2.2, 3.0, 4.8],
                     total: 10.0,
                     summary: "(PM 특화) B2B 콘텐츠 마케팅 및 CPA 관리(PM) 역량 1위.",
-                    analysis: "3번 'PM' 역량(4.8/5)이 5명 중 가장 뛰어납니다. B2B 콘텐츠 마케팅, 세미나, 퍼포먼스 광고를 통한 '리드 생성' 전문가입니다. 1번(영업/AM) 경험이 전무하여 'Account Manager' 포지션과는 Fit이 맞지 않으며, 'B2B 마케터' 포지션에 100% 부합합니다."
+                    analysis: "3번 'PM' 역량(4.8/5)이 5명 중 가장 뛰어납니다. B2B 콘텐츠 마케팅, 세미나, 퍼포먼스 광고를 통한 '리드 생성' 전문가입니다. 1번(영업/AM) 경험이 전무하여 'Account Manager' 포지션과는 Fit이 맞지 않으며, 'B2B 마케터' 포지션에 100% 부합합니다.",
+                    careerReview: {
+                        review: "약 4년 경력. (주)제이알더블유(F&B 프랜차이즈, 인턴 9개월)를 거쳐 (주)브이디로보틱스(3.8년)에서 B2B 마케터로 근무했습니다. Owned Media 운영, 온/오프라인 행사 PM, 퍼포먼스 마케팅, 빅데이터 리포트 제작 등 B2B 마케팅 전반을 리딩했습니다.",
+                        alignment: "높음 (도메인) / 낮음 (직무). (주)브이디로보틱스에서 F&B 프랜차이즈 및 자영업자(B2B2C)를 대상으로 마케팅을 수행하여, 컨트롤엠/레스토지니의 타겟 고객 도메인과 99% 일치합니다. 단, 직무가 'Account Manager'가 아닌 'B2B Marketer'입니다."
+                    },
+                    details: {
+                        csm: [
+                            { item: "B2B 아웃바운드 영업", score: 1, "근거": "B2B '영업' 경험이 아닌 B2B '마케팅' 경험. (브이디로보틱스)" },
+                            { item: "신규 고객 발굴", score: 4, "근거": "(마케팅 기반 리드 생성) 온라인 세미나 (신청자 971%↑), 박람회(문의 150건) 등. (브이디로보틱스)" },
+                            { item: "영업 자료 제작", score: 3, "근거": "콘텐츠(리포트, 세미나 교안) 제작은 우수하나, '영업 제안서' 제작 경험은 불명확. (브이디로보틱스)" },
+                            { item: "고객사 관리(AM)/이탈 방지", score: 1, "근거": "관련 경험 전무. (마케팅 담당)" },
+                            { item: "정량 성과", score: 2, "근거": "성과가 '문의 수', 'CPA', '조회수' 등 마케팅 지표에 집중. '매출', '계약' 성과 없음. (브이디로보틱스)" }
+                        ],
+                        po: [
+                            { item: "고객 PoC/온보딩", score: 2, "근거": "'홈페이지 리뉴얼' A/B 테스트 경험은 있으나, '서비스/제품' PoC 경험은 아님. (브이디로보틱스)" },
+                            { item: "VOC 수집/우선순위 설정", score: 3, "근거": "고객 리뷰 및 영업사원 인터뷰로 니즈/페인포인트 도출 (홈페이지 리뉴얼 목적). (브이디로보틱스)" },
+                            { item: "개발/디자인 협업", score: 3, "근거": "홈페이지 리뉴얼 (UI/UX 설계 주도), 피그마 기반 UX/UI 기획. (웹 기획 중심) (브이디로보틱스)" },
+                            { item: "서비스/제품 개선 기여", score: 3, "근거": "'홈페이지' 및 '리드폼' UX 개선 경험. (서비스/제품 개선보다는 마케팅 자산 개선) (브이디로보틱스)" },
+                            { item: "초기 스타트업 경험", score: 4, "근거": "(주)브이디로보틱스 경험." }
+                        ],
+                        pm: [
+                            { item: "주요 지표(CAC/LTV) 관리", score: 5, "근거": "퍼포먼스 마케팅 운영 (인바운드 문의수 78%↑, CPA 74% 절감). (브이디로보틱스)" },
+                            { item: "데이터 기반 성과 분석", score: 5, "근거": "GA 및 광고 데이터 분석, 캠페인 데이터 기반 소재/타겟 인사이트 리포트화. (브이디로보틱스)" },
+                            { item: "B2B 콘텐츠 마케팅", score: 5, "근거": "YouTube (121만), 온라인 세미나 PM (10회), 빅데이터 리포트 (언론보도 9건) 등. (브이디로보틱스)" },
+                            { item: "SaaS 비즈니스 이해도", score: 4, "근거": "AI 솔루션 기업(브이디) 마케팅 총괄. CPA, 전환율 등 핵심 지표 관리. (브이디로보틱스)" }
+                        ]
+                    }
                 }
             };
 
@@ -402,6 +559,27 @@
             const detailScorePo = document.getElementById('detail-score-po');
             const detailScorePm = document.getElementById('detail-score-pm');
             const detailAnalysis = document.getElementById('detail-analysis-text');
+            const detailCareerReview = document.getElementById('detail-career-review');
+            const detailCareerAlignment = document.getElementById('detail-career-alignment');
+            
+            const detailListCsm = document.getElementById('detail-list-csm');
+            const detailListPo = document.getElementById('detail-list-po');
+            const detailListPm = document.getElementById('detail-list-pm');
+
+            function buildDetailList(items) {
+                if (!items || items.length === 0) {
+                    return '<p class="text-sm text-slate-500">세부 항목 없음</p>';
+                }
+                return items.map(item => `
+                    <div class="border-b border-slate-200 pb-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-slate-700">${item.item}</span>
+                            <span class="text-lg font-bold text-indigo-600">${item.score}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1"><strong>근거:</strong> ${item.근거}</p>
+                    </div>
+                `).join('');
+            }
 
             function updateDetailCard(candidateId) {
                 const data = candidateData[candidateId];
@@ -414,6 +592,13 @@
                 detailScorePo.innerText = data.scores[1].toFixed(1);
                 detailScorePm.innerText = data.scores[2].toFixed(1);
                 detailAnalysis.innerText = data.analysis;
+
+                detailCareerReview.innerText = data.careerReview.review;
+                detailCareerAlignment.innerText = data.careerReview.alignment;
+
+                detailListCsm.innerHTML = buildDetailList(data.details?.csm);
+                detailListPo.innerHTML = buildDetailList(data.details?.po);
+                detailListPm.innerHTML = buildDetailList(data.details?.pm);
 
                 buttons.forEach(btn => {
                     if (btn.dataset.id === candidateId) {
@@ -437,4 +622,5 @@
     </script>
 </body>
 </html>
+
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" class="dark">
-<!-- Chosen Palette: Tailwind Dark Mode (Light: slate, Dark: gray-900) + Pretendard Font -->
+<!-- Chosen Palette: Tailwind Dark Mode (gray-950) + Pretendard Font -->
 <!-- Application Structure Plan: [
     대시보드형 탭 구조 채택. 
     1. 상단: 4개의 핵심 KPI 카드로 회의의 가장 중요한 결과(매출, 객단가, 핵심과제)를 즉시 요약.
@@ -9,6 +9,7 @@
     - 탭 구조는 이 정보들을 논리적 단위(매출/할 일/맥락/분석)로 분리하여 사용자가 압도당하지 않고 원하는 정보에 집중하게 함. 
     - 특히 '액션 아이템'은 부서별 카드로 시각화하여 책임과 진행 상황을 명확히 전달.
     - '회의 분석' 탭을 추가하여 단순 요약을 넘어 회의 자체에 대한 메타 인사이트를 제공.
+    - 탭 클릭 시 해당 탭이 상단에 고정(스티키)되도록 스크롤 기능 추가.
 ] -->
 <!-- Visualization & Content Choices: [
     - [매출] -> [비교/추이] -> [라인 차트] -> [주간 추이 확인] -> [Chart.js]
@@ -94,6 +95,16 @@
             vertical-align: middle; /* 아이콘 자체도 middle로 */
             line-height: 1; /* 아이콘 라인 높이 */
         }
+
+        /* 탭 그리드 (flex-shrink-0 대신) */
+        .tab-button {
+            display: flex;
+            flex-direction: column; /* 아이콘과 텍스트 수직 정렬 */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-break: keep-all; /* 줄바꿈 시 단어 유지 */
+        }
     </style>
 </head>
 <body class="antialiased bg-gray-950 text-slate-200">
@@ -141,21 +152,26 @@
         </section>
 
         <!-- 2. 탭 네비게이션 (스티키) -->
-        <nav class="sticky top-0 z-40 flex border-b border-gray-700 mb-6 bg-gray-950 overflow-x-auto">
-            <button data-tab="tab-dashboard" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix" tab-active>
-                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">monitoring</span>매출 대시보드
+        <nav id="tab-nav" class="sticky top-0 z-40 grid grid-cols-5 border-b border-gray-700 mb-6 bg-gray-950">
+            <button data-tab="tab-dashboard" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix" tab-active>
+                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">monitoring</span>
+                <span class="leading-tight">매출 대시보드</span>
             </button>
-            <button data-tab="tab-decisions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">check_circle</span>결정사항
+            <button data-tab="tab-decisions" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">check_circle</span>
+                <span class="leading-tight">결정사항</span>
             </button>
-            <button data-tab="tab-actions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">assignment_turned_in</span>액션 아이템
+            <button data-tab="tab-actions" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">assignment_turned_in</span>
+                <span class="leading-tight">액션 아이템</span>
             </button>
-            <button data-tab="tab-context" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">forum</span>주요 논의
+            <button data-tab="tab-context" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">forum</span>
+                <span class="leading-tight">주요 논의</span>
             </button>
-            <button data-tab="tab-analysis" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">insights</span>회의 분석
+            <button data-tab="tab-analysis" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">insights</span>
+                <span class="leading-tight">회의 분석</span>
             </button>
         </nav>
 
@@ -544,19 +560,30 @@
             initCharts();
 
             // 2. 탭 네비게이션 이벤트
+            const tabNav = document.getElementById('tab-nav');
             const tabs = document.querySelectorAll('.tab-button');
             const tabPanes = document.querySelectorAll('.tab-pane');
 
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
+                    // 탭 활성화
                     tabs.forEach(item => item.removeAttribute('tab-active'));
                     tab.setAttribute('tab-active', '');
 
+                    // 탭 콘텐츠 표시
                     tabPanes.forEach(pane => pane.classList.add('hidden'));
                     const targetPane = document.getElementById(tab.dataset.tab);
                     if (targetPane) {
                         targetPane.classList.remove('hidden');
                     }
+
+                    // 클릭 시 탭 네비게이션을 상단으로 스크롤
+                    // (네비게이션 바의 Y 위치로 스크롤)
+                    const navTop = tabNav.getBoundingClientRect().top + window.scrollY;
+                    window.scrollTo({
+                        top: navTop - 1, // -1px로 스티키가 확실히 발동하도록 함
+                        behavior: 'smooth'
+                    });
                 });
             });
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="dark">
 <!-- Chosen Palette: Tailwind Dark Mode (Light: slate, Dark: gray-900) + Pretendard Font -->
 <!-- Application Structure Plan: [
     대시보드형 탭 구조 채택. 
@@ -38,20 +38,11 @@
 
         /* 탭 활성화 스타일 */
         [tab-active] {
-            border-color: #3b82f6 !important; /* blue-500 */
-            color: #3b82f6 !important; /* blue-500 */
-            font-weight: 600;
-        }
-        html.dark [tab-active] {
             border-color: #60a5fa !important; /* blue-400 */
             color: #60a5fa !important; /* blue-400 */
+            font-weight: 600;
         }
         
-        /* 다크모드 기본 차트 텍스트 색상 */
-        .dark-mode-chart-defaults {
-            color: #d1d5db; /* gray-300 */
-        }
-
         /* Chart.js 캔버스 컨테이너 */
         .chart-container {
             position: relative;
@@ -75,7 +66,7 @@
             margin-bottom: 0.75em;
             font-weight: 700;
             font-size: 1.25rem;
-            color: #1f2937; /* gray-800 */
+            color: #f3f4f6; /* gray-100 */
         }
         .prose ul {
             list-style-type: disc;
@@ -87,19 +78,9 @@
             margin-top: 0.25em;
             margin-bottom: 0.25em;
             line-height: 1.6; /* 줄 간격 추가 */
-        }
-        .prose li strong {
-            color: #111827; /* gray-900 */
-        }
-
-        /* 다크모드 Prose */
-        .dark .dark\:prose-invert h3 {
-            color: #f3f4f6; /* gray-100 */
-        }
-        .dark .dark\:prose-invert li {
             color: #d1d5db; /* gray-300 */
         }
-        .dark .dark\:prose-invert li strong {
+        .prose li strong {
             color: #ffffff; /* white */
         }
 
@@ -115,53 +96,44 @@
         }
     </style>
 </head>
-<body class="antialiased bg-slate-50 text-slate-800 dark:bg-gray-950 dark:text-slate-200 transition-colors duration-300">
+<body class="antialiased bg-gray-950 text-slate-200">
 
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         
-        <!-- 헤더 및 테마 토글 -->
+        <!-- 헤더 -->
         <header class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">11월 11일 OKR 미팅 대시보드</h1>
-            <!-- 테마 토글 스위치 -->
-            <div class="flex items-center space-x-2">
-                <span class="material-symbols-outlined text-base text-gray-500 dark:text-gray-400">light_mode</span>
-                <label for="theme-toggle-checkbox" class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="theme-toggle-checkbox" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                </label>
-                <span class="material-symbols-outlined text-base text-gray-500 dark:text-gray-400">dark_mode</span>
-            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-white">11월 11일 OKR 미팅 대시보드</h1>
         </header>
 
         <!-- 1. 핵심 요약 KPI -->
         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 총 매출 (4개 매장)</h3>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">4,485<span class="text-xl ml-1">만원</span></p>
-                <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1 icon-fix">
+            <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">45주차 총 매출 (4개 매장)</h3>
+                <p class="text-3xl font-bold text-white mt-2">4,485<span class="text-xl ml-1">만원</span></p>
+                <p class="text-sm font-medium text-red-500 mt-1 icon-fix">
                     <span class="material-symbols-outlined text-base align-middle">arrow_downward</span>
                     <span>전주 대비 -30% (이벤트 종료 영향)</span>
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">강남점 배달 객단가</h3>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">17,100<span class="text-xl ml-1">원</span></p>
-                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1 icon-fix">
+            <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">강남점 배달 객단가</h3>
+                <p class="text-3xl font-bold text-white mt-2">17,100<span class="text-xl ml-1">원</span></p>
+                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
                     <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
                     <span>목표 1.7만원 회복 (대학로 1.49만)</span>
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">핵심 성과: 갈비 메뉴 비중</h3>
-                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">35<span class="text-xl ml-1">%</span></Gg></p>
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">
+            <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">핵심 성과: 갈비 메뉴 비중</h3>
+                <p class="text-3xl font-bold text-blue-400 mt-2">35<span class="text-xl ml-1">%</span></Gg></p>
+                <p class="text-sm font-medium text-gray-400 mt-1">
                     강남(34%), 대학로(36%) 동시 급상승
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">회의 시간 (11/04 대비)</h3>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">54<span class="text-xl ml-1">분</span></p>
-                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1 icon-fix">
+            <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">회의 시간 (11/04 대비)</h3>
+                <p class="text-3xl font-bold text-white mt-2">54<span class="text-xl ml-1">분</span></p>
+                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
                     <span class="material-symbols-outlined text-base align-middle">timelapse</span>
                     <span>109분 → 54분 (49% 단축)</span>
                 </p>
@@ -169,20 +141,20 @@
         </section>
 
         <!-- 2. 탭 네비게이션 (스티키) -->
-        <nav class="sticky top-0 z-40 flex border-b border-gray-200 dark:border-gray-700 mb-6 bg-slate-50 dark:bg-gray-950 transition-colors duration-300 overflow-x-auto">
-            <button data-tab="tab-dashboard" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix" tab-active>
+        <nav class="sticky top-0 z-40 flex border-b border-gray-700 mb-6 bg-gray-950 overflow-x-auto">
+            <button data-tab="tab-dashboard" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix" tab-active>
                 <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">monitoring</span>매출 대시보드
             </button>
-            <button data-tab="tab-decisions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+            <button data-tab="tab-decisions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
                 <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">check_circle</span>결정사항
             </button>
-            <button data-tab="tab-actions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+            <button data-tab="tab-actions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
                 <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">assignment_turned_in</span>액션 아이템
             </button>
-            <button data-tab="tab-context" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+            <button data-tab="tab-context" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
                 <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">forum</span>주요 논의
             </button>
-            <button data-tab="tab-analysis" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+            <button data-tab="tab-analysis" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
                 <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">insights</span>회의 분석
             </button>
         </nav>
@@ -193,39 +165,39 @@
             <div id="tab-dashboard" class="tab-pane">
                 <!-- 하위 KPI -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 홀 매출</h4>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">1,400<span class="text-lg ml-1">만원</span></p>
-                        <p class="text-sm font-medium text-red-600 dark:text-red-500">(전주 2,700만)</p>
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-400">45주차 홀 매출</h4>
+                        <p class="text-2xl font-bold text-white mt-1">1,400<span class="text-lg ml-1">만원</span></p>
+                        <p class="text-sm font-medium text-red-500">(전주 2,700만)</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 배달 매출</h4>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">3,085<span class="text-lg ml-1">만원</span></p>
-                        <p class="text-sm font-medium text-green-600 dark:text-green-500">(~ +1%)</p>
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-400">45주차 배달 매출</h4>
+                        <p class="text-2xl font-bold text-white mt-1">3,085<span class="text-lg ml-1">만원</span></p>
+                        <p class="text-sm font-medium text-green-500">(~ +1%)</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">대학로 배달 객단가</h4>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">14,900<span class="text-lg ml-1">원</span></p>
-                        <p class="text-sm font-medium text-red-600 dark:text-red-500">(강남 1.71만)</p>
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-400">대학로 배달 객단가</h4>
+                        <p class="text-2xl font-bold text-white mt-1">14,900<span class="text-lg ml-1">원</span></p>
+                        <p class="text-sm font-medium text-red-500">(강남 1.71만)</p>
                     </div>
-                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">대학로 방문 전환율</h4>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0.7<span class="text-lg ml-1">%</span></Gg></p>
-                        <p class="text-sm font-medium text-red-600 dark:text-red-500">(강남 3.0%)</p>
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-400">대학로 방문 전환율</h4>
+                        <p class="text-2xl font-bold text-white mt-1">0.7<span class="text-lg ml-1">%</span></Gg></p>
+                        <p class="text-sm font-medium text-red-500">(강남 3.0%)</p>
                     </div>
                 </div>
                 
                 <!-- 차트 그리드 -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">매장별 주간 매출 추이 (만원)</h3>
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-white mb-4">매장별 주간 매출 추이 (만원)</h3>
                         <div class="chart-container">
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">45주차 메뉴 믹스</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">(안쪽: 강남점, 바깥쪽: 대학로점)</p>
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-white mb-1">45주차 메뉴 믹스</h3>
+                        <p class="text-sm text-gray-400 mb-4">(안쪽: 강남점, 바깥쪽: 대학로점)</p>
                         <div class="chart-container">
                             <canvas id="menuMixChart"></canvas>
                         </div>
@@ -235,23 +207,23 @@
 
             <!-- 탭 2: 결정사항 -->
             <div id="tab-decisions" class="tab-pane hidden">
-                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+                <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
                     <ul class="space-y-4">
                         <li>
-                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">강남점 런치 타임 메뉴 재구성 및 수요일부터 적용</h4>
-                            <p class="text-gray-600 dark:text-gray-400">기존 런치 메뉴 구성을 변경하여 11/12(수)부터 적용 시작.</p>
+                            <h4 class="font-semibold text-lg text-white">강남점 런치 타임 메뉴 재구성 및 수요일부터 적용</h4>
+                            <p class="text-gray-400">기존 런치 메뉴 구성을 변경하여 11/12(수)부터 적용 시작.</p>
                         </li>
                         <li>
-                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">강남점 디너 포장 할인 프로모션 종료</h4>
-                            <p class="text-gray-600 dark:text-gray-400">10월 기준 일 1.9건으로 실효성 낮아 런치 리뉴얼 시점에 맞춰 종료.</p>
+                            <h4 class="font-semibold text-lg text-white">강남점 디너 포장 할인 프로모션 종료</h4>
+                            <p class="text-gray-400">10월 기준 일 1.9건으로 실효성 낮아 런치 리뉴얼 시점에 맞춰 종료.</p>
                         </li>
                         <li>
-                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">신규 사이드 메뉴 5종 (OEM) 텍스트 우선 도입</h4>
-                            <p class="text-gray-600 dark:text-gray-400">(제조) 매출 증대를 위해 이미지 촬영 전 텍스트로라도 메뉴를 선등록하여 차주부터 판매 시작.</p>
+                            <h4 class="font-semibold text-lg text-white">신규 사이드 메뉴 5종 (OEM) 텍스트 우선 도입</h4>
+                            <p class="text-gray-400">(제조) 매출 증대를 위해 이미지 촬영 전 텍스트로라도 메뉴를 선등록하여 차주부터 판매 시작.</p>
                         </li>
                         <li>
-                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">신규 메인 메뉴(트러플 버거) 연말 기간 한정 판매 제안</h4>
-                            <p class="text-gray-600 dark:text-gray-400">(제조) AI 분석 기반 트러플 치즈 버거 및 프라이 제안. 영업과 실행 일정 조율 필요.</p>
+                            <h4 class="font-semibold text-lg text-white">신규 메인 메뉴(트러플 버거) 연말 기간 한정 판매 제안</h4>
+                            <p class="text-gray-400">(제조) AI 분석 기반 트러플 치즈 버거 및 프라이 제안. 영업과 실행 일정 조율 필요.</p>
                         </li>
                     </ul>
                 </div>
@@ -261,9 +233,9 @@
             <div id="tab-actions" class="tab-pane hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- 영업/마케팅 -->
-                    <div class="bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-3">영업/마케팅 (소정빈, 김평안, 이현진)</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                    <div class="bg-gray-900 border border-blue-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-blue-300 mb-3">영업/마케팅 (소정빈, 김평안, 이현진)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
                             <li>강남 네이버 플레이스 쿠폰(증정/20%) 발급 (11/12)</li>
                             <li>배달 객단가 1.5만 -> 1.7만 상향 전략 재수립 (경쟁사 배달료 분석)</li>
                             <li>대학로 학원가/병원 대상 5천원 바우처(V2) 제작 및 배포 (차주)</li>
@@ -276,9 +248,9 @@
                         </ul>
                     </div>
                     <!-- 개발/Tech -->
-                    <div class="bg-white dark:bg-gray-900 border border-green-200 dark:border-green-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-green-800 dark:text-green-300 mb-3">개발 / Tech (이준용, 김도윤)</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                    <div class="bg-gray-900 border border-green-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-green-300 mb-3">개발 / Tech (이준용, 김도윤)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
                             <li>B2B 대시보드 상세 기획 디테일 정리 및 외주사 전달</li>
                             <li>레스토지니 온보딩 프로세스 정의 및 자료 준비 (홈페이지 포함)</li>
                             <li>슬램버거 데이터 적재 및 내부 테스트 준비 (11월 말)</li>
@@ -288,9 +260,9 @@
                         </ul>
                     </div>
                     <!-- B2B -->
-                    <div class="bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-3">B2B (박요한)</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                    <div class="bg-gray-900 border border-purple-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-purple-300 mb-3">B2B (박요한)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
                             <li>어카운트 매니저 면접 진행 (4명)</li>
                             <li>7번가 피자 / 에이바우트 계약 독려 (원종관) (금주)</li>
                             <li>아웃바운드 영업 리스트(제안서/대상) 기반 차주 영업 개시 준비</li>
@@ -299,9 +271,9 @@
                         </ul>
                     </div>
                     <!-- VM/상권 -->
-                    <div class="bg-white dark:bg-gray-900 border border-yellow-200 dark:border-yellow-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-3">VM / 상권 (김희라, 배승환)</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                    <div class="bg-gray-900 border border-yellow-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-yellow-300 mb-3">VM / 상권 (김희라, 배승환)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
                             <li>가맹점 홈페이지 및 브로셔 제작 (11월 3주차)</li>
                             <li>20평대 인테리어 매뉴얼 완성 (11월 3주차)</li>
                             <li>가맹점 본사 수입금액 확정 미팅 (금주)</li>
@@ -311,9 +283,9 @@
                         </ul>
                     </div>
                     <!-- 제조 -->
-                    <div class="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-3">제조 (김만제)</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                    <div class="bg-gray-900 border border-red-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-red-300 mb-3">제조 (김만제)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
                             <li>노트북LM에 자사/경쟁사 메뉴 학습 완료</li>
                             <li>신규 사이드 5종(치즈볼 등) 발주 (목/금 입고)</li>
                             <li>사이드 메뉴 이미지 (원물) VM팀 전달 (AI 이미지 생성용)</li>
@@ -322,9 +294,9 @@
                         </ul>
                     </div>
                     <!-- 경영/기타 -->
-                    <div class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-300 mb-3">경영 / 기타 (원종관, 박요한)</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-3">경영 / 기타 (원종관, 박요한)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
                             <li>VOC 처리 프로세스 구조화 (원종관 의중 확인)</li>
                             <li>배달 공헌이익 데이터 오류(쿠팡이츠) 재분석 및 공유</li>
                             <li>디캠프(마포) 인터뷰 참석 (다음 주 수요일)</li>
@@ -335,8 +307,8 @@
             
             <!-- 탭 4: 주요 논의 -->
             <div id="tab-context" class="tab-pane hidden">
-                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
-                    <div class="prose prose-slate dark:prose-invert max-w-none">
+                <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
+                    <div class="prose max-w-none">
                         <h3>1. 45주차 매출 지표 (박요한)</h3>
                         <ul>
                             <li><strong>총평:</strong> 총 매출 4,485만 (전주 대비 -30%). 대학로 이벤트 종료로 홀 매출이 급감 (2700만 -> 700만).</li>
@@ -378,8 +350,8 @@
 
             <!-- 탭 5: 회의 분석 -->
             <div id="tab-analysis" class="tab-pane hidden">
-                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
-                    <div class="prose prose-slate dark:prose-invert max-w-none">
+                <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
+                    <div class="prose max-w-none">
                         <h3>0. 핵심 총평</h3>
                         <ul>
                             <li>회의 시간이 54분으로 단축(11/04, 109분)되어 효율화되었으나, 이는 대표(최종 의사결정권자) 부재로 인한 논의 생략이 주원인으로 보임.</li>
@@ -422,12 +394,6 @@
             menuMix: null
         };
         
-        const lightThemeColors = {
-            gridColor: 'rgba(203, 213, 225, 0.5)', // slate-300
-            textColor: '#1e293b', // slate-800
-            titleColor: '#0f172a' // slate-900
-        };
-
         const darkThemeColors = {
             gridColor: 'rgba(71, 85, 105, 0.5)', // gray-600
             textColor: '#d1d5db', // gray-300
@@ -454,44 +420,12 @@
             return lines;
         }
 
-        // --- 테마 관리 로직 ---
-        function updateAllChartsTheme(mode) {
-            const colors = mode === 'dark' ? darkThemeColors : lightThemeColors;
-            
-            Chart.defaults.color = colors.textColor;
-            Chart.defaults.borderColor = colors.gridColor;
-
-            if (charts.revenue) {
-                charts.revenue.options.scales.x.grid.color = colors.gridColor;
-                charts.revenue.options.scales.y.grid.color = colors.gridColor;
-                charts.revenue.options.scales.x.ticks.color = colors.textColor;
-                charts.revenue.options.scales.y.ticks.color = colors.textColor;
-                charts.revenue.options.plugins.legend.labels.color = colors.textColor;
-                charts.revenue.update();
-            }
-            if (charts.menuMix) {
-                charts.menuMix.options.plugins.legend.labels.color = colors.textColor;
-                charts.menuMix.update();
-            }
-        }
-
-        function applyTheme(theme) {
-            const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                if (themeToggleCheckbox) themeToggleCheckbox.checked = true;
-                localStorage.theme = 'dark';
-                updateAllChartsTheme('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                if (themeToggleCheckbox) themeToggleCheckbox.checked = false;
-                localStorage.theme = 'light';
-                updateAllChartsTheme('light');
-            }
-        }
-
         // --- 차트 초기화 ---
         function initCharts() {
+            // 다크 모드 차트 기본값 설정
+            Chart.defaults.color = darkThemeColors.textColor;
+            Chart.defaults.borderColor = darkThemeColors.gridColor;
+
             // 1. 매출 추이 차트 (Line)
             const revenueData = {
                 labels: ['42주차', '43주차', '44주차', '45주차'],
@@ -524,13 +458,22 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { display: true },
+                            grid: { 
+                                display: true,
+                                color: darkThemeColors.gridColor 
+                            },
                             ticks: {
-                                callback: function(value) { return formatNumber(value); }
+                                callback: function(value) { return formatNumber(value); },
+                                color: darkThemeColors.textColor
                             }
                         },
                         x: {
-                            grid: { display: false }
+                            grid: { 
+                                display: false 
+                            },
+                            ticks: {
+                                color: darkThemeColors.textColor
+                            }
                         }
                     },
                     plugins: {
@@ -539,6 +482,11 @@
                                 label: function(context) {
                                     return `${context.dataset.label}: ${formatNumber(context.raw)}만원`;
                                 }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: darkThemeColors.textColor
                             }
                         }
                     }
@@ -573,6 +521,9 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
+                            labels: {
+                                color: darkThemeColors.textColor
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -584,40 +535,15 @@
                     }
                 }
             });
-
-            // [버그 수정] 차트가 초기화 된 *후* 에 테마를 적용하면,
-            // applyTheme -> updateAllChartsTheme -> charts.revenue.update() 순으로
-            // 호출되어야 하는데, initCharts()가 끝나기 전에 applyTheme이 불리면
-            // charts.revenue가 null이라 에러가 남.
-            // -> DOMContentLoaded에서 initCharts() *다음*에 applyTheme을 호출하는게 아니라,
-            // *DOM 로드 즉시* 테마를 적용하고, initCharts()는 나중에 호출해야 함.
-            // -> 이 로직은 DOMContentLoaded로 이동됨.
         }
 
         // --- DOM 로드 시 실행 ---
         document.addEventListener('DOMContentLoaded', () => {
             
-            // [버그 수정] 테마를 차트보다 먼저 즉시 적용
-            const initialTheme = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            applyTheme(initialTheme);
-            
             // 1. 차트 초기화
             initCharts();
 
-            // 2. 테마 토글 버튼 이벤트
-            const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
-            
-            // [버그 수정] 로드 시점에 체크박스 상태 동기화
-            if (document.documentElement.classList.contains('dark')) {
-                themeToggleCheckbox.checked = true;
-            }
-
-            themeToggleCheckbox.addEventListener('change', () => {
-                const currentTheme = themeToggleCheckbox.checked ? 'dark' : 'light';
-                applyTheme(currentTheme);
-            });
-
-            // 3. 탭 네비게이션 이벤트
+            // 2. 탭 네비게이션 이벤트
             const tabs = document.querySelectorAll('.tab-button');
             const tabPanes = document.querySelectorAll('.tab-pane');
 
@@ -634,7 +560,7 @@
                 });
             });
 
-            // 4. Scroll-to-Top Button Logic
+            // 3. Scroll-to-Top Button Logic
             const scrollTopBtn = document.getElementById('scrollTopBtn');
 
             // Show/Hide on scroll

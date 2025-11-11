@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<!-- Chosen Palette: Tailwind Dark Mode (Light: slate, Dark: gray-900) + Pretendard Font -->
+<!-- Application Structure Plan: [
+    대시보드형 탭 구조 채택. 
+    1. 상단: 4개의 핵심 KPI 카드로 회의의 가장 중요한 결과(매출, 객단가, 핵심과제)를 즉시 요약.
+    2. 본문 (탭 인터페이스): 사용자가 '매출 상세', '결정사항', '액션 아이템', '주요 논의', '회의 분석'을 능동적으로 선택 탐색.
+    - 이유: 원본 보고서(회의록)는 주제가 다양하고(매출, VM, 개발, B2B) 정보 밀도가 높음. 
+    - 탭 구조는 이 정보들을 논리적 단위(매출/할 일/맥락/분석)로 분리하여 사용자가 압도당하지 않고 원하는 정보에 집중하게 함. 
+    - 특히 '액션 아이템'은 부서별 카드로 시각화하여 책임과 진행 상황을 명확히 전달.
+    - '회의 분석' 탭을 추가하여 단순 요약을 넘어 회의 자체에 대한 메타 인사이트를 제공.
+] -->
+<!-- Visualization & Content Choices: [
+    - [매출] -> [비교/추이] -> [라인 차트] -> [주간 추이 확인] -> [Chart.js]
+    - [메뉴 비중] -> [비율] -> [도넛 차트] -> [핵심 성과(갈비) 시각화] -> [Chart.js]
+    - [결정사항] -> [정보 전달] -> [구조화된 리스트] -> [핵심 결정사항 빠른 파악] -> [HTML/Tailwind]
+    - [액션 아이템] -> [조직/정리] -> [부서별 카드 그리드] -> [담당자/부서별 할 일 명확히 인지] -> [HTML/Tailwind Grid]
+    - [주요 논의/분석] -> [맥락 이해] -> [Prose 텍스트(계층형/불렛)] -> [논의 흐름 및 분석 내용 가독성 확보] -> [HTML/Tailwind Prose]
+] -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11월 11일 OKR 미팅 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <style type="text/css">
+        @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+        
+        body {
+            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        /* 탭 활성화 스타일 */
+        [tab-active] {
+            border-color: #3b82f6 !important; /* blue-500 */
+            color: #3b82f6 !important; /* blue-500 */
+            font-weight: 600;
+        }
+        html.dark [tab-active] {
+            border-color: #60a5fa !important; /* blue-400 */
+            color: #60a5fa !important; /* blue-400 */
+        }
+        
+        /* 다크모드 기본 차트 텍스트 색상 */
+        .dark-mode-chart-defaults {
+            color: #d1d5db; /* gray-300 */
+        }
+
+        /* Chart.js 캔버스 컨테이너 */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* 차트 최대 너비 */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* 모바일 높이 */
+            max-height: 400px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px; /* 데스크탑 높이 */
+            }
+        }
+
+        /* Tailwind Prose (텍스트 가독성) */
+        .prose h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.75em;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #1f2937; /* gray-800 */
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+        }
+        .prose li {
+            margin-top: 0.25em;
+            margin-bottom: 0.25em;
+        }
+        .prose li strong {
+            color: #111827; /* gray-900 */
+        }
+
+        /* 다크모드 Prose */
+        .dark .dark\:prose-invert h3 {
+            color: #f3f4f6; /* gray-100 */
+        }
+        .dark .dark\:prose-invert li {
+            color: #d1d5db; /* gray-300 */
+        }
+        .dark .dark\:prose-invert li strong {
+            color: #ffffff; /* white */
+        }
+    </style>
+</head>
+<body class="antialiased bg-slate-50 text-slate-800 dark:bg-gray-950 dark:text-slate-200 transition-colors duration-300">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <!-- 헤더 및 테마 토글 -->
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">11월 11일 OKR 미팅 대시보드</h1>
+            <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span class="material-symbols-outlined" id="theme-icon-light">light_mode</span>
+                <span class="material-symbols-outlined" id="theme-icon-dark">dark_mode</span>
+            </button>
+        </header>
+
+        <!-- 1. 핵심 요약 KPI -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 총 매출 (4개 매장)</h3>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">4,485<span class="text-xl ml-1">만원</span></p>
+                <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1">
+                    <span class="material-symbols-outlined text-sm align-middle">arrow_downward</span>
+                    전주 대비 -30% (이벤트 종료 영향)
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">강남점 배달 객단가</h3>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">17,100<span class="text-xl ml-1">원</span></p>
+                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1">
+                    <span class="material-symbols-outlined text-sm align-middle">arrow_upward</span>
+                    목표 1.7만원 회복 (대학로 1.49만)
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">핵심 성과: 갈비 메뉴 비중</h3>
+                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">35<span class="text-xl ml-1">%</span></p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">
+                    강남(34%), 대학로(36%) 동시 급상승
+                </p>
+            </div>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">회의 시간 (11/04 대비)</h3>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">54<span class="text-xl ml-1">분</span></p>
+                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1">
+                    <span class="material-symbols-outlined text-sm align-middle">timelapse</span>
+                    109분 → 54분 (49% 단축)
+                </p>
+            </div>
+        </section>
+
+        <!-- 2. 탭 네비게이션 -->
+        <nav class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+            <button data-tab="tab-dashboard" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400" tab-active>
+                <span class="material-symbols-outlined text-lg align-bottom mr-1">monitoring</span>매출 대시보드
+            </button>
+            <button data-tab="tab-decisions" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
+                <span class="material-symbols-outlined text-lg align-bottom mr-1">check_circle</span>결정사항
+            </button>
+            <button data-tab="tab-actions" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
+                <span class="material-symbols-outlined text-lg align-bottom mr-1">assignment_turned_in</span>액션 아이템
+            </button>
+            <button data-tab="tab-context" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
+                <span class="material-symbols-outlined text-lg align-bottom mr-1">forum</span>주요 논의
+            </button>
+            <button data-tab="tab-analysis" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
+                <span class="material-symbols-outlined text-lg align-bottom mr-1">insights</span>회의 분석
+            </button>
+        </nav>
+
+        <!-- 3. 탭 콘텐츠 -->
+        <main>
+            <!-- 탭 1: 매출 대시보드 -->
+            <div id="tab-dashboard" class="tab-pane">
+                <!-- 하위 KPI -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 홀 매출</h4>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">1,400<span class="text-lg ml-1">만원</span></p>
+                        <p class="text-sm font-medium text-red-600 dark:text-red-500">(전주 2,700만)</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 배달 매출</h4>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">3,085<span class="text-lg ml-1">만원</span></p>
+                        <p class="text-sm font-medium text-green-600 dark:text-green-500">(~ +1%)</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">대학로 배달 객단가</h4>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">14,900<span class="text-lg ml-1">원</span></p>
+                        <p class="text-sm font-medium text-red-600 dark:text-red-500">(강남 1.71만)</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">대학로 방문 전환율</h4>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0.7<span class="text-lg ml-1">%</span></p>
+                        <p class="text-sm font-medium text-red-600 dark:text-red-500">(강남 3.0%)</p>
+                    </div>
+                </div>
+                
+                <!-- 차트 그리드 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">매장별 주간 매출 추이 (만원)</h3>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">45주차 메뉴 믹스 (강남 vs 대학로)</h3>
+                        <div class="chart-container">
+                            <canvas id="menuMixChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탭 2: 결정사항 -->
+            <div id="tab-decisions" class="tab-pane hidden">
+                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+                    <ul class="space-y-4">
+                        <li>
+                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">강남점 런치 타임 메뉴 재구성 및 수요일부터 적용</h4>
+                            <p class="text-gray-600 dark:text-gray-400">기존 런치 메뉴 구성을 변경하여 11/12(수)부터 적용 시작.</p>
+                        </li>
+                        <li>
+                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">강남점 디너 포장 할인 프로모션 종료</h4>
+                            <p class="text-gray-600 dark:text-gray-400">10월 기준 일 1.9건으로 실효성 낮아 런치 리뉴얼 시점에 맞춰 종료.</p>
+                        </li>
+                        <li>
+                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">신규 사이드 메뉴 5종 (OEM) 텍스트 우선 도입</h4>
+                            <p class="text-gray-600 dark:text-gray-400">(제조) 매출 증대를 위해 이미지 촬영 전 텍스트로라도 메뉴를 선등록하여 차주부터 판매 시작.</p>
+                        </li>
+                        <li>
+                            <h4 class="font-semibold text-lg text-gray-900 dark:text-white">신규 메인 메뉴(트러플 버거) 연말 기간 한정 판매 제안</h4>
+                            <p class="text-gray-600 dark:text-gray-400">(제조) AI 분석 기반 트러플 치즈 버거 및 프라이 제안. 영업과 실행 일정 조율 필요.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 탭 3: 액션 아이템 -->
+            <div id="tab-actions" class="tab-pane hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 영업/마케팅 -->
+                    <div class="bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-3">영업/마케팅 (소정빈, 김평안, 이현진)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            <li>강남 네이버 플레이스 쿠폰(증정/20%) 발급 (11/12)</li>
+                            <li>배달 객단가 1.5만 -> 1.7만 상향 전략 재수립 (경쟁사 배달료 분석)</li>
+                            <li>대학로 학원가/병원 대상 5천원 바우처(V2) 제작 및 배포 (차주)</li>
+                            <li>워크샵 참석자 확정 및 이동수단(카풀) 정리 (금주)</li>
+                            <li>대학로 신규 대형 극단 컨택 및 미팅 (차주)</li>
+                            <li>수능 패키지(35% 할인) 프로모션 실행 (11/12)</li>
+                            <li>강남 지류 스탬프 디자인 및 운영 가이드 확정 (금주)</li>
+                            <li>강남 페르소나 발굴 (학원/병원/공유오피스) 바우처 회수율 분석 (11월)</li>
+                            <li>대학로 런치 프로모션 도입 재검토 (박요한 제안 -> 내부 논의)</li>
+                        </ul>
+                    </div>
+                    <!-- 개발/Tech -->
+                    <div class="bg-white dark:bg-gray-900 border border-green-200 dark:border-green-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-green-800 dark:text-green-300 mb-3">개발 / Tech (이준용, 김도윤)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            <li>B2B 대시보드 상세 기획 디테일 정리 및 외주사 전달</li>
+                            <li>레스토지니 온보딩 프로세스 정의 및 자료 준비 (홈페이지 포함)</li>
+                            <li>슬램버거 데이터 적재 및 내부 테스트 준비 (11월 말)</li>
+                            <li>영업본부(소정빈, 김평안) 대상 레스토지니 기능 인터뷰 (금주)</li>
+                            <li>엔지니어 1명 드롭되어 재채용 프로세스 시작</li>
+                            <li>서비스 기획자(인턴) 채용 검토</li>
+                        </ul>
+                    </div>
+                    <!-- B2B -->
+                    <div class="bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-purple-800 dark:text-purple-300 mb-3">B2B (박요한)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            <li>어카운트 매니저 면접 진행 (4명)</li>
+                            <li>7번가 피자 / 에이바우트 계약 독려 (원종관) (금주)</li>
+                            <li>아웃바운드 영업 리스트(제안서/대상) 기반 차주 영업 개시 준비</li>
+                            <li>레스토지니 B2B 홈페이지 배포 (금주)</li>
+                            <li>홈페이지 인입 리드(브런치빈 등) 컨택 및 초기 미팅 (즉시)</li>
+                        </ul>
+                    </div>
+                    <!-- VM/상권 -->
+                    <div class="bg-white dark:bg-gray-900 border border-yellow-200 dark:border-yellow-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-3">VM / 상권 (김희라, 배승환)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            <li>가맹점 홈페이지 및 브로셔 제작 (11월 3주차)</li>
+                            <li>20평대 인테리어 매뉴얼 완성 (11월 3주차)</li>
+                            <li>가맹점 본사 수입금액 확정 미팅 (금주)</li>
+                            <li>인테리어 세부 스펙(전기/닥트) 확정 미팅 (금주)</li>
+                            <li>DB 마케팅 업체 미팅 및 확정 (금주)</li>
+                            <li>간판 업체 협의 (본사 마진 10% 확보)</li>
+                        </ul>
+                    </div>
+                    <!-- 제조 -->
+                    <div class="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-3">제조 (김만제)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            <li>노트북LM에 자사/경쟁사 메뉴 학습 완료</li>
+                            <li>신규 사이드 5종(치즈볼 등) 발주 (목/금 입고)</li>
+                            <li>사이드 메뉴 이미지 (원물) VM팀 전달 (AI 이미지 생성용)</li>
+                            <li>신규 메인 메뉴(트러플) 영업/VM과 출시 일정 협의</li>
+                            <li>매출 대시보드(박요한) 노트북LM 소스로 추가</li>
+                        </ul>
+                    </div>
+                    <!-- 경영/기타 -->
+                    <div class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-300 mb-3">경영 / 기타 (원종관, 박요한)</h3>
+                        <ul class="space-y-3 list-disc pl-5 text-gray-700 dark:text-gray-300">
+                            <li>VOC 처리 프로세스 구조화 (원종관 의중 확인)</li>
+                            <li>배달 공헌이익 데이터 오류(쿠팡이츠) 재분석 및 공유</li>
+                            <li>디캠프(마포) 인터뷰 참석 (다음 주 수요일)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 탭 4: 주요 논의 -->
+            <div id="tab-context" class="tab-pane hidden">
+                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+                    <div class="prose prose-slate dark:prose-invert max-w-none">
+                        <h3>1. 45주차 매출 지표 (박요한)</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>총평:</strong> 총 매출 4,485만 (전주 대비 -30%). 대학로 이벤트 종료로 홀 매출이 급감 (2700만 -> 700만).</li>
+                            <li><strong>강남점:</strong> 홀/배달 모두 소폭 하락. 단, 배달 객단가는 1.7만 원으로 회복세.</li>
+                            <li><strong>대학로점:</strong> 홀/배달 모두 하락. 배달 객단가 1.49만 원 (강남 대비 2천원 낮음).</li>
+                            <li><strong>데이터 오류:</strong> 배달 공헌이익 데이터(쿠팡이츠) 오류 발견. 재분석 후 공유 예정.</li>
+                        </ul>
+
+                        <h3>2. 갈비 메뉴 비중 급상승 (핵심 성과)</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>지표:</strong> 강남 (10%대 → 34%), 대학로 (25% → 36%)로 동시 급상승.</li>
+                            <li><strong>주요 원인:</strong> (소정빈) 키오스크 첫 화면에 '시그니처' 카테고리를 신설하고 갈비를 전면 배치. 모든 시각물(DID, POP)과 SNS 콘텐츠에서 '갈비'를 강조. 단순한 액션이었으나 즉각적인 반응 확인.</li>
+                        </ul>
+
+                        <h3>3. 대학로 유동인구 분석 및 프로모션 제안</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>유동인구 분석:</strong> (박요한) 대학로는 강남과 달리 **오후 3시-6시**에 유동인구가 가장 많음. 현재의 점심 프로모션보다 해당 시간대 프로모션이 더 유효할 수 있음.</li>
+                            <li><strong>전환율 문제:</strong> 유동인구(10만) 대비 매장 방문 전환율이 0.7%로 매우 낮음 (강남 3%). 2%까지만 올려도 매출 50% 이상 성장 가능.</li>
+                            <li><strong>런치 프로모션 제안:</strong> (박요한) 현재 런치 시간(10:30-14시) 주문 265건 중 70%가 할인 없는 일반 고객. 30% 연극 할인은 '포스'로, 런치는 '키오스크'로 분리 운영 가능.</li>
+                            <li><strong>영업부 의견:</strong> (소정빈) 과거 과도한 프로모션으로 인한 브랜딩 저하 우려로 거절했었음. '생존' 관점에서 필요성을 인지, 내부 논의 후 재피드백 예정.</li>
+                        </ul>
+
+                        <h3>4. 11월 OKR 리뷰</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>(영업)</strong> 금주 '수능 패키지'(35% 할인) 실행. (대학로) 바우처 V2, 신규 대형 극단(2-3배 규모) 컨택. (강남) 페르소나 발굴 위한 바우처(학원가, 병원 등) 배포, 지류 스탬프 도입.</li>
+                            <li><strong>(VM/상권)</strong> 가맹 프로젝트(홈페이지, 브로셔, 매뉴얼) 11월 말 완료 목표. 신촌 세브란스 30평 입점지 확보.</li>
+                            <li><strong>(제조)</strong> 노트북LM(AI) 활용 경쟁사 분석 완료. **신규 사이드 5종 (OEM) 차주 월요일 텍스트로 우선 판매 시작.** 신규 메인(트러플 버거)은 연말 한정 판매 제안.</li>
+                            <li><strong>(개발/B2B)</strong> B2B 구현 시작 (12월 중순 목표). 11월 말 슬램버거 데이터 적재(내부 테스트) 시작. 12/11경 안정 버전 예상. OB 영업 70% 확률로 차주 시작.</li>
+                        </ul>
+
+                        <h3>5. 워크샵 공지</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>일정/장소:</strong> 다음 주 수목금 (11/19-21) / 켄싱턴 가평</li>
+                            <li><strong>이동:</strong> 카풀 (소정빈이 운전자 모집)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탭 5: 회의 분석 -->
+            <div id="tab-analysis" class="tab-pane hidden">
+                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
+                    <div class="prose prose-slate dark:prose-invert max-w-none">
+                        <h3>0. 핵심 총평</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>회의 시간이 54분으로 단축(11/04, 109분)되어 효율화되었으나, 이는 대표(최종 의사결정권자) 부재로 인한 논의 생략이 주원인으로 보임.</li>
+                            <li>효율과 의사결정의 질(대표 부재로 인한 보류) 사이의 트레이드오프가 발생한 회의임.</li>
+                        </ul>
+
+                        <h3>1. 기존 진행방식 대비 나아진 점</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>'트래커' 중심의 빠른 팔로업:</strong> 지난주(11/04) 태스크 트래커를 기반으로 '완료 안 된 것'만 빠르게 리뷰하며 회의를 시작, 논의 시간을 획기적으로 단축시킴.</li>
+                            <li><strong>OKR 문서의 P1/P2 구분:</strong> OKR 문서 자체에 P1(필수), P2(차선) 구분이 명시되어, P2인 '1억 달성 매뉴얼' 같은 태스크의 우선순위를 현장에서 바로 조정(12월로 이관 제안)하는 유연성을 보임.</li>
+                        </ul>
+
+                        <h3>2. 잘 되고 있는 점</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>데이터 기반 논의:</strong> '갈비 비중 상승' 성과를 '키오스크 UI 변경'이라는 명확한 액션과 연결하고, '대학로 유동인구' 데이터를 근거로 '런치 프로모션'의 비효율성을 제기하는 등, 데이터가 논의의 중심이 됨.</li>
+                            <li><strong>적극적인 액션 아이템 도출:</strong> 제조(사이드 5종 즉각 도입), 영업(바우처 V2), B2B(아웃바운드 준비) 등 전 부서가 현상 유지(Keep)가 아닌 새로운 시도(Try)를 즉각적인 액션 아이템으로 도출함.</li>
+                        </ul>
+
+                        <h3>3. 위험/개선이 필요한 점</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>P2(중요하지만 급하지 않은) 업무의 연속 딜레이:</strong> '1억 달성 매뉴얼'과 같이 P2로 분류된 중요 자산화 업무가 연속 딜레이됨. 매출 압박으로 인해 '중요한 일'이 '급한 일'에 계속 밀리는 전형적인 패턴이 발생 중.</li>
+                            <li><strong>'회의를 위한 회의' 리스크:</strong> 상권/VM/B2B 등 다수 부서의 핵심 태스크가 '금주 대표님 미팅 후 확정' 상태로 보류됨. 이로 인해 주간 OKR 회의가 '진척 공유'를 넘어선 '실질적 의사결정'을 하지 못하고, 별도 미팅을 잡기 위한 미팅이 될 위험이 있음.</li>
+                            <li><strong>대표 부재 시의 의사결정 공백:</strong> 대표 부재로 인해 'VOC 처리 프로세스' 등 핵심 R&R 논의가 불가능했고, B2B 계약 등 중요 태스크가 '대표님이 넣지할 것'으로 보류됨. 유일한 오프라인 전체 회의에서 의사결정이 막히는 것은 큰 비효율을 초래함.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- 차트 및 테마 전역 변수 ---
+        // [오류 수정] charts 객체를 스크립트 최상단에 선언하여 초기화 오류(Cannot access before initialization) 방지
+        let charts = {
+            revenue: null,
+            menuMix: null
+        };
+        
+        // 차트용 테마 색상 (라이트/다크)
+        const lightThemeColors = {
+            gridColor: 'rgba(203, 213, 225, 0.5)', // slate-300
+            textColor: '#1e293b', // slate-800
+            titleColor: '#0f172a' // slate-900
+        };
+
+        const darkThemeColors = {
+            gridColor: 'rgba(71, 85, 105, 0.5)', // gray-600
+            textColor: '#d1d5db', // gray-300
+            titleColor: '#f9fafb' // gray-50
+        };
+
+        // --- 차트 헬퍼 함수 ---
+        // 숫자 포맷 (예: 4485 -> 4,485)
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Chart.js 툴팁/라벨 텍스트 줄바꿈
+        function wrapText(context) {
+            const label = context.label || '';
+            const maxWords = 2;
+            const words = label.split(' ');
+            const lines = [];
+
+            if (words.length > maxWords) {
+                lines.push(words.slice(0, maxWords).join(' '));
+                lines.push(words.slice(maxWords).join(' '));
+            } else {
+                lines.push(label);
+            }
+            return lines;
+        }
+
+        // --- 테마 관리 로직 ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIconLight = document.getElementById('theme-icon-light');
+        const themeIconDark = document.getElementById('theme-icon-dark');
+        const chartsDefaultColorEl = document.querySelector('.dark-mode-chart-defaults');
+
+        // 모든 차트 테마 업데이트
+        function updateAllChartsTheme(mode) {
+            const colors = mode === 'dark' ? darkThemeColors : lightThemeColors;
+            
+            // 전역 기본값 변경
+            Chart.defaults.color = colors.textColor;
+            Chart.defaults.borderColor = colors.gridColor;
+
+            // 개별 차트 옵션 업데이트 (존재하는 경우)
+            if (charts.revenue) {
+                charts.revenue.options.scales.x.grid.color = colors.gridColor;
+                charts.revenue.options.scales.y.grid.color = colors.gridColor;
+                charts.revenue.options.scales.x.ticks.color = colors.textColor;
+                charts.revenue.options.scales.y.ticks.color = colors.textColor;
+                charts.revenue.options.plugins.legend.labels.color = colors.textColor;
+                charts.revenue.update();
+            }
+            if (charts.menuMix) {
+                charts.menuMix.options.plugins.legend.labels.color = colors.textColor;
+                charts.menuMix.update();
+            }
+        }
+
+        // 테마 적용 (라이트/다크)
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeIconLight.style.display = 'none';
+                themeIconDark.style.display = 'inline';
+                localStorage.theme = 'dark';
+                updateAllChartsTheme('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIconLight.style.display = 'inline';
+                themeIconDark.style.display = 'none';
+                localStorage.theme = 'light';
+                updateAllChartsTheme('light');
+            }
+        }
+
+        // --- 차트 초기화 ---
+        function initCharts() {
+            // 1. 매출 추이 차트 (Line)
+            const revenueData = {
+                labels: ['42주차', '43주차', '44주차', '45주차'],
+                datasets: [
+                    {
+                        label: '강남점',
+                        data: [1387, 1241, 1387, 1241], // 45주차 데이터 (1241)
+                        borderColor: '#3b82f6', // blue-500
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: '대학로점',
+                        data: [1875, 2700, 3529, 1550], // 45주차 데이터 (1550)
+                        borderColor: '#10b981', // emerald-500
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            };
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            charts.revenue = new Chart(revenueCtx, {
+                type: 'line',
+                data: revenueData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { display: true },
+                            ticks: {
+                                callback: function(value) { return formatNumber(value); }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${formatNumber(context.raw)}만원`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. 메뉴 믹스 차트 (Doughnut)
+            const menuMixData = {
+                labels: ['비프', '갈비', '치킨'],
+                datasets: [
+                    {
+                        label: '강남점 (45주차)',
+                        data: [41, 34, 25], // 45주차 강남: 비프 감소, 갈비 34%
+                        backgroundColor: ['#f87171', '#fb923c', '#fbbf24'] // red, orange, amber
+                    },
+                    {
+                        label: '대학로점 (45주차)',
+                        data: [39, 36, 25], // 45주차 대학로: 비프 감소, 갈비 36%
+                        backgroundColor: ['#a78bfa', '#60a5fa', '#34d399'] // violet, blue, teal
+                    }
+                ]
+            };
+            const menuMixCtx = document.getElementById('menuMixChart').getContext('2d');
+            charts.menuMix = new Chart(menuMixCtx, {
+                type: 'doughnut',
+                data: menuMixData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.label} ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // [오류 수정] 차트가 초기화 된 후 현재 테마를 적용
+            const initialTheme = localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(initialTheme);
+        }
+
+        // --- DOM 로드 시 실행 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. 차트 초기화
+            initCharts();
+
+            // 2. 테마 토글 버튼 이벤트
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = localStorage.theme === 'dark' ? 'light' : 'dark';
+                applyTheme(currentTheme);
+            });
+
+            // 3. 탭 네비게이션 이벤트
+            const tabs = document.querySelectorAll('.tab-button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 모든 탭 비활성화
+                    tabs.forEach(item => item.removeAttribute('tab-active'));
+                    // 클릭한 탭 활성화
+                    tab.setAttribute('tab-active', '');
+
+                    // 모든 패널 숨기기
+                    tabPanes.forEach(pane => pane.classList.add('hidden'));
+                    // 해당 패널 보이기
+                    const targetPane = document.getElementById(tab.dataset.tab);
+                    if (targetPane) {
+                        targetPane.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

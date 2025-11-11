@@ -12,7 +12,7 @@
 ] -->
 <!-- Visualization & Content Choices: [
     - [매출] -> [비교/추이] -> [라인 차트] -> [주간 추이 확인] -> [Chart.js]
-    - [메뉴 비중] -> [비율] -> [도넛 차트] -> [핵심 성과(갈비) 시각화] -> [Chart.js]
+    - [메뉴 비중] -> [비율] -> [다중 도넛 차트] -> [핵심 성과(갈비) 시각화 및 매장 비교] -> [Chart.js]
     - [결정사항] -> [정보 전달] -> [구조화된 리스트] -> [핵심 결정사항 빠른 파악] -> [HTML/Tailwind]
     - [액션 아이템] -> [조직/정리] -> [부서별 카드 그리드] -> [담당자/부서별 할 일 명확히 인지] -> [HTML/Tailwind Grid]
     - [주요 논의/분석] -> [맥락 이해] -> [Prose 텍스트(계층형/불렛)] -> [논의 흐름 및 분석 내용 가독성 확보] -> [HTML/Tailwind Prose]
@@ -28,6 +28,10 @@
     <style type="text/css">
         @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
         
+        html {
+            scroll-behavior: smooth; /* 맨 위로 가기 버튼용 */
+        }
+
         body {
             font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
         }
@@ -82,6 +86,7 @@
         .prose li {
             margin-top: 0.25em;
             margin-bottom: 0.25em;
+            line-height: 1.6; /* 줄 간격 추가 */
         }
         .prose li strong {
             color: #111827; /* gray-900 */
@@ -97,6 +102,17 @@
         .dark .dark\:prose-invert li strong {
             color: #ffffff; /* white */
         }
+
+        /* 아이콘 수직 정렬 */
+        .icon-fix {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle; /* 정렬 기준 */
+        }
+        .icon-fix .material-symbols-outlined {
+            vertical-align: middle; /* 아이콘 자체도 middle로 */
+            line-height: 1; /* 아이콘 라인 높이 */
+        }
     </style>
 </head>
 <body class="antialiased bg-slate-50 text-slate-800 dark:bg-gray-950 dark:text-slate-200 transition-colors duration-300">
@@ -106,10 +122,15 @@
         <!-- 헤더 및 테마 토글 -->
         <header class="flex justify-between items-center mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">11월 11일 OKR 미팅 대시보드</h1>
-            <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <span class="material-symbols-outlined" id="theme-icon-light">light_mode</span>
-                <span class="material-symbols-outlined" id="theme-icon-dark">dark_mode</span>
-            </button>
+            <!-- 테마 토글 스위치 -->
+            <div class="flex items-center space-x-2">
+                <span class="material-symbols-outlined text-base text-gray-500 dark:text-gray-400">light_mode</span>
+                <label for="theme-toggle-checkbox" class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="theme-toggle-checkbox" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                </label>
+                <span class="material-symbols-outlined text-base text-gray-500 dark:text-gray-400">dark_mode</span>
+            </div>
         </header>
 
         <!-- 1. 핵심 요약 KPI -->
@@ -117,22 +138,22 @@
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">45주차 총 매출 (4개 매장)</h3>
                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">4,485<span class="text-xl ml-1">만원</span></p>
-                <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1">
-                    <span class="material-symbols-outlined text-sm align-middle">arrow_downward</span>
-                    전주 대비 -30% (이벤트 종료 영향)
+                <p class="text-sm font-medium text-red-600 dark:text-red-500 mt-1 icon-fix">
+                    <span class="material-symbols-outlined text-base align-middle">arrow_downward</span>
+                    <span>전주 대비 -30% (이벤트 종료 영향)</span>
                 </p>
             </div>
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">강남점 배달 객단가</h3>
                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">17,100<span class="text-xl ml-1">원</span></p>
-                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1">
-                    <span class="material-symbols-outlined text-sm align-middle">arrow_upward</span>
-                    목표 1.7만원 회복 (대학로 1.49만)
+                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1 icon-fix">
+                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
+                    <span>목표 1.7만원 회복 (대학로 1.49만)</span>
                 </p>
             </div>
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">핵심 성과: 갈비 메뉴 비중</h3>
-                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">35<span class="text-xl ml-1">%</span></p>
+                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">35<span class="text-xl ml-1">%</span></Gg></p>
                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1">
                     강남(34%), 대학로(36%) 동시 급상승
                 </p>
@@ -140,29 +161,29 @@
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">회의 시간 (11/04 대비)</h3>
                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">54<span class="text-xl ml-1">분</span></p>
-                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1">
-                    <span class="material-symbols-outlined text-sm align-middle">timelapse</span>
-                    109분 → 54분 (49% 단축)
+                <p class="text-sm font-medium text-green-600 dark:text-green-500 mt-1 icon-fix">
+                    <span class="material-symbols-outlined text-base align-middle">timelapse</span>
+                    <span>109분 → 54분 (49% 단축)</span>
                 </p>
             </div>
         </section>
 
-        <!-- 2. 탭 네비게이션 -->
-        <nav class="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-            <button data-tab="tab-dashboard" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400" tab-active>
-                <span class="material-symbols-outlined text-lg align-bottom mr-1">monitoring</span>매출 대시보드
+        <!-- 2. 탭 네비게이션 (스티키) -->
+        <nav class="sticky top-0 z-40 flex border-b border-gray-200 dark:border-gray-700 mb-6 bg-slate-50 dark:bg-gray-950 transition-colors duration-300 overflow-x-auto">
+            <button data-tab="tab-dashboard" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix" tab-active>
+                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">monitoring</span>매출 대시보드
             </button>
-            <button data-tab="tab-decisions" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
-                <span class="material-symbols-outlined text-lg align-bottom mr-1">check_circle</span>결정사항
+            <button data-tab="tab-decisions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">check_circle</span>결정사항
             </button>
-            <button data-tab="tab-actions" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
-                <span class="material-symbols-outlined text-lg align-bottom mr-1">assignment_turned_in</span>액션 아이템
+            <button data-tab="tab-actions" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">assignment_turned_in</span>액션 아이템
             </button>
-            <button data-tab="tab-context" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
-                <span class="material-symbols-outlined text-lg align-bottom mr-1">forum</span>주요 논의
+            <button data-tab="tab-context" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">forum</span>주요 논의
             </button>
-            <button data-tab="tab-analysis" class="tab-button py-3 px-4 md:px-6 text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400">
-                <span class="material-symbols-outlined text-lg align-bottom mr-1">insights</span>회의 분석
+            <button data-tab="tab-analysis" class="tab-button flex-shrink-0 py-3 px-2 sm:px-4 md:px-6 text-xs sm:text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 dark:hover:text-blue-400 icon-fix">
+                <span class="material-symbols-outlined text-base sm:text-lg align-bottom sm:mr-1">insights</span>회의 분석
             </button>
         </nav>
 
@@ -189,7 +210,7 @@
                     </div>
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                         <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">대학로 방문 전환율</h4>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0.7<span class="text-lg ml-1">%</span></p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">0.7<span class="text-lg ml-1">%</span></Gg></p>
                         <p class="text-sm font-medium text-red-600 dark:text-red-500">(강남 3.0%)</p>
                     </div>
                 </div>
@@ -203,7 +224,8 @@
                         </div>
                     </div>
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">45주차 메뉴 믹스 (강남 vs 대학로)</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">45주차 메뉴 믹스</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">(안쪽: 강남점, 바깥쪽: 대학로점)</p>
                         <div class="chart-container">
                             <canvas id="menuMixChart"></canvas>
                         </div>
@@ -272,7 +294,7 @@
                             <li>어카운트 매니저 면접 진행 (4명)</li>
                             <li>7번가 피자 / 에이바우트 계약 독려 (원종관) (금주)</li>
                             <li>아웃바운드 영업 리스트(제안서/대상) 기반 차주 영업 개시 준비</li>
-                            <li>레스토지니 B2B 홈페이지 배포 (금주)</li>
+                            <li>레스토JIN B2B 홈페이지 배포 (금주)</li>
                             <li>홈페이지 인입 리드(브런치빈 등) 컨택 및 초기 미팅 (즉시)</li>
                         </ul>
                     </div>
@@ -316,7 +338,7 @@
                 <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
                     <div class="prose prose-slate dark:prose-invert max-w-none">
                         <h3>1. 45주차 매출 지표 (박요한)</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>총평:</strong> 총 매출 4,485만 (전주 대비 -30%). 대학로 이벤트 종료로 홀 매출이 급감 (2700만 -> 700만).</li>
                             <li><strong>강남점:</strong> 홀/배달 모두 소폭 하락. 단, 배달 객단가는 1.7만 원으로 회복세.</li>
                             <li><strong>대학로점:</strong> 홀/배달 모두 하락. 배달 객단가 1.49만 원 (강남 대비 2천원 낮음).</li>
@@ -324,13 +346,13 @@
                         </ul>
 
                         <h3>2. 갈비 메뉴 비중 급상승 (핵심 성과)</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>지표:</strong> 강남 (10%대 → 34%), 대학로 (25% → 36%)로 동시 급상승.</li>
                             <li><strong>주요 원인:</strong> (소정빈) 키오스크 첫 화면에 '시그니처' 카테고리를 신설하고 갈비를 전면 배치. 모든 시각물(DID, POP)과 SNS 콘텐츠에서 '갈비'를 강조. 단순한 액션이었으나 즉각적인 반응 확인.</li>
                         </ul>
 
                         <h3>3. 대학로 유동인구 분석 및 프로모션 제안</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>유동인구 분석:</strong> (박요한) 대학로는 강남과 달리 **오후 3시-6시**에 유동인구가 가장 많음. 현재의 점심 프로모션보다 해당 시간대 프로모션이 더 유효할 수 있음.</li>
                             <li><strong>전환율 문제:</strong> 유동인구(10만) 대비 매장 방문 전환율이 0.7%로 매우 낮음 (강남 3%). 2%까지만 올려도 매출 50% 이상 성장 가능.</li>
                             <li><strong>런치 프로모션 제안:</strong> (박요한) 현재 런치 시간(10:30-14시) 주문 265건 중 70%가 할인 없는 일반 고객. 30% 연극 할인은 '포스'로, 런치는 '키오스크'로 분리 운영 가능.</li>
@@ -338,7 +360,7 @@
                         </ul>
 
                         <h3>4. 11월 OKR 리뷰</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>(영업)</strong> 금주 '수능 패키지'(35% 할인) 실행. (대학로) 바우처 V2, 신규 대형 극단(2-3배 규모) 컨택. (강남) 페르소나 발굴 위한 바우처(학원가, 병원 등) 배포, 지류 스탬프 도입.</li>
                             <li><strong>(VM/상권)</strong> 가맹 프로젝트(홈페이지, 브로셔, 매뉴얼) 11월 말 완료 목표. 신촌 세브란스 30평 입점지 확보.</li>
                             <li><strong>(제조)</strong> 노트북LM(AI) 활용 경쟁사 분석 완료. **신규 사이드 5종 (OEM) 차주 월요일 텍스트로 우선 판매 시작.** 신규 메인(트러플 버거)은 연말 한정 판매 제안.</li>
@@ -346,7 +368,7 @@
                         </ul>
 
                         <h3>5. 워크샵 공지</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>일정/장소:</strong> 다음 주 수목금 (11/19-21) / 켄싱턴 가평</li>
                             <li><strong>이동:</strong> 카풀 (소정빈이 운전자 모집)</li>
                         </ul>
@@ -359,25 +381,25 @@
                 <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 shadow-sm">
                     <div class="prose prose-slate dark:prose-invert max-w-none">
                         <h3>0. 핵심 총평</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li>회의 시간이 54분으로 단축(11/04, 109분)되어 효율화되었으나, 이는 대표(최종 의사결정권자) 부재로 인한 논의 생략이 주원인으로 보임.</li>
                             <li>효율과 의사결정의 질(대표 부재로 인한 보류) 사이의 트레이드오프가 발생한 회의임.</li>
                         </ul>
 
                         <h3>1. 기존 진행방식 대비 나아진 점</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>'트래커' 중심의 빠른 팔로업:</strong> 지난주(11/04) 태스크 트래커를 기반으로 '완료 안 된 것'만 빠르게 리뷰하며 회의를 시작, 논의 시간을 획기적으로 단축시킴.</li>
                             <li><strong>OKR 문서의 P1/P2 구분:</strong> OKR 문서 자체에 P1(필수), P2(차선) 구분이 명시되어, P2인 '1억 달성 매뉴얼' 같은 태스크의 우선순위를 현장에서 바로 조정(12월로 이관 제안)하는 유연성을 보임.</li>
                         </ul>
 
                         <h3>2. 잘 되고 있는 점</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>데이터 기반 논의:</strong> '갈비 비중 상승' 성과를 '키오스크 UI 변경'이라는 명확한 액션과 연결하고, '대학로 유동인구' 데이터를 근거로 '런치 프로모션'의 비효율성을 제기하는 등, 데이터가 논의의 중심이 됨.</li>
                             <li><strong>적극적인 액션 아이템 도출:</strong> 제조(사이드 5종 즉각 도입), 영업(바우처 V2), B2B(아웃바운드 준비) 등 전 부서가 현상 유지(Keep)가 아닌 새로운 시도(Try)를 즉각적인 액션 아이템으로 도출함.</li>
                         </ul>
 
                         <h3>3. 위험/개선이 필요한 점</h3>
-                        <ul class="list-disc pl-5 space-y-2">
+                        <ul>
                             <li><strong>P2(중요하지만 급하지 않은) 업무의 연속 딜레이:</strong> '1억 달성 매뉴얼'과 같이 P2로 분류된 중요 자산화 업무가 연속 딜레이됨. 매출 압박으로 인해 '중요한 일'이 '급한 일'에 계속 밀리는 전형적인 패턴이 발생 중.</li>
                             <li><strong>'회의를 위한 회의' 리스크:</strong> 상권/VM/B2B 등 다수 부서의 핵심 태스크가 '금주 대표님 미팅 후 확정' 상태로 보류됨. 이로 인해 주간 OKR 회의가 '진척 공유'를 넘어선 '실질적 의사결정'을 하지 못하고, 별도 미팅을 잡기 위한 미팅이 될 위험이 있음.</li>
                             <li><strong>대표 부재 시의 의사결정 공백:</strong> 대표 부재로 인해 'VOC 처리 프로세스' 등 핵심 R&R 논의가 불가능했고, B2B 계약 등 중요 태스크가 '대표님이 넣지할 것'으로 보류됨. 유일한 오프라인 전체 회의에서 의사결정이 막히는 것은 큰 비효율을 초래함.</li>
@@ -388,15 +410,18 @@
         </main>
     </div>
 
+    <!-- Scroll-to-Top Button -->
+    <button id="scrollTopBtn" class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
+
     <script>
         // --- 차트 및 테마 전역 변수 ---
-        // [오류 수정] charts 객체를 스크립트 최상단에 선언하여 초기화 오류(Cannot access before initialization) 방지
         let charts = {
             revenue: null,
             menuMix: null
         };
         
-        // 차트용 테마 색상 (라이트/다크)
         const lightThemeColors = {
             gridColor: 'rgba(203, 213, 225, 0.5)', // slate-300
             textColor: '#1e293b', // slate-800
@@ -410,12 +435,10 @@
         };
 
         // --- 차트 헬퍼 함수 ---
-        // 숫자 포맷 (예: 4485 -> 4,485)
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
-        // Chart.js 툴팁/라벨 텍스트 줄바꿈
         function wrapText(context) {
             const label = context.label || '';
             const maxWords = 2;
@@ -432,20 +455,12 @@
         }
 
         // --- 테마 관리 로직 ---
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIconLight = document.getElementById('theme-icon-light');
-        const themeIconDark = document.getElementById('theme-icon-dark');
-        const chartsDefaultColorEl = document.querySelector('.dark-mode-chart-defaults');
-
-        // 모든 차트 테마 업데이트
         function updateAllChartsTheme(mode) {
             const colors = mode === 'dark' ? darkThemeColors : lightThemeColors;
             
-            // 전역 기본값 변경
             Chart.defaults.color = colors.textColor;
             Chart.defaults.borderColor = colors.gridColor;
 
-            // 개별 차트 옵션 업데이트 (존재하는 경우)
             if (charts.revenue) {
                 charts.revenue.options.scales.x.grid.color = colors.gridColor;
                 charts.revenue.options.scales.y.grid.color = colors.gridColor;
@@ -460,18 +475,16 @@
             }
         }
 
-        // 테마 적용 (라이트/다크)
         function applyTheme(theme) {
+            const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
-                themeIconLight.style.display = 'none';
-                themeIconDark.style.display = 'inline';
+                if (themeToggleCheckbox) themeToggleCheckbox.checked = true;
                 localStorage.theme = 'dark';
                 updateAllChartsTheme('dark');
             } else {
                 document.documentElement.classList.remove('dark');
-                themeIconLight.style.display = 'inline';
-                themeIconDark.style.display = 'none';
+                if (themeToggleCheckbox) themeToggleCheckbox.checked = false;
                 localStorage.theme = 'light';
                 updateAllChartsTheme('light');
             }
@@ -485,7 +498,7 @@
                 datasets: [
                     {
                         label: '강남점',
-                        data: [1387, 1241, 1387, 1241], // 45주차 데이터 (1241)
+                        data: [1387, 1241, 1387, 1241], 
                         borderColor: '#3b82f6', // blue-500
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         fill: true,
@@ -493,7 +506,7 @@
                     },
                     {
                         label: '대학로점',
-                        data: [1875, 2700, 3529, 1550], // 45주차 데이터 (1550)
+                        data: [1875, 2700, 3529, 1550], 
                         borderColor: '#10b981', // emerald-500
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         fill: true,
@@ -538,13 +551,15 @@
                 datasets: [
                     {
                         label: '강남점 (45주차)',
-                        data: [41, 34, 25], // 45주차 강남: 비프 감소, 갈비 34%
-                        backgroundColor: ['#f87171', '#fb923c', '#fbbf24'] // red, orange, amber
+                        data: [41, 34, 25], 
+                        backgroundColor: ['#f87171', '#fb923c', '#fbbf24'], // red, orange, amber
+                        borderColor: 'transparent',
                     },
                     {
                         label: '대학로점 (45주차)',
-                        data: [39, 36, 25], // 45주차 대학로: 비프 감소, 갈비 36%
-                        backgroundColor: ['#a78bfa', '#60a5fa', '#34d399'] // violet, blue, teal
+                        data: [39, 36, 25],
+                        backgroundColor: ['#f87171', '#fb923c', '#fbbf24'],
+                        borderColor: 'transparent',
                     }
                 ]
             };
@@ -570,20 +585,35 @@
                 }
             });
 
-            // [오류 수정] 차트가 초기화 된 후 현재 테마를 적용
-            const initialTheme = localStorage.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            applyTheme(initialTheme);
+            // [버그 수정] 차트가 초기화 된 *후* 에 테마를 적용하면,
+            // applyTheme -> updateAllChartsTheme -> charts.revenue.update() 순으로
+            // 호출되어야 하는데, initCharts()가 끝나기 전에 applyTheme이 불리면
+            // charts.revenue가 null이라 에러가 남.
+            // -> DOMContentLoaded에서 initCharts() *다음*에 applyTheme을 호출하는게 아니라,
+            // *DOM 로드 즉시* 테마를 적용하고, initCharts()는 나중에 호출해야 함.
+            // -> 이 로직은 DOMContentLoaded로 이동됨.
         }
 
         // --- DOM 로드 시 실행 ---
         document.addEventListener('DOMContentLoaded', () => {
             
+            // [버그 수정] 테마를 차트보다 먼저 즉시 적용
+            const initialTheme = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            applyTheme(initialTheme);
+            
             // 1. 차트 초기화
             initCharts();
 
             // 2. 테마 토글 버튼 이벤트
-            themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = localStorage.theme === 'dark' ? 'light' : 'dark';
+            const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+            
+            // [버그 수정] 로드 시점에 체크박스 상태 동기화
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleCheckbox.checked = true;
+            }
+
+            themeToggleCheckbox.addEventListener('change', () => {
+                const currentTheme = themeToggleCheckbox.checked ? 'dark' : 'light';
                 applyTheme(currentTheme);
             });
 
@@ -593,18 +623,36 @@
 
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    // 모든 탭 비활성화
                     tabs.forEach(item => item.removeAttribute('tab-active'));
-                    // 클릭한 탭 활성화
                     tab.setAttribute('tab-active', '');
 
-                    // 모든 패널 숨기기
                     tabPanes.forEach(pane => pane.classList.add('hidden'));
-                    // 해당 패널 보이기
                     const targetPane = document.getElementById(tab.dataset.tab);
                     if (targetPane) {
                         targetPane.classList.remove('hidden');
                     }
+                });
+            });
+
+            // 4. Scroll-to-Top Button Logic
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+            // Show/Hide on scroll
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) { // Show after 300px
+                    scrollTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                    scrollTopBtn.classList.add('opacity-100');
+                } else {
+                    scrollTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                    scrollTopBtn.classList.remove('opacity-100');
+                }
+            });
+
+            // Click to scroll
+            scrollTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
                 });
             });
         });

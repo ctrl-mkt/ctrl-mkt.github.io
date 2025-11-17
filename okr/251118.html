@@ -8,6 +8,14 @@ Key Modifications:
 2.  [Critical] Replaced Doughnut Chart (Menu Mix) with a Bar Chart (Profit Margin W45 vs W46) to visualize the key risk.
 3.  Updated Line Chart (Revenue) to compare W45 and W46.
 4.  Mapped all 5 tabs to the new W46 report's sections (Decisions, Actions, Context, Analysis).
+5.  [UPDATE 11.17] Set Gangnam contribution margin to 'null' (N/A) based on '영업 OKR.csv'.
+6.  [UPDATE 11.17 - User Req] Overwrite contribution margin data with new values.
+    - 강남 W45: 29.61%, W46: 31.32% (Positive 🔼)
+    - 대학로 W45: 2.89%, W46: 28.16% (Critical Positive 🔼)
+    - All insights, charts, and KPIs are updated based on this new data.
+7.  [UPDATE 11.17 - User Req 2] Integrated Funnel (CCTV), Patty Mix (Sales DB), and Cohort (Sales DB) data.
+    - Updated Insights, Action Items, and Discussion tabs.
+    - Updated Sub-KPIs in Tab 1 to reflect new data points.
 -->
 <head>
     <meta charset="UTF-8">
@@ -116,28 +124,28 @@ Key Modifications:
                     <span>W45 대비 +2.62%</span>
                 </p>
             </div>
-            <div class="bg-gray-900 border border-red-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">[Risk] 강남점 공헌이익률</h3>
-                <p class="text-3xl font-bold text-red-500 mt-2">17.00<span class="text-xl ml-1">%</span></p>
-                <p class="text-sm font-medium text-red-500 mt-1 icon-fix">
-                    <span class="material-symbols-outlined text-base align-middle">arrow_downward</span>
-                    <span>W45 31.31% 대비 -45.7%</span>
-                </p>
-            </div>
-            <div class="bg-gray-900 border border-red-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">[Risk] 대학로점 공헌이익률</h3>
-                <p class="text-3xl font-bold text-red-500 mt-2">12.82<span class="text-xl ml-1">%</span></Gg></p>
-                <p class="text-sm font-medium text-red-500 mt-1 icon-fix">
-                    <span class="material-symbols-outlined text-base align-middle">arrow_downward</span>
-                    <span>W45 28.16% 대비 -54.4%</span>
-                </p>
-            </div>
-            <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">강남점 배달 객단가</h3>
-                <p class="text-3xl font-bold text-white mt-2">18,391<span class="text-xl ml-1">원</span></p>
+            <div class="bg-gray-900 border border-green-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">[성과] 강남점 공헌이익률</h3>
+                <p class="text-3xl font-bold text-green-500 mt-2">31.32<span class="text-xl ml-1">%</span></p>
                 <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
                     <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
-                    <span>W45 대비 +11.1% (목표 1.7만↑)</span>
+                    <span>W45 29.61% 대비 +5.8%</span>
+                </p>
+            </div>
+            <div class="bg-gray-900 border border-green-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">[성과] 대학로점 공헌이익률</h3>
+                <p class="text-3xl font-bold text-green-500 mt-2">28.16<span class="text-xl ml-1">%</span></Gg></p>
+                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
+                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
+                    <span>W45 2.89% 대비 +874%</span>
+                </p>
+            </div>
+            <div class="bg-gray-900 border border-green-700 rounded-lg p-5 shadow-sm">
+                <h3 class="text-sm font-medium text-gray-400">[성과] 대학로점 갈비 비중</h3>
+                <p class="text-3xl font-bold text-green-500 mt-2">39.86<span class="text-xl ml-1">원</span></p>
+                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
+                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
+                    <span>W45 36.45% 대비 +9.4%</span>
                 </p>
             </div>
         </section>
@@ -173,24 +181,24 @@ Key Modifications:
                 <!-- 하위 KPI -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">강남점 홀매출 비중</h4>
-                        <p class="text-2xl font-bold text-white mt-1">47.71<span class="text-lg ml-1">%</span></p>
-                        <p class="text-sm font-medium text-green-500">(W45 41.42%)</p>
+                        <h4 class="text-sm font-medium text-gray-400">강남 방문전환율</h4>
+                        <p class="text-2xl font-bold text-white mt-1">3.03<span class="text-lg ml-1">%</span></p>
+                        <p class="text-sm font-medium text-green-500">(W45 2.76%)</p>
                     </div>
                     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">대학로 배달 객단가</h4>
-                        <p class="text-2xl font-bold text-white mt-1">16,286<span class="text-lg ml-1">원</span></p>
-                        <p class="text-sm font-medium text-green-500">(W45 14,972원)</p>
+                        <h4 class="text-sm font-medium text-gray-400">강남 4주 재방문율(홀)</h4>
+                        <p class="text-2xl font-bold text-white mt-1">47.98<span class="text-lg ml-1">%</span></p>
+                        <p class="text-sm font-medium text-green-500">(W45 42.66%)</p>
                     </div>
                     <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">강남점 홀 객단가</h4>
-                        <p class="text-2xl font-bold text-white mt-1">10,996<span class="text-lg ml-1">원</span></p>
-                        <p class="text-sm font-medium text-green-500">(W45 10,851원)</p>
+                        <h4 class="text-sm font-medium text-gray-400">대학로 방문전환율</h4>
+                        <p class="text-2xl font-bold text-white mt-1">0.91<span class="text-lg ml-1">%</span></See also></p>
+                        <p class="text-sm font-medium text-green-500">(W45 0.73%)</p>
                     </div>
-                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">대학로 홀 객단가</h4>
-                        <p class="text-2xl font-bold text-white mt-1">12,646<span class="text-lg ml-1">원</span></Gg></p>
-                        <p class="text-sm font-medium text-red-500">(W45 12,746원)</p>
+                    <div class="bg-gray-900 border border-red-700 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-gray-400">[Risk] 대학로 주문전환율</h4>
+                        <p class="text-2xl font-bold text-red-500 mt-1">56.11<span class="text-lg ml-1">%</span></Gg></p>
+                        <p class="text-sm font-medium text-red-500">(W45 88.82%)</p>
                     </div>
                 </div>
                 
@@ -255,25 +263,26 @@ Key Modifications:
             <div id="tab-actions" class="tab-pane hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Critical -->
-                    <div class="bg-gray-900 border border-red-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-red-300 mb-3">[Critical] 공헌이익률 개선 (전사)</h3>
+                    <div class="bg-gray-900 border border-green-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-green-300 mb-3">[Critical] 성과 분석 및 유지</h3>
                         <ul class="space-y-3 list-disc pl-5 text-gray-300">
-                            <li><strong>[A1]</strong> 강남/대학로점 공헌이익률 하락 원인 정밀 분석 (영업/운영/마케팅)</li>
-                            <li><strong>[A2]</strong> W47 즉시 실행 가능한 공헌이익률 개선안 도출 (프로모션, 원가, 배달 정책 점검)</li>
+                            <li><strong>[A1]</strong> 대학로점 공헌이익률 개선(+874%) 핵심 요인(갈비 비중 상승 등) 정밀 분석</li>
+                            <li><strong>[A3]</strong> W46 성과(이익률/재방문율)를 W47에도 유지하기 위한 전략 수립</li>
                         </ul>
                     </div>
-                    <!-- 영업/마케팅 -->
-                    <div class="bg-gray-900 border border-blue-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-blue-300 mb-3">영업/마케팅</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
-                            <li><strong>[A4]</strong> 주간 매출 목표(6,750만) 달성을 위한 W47 프로모션/마케팅 전략 재점검</li>
+                    <!-- Risk -->
+                    <div class="bg-gray-900 border border-red-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-red-300 mb-3">[Critical] 리스크 대응</h3>
+                         <ul class="space-y-3 list-disc pl-5 text-gray-300">
+                            <li><strong>[A2]</strong> 대학로점 주문서전환율 급락(-36.8%) 원인 분석 및 W47 개선안 도출</li>
+                            <li><strong>[A5]</strong> 주간 매출 목표(6,750만) 달성을 위한 W47 프로모션/마케팅 전략 재점검</li>
                         </ul>
                     </div>
                     <!-- 개발/Tech -->
-                    <div class="bg-gray-900 border border-green-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-green-300 mb-3">개발 / Tech</h3>
+                    <div class="bg-gray-900 border border-yellow-900 rounded-lg p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-yellow-300 mb-3">개발 / Tech</h3>
                         <ul class="space-y-3 list-disc pl-5 text-gray-300">
-                            <li><strong>[A3]</strong> (지연) AI 에이전트 기획 및 (P2) B2B 기능 개발 진척도 Pull-up</li>
+                            <li><strong>[A4]</strong> (지연) AI 에이전트 기획 및 (P2) B2B 기능 개발 진척도 Pull-up</li>
                         </ul>
                     </div>
                 </div>
@@ -283,22 +292,27 @@ Key Modifications:
             <div id="tab-context" class="tab-pane hidden">
                 <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
                     <div class="prose max-w-none">
-                        <h3>1. [Critical] W46 강남/대학로점 공헌이익률 급락(-45% ~ -55%) 원인 규명 및 W47 개선 방안</h3>
+                        <h3>1. [Critical] W46 공헌이익률 대폭 개선(대학로 +874%) 원인 분석 (갈비 비중 성과) 및 W47 유지 전략</h3>
                         <ul>
                             <li>담당: @소정빈, @김평안, @우예진</li>
                         </ul>
 
-                        <h3>2. 11월 매출 목표(2.7억) 달성 전략: 현재 주간 페이스(4,542만) vs 목표 주간 페이스(6,750만) 갭 극복 방안</h3>
+                        <h3>2. [Critical] 대학로 주문서전환율 급락(88.8% → 56.1%) 원인 및 W47 개선 방안</h3>
+                        <ul>
+                            <li>담당: @소정빈, @박요한</li>
+                        </ul>
+
+                        <h3>3. 11월 매출 목표(2.7억) 달성 전략: 현재 주간 페이스(4,542만) vs 목표 주간 페이스(6,750만) 갭 극복 방안</h3>
                         <ul>
                             <li>담당: @김평안</li>
                         </ul>
 
-                        <h3>3. (공지사항) 매장 VOC 해결 대안 점검 (대학로/강남)</h3>
+                        <h3>4. (공지사항) 매장 VOC 해결 대안 점검 (대학로/강남)</h3>
                         <ul>
                             <li>담당: @소정빈</li>
                         </ul>
 
-                        <h3>4. 솔루션(개발) 지연/P2 우선순위 진척 현황 점검 (AI 에이전트, B2B 기능)</h3>
+                        <h3>5. 솔루션(개발) 지연/P2 우선순위 진척 현황 점검 (AI 에이전트, B2B 기능)</h3>
                         <ul>
                             <li>담당: @김도윤</li>
                         </ul>
@@ -312,15 +326,15 @@ Key Modifications:
                     <div class="prose max-w-none">
                         <h3>[ 긍정 (Growth) ]</h3>
                         <ul>
-                            <li><strong>전사 매출 성장세 유지:</strong> W46은 W45 대비 전사 매출(+2.6%), 강남(+8.1%), 대학로(+5.1%) 모두 성장했습니다.</li>
-                            <li><strong>배달 객단가 상승:</strong> 강남점(+11.1%), 대학로점(+8.8%) 모두 배달 객단가가 크게 상승했습니다. 특히 강남은 목표(17k)를 초과 달성하며 운영 효율성이 개선되었습니다.</li>
-                            <li><strong>홀 비중 개선 (강남):</strong> 강남점 홀 매출 비중이 15.2% 증가하며 목표(50%)에 근접했습니다.</li>
+                            <li><strong>[Critical] 공헌이익률 대폭 개선:</strong> W46의 가장 큰 성과입니다. 특히 대학로점(2.9% → 28.2%)은 W45의 심각한 이익률 문제를 극복하고 극적으로 개선되었습니다.</li>
+                            <li><strong>[신규] '갈비 패티' 전략 성공:</strong> 이익률 개선의 핵심 요인으로 보입니다. 강남점(28%→33.5%), 대학로점(36.5%→39.9%) 모두 갈비 비중이 동시 상승하며, 고수익 메뉴 판매가 증대되었습니다.</li>
+                            <li><strong>[신규] 고객 충성도 지표 개선:</strong> 강남점은 퍼널 전체(방문율/주문율)가 건강하게 개선되었습니다. 또한 양 지점 모두 '홀 4주 재방문율'이 상승(강남 +5.3%p, 대학로 +10.3%p)하며, 홀 고객의 만족도와 충성도가 개선되고 있습니다.</li>
                         </ul>
 
                         <h3>[ 부정 (Decline/Risk) ]</h3>
                         <ul>
-                            <li><strong>[Critical] 공헌이익률 급락:</strong> W46의 가장 큰 문제입니다. 강남점(31.3% → 17.0%), 대학로점(28.2% → 12.8%) 모두 공헌이익률이 W45 대비 -45% ~ -55% 수준으로 폭락했습니다.</li>
-                            <li><strong>원인 분석 필요:</strong> 매출은 소폭 상승했으나 이익률이 급락한 명확한 원인(원가 변동, 특정 프로모션 비용 증가, 배달 수수료 구조, 폐기 증가 등)에 대한 집중 분석이 필요합니다.</li>
+                             <li><strong>매출 목표 페이스 미달:</strong> 모든 긍정적 지표에도 불구하고, 주간 매출(4,542만)은 11월 목표 페이스(주 6,750만) 대비 달성률 67.3%로 여전히 갭이 큽니다.</li>
+                             <li><strong>[신규 Risk] 대학로 주문서전환율 급락:</strong> 대학로의 유입(방문율 0.91%)은 개선되었으나, 방문 고객의 주문 전환율이 W45 88.8%에서 W46 56.1%로 급락했습니다. (키오스크 이슈, 프로모션 변경, 고객 경험 저하 등 원인 파악 시급)</li>
                         </ul>
                     </div>
                 </div>
@@ -433,20 +447,20 @@ Key Modifications:
                 }
             });
 
-            // 2. 공헌이익률 비교 차트 (Bar) - 신규 생성 (기존 Doughnut 대체)
+            // 2. 공헌이익률 비교 차트 (Bar) - [UPDATE 11.17 User Req]
             const profitData = {
                 labels: ['강남점', '대학로점'],
                 datasets: [
                     {
                         label: 'W45 공헌이익률',
-                        data: [31.31, 28.16],
+                        data: [29.61, 2.89], // 강남 W45, 대학로 W45
                         backgroundColor: 'rgba(59, 130, 246, 0.7)', // blue-500
                         borderColor: 'transparent',
                     },
                     {
                         label: 'W46 공헌이익률',
-                        data: [17.00, 12.82],
-                        backgroundColor: 'rgba(239, 68, 68, 0.7)', // red-500
+                        data: [31.32, 28.16], // 강남 W46, 대학로 W46
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)', // emerald-500 (긍정적 개선)
                         borderColor: 'transparent',
                     }
                 ]
@@ -488,6 +502,9 @@ Key Modifications:
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
+                                    if (context.raw === null) {
+                                        return `${context.dataset.label}: N/A`;
+                                    }
                                     return `${context.dataset.label}: ${context.raw.toFixed(2)}%`; // 툴팁에 % 추가
                                 }
                             }

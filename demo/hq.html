@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie Partner</title>
+    <title>RestoGenie HQ - 가맹본사 통합 관리</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -12,134 +12,297 @@
     <script src="https://cdn.jsdelivr.net/npm/recharts/umd/Recharts.js"></script>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        .chat-bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 14px; margin-bottom: 10px; }
+        body { font-family: 'Pretendard', sans-serif; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Canvas Editor Style */
+        .canvas-editor {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .typing-cursor::after {
+            content: '▋';
+            animation: blink 1s step-start infinite;
+            color: #3b82f6;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        /* Chatbot Style */
+        .chat-bubble { position: relative; max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
         .chat-user { background-color: #2563eb; color: white; border-bottom-right-radius: 4px; margin-left: auto; }
-        .chat-bot { background-color: white; color: #1e293b; border-bottom-left-radius: 4px; margin-right: auto; border: 1px solid #e2e8f0; }
+        .chat-bot { background-color: #f1f5f9; color: #1e293b; border-bottom-left-radius: 4px; margin-right: auto; border: 1px solid #e2e8f0; }
     </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 800: '#1e293b', 900: '#0f172a' },
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        const { PieChart, Pie, Cell, ResponsiveContainer } = Recharts;
-        
+        const { useState, useEffect, useRef, useCallback } = React;
+        const { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+
+        // --- 1. System Configuration ---
         const API_KEY = ""; // System prompt: Use empty string as key is injected by environment
-        const PARTNER_CONTEXT = `
-            [매장 데이터: 슬램버거 강남점]
-            - 10월 매출: 9,885만원 (목표 달성).
-            - 주요 메뉴: 갈비버거 세트(판매 1위), 더블치즈버거.
-            - 매뉴얼: 갈비버거 소스는 번 하단에 마요네즈 10g, 패티 위에 갈비소스 25g(1펌프) 정량 준수.
-            - 위생: 마감 시 주방 후드 필터 분리 세척 필수.
-            - 이슈: 브리오슈 번 재고 부족 알림 발생 중.
+        const NOTEBOOK_CONTEXT = `
+            [기반 데이터: 슬램버거 2025년 10월 운영 데이터 및 주간 회의록]
+            1. 전사 실적: 10월 총 매출 2억 7,361만원 (목표 대비 108% 달성), 총 주문수 14,520건.
+            2. 매장별 이슈:
+               - 강남점: 매출 9,885만원(+8.1%). '갈비버거' 배달 주문 급증(전주 대비 +22%).
+               - 대학로점: 매출 8,750만원(-2.1%). 점심 피크타임(12-13시) 대기 시간 증가로 고객 이탈 발생. SV 방문 결과 주방 동선 꼬임 및 인력 부족 확인.
+            3. 원가 이슈: 양상추 가격 폭등으로 전사 원가율 38.5% (+1.5%p 상승). 스마트팜 계약 재배(팜에이트) 도입 결정됨.
+            4. 마케팅: 11월 '수능 대박 기원' 프로모션 예정 (대학로점 집중).
+            5. 본사 전략: 이익률 개선을 위한 자동 발주 시스템 도입 및 KDS(주방 디스플레이) 대학로점 시범 적용 검토.
         `;
 
-        // Chatbot
-        const PartnerChatbot = () => {
+        // --- 2. Components ---
+        
+        // Chatbot Component
+        const AIChatbot = () => {
             const [isOpen, setIsOpen] = useState(false);
-            const [messages, setMessages] = useState([{ role: 'model', text: '사장님, 안녕하세요! 무엇을 도와드릴까요?' }]);
+            const [messages, setMessages] = useState([{ role: 'model', text: '안녕하세요! 슬램버거 본사 AI 비서입니다. 10월 매출 현황이나 이슈에 대해 물어보세요.' }]);
             const [input, setInput] = useState('');
             const [loading, setLoading] = useState(false);
             const scrollRef = useRef(null);
 
-            useEffect(() => { if(scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages]);
+            useEffect(() => {
+                if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }, [messages]);
 
-            const send = async () => {
+            const sendMessage = async () => {
                 if (!input.trim()) return;
-                const msg = input;
-                setMessages(prev => [...prev, { role: 'user', text: msg }]);
+                const userMsg = input;
+                setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
                 setInput('');
                 setLoading(true);
 
                 try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
+                    // Actual API Call
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ role: "user", parts: [{ text: `Context: ${PARTNER_CONTEXT}\n\nUser: ${msg}\n\nAnswer as a store manager AI.` }] }]
+                            contents: [{ role: "user", parts: [{ text: `Context: ${NOTEBOOK_CONTEXT}\n\nUser Question: ${userMsg}\n\nAnswer as a helpful HQ AI assistant.` }] }]
                         })
                     });
-                    const data = await res.json();
-                    setMessages(prev => [...prev, { role: 'model', text: data.candidates[0].content.parts[0].text }]);
+                    const data = await response.json();
+                    const botMsg = data.candidates[0].content.parts[0].text;
+                    setMessages(prev => [...prev, { role: 'model', text: botMsg }]);
                 } catch (e) {
-                    setMessages(prev => [...prev, { role: 'model', text: '오류가 발생했습니다.' }]);
+                    setMessages(prev => [...prev, { role: 'model', text: '죄송합니다. 응답을 생성하는 중 오류가 발생했습니다.' }]);
                 } finally {
                     setLoading(false);
                 }
             };
 
-            if (!isOpen) return (
-                <button onClick={()=>setIsOpen(true)} className="fixed bottom-20 right-4 bg-blue-600 text-white p-4 rounded-full shadow-xl z-50">
-                    <i data-lucide="message-circle" className="w-6 h-6"></i>
-                </button>
-            );
-
             return (
-                <div className="fixed inset-0 z-50 bg-white flex flex-col md:inset-auto md:bottom-20 md:right-4 md:w-96 md:h-[500px] md:rounded-2xl md:shadow-2xl md:border">
-                    <div className="p-4 bg-blue-600 text-white flex justify-between items-center shadow-sm">
-                        <span className="font-bold flex items-center gap-2"><i data-lucide="bot" className="w-5 h-5"></i> 슬램지니</span>
-                        <button onClick={()=>setIsOpen(false)}><i data-lucide="x" className="w-5 h-5"></i></button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-4 bg-slate-50" ref={scrollRef}>
-                        {messages.map((m, i) => (
-                            <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}>
-                                <div className={`chat-bubble ${m.role==='user'?'chat-user':'chat-bot'}`}>{m.text}</div>
+                <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+                    {isOpen && (
+                        <div className="bg-white w-80 h-96 rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden mb-4 animate-fade-in">
+                            <div className="bg-navy-900 text-white p-4 flex justify-between items-center">
+                                <div className="flex items-center gap-2 font-bold"><i data-lucide="bot" className="w-5 h-5"></i> HQ AI Assistant</div>
+                                <button onClick={()=>setIsOpen(false)}><i data-lucide="x" className="w-4 h-4"></i></button>
                             </div>
-                        ))}
-                        {loading && <div className="text-xs text-slate-400 ml-2">답변 작성 중...</div>}
-                    </div>
-                    <div className="p-3 border-t bg-white flex gap-2 pb-safe">
-                        <input type="text" className="flex-1 border rounded-xl px-4 py-3 outline-none focus:border-blue-500" placeholder="질문 입력..." value={input} onChange={e=>setInput(e.target.value)} onKeyPress={e=>e.key==='Enter'&&send()} />
-                        <button onClick={send} className="bg-blue-600 text-white p-3 rounded-xl"><i data-lucide="send" className="w-5 h-5"></i></button>
-                    </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50" ref={scrollRef}>
+                                {messages.map((m, i) => (
+                                    <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}>
+                                        <div className={`chat-bubble ${m.role==='user'?'chat-user':'chat-bot'}`}>{m.text}</div>
+                                    </div>
+                                ))}
+                                {loading && <div className="text-xs text-slate-400 ml-2">AI가 분석 중...</div>}
+                            </div>
+                            <div className="p-3 bg-white border-t flex gap-2">
+                                <input type="text" className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="질문을 입력하세요..." value={input} onChange={e=>setInput(e.target.value)} onKeyPress={e=>e.key==='Enter'&&sendMessage()} />
+                                <button onClick={sendMessage} disabled={loading} className="bg-brand-600 text-white p-2 rounded-lg hover:bg-brand-700 disabled:opacity-50"><i data-lucide="send" className="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                    )}
+                    <button onClick={()=>setIsOpen(!isOpen)} className="bg-brand-600 hover:bg-brand-700 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-105 flex items-center justify-center">
+                        {isOpen ? <i data-lucide="chevron-down" className="w-6 h-6"></i> : <i data-lucide="message-square" className="w-6 h-6"></i>}
+                    </button>
                 </div>
             );
         };
 
-        // Dashboard Logic (Simplified)
-        const Dashboard = () => {
-            const data = { todaySales: 3850510, monthProfit: 21500000, costBreakdown: [{name:'재료',value:36,color:'#3b82f6'},{name:'이익',value:21,color:'#22c55e'},{name:'기타',value:43,color:'#e2e8f0'}] };
+        // AI Report View
+        const AIReportView = ({ credits, setCredits, storeId }) => {
+            const [mode, setMode] = useState('weekly');
+            const [generating, setGenerating] = useState(false);
+            const [report, setReport] = useState('');
+            const [streamText, setStreamText] = useState('');
+
+            const generateReport = async () => {
+                if (credits < (mode==='weekly'?5:1)) return alert("코인이 부족합니다.");
+                setCredits(prev => prev - (mode==='weekly'?5:1));
+                setGenerating(true);
+                setReport('');
+                setStreamText('');
+
+                const prompt = mode === 'weekly' 
+                    ? `${NOTEBOOK_CONTEXT}\n\n위 데이터를 바탕으로 본사 주간 회의록을 작성해줘. 결정사항(원가방어 등), 액션아이템(담당자 지정), 주요논의(대학로점 이슈 등)를 포함해서 마크다운 형식으로 깔끔하게.`
+                    : `${NOTEBOOK_CONTEXT}\n\n위 데이터를 바탕으로 '${storeId==='all'?'대학로점':storeId}'에 대한 SV 매장 점검 리포트를 작성해줘. 매출분석, 운영이슈(피크타임), 개선제안(KDS 등)을 포함해줘.`;
+
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await response.json();
+                    const fullText = data.candidates[0].content.parts[0].text;
+                    
+                    // Streaming effect
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        setStreamText(prev => prev + fullText.charAt(i));
+                        i++;
+                        if (i >= fullText.length) {
+                            clearInterval(interval);
+                            setReport(fullText);
+                            setGenerating(false);
+                        }
+                    }, 10);
+                } catch (e) {
+                    setReport("리포트 생성 중 오류가 발생했습니다.");
+                    setGenerating(false);
+                }
+            };
+
             return (
-                <div className="pb-24 animate-fade-in">
-                    <div className="bg-blue-600 pt-12 pb-16 px-6 rounded-b-[2rem] shadow-lg relative text-white">
-                        <h2 className="text-2xl font-bold mb-4">안녕하세요, 사장님!</h2>
-                        <div className="bg-white/10 backdrop-blur p-4 rounded-xl border border-white/20 text-sm">
-                            <div className="flex gap-2 mb-2"><i data-lucide="sparkles" className="text-yellow-300 w-4 h-4"></i> <span>내일 비 예보: 배달 광고 증액 제안</span></div>
-                            <div className="flex gap-2"><i data-lucide="package" className="text-red-300 w-4 h-4"></i> <span>브리오슈 번 재고 부족 알림</span></div>
+                <div className="flex h-full gap-6 animate-fade-in">
+                    <div className="w-1/3 bg-white p-6 rounded-xl shadow-sm border flex flex-col">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><i data-lucide="sparkles" className="text-brand-600"></i> AI 리포트 생성</h2>
+                        <div className="flex bg-slate-100 p-1 rounded-lg mb-6">
+                            <button onClick={()=>setMode('weekly')} className={`flex-1 py-2 text-sm font-bold rounded ${mode==='weekly'?'bg-white shadow text-brand-600':'text-slate-500'}`}>주간 회의록 (5C)</button>
+                            <button onClick={()=>setMode('inspection')} className={`flex-1 py-2 text-sm font-bold rounded ${mode==='inspection'?'bg-white shadow text-brand-600':'text-slate-500'}`}>매장 점검 (1C)</button>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-auto">
+                            <h4 className="text-xs font-bold text-blue-800 mb-2">🔗 연동된 데이터 (NotebookLM)</h4>
+                            <ul className="text-xs text-blue-700 list-disc list-inside space-y-1">
+                                <li>2025년 10월 전사 매출 DB.csv</li>
+                                <li>11/11 주간 회의 녹취록.txt</li>
+                                <li>대학로점 SV 방문 일지.pdf</li>
+                            </ul>
+                        </div>
+                        <button onClick={generateReport} disabled={generating} className="w-full bg-gradient-to-r from-brand-600 to-brand-500 text-white py-3 rounded-xl font-bold mt-4 hover:opacity-90 disabled:opacity-50 flex justify-center items-center gap-2">
+                            {generating ? <i data-lucide="loader-2" className="animate-spin"></i> : <i data-lucide="zap"></i>}
+                            {generating ? "Gemini가 작성 중..." : "리포트 생성하기"}
+                        </button>
+                    </div>
+                    <div className="flex-1 bg-white rounded-xl shadow-sm border flex flex-col overflow-hidden">
+                        <div className="bg-slate-50 border-b px-4 py-2 flex items-center justify-between">
+                            <div className="flex gap-2"><div className="w-3 h-3 rounded-full bg-red-400"></div><div className="w-3 h-3 rounded-full bg-yellow-400"></div><div className="w-3 h-3 rounded-full bg-green-400"></div></div>
+                            <span className="text-xs text-slate-400 font-mono">Powered by Gemini Pro</span>
+                        </div>
+                        <div className="flex-1 p-8 overflow-y-auto canvas-editor">
+                            {streamText ? (
+                                <div className="prose prose-sm max-w-none whitespace-pre-line typing-cursor">{streamText}</div>
+                            ) : (
+                                <div className="h-full flex flex-col items-center justify-center text-slate-300">
+                                    <i data-lucide="file-text" className="w-16 h-16 mb-4 opacity-50"></i>
+                                    <p>설정을 선택하고 리포트를 생성하세요.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <div className="px-6 -mt-8 grid grid-cols-2 gap-4">
-                        <div className="bg-white p-5 rounded-2xl shadow-md"><p className="text-slate-400 text-xs mb-1">오늘 매출</p><h3 className="text-xl font-bold">₩{data.todaySales.toLocaleString()}</h3></div>
-                        <div className="bg-white p-5 rounded-2xl shadow-md"><p className="text-slate-400 text-xs mb-1">예상 순수익</p><h3 className="text-xl font-bold text-blue-600">₩{data.monthProfit.toLocaleString()}</h3></div>
+                </div>
+            );
+        };
+
+        // Dashboard Components (Simplified for brevity, same logic as before)
+        const DashboardView = ({ storeId }) => {
+            // Data Logic (Same as previous)
+            const data = {
+                kpi: { sales: 273610500, orders: 14520, ticket: 18840, costRate: 38.5 },
+                trend: [{name:'1주',val:6200},{name:'2주',val:6800},{name:'3주',val:7100},{name:'4주',val:7260}]
+            };
+            
+            return (
+                <div className="space-y-6 animate-fade-in">
+                    <div className="grid grid-cols-4 gap-5">
+                        <div className="bg-white p-5 rounded-xl shadow-sm border"><p className="text-slate-500 text-sm">총 매출</p><h3 className="text-2xl font-bold">₩{data.kpi.sales.toLocaleString()}</h3></div>
+                        <div className="bg-white p-5 rounded-xl shadow-sm border"><p className="text-slate-500 text-sm">주문수</p><h3 className="text-2xl font-bold">{data.kpi.orders.toLocaleString()}건</h3></div>
+                        <div className="bg-white p-5 rounded-xl shadow-sm border"><p className="text-slate-500 text-sm">객단가</p><h3 className="text-2xl font-bold">₩{data.kpi.ticket.toLocaleString()}</h3></div>
+                        <div className="bg-white p-5 rounded-xl shadow-sm border"><p className="text-slate-500 text-sm">원가율</p><h3 className="text-2xl font-bold text-red-500">{data.kpi.costRate}% (▲1.5%)</h3></div>
                     </div>
-                    <div className="px-6 mt-6">
-                         <h3 className="font-bold text-lg mb-4">수익성 분석</h3>
-                         <div className="bg-white p-6 rounded-3xl shadow-sm h-64">
-                            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data.costBreakdown} innerRadius={60} outerRadius={80} dataKey="value"><Cell fill="#3b82f6"/><Cell fill="#22c55e"/><Cell fill="#cbd5e1"/></Pie></PieChart></ResponsiveContainer>
-                         </div>
+                    <div className="bg-white p-6 rounded-xl shadow-sm border h-80">
+                        <h3 className="font-bold mb-4">매출 추이</h3>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={data.trend}><CartesianGrid strokeDasharray="3 3" vertical={false}/><XAxis dataKey="name"/><YAxis/><Tooltip/><Line type="monotone" dataKey="val" stroke="#2563eb" strokeWidth={3}/></LineChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
             );
         };
 
+        // Main App
         const App = () => {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [tab, setTab] = useState('home');
+            const [menu, setMenu] = useState('dashboard');
+            const [storeId, setStoreId] = useState('all');
+            const [credits, setCredits] = useState(100);
+            const [showAd, setShowAd] = useState(false);
+
             useEffect(() => { if(window.lucide) window.lucide.createIcons(); });
 
-            if (!isLoggedIn) return <div className="h-screen flex items-center justify-center"><button onClick={()=>setIsLoggedIn(true)} className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg">사장님 로그인</button></div>;
+            const handleRecharge = () => {
+                setShowAd(true);
+                setTimeout(() => { setShowAd(false); setCredits(c => c+10); alert('충전 완료!'); }, 2000);
+            };
+
+            if (!isLoggedIn) return (
+                <div className="min-h-screen flex items-center justify-center bg-slate-100">
+                    <div className="bg-white p-10 rounded-2xl shadow-xl w-96 text-center">
+                        <h1 className="text-3xl font-bold text-navy-900 mb-8">HQ Login</h1>
+                        <button onClick={()=>setIsLoggedIn(true)} className="w-full bg-navy-900 text-white py-3 rounded-lg font-bold">로그인 (Demo)</button>
+                    </div>
+                </div>
+            );
 
             return (
-                <div className="bg-slate-50 min-h-screen max-w-md mx-auto shadow-2xl relative overflow-hidden">
-                    {tab === 'home' && <Dashboard />}
-                    <PartnerChatbot />
-                    <nav className="fixed bottom-0 w-full max-w-md bg-white border-t flex justify-around py-3 pb-safe z-40 rounded-t-2xl">
-                        {['home','pie-chart','zap','menu'].map((icon,i) => (
-                            <button key={i} onClick={()=>setTab(icon==='home'?'home':'other')} className={`flex flex-col items-center ${tab===(icon==='home'?'home':'other')?'text-blue-600':'text-slate-300'}`}><i data-lucide={icon} className="w-6 h-6"></i></button>
-                        ))}
-                    </nav>
+                <div className="flex min-h-screen relative">
+                    {showAd && <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center text-white text-xl font-bold">Google AdSense 광고 시청 중...</div>}
+                    
+                    <aside className="w-64 bg-navy-900 text-white fixed h-full z-10 flex flex-col">
+                        <div className="p-6 border-b border-navy-800 font-bold text-xl flex items-center gap-2"><i data-lucide="layout-dashboard"></i> RestoGenie</div>
+                        <nav className="flex-1 p-4 space-y-1">
+                            <button onClick={()=>setMenu('dashboard')} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm ${menu==='dashboard'?'bg-brand-600':'hover:bg-navy-800'}`}><i data-lucide="bar-chart-2"></i> 대시보드</button>
+                            <button onClick={()=>setMenu('aireport')} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm mt-4 ${menu==='aireport'?'bg-gradient-to-r from-brand-600 to-indigo-600 font-bold':'hover:bg-navy-800'}`}><i data-lucide="sparkles"></i> AI 리포트</button>
+                        </nav>
+                    </aside>
+
+                    <main className="ml-64 flex-1 p-8 bg-slate-50 relative">
+                        <div className="flex justify-between items-center mb-8">
+                            <h1 className="text-2xl font-bold text-navy-900">{menu==='dashboard'?'운영 현황':'AI 스마트 리포트'}</h1>
+                            <div className="flex items-center gap-4">
+                                <select className="bg-white border p-2 rounded font-bold" value={storeId} onChange={e=>setStoreId(e.target.value)}>
+                                    <option value="all">전사 (All)</option><option value="강남점">강남점</option><option value="대학로점">대학로점</option>
+                                </select>
+                                <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border shadow-sm">
+                                    <div className="w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center text-xs font-bold text-white">P</div>
+                                    <span className="font-bold">{credits}</span>
+                                    <button onClick={handleRecharge} className="text-xs bg-slate-100 px-2 py-1 rounded hover:bg-slate-200">충전</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {menu === 'dashboard' && <DashboardView storeId={storeId} />}
+                        {menu === 'aireport' && <AIReportView credits={credits} setCredits={setCredits} storeId={storeId} />}
+                        
+                        <AIChatbot />
+                    </main>
                 </div>
             );
         };

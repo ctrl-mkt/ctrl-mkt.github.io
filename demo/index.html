@@ -3,34 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie - 통합 프랜차이즈 관리 솔루션</title>
+    <title>RestoGenie - Partner Dashboard</title>
     
-    <!-- Fonts (Pretendard) -->
+    <!-- Fonts -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Icons (Lucide) -->
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Charts (ApexCharts) -->
+    <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <style>
         body { font-family: "Pretendard Variable", Pretendard, sans-serif; }
-        
-        /* Custom Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Animations */
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        
-        /* Utility */
         .hidden-force { display: none !important; }
     </style>
 
@@ -38,762 +31,602 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        navy: '#1e293b',
-                        navyDark: '#0f172a',
-                        blueMain: '#3b82f6',
-                    }
+                    colors: { slate: { 850: '#172033', 900: '#0f172a', 950: '#020617' } }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-slate-950 text-slate-200 selection:bg-blue-500/30 overflow-x-hidden">
+<body class="bg-slate-950 text-slate-200 overflow-hidden h-screen w-screen selection:bg-blue-500/30">
 
-    <!-- ================= LOGIN SCREEN ================= -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 relative z-50">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-md animate-fade-in">
-            <div class="text-center mb-10">
-                <div class="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
+    <!-- LOGIN SCREEN -->
+    <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+        <div class="bg-slate-900/80 border border-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md backdrop-blur-md fade-in">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-indigo-600 rounded-xl mx-auto flex items-center justify-center mb-4">
                     <i data-lucide="sparkles" class="text-white w-8 h-8"></i>
                 </div>
-                <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">RestoGenie</h1>
-                <p class="text-slate-400">데이터 기반 프랜차이즈 통합 관리</p>
+                <h1 class="text-3xl font-bold text-white mb-2">RestoGenie</h1>
+                <p class="text-slate-400">가맹점주 전용 파트너 센터</p>
             </div>
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-2">아이디</label>
-                    <input type="text" id="login-id" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="ID 입력">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-2">비밀번호</label>
-                    <input type="password" id="login-pw" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="Password 입력">
-                </div>
-                <button onclick="app.login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 mt-4">로그인</button>
-                
-                <!-- Quick Login Hints -->
-                <div class="bg-slate-800/50 rounded-lg p-4 text-center text-xs text-slate-500 mt-4 border border-slate-700/50">
-                    <p class="mb-2 font-bold text-slate-400">체험 계정 (클릭 시 자동 입력)</p>
-                    <div class="flex justify-center gap-4">
-                        <button onclick="app.fillLogin('demo', 'ctrlm2025!')" class="hover:text-blue-400 underline">본사(HQ)</button>
-                        <span class="text-slate-600">|</span>
-                        <button onclick="app.fillLogin('partner', 'ctrlm2025!')" class="hover:text-blue-400 underline">가맹점주(PT)</button>
-                    </div>
-                </div>
+            <div class="space-y-4">
+                <input type="text" id="login-id" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="아이디">
+                <input type="password" id="login-pw" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="비밀번호">
+                <button onclick="app.login()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-lg transition-all mt-2">로그인</button>
+            </div>
+            <div class="mt-6 text-center">
+                <button onclick="app.fillLogin('partner', 'ctrlm2025!')" class="text-sm text-indigo-400 hover:underline">점주(Partner) 체험 계정 자동 입력</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= APP LAYOUT ================= -->
-    <div id="app-layout" class="hidden-force min-h-screen flex bg-slate-950">
+    <!-- DASHBOARD LAYOUT -->
+    <div id="dashboard-view" class="hidden-force flex h-full w-full">
         
-        <!-- SIDEBAR -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 border-r border-slate-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
-            <!-- Logo -->
-            <div class="h-20 flex items-center px-6 border-b border-slate-800 flex-shrink-0">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                    <i data-lucide="sparkles" class="text-white w-5 h-5"></i>
-                </div>
-                <span class="text-xl font-bold text-white tracking-tight">RestoGenie</span>
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 absolute lg:relative h-full z-40 -translate-x-full lg:translate-x-0">
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 flex-shrink-0">
+                <i data-lucide="store" class="text-indigo-500 w-6 h-6 mr-3"></i>
+                <span class="text-lg font-bold text-white tracking-tight">Partner Center</span>
             </div>
 
-            <!-- Menu Items -->
-            <div class="flex-1 p-4 space-y-8 overflow-y-auto custom-scrollbar">
-                <div id="sidebar-menu-main">
-                    <!-- Injected by JS -->
-                </div>
-                <div id="sidebar-menu-ai">
-                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2">AI Center</div>
-                    <!-- Injected by JS -->
-                </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar" id="sidebar-menu">
+                <!-- Menu Injected -->
             </div>
-            
-            <!-- User Profile -->
-            <div class="p-4 bg-slate-900 border-t border-slate-800 flex-shrink-0">
-                <div class="flex items-center gap-3 px-2">
-                    <div id="user-avatar" class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-600 flex items-center justify-center text-xs font-bold text-white border border-slate-500">HQ</div>
+
+            <div class="p-4 bg-slate-850 border-t border-slate-800 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">PT</div>
                     <div class="flex-1 min-w-0">
-                        <div id="user-name" class="text-sm font-bold text-white truncate">관리자</div>
-                        <div id="user-role" class="text-xs text-slate-400 truncate">본사</div>
+                        <p class="text-sm font-bold text-white">박요한 점주</p>
+                        <p class="text-xs text-slate-400">강남점</p>
                     </div>
-                    <button onclick="app.logout()" class="p-2 text-slate-500 hover:text-red-400 transition-colors" title="로그아웃">
-                        <i data-lucide="log-out" class="w-5 h-5"></i>
-                    </button>
+                    <button onclick="location.reload()" class="text-slate-500 hover:text-white"><i data-lucide="log-out" class="w-4 h-4"></i></button>
                 </div>
             </div>
         </aside>
 
-        <!-- MOBILE OVERLAY -->
-        <div id="sidebar-overlay" onclick="app.toggleSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden backdrop-blur-sm"></div>
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" onclick="document.getElementById('sidebar').classList.add('-translate-x-full'); this.classList.add('hidden')" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden backdrop-blur-sm"></div>
 
-        <!-- MAIN CONTENT WRAPPER -->
-        <div class="flex-1 lg:pl-64 flex flex-col min-w-0 w-full transition-all duration-300">
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col min-w-0 bg-slate-950 h-full relative">
             
-            <!-- TOP HEADER -->
-            <header class="h-20 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between">
+            <!-- Header -->
+            <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-20">
                 <div class="flex items-center gap-4">
-                    <button onclick="app.toggleSidebar()" class="lg:hidden text-white p-2 hover:bg-slate-800 rounded-lg">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                    
-                    <!-- Store Selector (HQ) -->
-                    <div id="store-selector" class="hidden relative group">
-                        <button class="flex items-center gap-2 bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-lg hover:border-blue-500 transition-colors min-w-[160px] justify-between text-sm md:text-base">
-                            <span class="flex items-center gap-2">
-                                <i data-lucide="store" class="text-blue-400 w-4 h-4"></i> 
-                                <span id="current-store-name">전사 (HQ Total)</span>
-                            </span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Partner Title (PT) -->
-                    <h2 id="partner-title" class="hidden text-lg font-bold text-white flex items-center gap-2">
-                        <i data-lucide="store" class="text-blue-400 w-5 h-5"></i> 
-                        <span class="hidden md:inline">슬램버거</span> 강남점
-                    </h2>
+                    <button onclick="document.getElementById('sidebar').classList.remove('-translate-x-full'); document.getElementById('mobile-overlay').classList.remove('hidden')" class="lg:hidden text-slate-400"><i data-lucide="menu"></i></button>
+                    <h2 id="page-title" class="text-lg font-bold text-white flex items-center gap-2">내 매장 홈</h2>
                 </div>
 
-                <!-- Right Icons -->
-                <div class="flex items-center gap-3 md:gap-4">
-                    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-slate-700 hover:border-slate-600 transition-colors cursor-pointer" onclick="app.openAdModal()">
-                        <i data-lucide="coins" class="text-amber-400 w-4 h-4"></i>
-                        <span id="coin-balance" class="text-white font-bold text-sm">100</span>
-                        <div class="h-3 w-px bg-slate-600 mx-1"></div>
-                        <span class="text-xs text-blue-400 font-medium hover:text-blue-300">충전</span>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-slate-400 hidden md:block">
+                        <span class="text-indigo-400 font-bold">강남점</span> 영업중 <span class="text-green-400">●</span>
                     </div>
-                    <button class="text-slate-400 hover:text-white relative p-1">
-                        <i data-lucide="bell" class="w-6 h-6"></i>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                    </button>
+                    <div onclick="app.openAdModal()" class="flex items-center gap-2 px-3 py-1.5 bg-slate-800 rounded-full border border-slate-700 cursor-pointer hover:border-indigo-500 transition-colors">
+                        <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i>
+                        <span id="coin-disp" class="text-sm font-bold text-white">100</span>
+                    </div>
                 </div>
             </header>
 
-            <!-- MAIN CONTENT AREA -->
-            <main id="main-content" class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
-                <!-- Content will be injected here -->
+            <!-- Content Area -->
+            <main id="main-content" class="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar relative">
+                <!-- Dynamic Content -->
             </main>
 
         </div>
     </div>
 
-    <!-- ================= MODALS ================= -->
-
-    <!-- AI Report Modal -->
-    <div id="modal-ai" class="hidden-force fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 w-full max-w-3xl h-[85vh] rounded-2xl border border-slate-700 flex flex-col shadow-2xl transform transition-all">
-            <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/50 rounded-t-2xl">
-                <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                    <i data-lucide="file-text" class="text-blue-400 w-6 h-6"></i> 
-                    <span id="ai-modal-title">AI 리포트 생성</span>
-                </h3>
-                <button onclick="app.closeModal('modal-ai')" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
+    <!-- AI Modal -->
+    <div id="ai-modal" class="hidden-force fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-3xl h-[85vh] rounded-2xl shadow-2xl flex flex-col">
+            <div class="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-850 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-indigo-400"></i>
+                    <h3 class="text-lg font-bold text-white">AI 매장 점검 리포트</h3>
+                </div>
+                <button onclick="document.getElementById('ai-modal').classList.add('hidden-force')" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar" id="ai-modal-content">
-                <!-- Dynamic Content -->
-            </div>
+            <div id="ai-content-area" class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-slate-900 text-slate-300 leading-relaxed"></div>
         </div>
     </div>
 
     <!-- Ad Modal -->
-    <div id="modal-ad" class="hidden-force fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl">
-            <h3 class="text-xl font-bold text-slate-900 mb-4">광고 시청 중...</h3>
-            <div class="aspect-video bg-slate-100 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <i data-lucide="play-circle" class="text-slate-300 w-16 h-16 relative z-10"></i>
-                <div class="absolute inset-0 bg-gradient-to-tr from-slate-200 to-white opacity-50 animate-pulse"></div>
-            </div>
-            <div class="w-full bg-slate-200 h-2 rounded-full mb-6 overflow-hidden">
-                <div id="ad-progress" class="h-full bg-blue-600 transition-all duration-100" style="width: 0%"></div>
-            </div>
-            <button id="ad-btn" disabled onclick="app.completeAd()" class="w-full py-3 rounded-xl font-bold bg-slate-200 text-slate-400 transition-colors cursor-not-allowed">
-                시청 중...
-            </button>
+    <div id="ad-modal" class="hidden-force fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">코인 충전소</h3>
+            <div class="aspect-video bg-slate-100 rounded-xl mb-4 flex items-center justify-center"><i data-lucide="play-circle" class="w-12 h-12 text-slate-300"></i></div>
+            <div class="h-2 bg-slate-200 rounded-full mb-4"><div id="ad-progress" class="h-full bg-indigo-600 w-0 transition-all duration-100"></div></div>
+            <button id="ad-close-btn" disabled onclick="app.completeAd()" class="w-full py-3 rounded-lg font-bold bg-slate-200 text-slate-400">광고 시청 중...</button>
         </div>
     </div>
 
-    <!-- Chat Bot Widget -->
-    <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end">
-        <div id="chat-window" class="hidden-force bg-slate-900 border border-slate-700 w-80 md:w-96 h-[500px] rounded-2xl shadow-2xl flex flex-col mb-4 overflow-hidden animate-fade-in">
-            <div class="bg-blue-600 p-4 flex justify-between items-center flex-shrink-0">
-                <span class="text-white font-bold flex items-center gap-2">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i> RestoBot AI
-                </span>
-                <button onclick="app.toggleChat()" class="text-white/80 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+    <!-- Chat Widget -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div id="chat-box" class="hidden-force w-80 md:w-96 h-[500px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col mb-4 overflow-hidden">
+            <div class="bg-indigo-600 p-4 flex justify-between items-center">
+                <span class="text-white font-bold flex items-center gap-2"><i data-lucide="bot" class="w-5 h-5"></i> Partner AI</span>
+                <button onclick="document.getElementById('chat-box').classList.add('hidden-force')"><i data-lucide="x" class="w-5 h-5 text-white/80"></i></button>
             </div>
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/95 custom-scrollbar">
-                <div class="flex justify-start">
-                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none border border-slate-700 text-sm max-w-[85%] shadow-sm">
-                        안녕하세요! RestoGenie AI입니다. 매장 데이터나 회의록에 대해 궁금한 점이 있으신가요? 🍔
-                    </div>
-                </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900 custom-scrollbar">
+                <div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] border border-slate-700">점주님 안녕하세요! 매장 운영에 대해 궁금한 점을 물어보세요. (예: 이번 주 순이익은?)</div></div>
             </div>
-            <div class="p-3 bg-slate-800 border-t border-slate-700 flex gap-2 flex-shrink-0">
-                <input id="chat-input" type="text" class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500" placeholder="질문 입력..." onkeypress="if(event.key==='Enter') app.sendChatMessage()">
-                <button onclick="app.sendChatMessage()" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                </button>
+            <div class="p-3 bg-slate-850 border-t border-slate-800 flex gap-2">
+                <input id="chat-input" type="text" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-indigo-500 outline-none" placeholder="질문 입력..." onkeypress="if(event.key==='Enter') app.sendMessage()">
+                <button onclick="app.sendMessage()" class="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-500"><i data-lucide="send" class="w-4 h-4"></i></button>
             </div>
         </div>
-        <button onclick="app.toggleChat()" class="bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-full shadow-xl transition-transform hover:scale-105 flex items-center justify-center group">
-            <i data-lucide="message-square" class="w-6 h-6 group-hover:animate-bounce"></i>
+        <button onclick="document.getElementById('chat-box').classList.toggle('hidden-force')" class="bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-xl transition-transform hover:scale-105">
+            <i data-lucide="message-square" class="w-6 h-6"></i>
         </button>
     </div>
 
-    <!-- ================= LOGIC ================= -->
     <script>
-        // API Key setup
-        const GEMINI_API_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ"; 
+        // Config - UPDATED MODEL NAME
+        const GEMINI_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ"; 
+        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025"; 
 
-        // --- Mock Data ---
+        // Mock Data for Gangnam Store
         const DB = {
-            gangnam: {
-                name: '강남점',
-                dailySales: [1817700, 1546200, 1982900, 1602400, 2546200, 2897600, 1508700],
-                dates: ['11/10', '11/11', '11/12', '11/13', '11/14', '11/15', '11/16'],
-                topMenus: [
-                    { name: '더 크리스피 갈비 버거 SET', count: 450, revenue: 4365000 },
-                    { name: '더 비프 버거 SET', count: 380, revenue: 3686000 },
-                    { name: '치즈버거 SET', count: 210, revenue: 1869000 },
-                    { name: '맥앤치즈 버거', count: 150, revenue: 1185000 }
-                ],
-                channelMix: [55, 45], // Hall, Delivery
-                cctv: { traffic: 12450, visit: 1845, conversion: 14.8 }
+            store: "강남점",
+            sales: {
+                daily: [1817700, 1546200, 1982900, 1602400, 2546200, 2897600, 1508700],
+                dates: ['11/10(월)', '11/11(화)', '11/12(수)', '11/13(목)', '11/14(금)', '11/15(토)', '11/16(일)'],
+                total: 13899500,
+                profit: 3474875, // ~25%
+                cost: 4864825, // ~35%
+                delivery_cost: 2084925, // ~15%
+                fees: 3474875 // ~25%
             },
-            okr: `[2025-11-11 OKR 회의록 요약]\n- 결정사항: 강남점 런치 메뉴 변경(11/12), 네이버 플레이스 쿠폰 발급, B2B 데모 취소.\n- 강남점 이슈: 디너 포장 할인 종료 (실효성 낮음).\n- 목표: 11월 전사 매출 2.7억 달성 (현재 72% 달성).`
+            menus: [
+                { name: '더 크리스피 갈비 버거 SET', qty: 450, sales: 4365000, margin: 'High' },
+                { name: '더 비프 버거 SET', qty: 380, sales: 3686000, margin: 'Mid' },
+                { name: '치즈버거 SET', qty: 210, sales: 1869000, margin: 'Mid' },
+                { name: '맥앤치즈 버거', qty: 150, sales: 1185000, margin: 'Low' }
+            ],
+            reviews: [
+                { user: '맛있으면짖는개', rating: 5, date: '2025-11-16', content: '갈비버거 진짜 미쳤네요.. 육즙 대박입니다 🐶', reply: false },
+                { user: '버거킹만먹음', rating: 4, date: '2025-11-15', content: '맛은 있는데 배달이 좀 식어서 왔어요. 포장에 신경써주세요.', reply: true },
+                { user: '소식좌', rating: 5, date: '2025-11-14', content: '양이 진짜 많아요! 감튀 남겼습니다 ㅠㅠ 번창하세요', reply: false }
+            ]
         };
 
-        // --- App Logic ---
         const app = {
-            userType: null,
             coins: 100,
-            currentStore: 'gangnam',
-
-            init: function() {
-                // Initialize Lucide Icons on Load
+            
+            init() {
                 lucide.createIcons();
-                console.log("App Initialized");
             },
 
-            fillLogin: function(id, pw) {
+            fillLogin(id, pw) {
                 document.getElementById('login-id').value = id;
                 document.getElementById('login-pw').value = pw;
             },
 
-            login: function() {
+            login() {
                 const id = document.getElementById('login-id').value;
-                const pw = document.getElementById('login-pw').value;
-
-                if (id === 'demo' && pw === 'ctrlm2025!') {
-                    this.userType = 'hq';
-                    this.loadDashboard();
-                } else if (id === 'partner' && pw === 'ctrlm2025!') {
-                    this.userType = 'partner';
-                    this.loadDashboard();
-                } else {
-                    alert('아이디 또는 비밀번호를 확인해주세요.\n(Demo: demo / ctrlm2025!)');
-                }
+                if(id !== 'partner') return alert('본 페이지는 점주(Partner) 계정 전용입니다.');
+                
+                document.getElementById('login-view').classList.add('hidden-force');
+                document.getElementById('dashboard-view').classList.remove('hidden-force');
+                
+                this.renderMenu();
+                this.loadPage('home');
             },
 
-            logout: function() {
-                this.userType = null;
-                document.getElementById('login-id').value = '';
-                document.getElementById('login-pw').value = '';
-                document.getElementById('app-layout').classList.add('hidden-force');
-                document.getElementById('login-screen').classList.remove('hidden-force');
-            },
-
-            loadDashboard: function() {
-                document.getElementById('login-screen').classList.add('hidden-force');
-                document.getElementById('app-layout').classList.remove('hidden-force');
-                
-                const isHQ = this.userType === 'hq';
-                
-                // Update Profile UI
-                document.getElementById('user-avatar').innerText = isHQ ? 'HQ' : 'PT';
-                document.getElementById('user-name').innerText = isHQ ? '김도윤 팀장' : '박요한 점주';
-                document.getElementById('user-role').innerText = isHQ ? '운영본부' : '강남점';
-                
-                // Update Header UI
-                if(isHQ) {
-                    document.getElementById('store-selector').classList.remove('hidden');
-                    document.getElementById('partner-title').classList.add('hidden');
-                } else {
-                    document.getElementById('store-selector').classList.add('hidden');
-                    document.getElementById('partner-title').classList.remove('hidden');
-                }
-
-                this.renderSidebar();
-                this.renderMainContent('dashboard');
-                this.updateCoinDisplay();
-                
-                // Re-render icons
-                setTimeout(() => lucide.createIcons(), 50);
-            },
-
-            renderSidebar: function() {
-                const mainContainer = document.getElementById('sidebar-menu-main');
-                const aiContainer = document.getElementById('sidebar-menu-ai');
-                const isHQ = this.userType === 'hq';
-
-                const mainItems = isHQ ? [
-                    { id: 'dashboard', icon: 'layout-dashboard', label: '종합 대시보드' },
-                    { id: 'sales', icon: 'trending-up', label: '매출 분석' },
-                    { id: 'stores', icon: 'store', label: '가맹점 관리' },
-                    { id: 'marketing', icon: 'users', label: '마케팅 성과' }
-                ] : [
-                    { id: 'dashboard', icon: 'layout-dashboard', label: '내 매장 홈' },
+            renderMenu() {
+                const menuItems = [
+                    { id: 'home', icon: 'layout-dashboard', label: '내 매장 홈' },
                     { id: 'sales', icon: 'dollar-sign', label: '매출/손익' },
                     { id: 'menu', icon: 'shopping-bag', label: '메뉴 분석' },
-                    { id: 'reviews', icon: 'message-square', label: '리뷰 관리' }
-                ];
-
-                const aiItems = isHQ ? [
-                    { id: 'ai_report', icon: 'file-text', label: 'AI 경영 리포트', highlight: true }
-                ] : [
+                    { id: 'reviews', icon: 'message-square', label: '리뷰 관리' },
                     { id: 'ai_consult', icon: 'file-text', label: 'AI 매장 컨설팅', highlight: true }
                 ];
-
-                // Safe HTML generation
-                const generateMenuHTML = (items) => items.map(item => `
-                    <button onclick="app.renderMainContent('${item.id}')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-slate-800 text-slate-400 hover:text-white group">
-                        <i data-lucide="${item.icon}" class="w-5 h-5 ${item.highlight ? 'text-amber-400' : ''}"></i>
-                        <span class="font-medium ${item.highlight ? 'text-white' : ''}">${item.label}</span>
+                
+                const html = menuItems.map(item => `
+                    <button onclick="app.loadPage('${item.id}')" id="btn-${item.id}" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl ${item.highlight ? 'text-indigo-400 hover:bg-indigo-500/10' : 'text-slate-400 hover:bg-slate-800 hover:text-white'} transition-all group">
+                        <i data-lucide="${item.icon}" class="w-5 h-5 ${item.highlight ? '' : 'group-hover:text-indigo-400'}"></i>
+                        <span class="font-medium">${item.label}</span>
                     </button>
                 `).join('');
+                
+                document.getElementById('sidebar-menu').innerHTML = html;
+                lucide.createIcons();
+            },
 
-                mainContainer.innerHTML = `
-                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2">Main Menu</div>
-                    <nav class="space-y-1">${generateMenuHTML(mainItems)}</nav>
-                `;
-                aiContainer.innerHTML = `
-                    <nav class="space-y-1">${generateMenuHTML(aiItems)}</nav>
+            loadPage(pageId) {
+                // Active State
+                document.querySelectorAll('#sidebar-menu button').forEach(b => {
+                    if(!b.innerHTML.includes('AI 매장 컨설팅')) b.className = b.className.replace('bg-indigo-600/10 text-indigo-400', 'text-slate-400');
+                });
+                const btn = document.getElementById(`btn-${pageId}`);
+                if(btn && pageId !== 'ai_consult') btn.className = btn.className.replace('text-slate-400', 'bg-indigo-600/10 text-indigo-400');
+
+                const main = document.getElementById('main-content');
+                const title = document.getElementById('page-title');
+                const titles = { home: '내 매장 홈', sales: '매출 및 손익 분석', menu: '메뉴 엔지니어링', reviews: '고객 리뷰 관리' };
+                if(titles[pageId]) title.innerText = titles[pageId];
+
+                if(pageId === 'home') {
+                    main.innerHTML = this.getHomeHTML();
+                    this.renderHomeCharts();
+                } else if(pageId === 'sales') {
+                    main.innerHTML = this.getSalesHTML();
+                    this.renderSalesCharts();
+                } else if(pageId === 'menu') {
+                    main.innerHTML = this.getMenuHTML();
+                    this.renderMenuCharts();
+                } else if(pageId === 'reviews') {
+                    main.innerHTML = this.getReviewsHTML();
+                } else if(pageId === 'ai_consult') {
+                    this.openAiModal();
+                    // Return to previous page logic omitted for simplicity, stays on current
+                }
+                lucide.createIcons();
+            },
+
+            // --- HTML Generators ---
+
+            getHomeHTML() {
+                return `
+                    <div class="space-y-6 fade-in pb-20">
+                        <div class="bg-gradient-to-r from-indigo-900 to-slate-900 p-6 rounded-xl border border-indigo-500/30 shadow-lg flex justify-between items-center">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">오늘도 대박나세요, 사장님! 🔥</h3>
+                                <p class="text-indigo-200 text-sm">현재 목표 매출 달성률 <span class="font-bold text-white">92%</span> 입니다.</p>
+                            </div>
+                            <div class="text-right hidden md:block">
+                                <p class="text-slate-400 text-xs">실시간 예상 순이익</p>
+                                <p class="text-2xl font-bold text-white">₩345,000</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            ${this.card('오늘 매출', '1,250,000원', 15.2, 'dollar-sign', 'indigo')}
+                            ${this.card('주문 건수', '48건', 8.5, 'shopping-bag', 'green')}
+                            ${this.card('고객 평점', '4.9', 0.1, 'star', 'amber')}
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                <h3 class="text-base font-bold text-white mb-4">주간 매출 트렌드</h3>
+                                <div id="chart-home-trend" class="h-[250px]"></div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                    <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-amber-400"></i> 알림 피드</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex gap-3 text-sm p-2 bg-slate-800/50 rounded hover:bg-slate-800 transition-colors">
+                                            <span class="text-amber-400 font-bold whitespace-nowrap">[재고]</span>
+                                            <span class="text-slate-300">브리오슈 번 재고가 15개 남았습니다. 발주가 필요합니다.</span>
+                                        </div>
+                                        <div class="flex gap-3 text-sm p-2 bg-slate-800/50 rounded hover:bg-slate-800 transition-colors">
+                                            <span class="text-blue-400 font-bold whitespace-nowrap">[리뷰]</span>
+                                            <span class="text-slate-300">신규 별점 5점 리뷰가 등록되었습니다!</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="app.openAiModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all transform hover:scale-[1.02]">
+                                    <i data-lucide="file-text"></i> 매장 점검 리포트 생성 (1코인)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 `;
             },
 
-            renderMainContent: function(pageId) {
-                const content = document.getElementById('main-content');
-                const isHQ = this.userType === 'hq';
-                
-                // Close sidebar on mobile if open
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
-                    this.toggleSidebar();
-                }
-
-                if(pageId === 'dashboard') {
-                    const data = DB.gangnam;
-                    const totalSales = data.dailySales.reduce((a,b) => a+b, 0);
-                    
-                    // HTML Templates separated for cleaner code
-                    const aiButton = isHQ 
-                        ? `<button onclick="app.openAiModal('hq')" class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 text-white px-4 py-2 rounded-lg shadow-lg transition-all hover:scale-105">
-                             <i data-lucide="sparkles" class="w-4 h-4"></i> AI 주간 회의 자료
-                           </button>` 
-                        : `<button onclick="app.openAiModal('partner')" class="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 text-white px-4 py-2 rounded-lg shadow-lg transition-all hover:scale-105">
-                             <i data-lucide="sparkles" class="w-4 h-4"></i> 매장 점검 리포트 (1코인)
-                           </button>`;
-
-                    const weatherWidget = isHQ 
-                        ? `<div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                            <h3 class="text-lg font-bold text-white mb-4">매장별 이슈 요약</h3>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left text-slate-400">
-                                    <thead class="text-xs text-slate-500 uppercase bg-slate-700/50">
-                                        <tr><th class="px-4 py-3">매장</th><th class="px-4 py-3">상태</th><th class="px-4 py-3">달성률</th><th class="px-4 py-3">이슈</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="border-b border-slate-800 hover:bg-slate-700/20"><td class="px-4 py-3 font-medium text-white">강남점</td><td class="px-4 py-3"><span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-xs">영업중</span></td><td class="px-4 py-3">94%</td><td class="px-4 py-3 text-amber-400">배달비</td></tr>
-                                        <tr class="border-b border-slate-800 hover:bg-slate-700/20"><td class="px-4 py-3 font-medium text-white">대학로점</td><td class="px-4 py-3"><span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-xs">영업중</span></td><td class="px-4 py-3">88%</td><td class="px-4 py-3">-</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                           </div>` 
-                        : `<div class="bg-slate-800 rounded-xl p-6 border border-slate-700 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
-                            <div class="text-5xl mb-4">🌤️</div>
-                            <h4 class="text-white font-bold text-lg">오늘 날씨: 맑음</h4>
-                            <p class="text-sm text-slate-400 mt-2">야외 활동이 많아 <span class="text-blue-400 font-bold">홀 매출 비중</span>이<br/>높을 것으로 예상됩니다.</p>
-                           </div>`;
-
-                    const topMenusHTML = data.topMenus.map((m, i) => `
-                        <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg border border-slate-800">
-                            <div class="flex items-center gap-3">
-                                <div class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${i===0?'bg-amber-500 text-black':'bg-slate-700 text-slate-300'}">${i+1}</div>
-                                <span class="text-slate-200 text-sm truncate max-w-[120px] md:max-w-none">${m.name}</span>
-                            </div>
-                            <div class="text-right flex-shrink-0">
-                                <div class="text-white font-bold text-sm">${m.count}개</div>
-                                <div class="text-xs text-slate-500">${m.revenue.toLocaleString()}원</div>
-                            </div>
-                        </div>`).join('');
-
-                    content.innerHTML = `
-                    <div class="space-y-6 animate-fade-in">
-                        <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 mb-2">
-                            <div>
-                                <h1 class="text-2xl font-bold text-white mb-1">${isHQ ? '11월 종합 현황' : '매장 실시간 현황'}</h1>
-                                <p class="text-slate-400 text-sm">최종 업데이트: ${new Date().toLocaleTimeString()}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                ${isHQ ? '<button class="p-2 bg-slate-800 border border-slate-700 rounded hover:bg-slate-700 text-slate-300"><i data-lucide="printer" class="w-4 h-4"></i></button>' : ''}
-                                ${aiButton}
+            getSalesHTML() {
+                return `
+                    <div class="space-y-6 fade-in pb-20">
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                            <h3 class="text-lg font-bold text-white mb-6">11월 손익 계산서 (추정)</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+                                    <span class="text-slate-400">총 매출액</span>
+                                    <span class="text-2xl font-bold text-white">₩${DB.sales.total.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm text-red-400">
+                                    <span>(-) 식자재 원가 (35%)</span>
+                                    <span>-₩${DB.sales.cost.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm text-red-400">
+                                    <span>(-) 배달 대행비 (15%)</span>
+                                    <span>-₩${DB.sales.delivery_cost.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm text-red-400">
+                                    <span>(-) 플랫폼 수수료/기타 (25%)</span>
+                                    <span>-₩${DB.sales.fees.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-4 border-t border-slate-700">
+                                    <span class="text-indigo-400 font-bold">영업 이익 (25%)</span>
+                                    <span class="text-2xl font-bold text-indigo-400">₩${DB.sales.profit.toLocaleString()}</span>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- KPI Cards -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            ${this.createKpiCard('누적 매출 (11월)', totalSales.toLocaleString()+'원', 12.5, 'dollar-sign', 'blue')}
-                            ${this.createKpiCard('총 주문 수', '1,350건', 8.2, 'shopping-bag', 'green')}
-                            ${this.createKpiCard('CCTV 유동인구', '12,450명', -2.1, 'users', 'purple')}
-                            ${this.createKpiCard('배달 비중', '45%', 5.4, 'trending-up', 'amber')}
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                            <h3 class="text-base font-bold text-white mb-4">요일별 매출/이익 추이</h3>
+                            <div id="chart-sales-profit" class="h-[300px]"></div>
                         </div>
+                    </div>
+                `;
+            },
 
-                        <!-- Charts Row -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div class="lg:col-span-2 bg-slate-800 rounded-xl p-6 border border-slate-700">
-                                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-blue-400"></i> 일별 매출 추이</h3>
-                                <div id="chart-sales" class="h-72 w-full"></div>
-                            </div>
-                            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i> 채널별 비중</h3>
-                                <div id="chart-channel" class="h-72 w-full flex items-center justify-center"></div>
-                            </div>
+            getMenuHTML() {
+                return `
+                    <div class="space-y-6 fade-in pb-20">
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                             <h3 class="text-base font-bold text-white mb-4">메뉴별 판매 성과 (Top 5)</h3>
+                             <div id="chart-menu-bar" class="h-[300px]"></div>
                         </div>
                         
-                        <!-- Bottom Row -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
-                            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                                <h3 class="text-lg font-bold text-white mb-4">판매 Top 4 메뉴</h3>
-                                <div class="space-y-3">${topMenusHTML}</div>
-                            </div>
-                            ${weatherWidget}
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                            <table class="w-full text-sm text-left text-slate-400">
+                                <thead class="text-xs text-slate-500 uppercase bg-slate-850 border-b border-slate-800">
+                                    <tr>
+                                        <th class="px-6 py-3">메뉴명</th>
+                                        <th class="px-6 py-3 text-right">판매수량</th>
+                                        <th class="px-6 py-3 text-right">매출액</th>
+                                        <th class="px-6 py-3 text-center">수익성</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${DB.menus.map(m => `
+                                        <tr class="border-b border-slate-800 hover:bg-slate-800/50">
+                                            <td class="px-6 py-4 font-medium text-white">${m.name}</td>
+                                            <td class="px-6 py-4 text-right">${m.qty}개</td>
+                                            <td class="px-6 py-4 text-right text-white">₩${m.sales.toLocaleString()}</td>
+                                            <td class="px-6 py-4 text-center">
+                                                <span class="px-2 py-1 rounded text-xs font-bold ${m.margin==='High'?'bg-green-500/20 text-green-400':m.margin==='Mid'?'bg-blue-500/20 text-blue-400':'bg-red-500/20 text-red-400'}">${m.margin}</span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         </div>
-                    </div>`;
-                    
-                    // Re-initialize icons and render charts
-                    lucide.createIcons();
-                    this.renderCharts(data);
-
-                } else if (pageId === 'ai_report' || pageId === 'ai_consult') {
-                    // Directly open modal and stay on dashboard
-                    this.openAiModal(isHQ ? 'hq' : 'partner');
-                    this.renderMainContent('dashboard');
-                } else {
-                    // Placeholder for other pages
-                    content.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-[60vh] text-slate-500 animate-fade-in">
-                        <div class="bg-slate-900 p-6 rounded-full mb-4 border border-slate-800">
-                            <i data-lucide="settings" class="w-12 h-12 text-slate-700"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-slate-300 mb-2">페이지 준비 중</h2>
-                        <p>해당 메뉴는 현재 개발 중입니다.</p>
-                        <button onclick="app.renderMainContent('dashboard')" class="mt-6 text-blue-500 hover:underline flex items-center gap-2">
-                            <i data-lucide="arrow-left" class="w-4 h-4"></i> 대시보드로 돌아가기
-                        </button>
-                    </div>`;
-                    lucide.createIcons();
-                }
+                    </div>
+                `;
             },
 
-            createKpiCard: function(title, value, trend, icon, color) {
-                const trendColor = trend >= 0 ? 'text-emerald-400' : 'text-red-400';
-                const arrowIcon = trend >= 0 ? 'trending-up' : 'trending-down';
-                const bgColors = { 
-                    blue: 'bg-blue-500/10 text-blue-400', 
-                    green: 'bg-emerald-500/10 text-emerald-400', 
-                    purple: 'bg-purple-500/10 text-purple-400', 
-                    amber: 'bg-amber-500/10 text-amber-400' 
-                };
-                
+            getReviewsHTML() {
                 return `
-                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-sm hover:shadow-md transition-shadow group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <p class="text-slate-400 text-sm font-medium mb-1">${title}</p>
+                    <div class="space-y-4 fade-in pb-20">
+                        ${DB.reviews.map(r => `
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white">${r.user}</span>
+                                        <div class="flex text-amber-400 text-xs">
+                                            ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
+                                        </div>
+                                    </div>
+                                    <span class="text-xs text-slate-500">${r.date}</span>
+                                </div>
+                                <p class="text-slate-300 text-sm mb-4 bg-slate-800/50 p-3 rounded-lg">${r.content}</p>
+                                ${r.reply ? 
+                                    `<div class="ml-4 pl-4 border-l-2 border-slate-700">
+                                        <p class="text-xs text-indigo-400 font-bold mb-1">사장님 답글</p>
+                                        <p class="text-xs text-slate-400">소중한 리뷰 감사합니다! 다음엔 더 따뜻하게 배달해드릴게요 :)</p>
+                                    </div>` : 
+                                    `<div class="flex justify-end gap-2">
+                                        <button class="px-3 py-1.5 bg-slate-800 text-slate-300 text-xs rounded hover:bg-slate-700">직접 쓰기</button>
+                                        <button class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-500 flex items-center gap-1">
+                                            <i data-lucide="sparkles" class="w-3 h-3"></i> AI 답글 추천
+                                        </button>
+                                    </div>`
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            },
+
+            card(title, value, trend, icon, color) {
+                const isPos = trend >= 0;
+                const colors = { indigo: 'text-indigo-400 bg-indigo-500/10', green: 'text-green-400 bg-green-500/10', amber: 'text-amber-400 bg-amber-500/10' };
+                return `
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-400 text-xs font-bold uppercase">${title}</span>
+                            <i data-lucide="${icon}" class="w-4 h-4 ${colors[color]}"></i>
+                        </div>
+                        <div class="flex items-end gap-2">
                             <h3 class="text-2xl font-bold text-white">${value}</h3>
-                        </div>
-                        <div class="p-3 rounded-lg ${bgColors[color]} transition-colors">
-                            <i data-lucide="${icon}" class="w-5 h-5"></i>
+                            <span class="text-xs ${isPos?'text-green-400':'text-red-400'} mb-1">${isPos?'+':''}${trend}%</span>
                         </div>
                     </div>
-                    <div class="flex items-center text-sm">
-                        <span class="flex items-center font-medium ${trendColor}">
-                            ${trend > 0 ? '+' : ''}${trend}% <i data-lucide="${arrowIcon}" class="w-4 h-4 ml-1"></i>
-                        </span>
-                        <span class="text-slate-500 ml-2">vs 지난주</span>
-                    </div>
-                </div>`;
+                `;
             },
 
-            renderCharts: function(data) {
-                if(!document.querySelector("#chart-sales")) return;
+            // --- Charts ---
 
-                // Sales Area Chart
-                const optionsSales = {
-                    series: [{ name: '매출', data: data.dailySales }],
-                    chart: { type: 'area', height: 280, toolbar: { show: false }, background: 'transparent', fontFamily: 'Pretendard' },
-                    dataLabels: { enabled: false },
-                    stroke: { curve: 'smooth', width: 3 },
-                    xaxis: { 
-                        categories: data.dates, 
-                        labels: { style: { colors: '#94a3b8' } }, 
-                        axisBorder: { show: false }, 
-                        axisTicks: { show: false } 
-                    },
-                    yaxis: { 
-                        labels: { style: { colors: '#94a3b8' }, formatter: val => (val/10000) + '만' } 
-                    },
-                    grid: { borderColor: '#334155', strokeDashArray: 4 },
-                    theme: { mode: 'dark' },
-                    colors: ['#3b82f6'],
-                    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] } }
-                };
-                
-                // Channel Donut Chart
-                const optionsChannel = {
-                    series: data.channelMix,
-                    labels: ['홀', '배달'],
-                    chart: { type: 'donut', height: 280, background: 'transparent', fontFamily: 'Pretendard' },
-                    colors: ['#3b82f6', '#f59e0b'],
-                    legend: { position: 'bottom', labels: { colors: '#e2e8f0' } },
-                    stroke: { show: false },
-                    dataLabels: { enabled: true, dropShadow: { enabled: false } },
-                    plotOptions: {
-                        pie: { donut: { labels: { show: true, total: { show: true, label: '홀 비중', color: '#94a3b8', formatter: () => data.channelMix[0] + '%' } } } }
-                    }
-                };
-
-                new ApexCharts(document.querySelector("#chart-sales"), optionsSales).render();
-                new ApexCharts(document.querySelector("#chart-channel"), optionsChannel).render();
-            },
-
-            // --- Features ---
-            toggleSidebar: function() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                
-                if (sidebar.classList.contains('-translate-x-full')) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.remove('hidden');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                }
-            },
-
-            updateCoinDisplay: function() {
-                document.getElementById('coin-balance').innerText = this.coins;
-            },
-
-            openAdModal: function() {
-                const modal = document.getElementById('modal-ad');
-                modal.classList.remove('hidden-force');
-                
-                let progress = 0;
-                const bar = document.getElementById('ad-progress');
-                const btn = document.getElementById('ad-btn');
-                
-                // Reset state
-                bar.style.width = '0%';
-                btn.disabled = true;
-                btn.innerText = '시청 중...';
-                btn.className = 'w-full py-3 rounded-xl font-bold bg-slate-200 text-slate-400 transition-colors cursor-not-allowed';
-
-                const interval = setInterval(() => {
-                    progress += 2;
-                    bar.style.width = progress + '%';
-                    if(progress >= 100) {
-                        clearInterval(interval);
-                        btn.disabled = false;
-                        btn.className = 'w-full py-3 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-500 transition-colors';
-                        btn.innerText = '보상 받기 (+10 Coin)';
-                    }
+            renderHomeCharts() {
+                setTimeout(() => {
+                    const options = {
+                        series: [{ name: '매출', data: DB.sales.daily }],
+                        chart: { type: 'area', height: '100%', toolbar: { show: false }, background: 'transparent', fontFamily: 'Pretendard' },
+                        theme: { mode: 'dark' },
+                        stroke: { curve: 'smooth', width: 2, colors: ['#6366f1'] },
+                        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.0, stops: [0, 90, 100] } },
+                        dataLabels: { enabled: false },
+                        xaxis: { categories: DB.sales.dates, labels: { style: { colors: '#94a3b8', fontSize: '10px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+                        yaxis: { show: false },
+                        grid: { show: false, padding: { left: 0, right: 0 } }
+                    };
+                    new ApexCharts(document.querySelector("#chart-home-trend"), options).render();
                 }, 50);
             },
 
-            completeAd: function() {
-                this.coins += 10;
-                this.updateCoinDisplay();
-                document.getElementById('modal-ad').classList.add('hidden-force');
+            renderSalesCharts() {
+                setTimeout(() => {
+                    const profitData = DB.sales.daily.map(v => Math.floor(v * 0.25));
+                    const options = {
+                        series: [{ name: '매출', type: 'column', data: DB.sales.daily }, { name: '순이익', type: 'line', data: profitData }],
+                        chart: { type: 'line', height: '100%', toolbar: { show: false }, background: 'transparent', fontFamily: 'Pretendard' },
+                        theme: { mode: 'dark' },
+                        plotOptions: { bar: { borderRadius: 4, columnWidth: '40%' } },
+                        stroke: { width: [0, 3] },
+                        colors: ['#334155', '#6366f1'],
+                        xaxis: { categories: DB.sales.dates, labels: { style: { colors: '#94a3b8' } } },
+                        yaxis: { labels: { style: { colors: '#94a3b8' }, formatter: v => (v/10000).toFixed(0) + '만' } },
+                        legend: { position: 'top' },
+                        grid: { borderColor: '#334155' }
+                    };
+                    new ApexCharts(document.querySelector("#chart-sales-profit"), options).render();
+                }, 50);
             },
 
-            // --- AI Logic ---
-            openAiModal: function(type) {
-                const modal = document.getElementById('modal-ai');
-                const content = document.getElementById('ai-modal-content');
-                const title = document.getElementById('ai-modal-title');
-                
-                modal.classList.remove('hidden-force');
-                title.innerText = type === 'hq' ? '주간 회의 자료 생성 (5코인)' : '매장 점검 리포트 생성 (1코인)';
-                
-                // Default State
+            renderMenuCharts() {
+                setTimeout(() => {
+                    const options = {
+                        series: [{ data: DB.menus.map(m => m.sales) }],
+                        chart: { type: 'bar', height: '100%', toolbar: { show: false }, background: 'transparent', fontFamily: 'Pretendard' },
+                        theme: { mode: 'dark' },
+                        plotOptions: { bar: { borderRadius: 4, horizontal: true, barHeight: '50%' } },
+                        colors: ['#818cf8'],
+                        dataLabels: { enabled: true, formatter: val => (val/10000).toFixed(0) + '만원', style: { colors: ['#fff'] } },
+                        xaxis: { categories: DB.menus.map(m => m.name), labels: { show: false } },
+                        yaxis: { labels: { style: { colors: '#e2e8f0' }, maxWidth: 200 } },
+                        grid: { show: false }
+                    };
+                    new ApexCharts(document.querySelector("#chart-menu-bar"), options).render();
+                }, 50);
+            },
+
+            // --- AI Report ---
+
+            openAiModal() {
+                document.getElementById('ai-modal').classList.remove('hidden-force');
+                const content = document.getElementById('ai-content-area');
                 content.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full text-center min-h-[400px]">
-                        <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
-                            <i data-lucide="sparkles" class="w-10 h-10 text-blue-400"></i>
+                    <div class="flex flex-col items-center justify-center h-full text-center">
+                        <div class="w-16 h-16 bg-indigo-600/10 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="clipboard-check" class="w-8 h-8 text-indigo-500"></i>
                         </div>
-                        <h4 class="text-2xl font-bold text-white mb-2">AI 리포트 생성</h4>
-                        <p class="text-slate-400 mb-8">
-                            최신 데이터를 분석하여 인사이트가 담긴 리포트를 작성합니다.<br/>
-                            소요 비용: <span class="text-amber-400 font-bold">${type === 'hq' ? 5 : 1} 코인</span>
-                        </p>
-                        <button onclick="app.generateReport('${type}')" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-900/20 flex items-center gap-2 transition-all">
-                            <i data-lucide="coins" class="w-4 h-4 text-amber-300"></i> 생성하기
+                        <h3 class="text-xl font-bold text-white mb-2">AI 매장 점검 리포트</h3>
+                        <p class="text-slate-400 mb-6 text-sm">SV 방문 전, 매출 및 리뷰 데이터를 분석하여<br>예상 질문과 개선 포인트를 미리 확인하세요.</p>
+                        <button onclick="app.generateReport()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> 1코인으로 리포트 생성
                         </button>
                     </div>
                 `;
                 lucide.createIcons();
             },
 
-            closeModal: function(id) {
-                document.getElementById(id).classList.add('hidden-force');
-            },
-
-            generateReport: async function(type) {
-                const cost = type === 'hq' ? 5 : 1;
-                if(this.coins < cost) {
-                    alert('코인이 부족합니다. 상단 [충전] 버튼을 눌러 광고를 시청해주세요.');
-                    return;
-                }
+            async generateReport() {
+                if (this.coins < 1) return app.openAdModal();
                 
-                this.coins -= cost;
-                this.updateCoinDisplay();
-
-                const content = document.getElementById('ai-modal-content');
+                this.coins -= 1;
+                document.getElementById('coin-disp').innerText = this.coins;
+                
+                const content = document.getElementById('ai-content-area');
                 content.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center gap-4 min-h-[400px]">
-                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-                        <p class="text-slate-300 animate-pulse">Gemini AI가 데이터를 분석하고 있습니다...</p>
-                        <div class="text-xs text-slate-500">매출 분석 중... OKR 대조 중...</div>
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mb-4"></div>
+                        <p class="text-white font-bold animate-pulse">AI가 매장 데이터를 분석 중입니다...</p>
+                        <p class="text-xs text-slate-500 mt-2">매출 추이 확인 중... 고객 리뷰 긍/부정 분석 중...</p>
                     </div>
                 `;
 
-                const prompt = type === 'hq' 
-                  ? `[역할] F&B 프랜차이즈 COO. [데이터] ${JSON.stringify(DB.gangnam)}. [문맥] ${DB.okr}. [요청] 주간 회의용 리포트(결정사항, 이슈, 액션아이템)를 마크다운으로 작성. 중요 수치는 볼드처리.`
-                  : `[역할] 슈퍼바이저. [데이터] ${JSON.stringify(DB.gangnam)}. [요청] 매장 점검 리포트(매출분석, 메뉴제언, 운영체크리스트)를 마크다운으로 작성. 긍정적이고 구체적으로.`;
+                const prompt = `
+                    [Context]
+                    Role: Franchise Store Supervisor (SV)
+                    Store: Gangnam Branch (Owner: Park Yo-han)
+                    Data: ${JSON.stringify(DB)}
+                    Goal: Create a store check-up report for the owner.
+                    
+                    [Format]
+                    Output in Markdown (Korean).
+                    1. **칭찬 포인트**: Find positive metrics (e.g. high sales on weekend, good review).
+                    2. **주요 점검 사항**: Analyze low profit items or negative reviews.
+                    3. **이번 주 액션 아이템**: Suggest 3 specific actions to improve sales/margin.
+                    Tone: Encouraging, Professional.
+                `;
 
                 try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`, {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_KEY}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
                     
-                    const data = await response.json();
-                    if(data.error) throw new Error(data.error.message);
-
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI 응답 생성 실패.";
+                    const json = await response.json();
+                    if(json.error) throw new Error(json.error.message);
                     
-                    // Markdown Formatter
-                    const formattedHTML = text
-                        .replace(/\n/g, '<br>')
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
-                        .replace(/## (.*?)(<br>|$)/g, '<h3 class="text-xl font-bold text-blue-400 mt-8 mb-3 border-b border-slate-700 pb-2">$1</h3>')
-                        .replace(/- /g, '• ');
+                    const text = json.candidates[0].content.parts[0].text;
+                    const html = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-400">$1</strong>').replace(/## (.*?)(<br>|$)/g, '<h3 class="text-lg font-bold text-white mt-6 mb-2 border-b border-slate-700 pb-2">$1</h3>');
+                    
+                    content.innerHTML = `<div class="max-w-2xl mx-auto">${html}</div>`;
 
-                    content.innerHTML = `
-                        <div class="prose prose-invert max-w-none">
-                            <div class="bg-slate-800/50 p-8 rounded-xl border border-slate-700 leading-relaxed text-slate-300 shadow-inner">
-                                ${formattedHTML}
-                            </div>
-                        </div>
-                        <div class="mt-6 flex justify-end gap-3 sticky bottom-0 bg-slate-900 py-4 border-t border-slate-800">
-                            <button onclick="app.openAiModal('${type}')" class="px-4 py-2 text-slate-400 hover:text-white transition-colors">다시 생성</button>
-                            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-500 shadow-lg flex items-center gap-2">
-                                <i data-lucide="download" class="w-4 h-4"></i> PDF 저장
-                            </button>
-                        </div>
-                    `;
-                    lucide.createIcons();
-
-                } catch(e) {
-                    content.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-full min-h-[300px]">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mb-4"></i>
-                            <p class="text-red-400 text-center font-bold mb-2">오류가 발생했습니다</p>
-                            <p class="text-slate-500 text-sm mb-6">${e.message}</p>
-                            <button onclick="app.openAiModal('${type}')" class="bg-slate-800 px-4 py-2 rounded-lg hover:bg-slate-700">돌아가기</button>
-                        </div>
-                    `;
-                    lucide.createIcons();
+                } catch (e) {
+                    content.innerHTML = `<div class="text-center text-red-400"><p class="font-bold mb-2">오류 발생</p><p class="text-sm">${e.message}</p><button onclick="app.openAiModal()" class="mt-4 bg-slate-800 px-4 py-2 rounded">돌아가기</button></div>`;
                 }
             },
 
-            // --- Chat Bot ---
-            toggleChat: function() {
-                const chat = document.getElementById('chat-window');
-                if (chat.classList.contains('hidden-force')) {
-                    chat.classList.remove('hidden-force');
-                } else {
-                    chat.classList.add('hidden-force');
-                }
-            },
-
-            sendChatMessage: async function() {
+            // --- Chatbot ---
+            async sendMessage() {
                 const input = document.getElementById('chat-input');
                 const msg = input.value;
                 if(!msg.trim()) return;
-
-                const container = document.getElementById('chat-messages');
-                container.innerHTML += `
-                    <div class="flex justify-end animate-fade-in">
-                        <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none text-sm max-w-[85%] shadow-md mb-2">
-                            ${msg}
-                        </div>
-                    </div>
-                `;
+                
+                const box = document.getElementById('chat-messages');
+                box.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-none text-sm max-w-[90%] mb-2">${msg}</div></div>`;
                 input.value = '';
-                container.scrollTop = container.scrollHeight;
-
-                // Loading Bubble
-                const loadingId = 'loading-' + Date.now();
-                container.innerHTML += `
-                    <div id="${loadingId}" class="flex justify-start animate-pulse">
-                        <div class="bg-slate-800 p-3 rounded-2xl rounded-tl-none border border-slate-700 text-xs text-slate-400">
-                            입력 중...
-                        </div>
-                    </div>
-                `;
-                container.scrollTop = container.scrollHeight;
+                box.scrollTop = box.scrollHeight;
 
                 try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`, {
+                    const prompt = `[System] You are a helpful AI assistant for a franchise store owner. Store Data: ${JSON.stringify(DB)}. User Question: ${msg}. Answer in Korean friendly.`;
+                    
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_KEY}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: `[시스템] 당신은 RestoGenie AI입니다. 사용자 유형: ${this.userType}. 다음 데이터를 참고하여 답변하세요: ${JSON.stringify(DB.gangnam)}. 질문: ${msg}` }] }]
-                        })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
-                    const data = await response.json();
-                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다. 답변을 생성할 수 없습니다.";
+                    const json = await response.json();
                     
-                    document.getElementById(loadingId).remove();
-                    
-                    container.innerHTML += `
-                        <div class="flex justify-start animate-fade-in">
-                            <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none border border-slate-700 text-sm max-w-[85%] shadow-sm mb-2 leading-relaxed">
-                                ${text}
-                            </div>
-                        </div>
-                    `;
+                    if(json.error) throw new Error(json.error.message);
+
+                    const text = json.candidates[0].content.parts[0].text;
+                    box.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] border border-slate-700 mb-2">${text}</div></div>`;
                 } catch(e) {
-                    document.getElementById(loadingId).innerHTML = `<span class="text-red-400">전송 실패</span>`;
+                    box.innerHTML += `<div class="flex justify-start"><div class="bg-red-900/50 text-red-200 p-2 rounded text-xs">오류: ${e.message}</div></div>`;
                 }
-                container.scrollTop = container.scrollHeight;
+                box.scrollTop = box.scrollHeight;
+            },
+
+            // --- Ads ---
+            openAdModal() {
+                const modal = document.getElementById('ad-modal');
+                modal.classList.remove('hidden-force');
+                const bar = document.getElementById('ad-progress');
+                const btn = document.getElementById('ad-close-btn');
+                
+                let w = 0;
+                bar.style.width = '0%';
+                btn.disabled = true;
+                btn.innerText = "광고 시청 중...";
+                btn.className = "w-full py-3 rounded-lg font-bold bg-slate-200 text-slate-400";
+
+                const t = setInterval(() => {
+                    w += 2.5;
+                    bar.style.width = w + '%';
+                    if(w >= 100) {
+                        clearInterval(t);
+                        btn.disabled = false;
+                        btn.className = "w-full py-3 rounded-lg font-bold bg-indigo-600 text-white hover:bg-indigo-500";
+                        btn.innerText = "보상 받기 (+10 Coin)";
+                    }
+                }, 50);
+            },
+
+            completeAd() {
+                this.coins += 10;
+                document.getElementById('coin-disp').innerText = this.coins;
+                document.getElementById('ad-modal').classList.add('hidden-force');
             }
         };
 
-        // Start App when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
+        document.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
 </html>

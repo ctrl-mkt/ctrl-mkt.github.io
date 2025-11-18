@@ -185,8 +185,8 @@
                                 <YAxis tickFormatter={v=>`${v/10000}만`} />
                                 <Tooltip formatter={v=>`₩${v.toLocaleString()}`} />
                                 <Legend />
-                                <Line yAxisId="left" type="monotone" dataKey="sales" stroke="#2563eb" strokeWidth={3} name="매출" />
-                                <Line type="monotone" dataKey="ad" stroke="#f59e0b" strokeWidth={2} name="광고비" />
+                                <Line yAxisId="left" type="monotone" dataKey="sales" name="매출" stroke="#2563eb" strokeWidth={3} />
+                                <Line yAxisId="right" type="monotone" dataKey="ad" name="광고비" stroke="#f59e0b" strokeWidth={2} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -222,15 +222,22 @@
                 <div className="flex h-full gap-6 animate-fade-in">
                     <div className="w-1/3 bg-white p-6 rounded-xl border shadow-sm flex flex-col">
                         <h2 className="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="sparkles" className="text-brand-600"></i> 리포트 생성</h2>
-                        <div className="flex bg-slate-100 p-1 rounded-lg mb-6">
-                            <button onClick={()=>setMode('weekly')} className={`flex-1 py-2 text-sm font-bold rounded ${mode==='weekly'?'bg-white shadow text-brand-600':'text-slate-500'}`}>주간회의 (5P)</button>
-                            <button onClick={()=>setMode('inspection')} className={`flex-1 py-2 text-sm font-bold rounded ${mode==='inspection'?'bg-white shadow text-brand-600':'text-slate-500'}`}>매장점검 (1P)</button>
+                        <div className="flex gap-2 mb-6">
+                            <button onClick={()=>setMode('weekly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode==='weekly'?'bg-brand-50 text-brand-600 border border-brand-200':'bg-slate-50 text-slate-500'}`}>주간회의 (5P)</button>
+                            <button onClick={()=>setMode('inspection')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode==='inspection'?'bg-brand-50 text-brand-600 border border-brand-200':'bg-slate-50 text-slate-500'}`}>매장점검 (1P)</button>
                         </div>
-                        <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800 mb-auto"><strong>📚 학습된 데이터:</strong><br/>- 2025년 10월 OKR 리포트<br/>- 슬램버거 매출 DB</div>
-                        <button onClick={generate} disabled={loading} className="w-full bg-brand-600 text-white py-3 rounded-lg font-bold mt-4 hover:bg-brand-700 disabled:opacity-50">{loading ? "생성 중..." : "리포트 생성"}</button>
+                        <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600 mb-auto">
+                            <strong>📚 참조 데이터 (Context):</strong><br/>
+                            - 10월 전사 매출 DB<br/>
+                            - OKR 종합 리포트<br/>
+                            - S.V 방문 일지
+                        </div>
+                        <button onClick={generate} disabled={loading} className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold mt-4 hover:bg-blue-700 disabled:opacity-50">
+                            {loading ? "생성 중..." : "리포트 생성"}
+                        </button>
                     </div>
-                    <div className="flex-1 bg-white p-8 rounded-xl border shadow-sm overflow-y-auto canvas-editor">
-                        {result ? <div className="prose prose-sm max-w-none whitespace-pre-line typing-cursor">{result}</div> : <div className="h-full flex flex-col items-center justify-center text-slate-400"><i data-lucide="file-text" className="w-12 h-12 mb-2 opacity-50"></i><p>리포트를 생성하세요.</p></div>}
+                    <div className="flex-1 bg-white p-8 rounded-xl border shadow-sm overflow-y-auto min-h-[500px] canvas-editor">
+                        {result ? <div className="prose prose-sm max-w-none whitespace-pre-line typing-cursor text-slate-700">{result}</div> : <div className="h-full flex flex-col items-center justify-center text-slate-400"><i data-lucide="file-text" className="w-12 h-12 mb-2 opacity-50"></i><p>리포트를 생성하면 이곳에 표시됩니다.</p></div>}
                     </div>
                 </div>
             );

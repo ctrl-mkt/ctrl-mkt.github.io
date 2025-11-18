@@ -1,608 +1,555 @@
 <!DOCTYPE html>
 <html lang="ko" class="dark">
-<!-- 
-Base Template: 11월 11일 OKR 미팅 대시보드 (W45)
-Data Source: 2025 W46 OKR 보고 자료 (11.18).md
-Key Modifications:
-1.  All KPI values (Header, Sub-KPIs) updated to W46 data.
-2.  [Critical] Replaced Doughnut Chart (Menu Mix) with a Bar Chart (Profit Margin W45 vs W46) to visualize the key risk.
-3.  Updated Line Chart (Revenue) to compare W45 and W46.
-4.  Mapped all 5 tabs to the new W46 report's sections (Decisions, Actions, Context, Analysis).
-5.  [UPDATE 11.17] Set Gangnam contribution margin to 'null' (N/A) based on '영업 OKR.csv'.
-6.  [UPDATE 11.17 - User Req] Overwrite contribution margin data with new values.
-    - 강남 W45: 29.61%, W46: 31.32% (Positive 🔼)
-    - 대학로 W45: 2.89%, W46: 28.16% (Critical Positive 🔼)
-    - All insights, charts, and KPIs are updated based on this new data.
-7.  [UPDATE 11.17 - User Req 2] Integrated Funnel (CCTV), Patty Mix (Sales DB), and Cohort (Sales DB) data.
-    - Updated Insights, Action Items, and Discussion tabs.
-    - Updated Sub-KPIs in Tab 1 to reflect new data points.
--->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025 W46 OKR 주간 보고 (11.18)</title>
+    <title>11월 18일 OKR 미팅 대시보드 (비상경영)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
     <style type="text/css">
         @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
         
-        html {
-            scroll-behavior: smooth; /* 맨 위로 가기 버튼용 */
-        }
+        html { scroll-behavior: smooth; }
+        body { font-family: "Pretendard", sans-serif; background-color: #0f172a; color: #e2e8f0; }
 
-        body {
-            font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        }
-
-        /* 탭 활성화 스타일 */
+        /* 탭 활성화 스타일 (비상 테마: Red) */
         [tab-active] {
-            border-color: #60a5fa !important; /* blue-400 */
-            color: #60a5fa !important; /* blue-400 */
-            font-weight: 600;
+            border-bottom: 3px solid #ef4444 !important; /* red-500 */
+            color: #ef4444 !important;
+            font-weight: 700;
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .tab-button {
+            transition: all 0.2s ease-in-out;
         }
         
-        /* Chart.js 캔버스 컨테이너 */
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 800px; /* 차트 최대 너비 */
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px; /* 모바일 높이 */
-            max-height: 400px;
-        }
-        
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px; /* 데스크탑 높이 */
-            }
+            height: 350px;
+            margin: 0 auto;
         }
 
-        /* Tailwind Prose (텍스트 가독성) */
+        /* Prose 스타일 재정의 (다크모드 가독성) */
         .prose h3 {
-            margin-top: 1.5em;
-            margin-bottom: 0.75em;
-            font-weight: 700;
+            color: #f1f5f9; /* slate-100 */
             font-size: 1.25rem;
-            color: #f3f4f6; /* gray-100 */
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ef4444;
+            padding-left: 1rem;
         }
         .prose ul {
             list-style-type: disc;
-            padding-left: 1.25rem;
-            margin-top: 0.5em;
-            margin-bottom: 1em;
+            padding-left: 1.5rem;
+            color: #cbd5e1; /* slate-300 */
         }
         .prose li {
-            margin-top: 0.25em;
-            margin-bottom: 0.25em;
-            line-height: 1.6; /* 줄 간격 추가 */
-            color: #d1d5db; /* gray-300 */
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
         }
-        .prose li strong {
-            color: #ffffff; /* white */
+        .prose strong {
+            color: #ffffff;
+            font-weight: 600;
         }
 
-        /* 아이콘 수직 정렬 */
+        /* 아이콘 수직 정렬 보정 */
         .icon-fix {
             display: inline-flex;
             align-items: center;
-            vertical-align: middle; /* 정렬 기준 */
-        }
-        .icon-fix .material-symbols-outlined {
-            vertical-align: middle; /* 아이콘 자체도 middle로 */
-            line-height: 1; /* 아이콘 라인 높이 */
-        }
-
-        /* 탭 그리드 (flex-shrink-0 대신) */
-        .tab-button {
-            display: flex;
-            flex-direction: column; /* 아이콘과 텍스트 수직 정렬 */
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            word-break: keep-all; /* 줄바꿈 시 단어 유지 */
+            vertical-align: -2px;
         }
     </style>
 </head>
-<body class="antialiased bg-gray-950 text-slate-200">
+<body class="antialiased">
 
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         
         <!-- 헤더 -->
-        <header class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-white">2025 W46 OKR 주간 보고 (11.18)</h1>
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-800 pb-6">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">11월 18일 OKR 회의록</h1>
+                    <span class="bg-red-600/20 text-red-400 border border-red-600/50 text-xs px-3 py-1 rounded-full font-bold animate-pulse">
+                        ⚠ 비상 경영 선포
+                    </span>
+                </div>
+                <p class="text-slate-400 mt-2 text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">calendar_today</span> 2025-11-18 (화)
+                    <span class="mx-2">|</span>
+                    <span class="material-symbols-outlined text-base">group</span> 참석자 10명
+                </p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">KEYWORD</p>
+                <p class="text-white font-bold text-lg">생존, 구조조정, 즉시실행</p>
+            </div>
         </header>
 
-        <!-- 1. 핵심 요약 KPI -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">W46 총 주문금액 (전체)</h3>
-                <p class="text-3xl font-bold text-white mt-2">4,542<span class="text-xl ml-1">만원</span></p>
-                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
-                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
-                    <span>W45 대비 +2.62%</span>
+        <!-- 1. 핵심 요약 KPI (Crisis Dashboard) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- KPI 1 -->
+            <div class="bg-slate-900 border border-red-900/50 rounded-xl p-5 shadow-lg relative overflow-hidden group hover:border-red-700 transition-colors">
+                <div class="absolute -right-6 -top-6 bg-red-500/10 w-24 h-24 rounded-full group-hover:bg-red-500/20 transition-colors"></div>
+                <h3 class="text-sm font-medium text-slate-400 relative z-10">11월 매출 예상 (vs 목표)</h3>
+                <div class="mt-2 relative z-10">
+                    <span class="text-3xl font-bold text-white">1.9억</span>
+                    <span class="text-sm text-slate-500">/ 2.6억</span>
+                </div>
+                <p class="text-sm font-medium text-red-400 mt-2 flex items-center gap-1 relative z-10">
+                    <span class="material-symbols-outlined text-lg">trending_down</span>
+                    목표 대비 -27% 미달
                 </p>
             </div>
-            <div class="bg-gray-900 border border-green-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">[성과] 강남점 공헌이익률</h3>
-                <p class="text-3xl font-bold text-green-500 mt-2">31.32<span class="text-xl ml-1">%</span></p>
-                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
-                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
-                    <span>W45 29.61% 대비 +5.8%</span>
+            
+            <!-- KPI 2 -->
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-lg hover:border-slate-600 transition-colors">
+                <h3 class="text-sm font-medium text-slate-400">대학로점 주간 매출</h3>
+                <div class="mt-2">
+                    <span class="text-3xl font-bold text-white">1,628만</span>
+                </div>
+                <p class="text-sm font-medium text-slate-400 mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-lg text-yellow-500">remove</span>
+                    전주(1,550) 대비 횡보 (+5%)
                 </p>
             </div>
-            <div class="bg-gray-900 border border-green-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">[성과] 대학로점 공헌이익률</h3>
-                <p class="text-3xl font-bold text-green-500 mt-2">28.16<span class="text-xl ml-1">%</span></Gg></p>
-                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
-                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
-                    <span>W45 2.89% 대비 +874%</span>
+
+            <!-- KPI 3 -->
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-lg hover:border-slate-600 transition-colors">
+                <h3 class="text-sm font-medium text-slate-400">갈비 메뉴 판매 비중</h3>
+                <div class="mt-2">
+                    <span class="text-3xl font-bold text-blue-400">39%</span>
+                    <span class="text-xs bg-blue-400/10 text-blue-400 px-2 py-0.5 rounded ml-2">대학로</span>
+                </div>
+                <p class="text-sm font-medium text-slate-400 mt-2 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-lg text-green-500">check_circle</span>
+                    시그니처 전략 유효
                 </p>
             </div>
-            <div class="bg-gray-900 border border-green-700 rounded-lg p-5 shadow-sm">
-                <h3 class="text-sm font-medium text-gray-400">[성과] 대학로점 갈비 비중</h3>
-                <p class="text-3xl font-bold text-green-500 mt-2">39.86<span class="text-xl ml-1">원</span></p>
-                <p class="text-sm font-medium text-green-500 mt-1 icon-fix">
-                    <span class="material-symbols-outlined text-base align-middle">arrow_upward</span>
-                    <span>W45 36.45% 대비 +9.4%</span>
-                </p>
+
+            <!-- KPI 4 -->
+            <div class="bg-slate-900 border border-red-900/50 rounded-xl p-5 shadow-lg hover:border-red-700 transition-colors">
+                <h3 class="text-sm font-medium text-slate-400">긴급 조치 사항</h3>
+                <div class="mt-2 flex flex-col gap-1">
+                    <span class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span> 워크샵 전면 취소
+                    </span>
+                    <span class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span> 인력 감축 실행
+                    </span>
+                </div>
             </div>
         </section>
 
-        <!-- 2. 탭 네비게이션 (스티키) -->
-        <nav id="tab-nav" class="sticky top-0 z-40 grid grid-cols-5 border-b border-gray-700 mb-6 bg-gray-950">
-            <button data-tab="tab-dashboard" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix" tab-active>
-                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">monitoring</span>
-                <span class="leading-tight">매출 대시보드</span>
-            </button>
-            <button data-tab="tab-decisions" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">check_circle</span>
-                <span class="leading-tight">우선순위 회고</span>
-            </button>
-            <button data-tab="tab-actions" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">assignment_turned_in</span>
-                <span class="leading-tight">W47 액션</span>
-            </button>
-            <button data-tab="tab-context" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">forum</span>
-                <span class="leading-tight">주요 논의</span>
-            </button>
-            <button data-tab="tab-analysis" class="tab-button py-3 px-1 sm:px-2 md:px-4 text-xs sm:text-sm font-medium text-gray-400 border-b-2 border-transparent hover:text-blue-400 icon-fix">
-                <span class="material-symbols-outlined text-base sm:text-lg mb-0.5">insights</span>
-                <span class="leading-tight">핵심 인사이트</span>
-            </button>
+        <!-- 2. 탭 네비게이션 (Sticky) -->
+        <nav id="tab-nav" class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-sm border-b border-slate-700 mb-6">
+            <div class="grid grid-cols-5 w-full">
+                <button data-tab="tab-dashboard" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent" tab-active>
+                    <span class="material-symbols-outlined block mb-1 text-xl">monitoring</span>
+                    매출 현황
+                </button>
+                <button data-tab="tab-decisions" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1 text-xl">gavel</span>
+                    비상 결정
+                </button>
+                <button data-tab="tab-actions" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1 text-xl">assignment_late</span>
+                    긴급 액션
+                </button>
+                <button data-tab="tab-context" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1 text-xl">forum</span>
+                    주요 논의
+                </button>
+                <button data-tab="tab-analysis" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1 text-xl">psychology</span>
+                    코치 진단
+                </button>
+            </div>
         </nav>
 
         <!-- 3. 탭 콘텐츠 -->
-        <main>
-            <!-- 탭 1: 매출 대시보드 -->
-            <div id="tab-dashboard" class="tab-pane">
-                <!-- 하위 KPI -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">강남 방문전환율</h4>
-                        <p class="text-2xl font-bold text-white mt-1">3.03<span class="text-lg ml-1">%</span></p>
-                        <p class="text-sm font-medium text-green-500">(W45 2.76%)</p>
-                    </div>
-                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">강남 4주 재방문율(홀)</h4>
-                        <p class="text-2xl font-bold text-white mt-1">47.98<span class="text-lg ml-1">%</span></p>
-                        <p class="text-sm font-medium text-green-500">(W45 42.66%)</p>
-                    </div>
-                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">대학로 방문전환율</h4>
-                        <p class="text-2xl font-bold text-white mt-1">0.91<span class="text-lg ml-1">%</span></See also></p>
-                        <p class="text-sm font-medium text-green-500">(W45 0.73%)</p>
-                    </div>
-                    <div class="bg-gray-900 border border-red-700 rounded-lg p-4">
-                        <h4 class="text-sm font-medium text-gray-400">[Risk] 대학로 주문전환율</h4>
-                        <p class="text-2xl font-bold text-red-500 mt-1">56.11<span class="text-lg ml-1">%</span></Gg></p>
-                        <p class="text-sm font-medium text-red-500">(W45 88.82%)</p>
-                    </div>
-                </div>
-                
-                <!-- 차트 그리드 -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-white mb-4">W45-W46 매출 추이 (만원)</h3>
+        <main class="min-h-[500px]">
+            
+            <!-- [TAB 1] 매출 대시보드 -->
+            <div id="tab-dashboard" class="tab-pane animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 매출 추이 차트 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-red-500">show_chart</span>
+                                주간 매출 추이 (위기 경보)
+                            </h3>
+                            <span class="text-xs text-slate-500">단위: 만원</span>
+                        </div>
                         <div class="chart-container">
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
-                    <div class="bg-gray-900 border border-gray-700 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-white mb-4">W45 vs W46 공헌이익률 비교 (%)</h3>
+                    
+                    <!-- 메뉴 믹스 차트 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-blue-500">pie_chart</span>
+                                메뉴 판매 비중 (대학로)
+                            </h3>
+                            <span class="text-xs text-slate-500">46주차 기준</span>
+                        </div>
                         <div class="chart-container">
-                            <canvas id="profitChart"></canvas>
+                            <canvas id="menuMixChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상세 지표 카드 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2">주요 지표 상세 (46주차)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 bg-slate-800 rounded-lg text-center">
+                            <p class="text-slate-400 text-xs mb-1">강남 홀 매출 비중</p>
+                            <p class="text-2xl font-bold text-white">47%</p>
+                            <p class="text-green-500 text-xs font-bold mt-1">▲ 6%p 개선</p>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded-lg text-center">
+                            <p class="text-slate-400 text-xs mb-1">강남 배달 객단가</p>
+                            <p class="text-2xl font-bold text-white">1.83만</p>
+                            <p class="text-green-500 text-xs font-bold mt-1">▲ 1.8천원 개선</p>
+                        </div>
+                        <div class="p-4 bg-slate-800 rounded-lg text-center">
+                            <p class="text-slate-400 text-xs mb-1">대학로 홀 매출 비중</p>
+                            <p class="text-2xl font-bold text-white">66%</p>
+                            <p class="text-red-500 text-xs font-bold mt-1">▼ 4%p 하락</p>
+                        </div>
+                        <div class="p-4 bg-red-900/20 border border-red-900/50 rounded-lg text-center">
+                            <p class="text-red-300 text-xs mb-1">회원가입 전환율</p>
+                            <p class="text-2xl font-bold text-red-500">누락</p>
+                            <p class="text-red-400 text-xs font-bold mt-1">프로세스 실패</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 탭 2: 결정사항 (우선순위 회고) -->
-            <div id="tab-decisions" class="tab-pane hidden">
-                <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
-                    <div class="prose max-w-none">
-                        <h3>1) 지난 주 액션 아이템 (11/11 회의록 기준)</h3>
-                        <ul>
-                            <li><strong>[제조] @김만제</strong>
-                                <ul>
-                                    <li>(완료) 신규 사이드 메뉴 5종(OEM) 사진/가격 준비</li>
-                                    <li>(완료) 노트북LM 메뉴/경쟁사 분석 학습</li>
-                                    <li>(진행) 신규 메인 메뉴(트러플 버거) 제안</li>
-                                </ul>
-                            </li>
-                            <li><strong>[VM/상권] @김희라, @배승환</strong>
-                                <ul>
-                                    <li>(진행) 가맹 매뉴얼/브로셔 제작 (11월 3주 차)</li>
-                                    <li>(진행) 인테리어 세부 스펙 확정 미팅 (금주)</li>
-                                </ul>
-                            </li>
-                            <li><strong>[개발/Tech] @이준용, @김도윤</strong>
-                                <ul>
-                                    <li>(진행) B2B 대시보드 상세 기획, 레스토지니 온보딩 준비</li>
-                                    <li>(진행) 슬램버거 데이터 적재 (11월 말 목표)</li>
-                                    <li>(진행) 영업본부 대상 레스토지니 기능 인터뷰</li>
-                                </ul>
-                            </li>
-                            <li><strong>[B2B] @박요한</strong>
-                                <ul>
-                                    <li>(진행) 어카운트 매니저 면접</li>
-                                    <li>(진행) 7번가/에이바우트 계약 독려</li>
-                                    <li>(진행) OB 영업 키트 준비 및 B2B 홈페이지 배포 (금주)</li>
-                                </ul>
-                            </li>
-                            <li><strong>[영업/마케팅] @소정빈, @김평안</strong>
-                                <ul>
-                                    <li>(완료) 워크샵 참석자 확정 및 카풀 모집</li>
-                                    <li>(진행) 강남점 5천원권 제휴 마케팅 준비 (차주)</li>
-                                    <li>(이관) 1억 달성 매뉴얼 정리 (12월로 이관)</li>
-                                </ul>
-                            </li>
-                            <li><strong>[디지털혁신] @박요한</strong>
-                                <ul>
-                                    <li>(진행) VOC 처리 프로세스 가이드 수립</li>
-                                    <li>(완료) 배달 공헌이익 데이터 오류 검증</li>
-                                </ul>
-                            </li>
-                        </ul>
+            <!-- [TAB 2] 비상 결정 -->
+            <div id="tab-decisions" class="tab-pane hidden animate-fade-in">
+                <div class="bg-slate-900 border border-red-900/50 rounded-xl p-6 md:p-8 shadow-sm">
+                    <h3 class="text-red-400 font-bold text-xl mb-6 flex items-center border-b border-red-900/50 pb-4">
+                        <span class="material-symbols-outlined mr-2 text-3xl">emergency_home</span>
+                        비상 경영 체제 가동 (4대 결정)
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4 items-start">
+                            <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0 text-red-500">
+                                <span class="material-symbols-outlined text-2xl">cancel</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">1. 워크샵 전면 취소</h4>
+                                <p class="text-slate-400 mt-1">매출 부진 및 위기 상황 인식을 위해 예정된 워크샵을 전면 취소하고, 업무 집중 기간으로 전환합니다.</p>
+                            </div>
+                        </div>
 
-                        <h3>2) 11월 우선순위 실행 회고 (W46)</h3>
-                        <ul>
-                            <li><strong>(P1) 11월 총 매출 2.7억 (@김평안)</strong>
-                                <ul>
-                                    <li>현황: W46 (4,542만) / 주간 목표 페이스 (6,750만) → <strong>달성률 67.3%</strong>.</li>
-                                    <li>회고: 주간 목표 페이스에 미달. W47은 W46 대비 약 50%의 매출 증대가 필요.</li>
-                                </ul>
-                            </li>
-                            <li><strong>(P1) 신메뉴 개발(AI) (@김평안)</strong>
-                                <ul><li>현황: AI 기반 버거 1종 / 사이드 1종 / 음료 1종 개발 진척도 공유 (11월 말 1종 개발 완료 목표).</li></ul>
-                            </li>
-                            <li><strong>(P1) 조직화 (솔루션) (@김도윤)</strong>
-                                <ul><li>현황: 엔지니어/기획자 채용 현황 공유. (W45: 기획자 1명 채용중)</li></ul>
-                            </li>
-                            <li><strong>(P2) 운영 안정화 (@우예진)</strong>
-                                <ul><li>현황: 강남/대학로 피크타임 운영 안정화 진행 상황 및 이슈 공유 (특히 공헌이익률 연관성).</li></ul>
-                            </li>
-                            <li><strong>(P2) B2B 기능 개발 (@김도윤)</strong>
-                                <ul><li>현황: 12월 중순 오픈 목표, 기획/디자인 진행 현황 공유.</li></ul>
-                            </li>
-                        </ul>
+                        <div class="flex gap-4 items-start">
+                            <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0 text-red-500">
+                                <span class="material-symbols-outlined text-2xl">person_remove</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">2. 인력 구조조정 즉시 실행</h4>
+                                <p class="text-slate-400 mt-1">강남점(4명 체제), 대학로점 등 피크타임을 제외한 잉여 인력 및 저성과자에 대한 정리를 오늘부터 즉시 실행합니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start">
+                            <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 text-green-500">
+                                <span class="material-symbols-outlined text-2xl">rocket_launch</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">3. 신규 사이드 메뉴(OEM) 즉시 판매</h4>
+                                <p class="text-slate-400 mt-1">매출 확보를 위해 테스트 과정을 생략하고, 텍스트 메뉴로 우선 등록하여 오늘부터 판매를 개시합니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start">
+                            <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 text-blue-500">
+                                <span class="material-symbols-outlined text-2xl">savings</span>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-white">4. 원가 절감 조치 적용</h4>
+                                <p class="text-slate-400 mt-1">갈비 패티 중량 축소(100g→80g) 및 치킨 패티 원육 변경(다리살→가슴살)을 통해 원가율을 개선합니다.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 탭 3: 액션 아이템 -->
-            <div id="tab-actions" class="tab-pane hidden">
+            <!-- [TAB 3] 긴급 액션 -->
+            <div id="tab-actions" class="tab-pane hidden animate-fade-in">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Critical -->
-                    <div class="bg-gray-900 border border-green-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-green-300 mb-3">[Critical] 성과 분석 및 유지</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
-                            <li><strong>[A1]</strong> 대학로점 공헌이익률 개선(+874%) 핵심 요인(갈비 비중 상승 등) 정밀 분석</li>
-                            <li><strong>[A3]</strong> W46 성과(이익률/재방문율)를 W47에도 유지하기 위한 전략 수립</li>
+                    
+                    <!-- 영업/운영 카드 -->
+                    <div class="bg-slate-900 border border-red-800 rounded-xl p-5 shadow-lg relative group hover:bg-slate-800 transition-colors">
+                        <div class="absolute top-4 right-4 bg-red-900/80 text-red-200 text-xs px-2 py-1 rounded font-bold animate-pulse">긴급</div>
+                        <div class="mb-4">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Operation</span>
+                            <h3 class="text-xl font-bold text-red-400">영업 / 운영</h3>
+                            <p class="text-sm text-slate-400">김평안, 우예진, 소정빈</p>
+                        </div>
+                        <ul class="space-y-3 text-slate-300 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-red-500 mt-0.5">check_box_outline_blank</span>
+                                <span><strong>인력 감축 계획 보고</strong> (금일 내)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-red-500 mt-0.5">check_box_outline_blank</span>
+                                <span>마케팅 히스토리 10월분 업데이트</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-red-500 mt-0.5">check_box_outline_blank</span>
+                                <span>POS 회원 적립 누락 방지 교육 (매일)</span>
+                            </li>
                         </ul>
                     </div>
-                    <!-- Risk -->
-                    <div class="bg-gray-900 border border-red-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-red-300 mb-3">[Critical] 리스크 대응</h3>
-                         <ul class="space-y-3 list-disc pl-5 text-gray-300">
-                            <li><strong>[A2]</strong> 대학로점 주문서전환율 급락(-36.8%) 원인 분석 및 W47 개선안 도출</li>
-                            <li><strong>[A5]</strong> 주간 매출 목표(6,750만) 달성을 위한 W47 프로모션/마케팅 전략 재점검</li>
+
+                    <!-- Tech/B2B 카드 -->
+                    <div class="bg-slate-900 border border-blue-900 rounded-xl p-5 shadow-lg hover:bg-slate-800 transition-colors">
+                        <div class="mb-4">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Strategy</span>
+                            <h3 class="text-xl font-bold text-blue-400">Tech / B2B</h3>
+                            <p class="text-sm text-slate-400">김도윤, 박요한</p>
+                        </div>
+                        <ul class="space-y-3 text-slate-300 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-blue-500 mt-0.5">check_box_outline_blank</span>
+                                <span>데이터 적재 지연 원인 파악 (외주사)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-blue-500 mt-0.5">check_box_outline_blank</span>
+                                <span>B2B 세일즈 전략(타겟/상품) 재수립 (차주)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-blue-500 mt-0.5">check_box_outline_blank</span>
+                                <span>B2B 홈페이지/제안서 업데이트</span>
+                            </li>
                         </ul>
                     </div>
-                    <!-- 개발/Tech -->
-                    <div class="bg-gray-900 border border-yellow-900 rounded-lg p-5 shadow-sm">
-                        <h3 class="text-lg font-semibold text-yellow-300 mb-3">개발 / Tech</h3>
-                        <ul class="space-y-3 list-disc pl-5 text-gray-300">
-                            <li><strong>[A4]</strong> (지연) AI 에이전트 기획 및 (P2) B2B 기능 개발 진척도 Pull-up</li>
+
+                    <!-- 제조/VM 카드 -->
+                    <div class="bg-slate-900 border border-green-900 rounded-xl p-5 shadow-lg hover:bg-slate-800 transition-colors">
+                        <div class="mb-4">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Product</span>
+                            <h3 class="text-xl font-bold text-green-400">제조 / VM / 상권</h3>
+                            <p class="text-sm text-slate-400">김만제, 김희라, 배승환</p>
+                        </div>
+                        <ul class="space-y-3 text-slate-300 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-green-500 mt-0.5">check_box_outline_blank</span>
+                                <span>사이드 신메뉴 판매 모니터링</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-green-500 mt-0.5">check_box_outline_blank</span>
+                                <span>20평형 가맹 표준 모델 확정</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-base text-green-500 mt-0.5">check_box_outline_blank</span>
+                                <span>가맹점주 미팅 리스트 업데이트</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
-            
-            <!-- 탭 4: 주요 논의 -->
-            <div id="tab-context" class="tab-pane hidden">
-                <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
+
+            <!-- [TAB 4] 주요 논의 -->
+            <div id="tab-context" class="tab-pane hidden animate-fade-in">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-lg">
                     <div class="prose max-w-none">
-                        <h3>1. [Critical] W46 공헌이익률 대폭 개선(대학로 +874%) 원인 분석 (갈비 비중 성과) 및 W47 유지 전략</h3>
+                        <h3 class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-red-500">campaign</span>
+                            🚨 생존 위기 공유 (CEO 발언)
+                        </h3>
                         <ul>
-                            <li>담당: @소정빈, @김평안, @우예진</li>
+                            <li><strong>"집에 가야 한다":</strong> 현재 추세(11월 마감 1.9억)라면 사업 유지가 불가능함. 강남점은 정리 고려 대상, 대학로점은 1억 달성을 증명하지 못하면 브랜드 존속 불가.</li>
+                            <li><strong>태도 지적:</strong> "서버가 바빠서 회원가입을 못 시켰다"는 핑계는 더 이상 용납되지 않음. 3주째 개선되지 않는 기본기(적립, 데이터 확보) 문제를 강력히 지적함.</li>
                         </ul>
 
-                        <h3>2. [Critical] 대학로 주문서전환율 급락(88.8% → 56.1%) 원인 및 W47 개선 방안</h3>
+                        <h3 class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-yellow-500">trending_down</span>
+                            📉 영업 현황 및 문제점
+                        </h3>
                         <ul>
-                            <li>담당: @소정빈, @박요한</li>
+                            <li><strong>마케팅 데이터 부재:</strong> 어떤 마케팅을 했고 결과가 어땠는지에 대한 기록(10월분)이 누락됨. 데이터 기반 의사결정이 불가능한 상태.</li>
+                            <li><strong>프로세스 실패:</strong> 할인 혜택만 제공되고, 정작 중요한 회원 데이터(DB) 확보는 안 되는 상황. 이대로면 할인 정책을 전면 폐기해야 함.</li>
                         </ul>
 
-                        <h3>3. 11월 매출 목표(2.7억) 달성 전략: 현재 주간 페이스(4,542만) vs 목표 주간 페이스(6,750만) 갭 극복 방안</h3>
+                        <h3 class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500">sync_alt</span>
+                            🔄 전략 피봇 (B2B & 솔루션)
+                        </h3>
                         <ul>
-                            <li>담당: @김평안</li>
-                        </ul>
-
-                        <h3>4. (공지사항) 매장 VOC 해결 대안 점검 (대학로/강남)</h3>
-                        <ul>
-                            <li>담당: @소정빈</li>
-                        </ul>
-
-                        <h3>5. 솔루션(개발) 지연/P2 우선순위 진척 현황 점검 (AI 에이전트, B2B 기능)</h3>
-                        <ul>
-                            <li>담당: @김도윤</li>
+                            <li><strong>타겟 변경:</strong> 솔루션 타겟을 점주 개인(B2C)이 아닌 프랜차이즈 본사(B2B)로 명확화. 본사는 개별 점주 수익보다 '전체 매출 관리'에 관심이 많음.</li>
+                            <li><strong>제품 방향:</strong> 이에 맞춰 대시보드 및 솔루션 기능을 B2B 가맹본부용으로 재정의해야 함.</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- 탭 5: 회의 분석 (핵심 인사이트) -->
-            <div id="tab-analysis" class="tab-pane hidden">
-                <div class="bg-gray-900 border border-gray-700 rounded-lg p-6 shadow-sm">
+            <!-- [TAB 5] 회의 분석 -->
+            <div id="tab-analysis" class="tab-pane hidden animate-fade-in">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-lg">
                     <div class="prose max-w-none">
-                        <h3>[ 긍정 (Growth) ]</h3>
+                        <h3 class="text-purple-400">0. 핵심 총평 (애자일 코치)</h3>
                         <ul>
-                            <li><strong>[Critical] 공헌이익률 대폭 개선:</strong> W46의 가장 큰 성과입니다. 특히 대학로점(2.9% → 28.2%)은 W45의 심각한 이익률 문제를 극복하고 극적으로 개선되었습니다.</li>
-                            <li><strong>[신규] '갈비 패티' 전략 성공:</strong> 이익률 개선의 핵심 요인으로 보입니다. 강남점(28%→33.5%), 대학로점(36.5%→39.9%) 모두 갈비 비중이 동시 상승하며, 고수익 메뉴 판매가 증대되었습니다.</li>
-                            <li><strong>[신규] 고객 충성도 지표 개선:</strong> 강남점은 퍼널 전체(방문율/주문율)가 건강하게 개선되었습니다. 또한 양 지점 모두 '홀 4주 재방문율'이 상승(강남 +5.3%p, 대학로 +10.3%p)하며, 홀 고객의 만족도와 충성도가 개선되고 있습니다.</li>
+                            <li><strong>"충격 요법(Shock Therapy)":</strong> 느슨해진 조직에 '생존'이라는 화두를 던지며 비상 체제를 가동함. 워크샵 취소는 단순 일정 변경이 아닌, 위기감을 공유하기 위한 상징적인 조치임.</li>
                         </ul>
 
-                        <h3>[ 부정 (Decline/Risk) ]</h3>
+                        <h3 class="text-green-400">1. 잘 되고 있는 점</h3>
                         <ul>
-                             <li><strong>매출 목표 페이스 미달:</strong> 모든 긍정적 지표에도 불구하고, 주간 매출(4,542만)은 11월 목표 페이스(주 6,750만) 대비 달성률 67.3%로 여전히 갭이 큽니다.</li>
-                             <li><strong>[신규 Risk] 대학로 주문서전환율 급락:</strong> 대학로의 유입(방문율 0.91%)은 개선되었으나, 방문 고객의 주문 전환율이 W45 88.8%에서 W46 56.1%로 급락했습니다. (키오스크 이슈, 프로모션 변경, 고객 경험 저하 등 원인 파악 시급)</li>
+                            <li><strong>제조팀의 기민함:</strong> 위기 상황에서 가장 빛난 부서. 보이지 않는 곳에서 원가 절감(패티 중량)과 신제품 출시(OEM)를 가장 빠르고 조용하게 실행하고 있음.</li>
+                            <li><strong>가맹 준비:</strong> 하드웨어(디자인, 브로셔) 준비는 외부 일정에 맞춰 차질 없이 진행 중.</li>
+                        </ul>
+
+                        <h3 class="text-red-400">2. 위험/개선이 필요한 점</h3>
+                        <ul>
+                            <li><strong>실행력 실종 (Red Alert):</strong> '회원가입 유도', '마케팅 데이터 기록' 등 수차례 지시된 기본 업무가 현장에서 지속적으로 무시되고 있음. 이는 시스템의 문제가 아닌 현장 리더십과 마인드셋의 문제임.</li>
+                            <li><strong>데이터 공백:</strong> 마케팅 성과를 분석할 데이터가 없어, 전략 수정이 불가능한 '깜깜이 운행' 상태가 지속됨.</li>
                         </ul>
                     </div>
                 </div>
             </div>
+
         </main>
+        
+        <footer class="mt-12 border-t border-slate-800 pt-6 text-center text-slate-500 text-xs">
+            <p>CONTROLL M OKR DASHBOARD | 2025</p>
+        </footer>
     </div>
 
-    <!-- Scroll-to-Top Button -->
-    <button id="scrollTopBtn" class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-opacity duration-300 opacity-0 pointer-events-none">
+    <!-- Scroll Top Button -->
+    <button id="scrollTopBtn" class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-red-600 text-white shadow-lg hover:bg-red-700 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none">
         <span class="material-symbols-outlined">arrow_upward</span>
     </button>
 
     <script>
-        // --- 차트 및 테마 전역 변수 ---
-        let charts = {
-            revenue: null,
-            profit: null // 'menuMix'에서 'profit'으로 변경
-        };
-        
-        const darkThemeColors = {
-            gridColor: 'rgba(71, 85, 105, 0.5)', // gray-600
-            textColor: '#d1d5db', // gray-300
-            titleColor: '#f9fafb' // gray-50
-        };
+        // Chart Setup
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+        Chart.defaults.font.family = "Pretendard";
 
-        // --- 차트 헬퍼 함수 ---
-        function formatNumber(num) {
-            // 숫자를 만원 단위로 변환 (소수점 첫째 자리까지)
-            return (num).toFixed(0); 
-        }
-
-        // --- 차트 초기화 ---
-        function initCharts() {
-            // 다크 모드 차트 기본값 설정
-            Chart.defaults.color = darkThemeColors.textColor;
-            Chart.defaults.borderColor = darkThemeColors.gridColor;
-
-            // 1. 매출 추이 차트 (Line) - W45 vs W46 데이터로 업데이트
-            const revenueData = {
-                labels: ['W45', 'W46'],
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['43주', '44주', '45주', '46주(예상)'],
                 datasets: [
                     {
-                        label: '전체',
-                        data: [4426.3, 4542.1], // 44,262,670 -> 4426.3
-                        borderColor: '#eab308', // yellow-500
-                        backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
                         label: '강남점',
-                        data: [1181.5, 1276.7], // 11,815,000 -> 1181.5
-                        borderColor: '#3b82f6', // blue-500
+                        data: [1241, 1348, 1276, 1181],
+                        borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.3
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
                     },
                     {
                         label: '대학로점',
-                        data: [1549.2, 1628.5], // 15,491,920 -> 1549.2
-                        borderColor: '#10b981', // emerald-500
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.3
+                        data: [3529, 3600, 1628, 1628],
+                        borderColor: '#ef4444', /* Warning Color for Drop */
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
                     }
                 ]
-            };
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            charts.revenue = new Chart(revenueCtx, {
-                type: 'line',
-                data: revenueData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: { 
-                                display: true,
-                                color: darkThemeColors.gridColor 
-                            },
-                            ticks: {
-                                callback: function(value) { return formatNumber(value) + '만'; },
-                                color: darkThemeColors.textColor
-                            }
-                        },
-                        x: {
-                            grid: { 
-                                display: false 
-                            },
-                            ticks: {
-                                color: darkThemeColors.textColor
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${formatNumber(context.raw)}만원`;
-                                }
-                            }
-                        },
-                        legend: {
-                            labels: {
-                                color: darkThemeColors.textColor
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 2000,
+                                yMax: 2000,
+                                borderColor: '#eab308',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                label: { content: 'BEP Target', display: true, position: 'end', color: '#eab308' }
                             }
                         }
                     }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#1e293b' } },
+                    x: { grid: { display: false } }
                 }
-            });
-
-            // 2. 공헌이익률 비교 차트 (Bar) - [UPDATE 11.17 User Req]
-            const profitData = {
-                labels: ['강남점', '대학로점'],
-                datasets: [
-                    {
-                        label: 'W45 공헌이익률',
-                        data: [29.61, 2.89], // 강남 W45, 대학로 W45
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)', // blue-500
-                        borderColor: 'transparent',
-                    },
-                    {
-                        label: 'W46 공헌이익률',
-                        data: [31.32, 28.16], // 강남 W46, 대학로 W46
-                        backgroundColor: 'rgba(16, 185, 129, 0.7)', // emerald-500 (긍정적 개선)
-                        borderColor: 'transparent',
-                    }
-                ]
-            };
-            const profitCtx = document.getElementById('profitChart').getContext('2d');
-            charts.profit = new Chart(profitCtx, {
-                type: 'bar', // 차트 타입을 'bar'로 변경
-                data: profitData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: darkThemeColors.gridColor
-                            },
-                            ticks: {
-                                callback: function(value) { return value + '%'; }, // Y축에 % 추가
-                                color: darkThemeColors.textColor
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: darkThemeColors.textColor
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: darkThemeColors.textColor
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    if (context.raw === null) {
-                                        return `${context.dataset.label}: N/A`;
-                                    }
-                                    return `${context.dataset.label}: ${context.raw.toFixed(2)}%`; // 툴팁에 % 추가
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // --- DOM 로드 시 실행 ---
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. 차트 초기화
-            initCharts();
-
-            // 2. 탭 네비게이션 이벤트
-            const tabNav = document.getElementById('tab-nav');
-            const tabs = document.querySelectorAll('.tab-button');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // 탭 활성화
-                    tabs.forEach(item => item.removeAttribute('tab-active'));
-                    tab.setAttribute('tab-active', '');
-
-                    // 탭 콘텐츠 표시
-                    tabPanes.forEach(pane => pane.classList.add('hidden'));
-                    const targetPane = document.getElementById(tab.dataset.tab);
-                    if (targetPane) {
-                        targetPane.classList.remove('hidden');
-                    }
-
-                    // 클릭 시 탭 네비게이션을 상단으로 스크롤
-                    const navTop = tabNav.getBoundingClientRect().top + window.scrollY;
-                    window.scrollTo({
-                        top: navTop - 1, // -1px로 스티키가 확실히 발동하도록 함
-                        behavior: 'smooth'
-                    });
-                });
-            });
-
-            // 3. Scroll-to-Top Button Logic
-            const scrollTopBtn = document.getElementById('scrollTopBtn');
-
-            // Show/Hide on scroll
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) { // Show after 300px
-                    scrollTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                    scrollTopBtn.classList.add('opacity-100');
-                } else {
-                    scrollTopBtn.classList.add('opacity-0', 'pointer-events-none');
-                    scrollTopBtn.classList.remove('opacity-100');
-                }
-            });
-
-            // Click to scroll
-            scrollTopBtn.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
+            }
         });
 
+        // Menu Mix Chart
+        const menuMixCtx = document.getElementById('menuMixChart').getContext('2d');
+        new Chart(menuMixCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['갈비', '비프', '치킨', '기타'],
+                datasets: [{
+                    data: [39, 35, 20, 6],
+                    backgroundColor: ['#3b82f6', '#ef4444', '#eab308', '#64748b'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 15 } }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // Interaction Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabNav = document.getElementById('tab-nav');
+            const tabs = document.querySelectorAll('.tab-button');
+            const panes = document.querySelectorAll('.tab-pane');
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+            // Tab Switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.removeAttribute('tab-active'));
+                    panes.forEach(p => p.classList.add('hidden'));
+                    
+                    tab.setAttribute('tab-active', '');
+                    const target = document.getElementById(tab.dataset.tab);
+                    target.classList.remove('hidden');
+
+                    const navHeight = tabNav.offsetHeight;
+                    const targetPos = tabNav.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({ top: targetPos - 1, behavior: 'smooth' });
+                });
+            });
+
+            // Scroll Top Button
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    scrollTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                } else {
+                    scrollTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                }
+            });
+            
+            scrollTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
     </script>
 </body>
 </html>

@@ -59,6 +59,20 @@
 <body class="bg-slate-50 text-slate-800">
     <div id="root"></div>
 
+    <!-- Global Error Handler -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            document.getElementById('root').innerHTML = `
+                <div style="padding: 20px; color: red; background: #fff0f0; border: 1px solid red; margin: 20px; border-radius: 8px;">
+                    <h3>⚠️ 시스템 오류 발생</h3>
+                    <p><strong>내용:</strong> ${message}</p>
+                    <p><strong>위치:</strong> ${source}:${lineno}</p>
+                    <p>페이지를 새로고침 해보세요.</p>
+                </div>
+            `;
+        };
+    </script>
+
     <script type="text/babel">
         const { useState, useEffect, useRef, useMemo } = React;
         // Recharts 컴포넌트 안전하게 추출
@@ -104,17 +118,135 @@
             };
         };
 
-        // --- 3. Error Boundary (백지 현상 방지) ---
-        class ErrorBoundary extends React.Component {
-            constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-            static getDerivedStateFromError(error) { return { hasError: true, error }; }
-            render() {
-                if (this.state.hasError) return <div className="p-8 text-red-600 bg-red-50 rounded-xl m-4 border border-red-200"><h3>시스템 오류 발생</h3><p>{this.state.error.toString()}</p></div>;
-                return this.props.children;
-            }
-        }
+        // --- 3. Components ---
 
-        // --- 4. Components ---
+        const CreditBadge = ({ credits, onCharge }) => (
+            <div className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm">
+                <div className="w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center text-[10px] font-bold text-white">P</div>
+                <span className="font-bold text-slate-700">{credits}</span>
+                <button onClick={onCharge} className="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded text-slate-600 font-medium">충전</button>
+            </div>
+        );
+
+        // AI Report Generator
+        const AIReport = ({ credits, setCredits }) => {
+            const [mode, setMode] = useState('weekly');
+            const [status, setStatus] = useState('idle'); // idle, loading, typing, done
+            const [content, setContent] = useState('');
+
+            const generate = async () => {
+                const cost = mode === 'weekly' ? 5 : 1;
+                if (credits < cost) return alert('코인이 부족합니다. 광고를 시청해주세요!');
+                
+                setCredits(c => c - cost);
+                setStatus('loading');
+                setContent('');
+
+                const prompt = mode === 'weekly' 
+                    ? `${OKR_CONTEXT}\n\n위 데이터를 기반으로 [11월 경영 전략 주간 회의록]을 작성해줘. 결정사항(원가방어), 액션아이템(담당자), 주요논의를 포함해줘.`
+                    : `${OKR_CONTEXT}\n\n위 데이터를 기반으로 [대학로점 매장 점검 리포트]를 작성해줘. 매출분석, 운영이슈(피크타임), 개선제안을 포함해줘.`;
+
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    });
+                    const data = await res.json();
+                    const text = data.candidates[0].content.parts[0].text;
+                    
+                    setStatus('typing');
+                    let i = 0;
+                    const timer = setInterval(() => {
+                        setContent(prev => prev + text.charAt(i));
+                        i++;
+                        if (i >= text.length) {
+                            clearInterval(timer);
+                            setStatus('done');
+                        }
+                    }, 10);
+                } catch (e) {
+                    setContent(`오류 발생: ${e.message}`);
+                    setStatus('done');
+                }
+            };
+
+            return (
+                <div className="flex h-full gap-6">
+                    <div className="w-1/3 bg-white p-6 rounded-xl border shadow-sm flex flex-col">
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="sparkles" className="text-brand-600"></i> 리포트 생성</h3>
+                        <div className="flex gap-2 mb-6">
+                            <button onClick={()=>setMode('weekly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode==='weekly'?'bg-brand-50 text-brand-600 border border-brand-200':'bg-slate-50 text-slate-500'}`}>주간회의 (5P)</button>
+                            <button onClick={()=>setMode('inspection')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode==='inspection'?'bg-brand-50 text-brand-600 border border-brand-200':'bg-slate-50 text-slate-500'}`}>매장점검 (1P)</button>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600 mb-auto">
+                            <strong>📚 참조 데이터 (Context):</strong><br/>
+                            - 10월 전사 매출 DB<br/>
+                            - OKR 종합 리포트<br/>
+                            - S.V 방문 일지
+                        </div>
+                        <button onClick={generate} disabled={status==='loading'||status==='typing'} className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold mt-4 hover:bg-blue-700 disabled:opacity-50">
+                            {status === 'loading' ? '생성 중...' : '리포트 생성하기'}
+                        </button>
+                    </div>
+                    <div className="flex-1 bg-white p-8 rounded-xl border shadow-sm overflow-y-auto min-h-[500px]" style={{backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)', backgroundSize: '24px 24px'}}>
+                        {content ? (
+                            <div className={`prose prose-sm max-w-none whitespace-pre-line text-slate-700 ${status==='typing'?'typing':''}`}>{content}</div>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                                <i data-lucide="file-text" className="w-12 h-12 mb-2 opacity-50"></i>
+                                <p>리포트를 생성하면 이곳에 표시됩니다.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Main Dashboard View
+        const Dashboard = ({ storeId }) => {
+            const data = useMemo(() => getStoreData(storeId), [storeId]);
+
+            return (
+                <div className="space-y-6 animate-in">
+                    <div className="grid grid-cols-4 gap-5">
+                        <div className="bg-white p-5 rounded-xl border shadow-sm">
+                            <p className="text-slate-500 text-sm font-medium">10월 총 매출</p>
+                            <h3 className="text-2xl font-bold text-navy-900 mt-1">₩{data.sales.toLocaleString()}</h3>
+                        </div>
+                        <div className="bg-white p-5 rounded-xl border shadow-sm">
+                            <p className="text-slate-500 text-sm font-medium">총 주문수</p>
+                            <h3 className="text-2xl font-bold text-navy-900 mt-1">{data.orders.toLocaleString()}건</h3>
+                        </div>
+                        <div className="bg-white p-5 rounded-xl border shadow-sm">
+                            <p className="text-slate-500 text-sm font-medium">원가율</p>
+                            <h3 className="text-2xl font-bold text-red-600 mt-1">{data.costRate}%</h3>
+                            <p className="text-xs text-red-500 mt-1">▲ 1.5%p (양상추 이슈)</p>
+                        </div>
+                        <div className="bg-white p-5 rounded-xl border shadow-sm">
+                            <p className="text-slate-500 text-sm font-medium">목표 달성률</p>
+                            <h3 className="text-2xl font-bold text-blue-600 mt-1">108%</h3>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-xl border shadow-sm h-96">
+                        <h3 className="font-bold text-lg text-navy-900 mb-4">주간 매출 및 광고비 추이 ({STORES.find(s=>s.id===storeId).name})</h3>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={data.trend}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" />
+                                <YAxis yAxisId="left" />
+                                <YAxis yAxisId="right" orientation="right" />
+                                <Tooltip formatter={(v)=>v.toLocaleString()} />
+                                <Legend />
+                                <Line yAxisId="left" type="monotone" dataKey="sales" name="매출" stroke="#2563eb" strokeWidth={3} />
+                                <Line yAxisId="right" type="monotone" dataKey="ad" name="광고비" stroke="#f59e0b" strokeWidth={2} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            );
+        };
 
         // [Chatbot]
         const AIChatbot = () => {
@@ -165,146 +297,23 @@
             );
         };
 
-        // [Views]
-        const DashboardView = ({ storeId }) => {
-            const data = useMemo(() => getStoreData(storeId), [storeId]);
-            return (
-                <div className="space-y-6 animate-fade-in">
-                    <div className="grid grid-cols-4 gap-5">
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100"><p className="text-slate-500 text-sm">총 매출</p><h3 className="text-2xl font-bold text-navy-900">₩{data.sales.toLocaleString()}</h3></div>
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100"><p className="text-slate-500 text-sm">주문수</p><h3 className="text-2xl font-bold text-navy-900">{data.orders.toLocaleString()}건</h3></div>
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100"><p className="text-slate-500 text-sm">원가율</p><h3 className="text-2xl font-bold text-red-600">{data.costRate}% (▲)</h3></div>
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100"><p className="text-slate-500 text-sm">광고비</p><h3 className="text-2xl font-bold text-navy-900">₩{data.adSpend.toLocaleString()}</h3></div>
-                    </div>
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-80">
-                        <h3 className="font-bold text-lg mb-4">주간 매출 추이</h3>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={data.trend}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name" />
-                                <YAxis tickFormatter={v=>`${v/10000}만`} />
-                                <Tooltip formatter={v=>`₩${v.toLocaleString()}`} />
-                                <Legend />
-                                <Line yAxisId="left" type="monotone" dataKey="sales" name="매출" stroke="#2563eb" strokeWidth={3} />
-                                <Line yAxisId="right" type="monotone" dataKey="ad" name="광고비" stroke="#f59e0b" strokeWidth={2} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            );
-        };
-
-        const AIReportView = ({ credits, setCredits }) => {
-            const [mode, setMode] = useState('weekly');
-            const [result, setResult] = useState('');
-            const [loading, setLoading] = useState(false);
-
-            const generate = async () => {
-                const cost = mode==='weekly' ? 5 : 1;
-                if (credits < cost) return alert('코인이 부족합니다.');
-                setCredits(c => c - cost);
-                setLoading(true); setResult('');
-
-                const prompt = mode === 'weekly' ? `${OKR_CONTEXT}\n주간 회의록을 작성해줘.` : `${OKR_CONTEXT}\n대학로점 매장 점검 리포트를 작성해줘.`;
-                
-                try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                    });
-                    const data = await res.json();
-                    const text = data.candidates[0].content.parts[0].text;
-                    let i=0; const timer = setInterval(()=>{ setResult(p=>p+text.charAt(i)); i++; if(i>=text.length){clearInterval(timer); setLoading(false);} }, 10);
-                } catch(e) { setResult("오류 발생"); setLoading(false); }
-            };
-
-            return (
-                <div className="flex h-full gap-6 animate-fade-in">
-                    <div className="w-1/3 bg-white p-6 rounded-xl border shadow-sm flex flex-col">
-                        <h2 className="font-bold text-lg mb-4 flex items-center gap-2"><i data-lucide="sparkles" className="text-brand-600"></i> 리포트 생성</h2>
-                        <div className="flex gap-2 mb-6">
-                            <button onClick={()=>setMode('weekly')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode==='weekly'?'bg-brand-50 text-brand-600 border border-brand-200':'bg-slate-50 text-slate-500'}`}>주간회의 (5P)</button>
-                            <button onClick={()=>setMode('inspection')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode==='inspection'?'bg-brand-50 text-brand-600 border border-brand-200':'bg-slate-50 text-slate-500'}`}>매장점검 (1P)</button>
-                        </div>
-                        <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600 mb-auto">
-                            <strong>📚 참조 데이터 (Context):</strong><br/>
-                            - 10월 전사 매출 DB<br/>
-                            - OKR 종합 리포트<br/>
-                            - S.V 방문 일지
-                        </div>
-                        <button onClick={generate} disabled={loading} className="w-full bg-brand-600 text-white py-3 rounded-xl font-bold mt-4 hover:bg-blue-700 disabled:opacity-50">
-                            {loading ? "생성 중..." : "리포트 생성"}
-                        </button>
-                    </div>
-                    <div className="flex-1 bg-white p-8 rounded-xl border shadow-sm overflow-y-auto min-h-[500px] canvas-editor">
-                        {result ? <div className="prose prose-sm max-w-none whitespace-pre-line typing-cursor text-slate-700">{result}</div> : <div className="h-full flex flex-col items-center justify-center text-slate-400"><i data-lucide="file-text" className="w-12 h-12 mb-2 opacity-50"></i><p>리포트를 생성하면 이곳에 표시됩니다.</p></div>}
-                    </div>
-                </div>
-            );
-        };
-
-        // Generic View for other menus
-        const GenericView = ({ title, content }) => (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-full animate-fade-in">
-                <h2 className="text-xl font-bold text-navy-900 mb-4">{title}</h2>
-                <div className="overflow-auto h-[calc(100%-40px)]">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-500 border-b">
-                            <tr><th className="p-3">항목</th><th className="p-3">상태</th><th className="p-3">담당자</th><th className="p-3">일자</th></tr>
-                        </thead>
-                        <tbody>
-                            {[1,2,3,4,5].map(i => (
-                                <tr key={i} className="border-b hover:bg-slate-50">
-                                    <td className="p-3">{content} 데이터 #{i}</td>
-                                    <td className="p-3"><span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">정상</span></td>
-                                    <td className="p-3">관리자</td>
-                                    <td className="p-3">2025-11-18</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-
-        // [Main App]
+        // Main Application
         const App = () => {
-            const [menu, setMenu] = useState('dashboard');
-            const [storeId, setStoreId] = useState('all');
-            const [credits, setCredits] = useState(100);
             const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [menu, setMenu] = useState('dashboard');
+            const [store, setStore] = useState('all');
+            const [credits, setCredits] = useState(100);
 
-            useEffect(() => { lucide.createIcons(); }, [menu, isLoggedIn]);
-
-            const handleLogin = (id, pw) => {
-                if(id === 'demo' && pw === 'ctrlm2025!') setIsLoggedIn(true);
-                else alert('ID: demo / PW: ctrlm2025!');
-            };
+            useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [isLoggedIn, menu]);
 
             if (!isLoggedIn) return (
                 <div className="min-h-screen flex items-center justify-center bg-slate-100">
-                    <div className="bg-white p-10 rounded-2xl shadow-xl w-96 border border-slate-200">
-                        <h1 className="text-2xl font-bold text-navy-900 mb-6 text-center">HQ Login</h1>
-                        <form onSubmit={(e)=>{e.preventDefault(); handleLogin(e.target.id.value, e.target.pw.value)}} className="space-y-4">
-                            <input name="id" placeholder="ID (demo)" className="w-full p-3 border rounded-lg" />
-                            <input name="pw" type="password" placeholder="PW (ctrlm2025!)" className="w-full p-3 border rounded-lg" />
-                            <button className="w-full bg-navy-900 text-white py-3 rounded-lg font-bold">로그인</button>
-                        </form>
+                    <div className="bg-white p-10 rounded-2xl shadow-xl w-96 border text-center">
+                        <h1 className="text-3xl font-bold text-navy-900 mb-8">HQ Login</h1>
+                        <button onClick={()=>setIsLoggedIn(true)} className="w-full bg-navy-900 text-white py-3 rounded-lg font-bold">로그인 (Demo)</button>
                     </div>
                 </div>
             );
-
-            const MENU_ITEMS = [
-                { id: 'dashboard', name: 'HQ 대시보드', icon: 'bar-chart-2' },
-                { id: 'sv', name: 'S.V. 운영 관리', icon: 'clipboard-check' },
-                { id: 'store', name: '지점별 상세', icon: 'store' },
-                { id: 'menu', name: '메뉴/원가', icon: 'utensils' },
-                { id: 'marketing', name: '마케팅 현황', icon: 'megaphone' },
-                { id: 'cctv', name: '상권 분석 (CCTV)', icon: 'camera' },
-                { id: 'knowledge', name: '지식/소통', icon: 'book-open' },
-                { id: 'alert', name: '지점별 알림', icon: 'bell' },
-                { id: 'settings', name: '설정', icon: 'settings' }
-            ];
 
             return (
                 <div className="flex min-h-screen">
@@ -312,44 +321,35 @@
                         <div className="p-6 border-b border-navy-800 text-xl font-bold flex items-center gap-2">
                             <i data-lucide="layout-dashboard" className="text-brand-500"></i> RestoGenie
                         </div>
-                        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                            {MENU_ITEMS.map(m => (
-                                <button key={m.id} onClick={()=>setMenu(m.id)} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition ${menu===m.id ? 'bg-brand-600 font-bold' : 'hover:bg-navy-800 text-slate-300'}`}>
-                                    <i data-lucide={m.icon} className="w-4 h-4"></i> {m.name}
-                                </button>
-                            ))}
-                            <div className="my-4 border-t border-navy-800"></div>
-                            <button onClick={()=>setMenu('report')} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm ${menu==='report'?'bg-gradient-to-r from-brand-600 to-indigo-600 font-bold':'hover:bg-navy-800 text-slate-300'}`}>
-                                <i data-lucide="sparkles" className="w-4 h-4"></i> AI 리포트 센터
-                            </button>
+                        <nav className="flex-1 p-4 space-y-1">
+                            <button onClick={()=>setMenu('dashboard')} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition ${menu==='dashboard'?'bg-brand-600 text-white':'text-slate-300 hover:bg-navy-800'}`}><i data-lucide="bar-chart-2" className="w-4 h-4"></i> HQ 대시보드</button>
+                            <button onClick={()=>setMenu('report')} className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition ${menu==='report'?'bg-brand-600 text-white':'text-slate-300 hover:bg-navy-800'}`}><i data-lucide="sparkles" className="w-4 h-4"></i> AI 리포트 센터</button>
+                            <button onClick={()=>setMenu('sv')} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-slate-300 hover:bg-navy-800"><i data-lucide="clipboard-check" className="w-4 h-4"></i> S.V. 관리</button>
+                            <button onClick={()=>setMenu('settings')} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm text-slate-300 hover:bg-navy-800"><i data-lucide="settings" className="w-4 h-4"></i> 설정</button>
                         </nav>
                     </aside>
-                    <main className="ml-64 flex-1 p-8 relative bg-slate-50 min-h-screen">
+
+                    <main className="ml-64 flex-1 p-8">
                         <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-2xl font-bold text-navy-900">{menu==='report' ? 'AI 리포트 센터' : MENU_ITEMS.find(m=>m.id===menu)?.name}</h1>
-                            <div className="flex gap-4 items-center">
-                                <select className="border p-2 rounded-lg bg-white font-bold shadow-sm" value={storeId} onChange={e=>setStoreId(e.target.value)}>
+                            <h1 className="text-2xl font-bold text-navy-900">{menu === 'dashboard' ? '운영 현황' : 'AI 리포트'}</h1>
+                            <div className="flex items-center gap-4">
+                                <select value={store} onChange={e=>setStore(e.target.value)} className="border p-2 rounded-lg font-bold text-sm">
                                     {STORES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                 </select>
-                                <div className="bg-white border px-4 py-2 rounded-full shadow-sm flex items-center gap-2 cursor-pointer hover:bg-slate-50" onClick={()=>alert('광고를 시청하고 코인을 충전하시겠습니까?')}>
-                                    <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-xs text-white font-bold">P</div>
-                                    <span className="font-bold">{credits}</span>
-                                    <span className="text-xs text-slate-400">충전</span>
-                                </div>
+                                <CreditBadge credits={credits} onCharge={()=>{ alert('광고 시청 완료! +10 Coin'); setCredits(c=>c+10); }} />
                             </div>
                         </div>
-                        <ErrorBoundary>
-                            {menu === 'dashboard' && <DashboardView storeId={storeId} />}
-                            {menu === 'report' && <AIReportView credits={credits} setCredits={setCredits} />}
-                            {menu !== 'dashboard' && menu !== 'report' && <GenericView title={MENU_ITEMS.find(m=>m.id===menu)?.name} content="상세 데이터" />}
-                            <AIChatbot />
-                        </ErrorBoundary>
+
+                        {menu === 'dashboard' && <Dashboard storeId={store} />}
+                        {menu === 'report' && <AIReport credits={credits} setCredits={setCredits} />}
+                        {menu !== 'dashboard' && menu !== 'report' && <div className="h-96 flex items-center justify-center border-2 border-dashed rounded-xl text-slate-400">준비 중입니다.</div>}
+                        <AIChatbot />
                     </main>
                 </div>
             );
         };
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        const root = ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>

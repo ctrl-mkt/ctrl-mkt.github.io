@@ -3,553 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>11월 18일 OKR 미팅 대시보드 (비상경영)</title>
+    <title>2025.11.18 긴급 OKR 회의록</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-    <style type="text/css">
+    <style>
         @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
         
-        html { scroll-behavior: smooth; }
-        body { font-family: "Pretendard", sans-serif; background-color: #0f172a; color: #e2e8f0; }
-
-        /* 탭 활성화 스타일 (비상 테마: Red) */
+        body { font-family: "Pretendard", sans-serif; }
+        
+        /* 탭 활성화 스타일 - Red Theme for Emergency context */
         [tab-active] {
-            border-bottom: 3px solid #ef4444 !important; /* red-500 */
+            border-color: #ef4444 !important; /* red-500 */
             color: #ef4444 !important;
             font-weight: 700;
-            background-color: rgba(239, 68, 68, 0.05);
         }
 
-        .tab-button {
-            transition: all 0.2s ease-in-out;
-        }
-        
-        .chart-container {
-            position: relative;
-            width: 100%;
-            height: 350px;
-            margin: 0 auto;
-        }
-
-        /* Prose 스타일 재정의 (다크모드 가독성) */
         .prose h3 {
-            color: #f1f5f9; /* slate-100 */
-            font-size: 1.25rem;
+            color: #f3f4f6;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid #ef4444;
-            padding-left: 1rem;
-        }
-        .prose ul {
-            list-style-type: disc;
-            padding-left: 1.5rem;
-            color: #cbd5e1; /* slate-300 */
-        }
-        .prose li {
+            margin-top: 1.5rem;
             margin-bottom: 0.5rem;
-            line-height: 1.7;
+            border-left: 4px solid #ef4444;
+            padding-left: 0.75rem;
         }
-        .prose strong {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        /* 아이콘 수직 정렬 보정 */
-        .icon-fix {
-            display: inline-flex;
-            align-items: center;
-            vertical-align: -2px;
-        }
+        .prose ul { list-style-type: disc; padding-left: 1.2rem; color: #d1d5db; }
+        .prose li { margin-bottom: 0.4rem; line-height: 1.6; }
+        .prose strong { color: #fff; font-weight: 600; }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-950 text-slate-200 antialiased">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+    <div class="max-w-6xl mx-auto p-6">
         
-        <!-- 헤더 -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-800 pb-6">
-            <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl md:text-3xl font-bold text-white">11월 18일 OKR 회의록</h1>
-                    <span class="bg-red-600/20 text-red-400 border border-red-600/50 text-xs px-3 py-1 rounded-full font-bold animate-pulse">
-                        ⚠ 비상 경영 선포
-                    </span>
+        <!-- Header -->
+        <header class="mb-8 border-b border-gray-800 pb-6">
+            <div class="flex justify-between items-end">
+                <div>
+                    <span class="inline-block px-2 py-1 rounded bg-red-900 text-red-100 text-xs font-bold mb-2">EMERGENCY MODE</span>
+                    <h1 class="text-3xl font-bold text-white">2025.11.18 긴급 OKR 회의록</h1>
+                    <p class="text-gray-400 mt-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">schedule</span> 2025.11.18 (화) 20:55
+                        <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
+                        <span class="material-symbols-outlined text-sm">group</span> 원종관, 박요한, 김도윤, 김만제, 소정빈, 김평안, 우예진, 김희라, 배승환, 이준용
+                    </p>
                 </div>
-                <p class="text-slate-400 mt-2 text-sm flex items-center gap-2">
-                    <span class="material-symbols-outlined text-base">calendar_today</span> 2025-11-18 (화)
-                    <span class="mx-2">|</span>
-                    <span class="material-symbols-outlined text-base">group</span> 참석자 10명
-                </p>
-            </div>
-            <div class="mt-4 md:mt-0 text-right">
-                <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">KEYWORD</p>
-                <p class="text-white font-bold text-lg">생존, 구조조정, 즉시실행</p>
             </div>
         </header>
 
-        <!-- 1. 핵심 요약 KPI (Crisis Dashboard) -->
+        <!-- Critical Decisions Summary -->
         <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <!-- KPI 1 -->
-            <div class="bg-slate-900 border border-red-900/50 rounded-xl p-5 shadow-lg relative overflow-hidden group hover:border-red-700 transition-colors">
-                <div class="absolute -right-6 -top-6 bg-red-500/10 w-24 h-24 rounded-full group-hover:bg-red-500/20 transition-colors"></div>
-                <h3 class="text-sm font-medium text-slate-400 relative z-10">11월 매출 예상 (vs 목표)</h3>
-                <div class="mt-2 relative z-10">
-                    <span class="text-3xl font-bold text-white">1.9억</span>
-                    <span class="text-sm text-slate-500">/ 2.6억</span>
+            <div class="bg-red-900/20 border border-red-800 rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-2 text-red-400">
+                    <span class="material-symbols-outlined">warning</span>
+                    <h3 class="font-bold">비상 경영 선포</h3>
                 </div>
-                <p class="text-sm font-medium text-red-400 mt-2 flex items-center gap-1 relative z-10">
-                    <span class="material-symbols-outlined text-lg">trending_down</span>
-                    목표 대비 -27% 미달
-                </p>
+                <p class="text-2xl font-bold text-white">워크샵 전면 취소</p>
+                <p class="text-sm text-gray-400 mt-1">생존을 위한 매출 회복에 전사 리소스 집중</p>
             </div>
-            
-            <!-- KPI 2 -->
-            <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-lg hover:border-slate-600 transition-colors">
-                <h3 class="text-sm font-medium text-slate-400">대학로점 주간 매출</h3>
-                <div class="mt-2">
-                    <span class="text-3xl font-bold text-white">1,628만</span>
+            <div class="bg-gray-900 border border-gray-700 rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-2 text-yellow-400">
+                    <span class="material-symbols-outlined">person_remove</span>
+                    <h3 class="font-bold">인력 구조조정</h3>
                 </div>
-                <p class="text-sm font-medium text-slate-400 mt-2 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-lg text-yellow-500">remove</span>
-                    전주(1,550) 대비 횡보 (+5%)
-                </p>
+                <p class="text-xl font-bold text-white">잉여 인력 즉시 정리</p>
+                <p class="text-sm text-gray-400 mt-1">강남/대학로 피크타임 외 저성과자 정리 (금일 보고)</p>
             </div>
-
-            <!-- KPI 3 -->
-            <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-lg hover:border-slate-600 transition-colors">
-                <h3 class="text-sm font-medium text-slate-400">갈비 메뉴 판매 비중</h3>
-                <div class="mt-2">
-                    <span class="text-3xl font-bold text-blue-400">39%</span>
-                    <span class="text-xs bg-blue-400/10 text-blue-400 px-2 py-0.5 rounded ml-2">대학로</span>
+            <div class="bg-gray-900 border border-gray-700 rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-2 text-blue-400">
+                    <span class="material-symbols-outlined">trending_down</span>
+                    <h3 class="font-bold">원가 절감 조치</h3>
                 </div>
-                <p class="text-sm font-medium text-slate-400 mt-2 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-lg text-green-500">check_circle</span>
-                    시그니처 전략 유효
-                </p>
+                <p class="text-xl font-bold text-white">패티 중량/원육 변경</p>
+                <p class="text-sm text-gray-400 mt-1">갈비 100g→80g 축소<br>치킨 다리살→가슴살 변경</p>
             </div>
-
-            <!-- KPI 4 -->
-            <div class="bg-slate-900 border border-red-900/50 rounded-xl p-5 shadow-lg hover:border-red-700 transition-colors">
-                <h3 class="text-sm font-medium text-slate-400">긴급 조치 사항</h3>
-                <div class="mt-2 flex flex-col gap-1">
-                    <span class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-red-500"></span> 워크샵 전면 취소
-                    </span>
-                    <span class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-red-500"></span> 인력 감축 실행
-                    </span>
+            <div class="bg-gray-900 border border-gray-700 rounded-xl p-5">
+                <div class="flex items-center gap-2 mb-2 text-green-400">
+                    <span class="material-symbols-outlined">rocket_launch</span>
+                    <h3 class="font-bold">신메뉴 즉시 출시</h3>
                 </div>
+                <p class="text-xl font-bold text-white">OEM 5종 (No Test)</p>
+                <p class="text-sm text-gray-400 mt-1">테스트 과정 생략하고 즉시 판매 개시 (원가율 18~28%)</p>
             </div>
         </section>
 
-        <!-- 2. 탭 네비게이션 (Sticky) -->
-        <nav id="tab-nav" class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-sm border-b border-slate-700 mb-6">
-            <div class="grid grid-cols-5 w-full">
-                <button data-tab="tab-dashboard" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent" tab-active>
-                    <span class="material-symbols-outlined block mb-1 text-xl">monitoring</span>
-                    매출 현황
-                </button>
-                <button data-tab="tab-decisions" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
-                    <span class="material-symbols-outlined block mb-1 text-xl">gavel</span>
-                    비상 결정
-                </button>
-                <button data-tab="tab-actions" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
-                    <span class="material-symbols-outlined block mb-1 text-xl">assignment_late</span>
-                    긴급 액션
-                </button>
-                <button data-tab="tab-context" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
-                    <span class="material-symbols-outlined block mb-1 text-xl">forum</span>
-                    주요 논의
-                </button>
-                <button data-tab="tab-analysis" class="tab-button py-4 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
-                    <span class="material-symbols-outlined block mb-1 text-xl">psychology</span>
-                    코치 진단
-                </button>
-            </div>
+        <!-- Navigation Tabs -->
+        <nav class="flex border-b border-gray-800 mb-6 sticky top-0 bg-gray-950 z-10">
+            <button onclick="switchTab('decisions')" id="tab-decisions" class="px-6 py-3 text-gray-400 border-b-2 border-transparent hover:text-white transition-colors" tab-active>
+                결정사항 (Decisions)
+            </button>
+            <button onclick="switchTab('discussions')" id="tab-discussions" class="px-6 py-3 text-gray-400 border-b-2 border-transparent hover:text-white transition-colors">
+                주요 논의 (Context)
+            </button>
+            <button onclick="switchTab('actions')" id="tab-actions" class="px-6 py-3 text-gray-400 border-b-2 border-transparent hover:text-white transition-colors">
+                Action Items
+            </button>
         </nav>
 
-        <!-- 3. 탭 콘텐츠 -->
-        <main class="min-h-[500px]">
-            
-            <!-- [TAB 1] 매출 대시보드 -->
-            <div id="tab-dashboard" class="tab-pane animate-fade-in">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <!-- 매출 추이 차트 -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                                <span class="material-symbols-outlined text-red-500">show_chart</span>
-                                주간 매출 추이 (위기 경보)
-                            </h3>
-                            <span class="text-xs text-slate-500">단위: 만원</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- 메뉴 믹스 차트 -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                                <span class="material-symbols-outlined text-blue-500">pie_chart</span>
-                                메뉴 판매 비중 (대학로)
-                            </h3>
-                            <span class="text-xs text-slate-500">46주차 기준</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="menuMixChart"></canvas>
-                        </div>
-                    </div>
+        <!-- Content Sections -->
+        <main>
+            <!-- Tab 1: Decisions -->
+            <div id="content-decisions" class="animate-fade-in">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-800 text-gray-300 text-sm uppercase">
+                            <tr>
+                                <th class="p-4 font-semibold w-1/5">영역</th>
+                                <th class="p-4 font-semibold w-2/5">결정 사항</th>
+                                <th class="p-4 font-semibold w-1/5">담당자</th>
+                                <th class="p-4 font-semibold w-1/5">데드라인</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800 text-gray-300">
+                            <tr class="bg-red-900/10">
+                                <td class="p-4 font-medium text-red-400">경영</td>
+                                <td class="p-4 font-bold text-white">비상 경영 체제 전환: 워크샵 전면 취소, 생존을 위한 매출 회복 집중</td>
+                                <td class="p-4">원종관</td>
+                                <td class="p-4 text-red-400 font-bold">즉시</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-medium">인사/운영</td>
+                                <td class="p-4">
+                                    <strong>인력 구조조정:</strong><br>
+                                    강남/대학로점 피크타임 제외 잉여 인력 및 저성과자 즉시 정리
+                                </td>
+                                <td class="p-4">김평안, 우예진</td>
+                                <td class="p-4">금일 내 보고</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-medium">제조/메뉴</td>
+                                <td class="p-4">
+                                    <strong>1. 사이드 메뉴(OEM 신규 5종) 출시:</strong> 테스트 생략, 즉시 판매<br>
+                                    <strong>2. 원가 절감:</strong> 갈비 패티 중량 축소(100g→80g), 치킨 패티 원육 변경(다리→가슴)
+                                </td>
+                                <td class="p-4">김만제, 영업본부</td>
+                                <td class="p-4">즉시 (11/18)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-medium">B2B 전략</td>
+                                <td class="p-4">
+                                    <strong>전략 피봇 (Pivot):</strong><br>
+                                    B2C(점주) 타겟 → B2B(프랜차이즈 본사) 타겟으로 전환
+                                </td>
+                                <td class="p-4">박요한</td>
+                                <td class="p-4">차주</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-medium">Tech</td>
+                                <td class="p-4">데이터 적재 일정 확정 및 외주사 지연 사유 파악</td>
+                                <td class="p-4">김도윤, 이준용</td>
+                                <td class="p-4">금주</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-medium">VM/상권</td>
+                                <td class="p-4">가맹점(20평형) 레이아웃 초안 확정</td>
+                                <td class="p-4">김희라, 배승환</td>
+                                <td class="p-4">금주</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <!-- 상세 지표 카드 -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2">주요 지표 상세 (46주차)</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="p-4 bg-slate-800 rounded-lg text-center">
-                            <p class="text-slate-400 text-xs mb-1">강남 홀 매출 비중</p>
-                            <p class="text-2xl font-bold text-white">47%</p>
-                            <p class="text-green-500 text-xs font-bold mt-1">▲ 6%p 개선</p>
+            <!-- Tab 2: Discussions -->
+            <div id="content-discussions" class="hidden animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                        <div class="prose max-w-none">
+                            <h3>1. "생존이 1번이다" (CEO 발언)</h3>
+                            <ul>
+                                <li><strong>현황 인식:</strong> 강남 5천, 대학로 7천 수준의 매출(또는 예상치)에 대해 CEO가 매우 무겁게 받아들임. "반복적인 달성이 되어야 하는데 일회성 달성에 그쳤다"는 지적.</li>
+                                <li><strong>위기감 공유:</strong> 현재의 마인드셋으로는 생존이 불가능하다고 판단. 워크샵 취소는 이러한 위기감을 전사에 공유하기 위함.</li>
+                                <li><strong>목표 재설정:</strong> 대학로점을 데이터 기반으로 다시 분석하여 정확하게 '월 1억 매출' 궤도에 올려놓는 것이 최우선 과제.</li>
+                            </ul>
                         </div>
-                        <div class="p-4 bg-slate-800 rounded-lg text-center">
-                            <p class="text-slate-400 text-xs mb-1">강남 배달 객단가</p>
-                            <p class="text-2xl font-bold text-white">1.83만</p>
-                            <p class="text-green-500 text-xs font-bold mt-1">▲ 1.8천원 개선</p>
+                    </div>
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                        <div class="prose max-w-none">
+                            <h3>2. 운영 효율화 및 인력 관리</h3>
+                            <ul>
+                                <li><strong>엄격한 관리:</strong> "바쁘다는 핑계를 들어줄 상황이 아니다." 현장 슈퍼바이저들이 매출 올리는 방법을 알고 있으니 실행해야 함.</li>
+                                <li><strong>스윙 타임(Break Time) 이슈:</strong> 매니저 휴게 시간 보장을 위해 차라리 스윙 타임(1시간)에 문을 닫더라도 확실하게 휴식을 취하고 효율을 높이는 방안 논의. (느슨한 근무 형태 지양)</li>
+                            </ul>
                         </div>
-                        <div class="p-4 bg-slate-800 rounded-lg text-center">
-                            <p class="text-slate-400 text-xs mb-1">대학로 홀 매출 비중</p>
-                            <p class="text-2xl font-bold text-white">66%</p>
-                            <p class="text-red-500 text-xs font-bold mt-1">▼ 4%p 하락</p>
-                        </div>
-                        <div class="p-4 bg-red-900/20 border border-red-900/50 rounded-lg text-center">
-                            <p class="text-red-300 text-xs mb-1">회원가입 전환율</p>
-                            <p class="text-2xl font-bold text-red-500">누락</p>
-                            <p class="text-red-400 text-xs font-bold mt-1">프로세스 실패</p>
+                    </div>
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                        <div class="prose max-w-none">
+                            <h3>3. 개발 및 확장 전략</h3>
+                            <ul>
+                                <li><strong>B2B 피봇:</strong> 기존 점주 대상(B2C) 접근보다 프랜차이즈 본사 대상(B2B) 세일즈가 더 효율적일 것으로 판단하여 전략 수정.</li>
+                                <li><strong>온보딩 지연:</strong> 외주사의 데이터 적재가 완료되어야 온보딩 자료 완성이 가능함. 일정 관리가 필요.</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- [TAB 2] 비상 결정 -->
-            <div id="tab-decisions" class="tab-pane hidden animate-fade-in">
-                <div class="bg-slate-900 border border-red-900/50 rounded-xl p-6 md:p-8 shadow-sm">
-                    <h3 class="text-red-400 font-bold text-xl mb-6 flex items-center border-b border-red-900/50 pb-4">
-                        <span class="material-symbols-outlined mr-2 text-3xl">emergency_home</span>
-                        비상 경영 체제 가동 (4대 결정)
-                    </h3>
-                    
-                    <div class="space-y-6">
-                        <div class="flex gap-4 items-start">
-                            <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0 text-red-500">
-                                <span class="material-symbols-outlined text-2xl">cancel</span>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-bold text-white">1. 워크샵 전면 취소</h4>
-                                <p class="text-slate-400 mt-1">매출 부진 및 위기 상황 인식을 위해 예정된 워크샵을 전면 취소하고, 업무 집중 기간으로 전환합니다.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0 text-red-500">
-                                <span class="material-symbols-outlined text-2xl">person_remove</span>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-bold text-white">2. 인력 구조조정 즉시 실행</h4>
-                                <p class="text-slate-400 mt-1">강남점(4명 체제), 대학로점 등 피크타임을 제외한 잉여 인력 및 저성과자에 대한 정리를 오늘부터 즉시 실행합니다.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 text-green-500">
-                                <span class="material-symbols-outlined text-2xl">rocket_launch</span>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-bold text-white">3. 신규 사이드 메뉴(OEM) 즉시 판매</h4>
-                                <p class="text-slate-400 mt-1">매출 확보를 위해 테스트 과정을 생략하고, 텍스트 메뉴로 우선 등록하여 오늘부터 판매를 개시합니다.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4 items-start">
-                            <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 text-blue-500">
-                                <span class="material-symbols-outlined text-2xl">savings</span>
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-bold text-white">4. 원가 절감 조치 적용</h4>
-                                <p class="text-slate-400 mt-1">갈비 패티 중량 축소(100g→80g) 및 치킨 패티 원육 변경(다리살→가슴살)을 통해 원가율을 개선합니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [TAB 3] 긴급 액션 -->
-            <div id="tab-actions" class="tab-pane hidden animate-fade-in">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    
-                    <!-- 영업/운영 카드 -->
-                    <div class="bg-slate-900 border border-red-800 rounded-xl p-5 shadow-lg relative group hover:bg-slate-800 transition-colors">
-                        <div class="absolute top-4 right-4 bg-red-900/80 text-red-200 text-xs px-2 py-1 rounded font-bold animate-pulse">긴급</div>
-                        <div class="mb-4">
-                            <span class="text-xs font-bold text-slate-500 uppercase">Operation</span>
-                            <h3 class="text-xl font-bold text-red-400">영업 / 운영</h3>
-                            <p class="text-sm text-slate-400">김평안, 우예진, 소정빈</p>
-                        </div>
-                        <ul class="space-y-3 text-slate-300 text-sm">
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-red-500 mt-0.5">check_box_outline_blank</span>
-                                <span><strong>인력 감축 계획 보고</strong> (금일 내)</span>
+            <!-- Tab 3: Action Items -->
+            <div id="content-actions" class="hidden animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Card 1 -->
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                        <h4 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <span class="material-symbols-outlined mr-2 text-red-500">warning</span>
+                            Emergency Tasks
+                        </h4>
+                        <ul class="space-y-3 text-gray-300 text-sm">
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-red-500" />
+                                <span><strong>[영업]</strong> 강남/대학로 인력 구조조정 명단 보고 (금일)</span>
                             </li>
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-red-500 mt-0.5">check_box_outline_blank</span>
-                                <span>마케팅 히스토리 10월분 업데이트</span>
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-red-500" />
+                                <span><strong>[제조]</strong> 갈비 패티 중량 축소 생산 적용 (즉시)</span>
                             </li>
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-red-500 mt-0.5">check_box_outline_blank</span>
-                                <span>POS 회원 적립 누락 방지 교육 (매일)</span>
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-red-500" />
+                                <span><strong>[제조]</strong> 치킨 패티 원육 변경 발주 (즉시)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-red-500" />
+                                <span><strong>[영업]</strong> 신규 사이드 5종 키오스크/배달앱 등록 (즉시)</span>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- Tech/B2B 카드 -->
-                    <div class="bg-slate-900 border border-blue-900 rounded-xl p-5 shadow-lg hover:bg-slate-800 transition-colors">
-                        <div class="mb-4">
-                            <span class="text-xs font-bold text-slate-500 uppercase">Strategy</span>
-                            <h3 class="text-xl font-bold text-blue-400">Tech / B2B</h3>
-                            <p class="text-sm text-slate-400">김도윤, 박요한</p>
-                        </div>
-                        <ul class="space-y-3 text-slate-300 text-sm">
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-blue-500 mt-0.5">check_box_outline_blank</span>
-                                <span>데이터 적재 지연 원인 파악 (외주사)</span>
+                    <!-- Card 2 -->
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <h4 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <span class="material-symbols-outlined mr-2 text-blue-500">business</span>
+                            Business & Tech
+                        </h4>
+                        <ul class="space-y-3 text-gray-300 text-sm">
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-blue-500" />
+                                <span><strong>[B2B]</strong> 가맹본부 타겟 세일즈 전략 수립 (차주)</span>
                             </li>
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-blue-500 mt-0.5">check_box_outline_blank</span>
-                                <span>B2B 세일즈 전략(타겟/상품) 재수립 (차주)</span>
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-blue-500" />
+                                <span><strong>[B2B]</strong> A-Bout 미팅 F/U 및 상품 정의</span>
                             </li>
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-blue-500 mt-0.5">check_box_outline_blank</span>
-                                <span>B2B 홈페이지/제안서 업데이트</span>
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-blue-500" />
+                                <span><strong>[Tech]</strong> 데이터 적재 일정 확정 및 테스트 시점 보고</span>
                             </li>
                         </ul>
                     </div>
 
-                    <!-- 제조/VM 카드 -->
-                    <div class="bg-slate-900 border border-green-900 rounded-xl p-5 shadow-lg hover:bg-slate-800 transition-colors">
-                        <div class="mb-4">
-                            <span class="text-xs font-bold text-slate-500 uppercase">Product</span>
-                            <h3 class="text-xl font-bold text-green-400">제조 / VM / 상권</h3>
-                            <p class="text-sm text-slate-400">김만제, 김희라, 배승환</p>
-                        </div>
-                        <ul class="space-y-3 text-slate-300 text-sm">
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-green-500 mt-0.5">check_box_outline_blank</span>
-                                <span>사이드 신메뉴 판매 모니터링</span>
+                    <!-- Card 3 -->
+                    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                        <h4 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <span class="material-symbols-outlined mr-2 text-green-500">store</span>
+                            Expansion (VM)
+                        </h4>
+                        <ul class="space-y-3 text-gray-300 text-sm">
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-green-500" />
+                                <span><strong>[VM]</strong> 20평형 가맹점 레이아웃 확정 (금주)</span>
                             </li>
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-green-500 mt-0.5">check_box_outline_blank</span>
-                                <span>20평형 가맹 표준 모델 확정</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="material-symbols-outlined text-base text-green-500 mt-0.5">check_box_outline_blank</span>
-                                <span>가맹점주 미팅 리스트 업데이트</span>
+                            <li class="flex items-start">
+                                <input type="checkbox" class="mt-1 mr-2 accent-green-500" />
+                                <span><strong>[상권]</strong> 신규 가맹 문의 응대 및 입점지 분석</span>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
-
-            <!-- [TAB 4] 주요 논의 -->
-            <div id="tab-context" class="tab-pane hidden animate-fade-in">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-lg">
-                    <div class="prose max-w-none">
-                        <h3 class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-red-500">campaign</span>
-                            🚨 생존 위기 공유 (CEO 발언)
-                        </h3>
-                        <ul>
-                            <li><strong>"집에 가야 한다":</strong> 현재 추세(11월 마감 1.9억)라면 사업 유지가 불가능함. 강남점은 정리 고려 대상, 대학로점은 1억 달성을 증명하지 못하면 브랜드 존속 불가.</li>
-                            <li><strong>태도 지적:</strong> "서버가 바빠서 회원가입을 못 시켰다"는 핑계는 더 이상 용납되지 않음. 3주째 개선되지 않는 기본기(적립, 데이터 확보) 문제를 강력히 지적함.</li>
-                        </ul>
-
-                        <h3 class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-yellow-500">trending_down</span>
-                            📉 영업 현황 및 문제점
-                        </h3>
-                        <ul>
-                            <li><strong>마케팅 데이터 부재:</strong> 어떤 마케팅을 했고 결과가 어땠는지에 대한 기록(10월분)이 누락됨. 데이터 기반 의사결정이 불가능한 상태.</li>
-                            <li><strong>프로세스 실패:</strong> 할인 혜택만 제공되고, 정작 중요한 회원 데이터(DB) 확보는 안 되는 상황. 이대로면 할인 정책을 전면 폐기해야 함.</li>
-                        </ul>
-
-                        <h3 class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-blue-500">sync_alt</span>
-                            🔄 전략 피봇 (B2B & 솔루션)
-                        </h3>
-                        <ul>
-                            <li><strong>타겟 변경:</strong> 솔루션 타겟을 점주 개인(B2C)이 아닌 프랜차이즈 본사(B2B)로 명확화. 본사는 개별 점주 수익보다 '전체 매출 관리'에 관심이 많음.</li>
-                            <li><strong>제품 방향:</strong> 이에 맞춰 대시보드 및 솔루션 기능을 B2B 가맹본부용으로 재정의해야 함.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- [TAB 5] 회의 분석 -->
-            <div id="tab-analysis" class="tab-pane hidden animate-fade-in">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-lg">
-                    <div class="prose max-w-none">
-                        <h3 class="text-purple-400">0. 핵심 총평 (애자일 코치)</h3>
-                        <ul>
-                            <li><strong>"충격 요법(Shock Therapy)":</strong> 느슨해진 조직에 '생존'이라는 화두를 던지며 비상 체제를 가동함. 워크샵 취소는 단순 일정 변경이 아닌, 위기감을 공유하기 위한 상징적인 조치임.</li>
-                        </ul>
-
-                        <h3 class="text-green-400">1. 잘 되고 있는 점</h3>
-                        <ul>
-                            <li><strong>제조팀의 기민함:</strong> 위기 상황에서 가장 빛난 부서. 보이지 않는 곳에서 원가 절감(패티 중량)과 신제품 출시(OEM)를 가장 빠르고 조용하게 실행하고 있음.</li>
-                            <li><strong>가맹 준비:</strong> 하드웨어(디자인, 브로셔) 준비는 외부 일정에 맞춰 차질 없이 진행 중.</li>
-                        </ul>
-
-                        <h3 class="text-red-400">2. 위험/개선이 필요한 점</h3>
-                        <ul>
-                            <li><strong>실행력 실종 (Red Alert):</strong> '회원가입 유도', '마케팅 데이터 기록' 등 수차례 지시된 기본 업무가 현장에서 지속적으로 무시되고 있음. 이는 시스템의 문제가 아닌 현장 리더십과 마인드셋의 문제임.</li>
-                            <li><strong>데이터 공백:</strong> 마케팅 성과를 분석할 데이터가 없어, 전략 수정이 불가능한 '깜깜이 운행' 상태가 지속됨.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
         </main>
-        
-        <footer class="mt-12 border-t border-slate-800 pt-6 text-center text-slate-500 text-xs">
-            <p>CONTROLL M OKR DASHBOARD | 2025</p>
-        </footer>
+
     </div>
 
-    <!-- Scroll Top Button -->
-    <button id="scrollTopBtn" class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-red-600 text-white shadow-lg hover:bg-red-700 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none">
-        <span class="material-symbols-outlined">arrow_upward</span>
-    </button>
-
     <script>
-        // Chart Setup
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.borderColor = '#334155';
-        Chart.defaults.font.family = "Pretendard";
-
-        // Revenue Chart
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: ['43주', '44주', '45주', '46주(예상)'],
-                datasets: [
-                    {
-                        label: '강남점',
-                        data: [1241, 1348, 1276, 1181],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: '대학로점',
-                        data: [3529, 3600, 1628, 1628],
-                        borderColor: '#ef4444', /* Warning Color for Drop */
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' },
-                    annotation: {
-                        annotations: {
-                            line1: {
-                                type: 'line',
-                                yMin: 2000,
-                                yMax: 2000,
-                                borderColor: '#eab308',
-                                borderWidth: 1,
-                                borderDash: [5, 5],
-                                label: { content: 'BEP Target', display: true, position: 'end', color: '#eab308' }
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#1e293b' } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // Menu Mix Chart
-        const menuMixCtx = document.getElementById('menuMixChart').getContext('2d');
-        new Chart(menuMixCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['갈비', '비프', '치킨', '기타'],
-                datasets: [{
-                    data: [39, 35, 20, 6],
-                    backgroundColor: ['#3b82f6', '#ef4444', '#eab308', '#64748b'],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { boxWidth: 15 } }
-                },
-                cutout: '65%'
-            }
-        });
-
-        // Interaction Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabNav = document.getElementById('tab-nav');
-            const tabs = document.querySelectorAll('.tab-button');
-            const panes = document.querySelectorAll('.tab-pane');
-            const scrollTopBtn = document.getElementById('scrollTopBtn');
-
-            // Tab Switching
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabs.forEach(t => t.removeAttribute('tab-active'));
-                    panes.forEach(p => p.classList.add('hidden'));
-                    
-                    tab.setAttribute('tab-active', '');
-                    const target = document.getElementById(tab.dataset.tab);
-                    target.classList.remove('hidden');
-
-                    const navHeight = tabNav.offsetHeight;
-                    const targetPos = tabNav.getBoundingClientRect().top + window.pageYOffset;
-                    window.scrollTo({ top: targetPos - 1, behavior: 'smooth' });
-                });
-            });
-
-            // Scroll Top Button
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    scrollTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
-                } else {
-                    scrollTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
-                }
-            });
+        function switchTab(tabName) {
+            // Hide all contents
+            document.getElementById('content-decisions').classList.add('hidden');
+            document.getElementById('content-discussions').classList.add('hidden');
+            document.getElementById('content-actions').classList.add('hidden');
             
-            scrollTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        });
+            // Deactivate all tabs
+            document.getElementById('tab-decisions').removeAttribute('tab-active');
+            document.getElementById('tab-discussions').removeAttribute('tab-active');
+            document.getElementById('tab-actions').removeAttribute('tab-active');
+            
+            // Reset text colors
+            document.getElementById('tab-decisions').classList.remove('text-white');
+            document.getElementById('tab-discussions').classList.remove('text-white');
+            document.getElementById('tab-actions').classList.remove('text-white');
+            document.getElementById('tab-decisions').classList.add('text-gray-400');
+            document.getElementById('tab-discussions').classList.add('text-gray-400');
+            document.getElementById('tab-actions').classList.add('text-gray-400');
+
+            // Show selected content
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            // Activate selected tab
+            const activeTab = document.getElementById('tab-' + tabName);
+            activeTab.setAttribute('tab-active', '');
+            activeTab.classList.remove('text-gray-400');
+            activeTab.classList.add('text-white');
+        }
     </script>
 </body>
 </html>

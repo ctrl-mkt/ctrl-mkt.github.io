@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RestoGenie Partner</title>
     
-    <!-- React 17 & Babel -->
+    <!-- React 17 & Recharts -->
     <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
@@ -36,9 +35,9 @@
         const API_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ";
         const PARTNER_CONTEXT = `
         [매장: 슬램버거 강남점 (기존점)]
-        1. 10월 실적: 매출 9,885만원. 목표 매출은 달성했으나 성장세가 정체되고 있음.
-        2. 본사 이슈: 양상추 원가율이 급등하여(전사 38.5%), 원가 절감 노력이 필요함.
-        3. 운영 가이드: 갈비버거 주문량 급증. 소스 정량(25g) 준수.
+        1. 10월 실적: 매출 9,885만원. 목표 매출 달성했으나 성장세 정체.
+        2. 이슈: 양상추 원가 급등으로 마진율 압박. 
+        3. 가이드: 갈비버거 소스 정량(25g) 준수. 배달 리뷰 관리 철저.
         `;
 
         const Chatbot = () => {
@@ -58,15 +57,14 @@
 
                 try {
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `Context:\n${PARTNER_CONTEXT}\n\nUser: ${msg}\n\nAnswer as a Store Manager AI (Korean).` }] }] })
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `Context:\n${PARTNER_CONTEXT}\n\nUser: ${msg}\n\nAnswer as a Store Manager AI.` }] }] })
                     });
-                    if(!res.ok) throw new Error('API Error');
                     const data = await res.json();
-                    setMessages(prev => [...prev, { role: 'model', text: data.candidates[0].content.parts[0].text }]);
+                    const botMsg = data.candidates?.[0]?.content?.parts?.[0]?.text || "응답을 생성할 수 없습니다.";
+                    setMessages(prev => [...prev, { role: 'model', text: botMsg }]);
                 } catch (e) {
-                    setMessages(prev => [...prev, { role: 'model', text: '일시적인 오류입니다.' }]);
+                    setMessages(prev => [...prev, { role: 'model', text: '네트워크 오류입니다.' }]);
                 }
             };
 
@@ -76,7 +74,7 @@
                 <div className="fixed inset-0 z-50 bg-white flex flex-col md:bottom-24 md:right-4 md:left-auto md:top-auto md:w-96 md:h-[500px] md:rounded-2xl md:shadow-2xl md:border">
                     <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
                         <span className="font-bold flex gap-2"><i data-lucide="bot" className="w-5 h-5"></i> 슬램지니</span>
-                        <button onClick={()=>setIsOpen(false)}><i data-lucide="x"></i></button>
+                        <button onClick={()=>setIsOpen(false)}><i data-lucide="x" className="w-5 h-5"></i></button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 bg-slate-50" ref={scrollRef}>
                         {messages.map((m, i) => <div key={i} className={`flex ${m.role==='user'?'justify-end':'justify-start'}`}><div className={`chat-bubble ${m.role==='user'?'chat-user':'chat-bot'}`}>{m.text}</div></div>)}

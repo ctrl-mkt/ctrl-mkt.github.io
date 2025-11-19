@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V4.1 (Real Dashboard Data)</title>
+    <title>RestoGenie V4.1 (Full Data Integration)</title>
     
     <!-- 1. Fonts -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -26,11 +26,10 @@
         .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        
+        .sidebar-link { transition: all 0.2s; }
+        .sidebar-link.active { background-color: #2563eb; color: white; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .sidebar-link:not(.active):hover { background-color: rgba(255,255,255,0.1); color: white; }
+
         /* Loading Spinner */
         .spinner { width: 24px; height: 24px; border: 3px solid #e2e8f0; border-top: 3px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -47,20 +46,14 @@
         } = window.Recharts;
 
         /**
-         * [DATA CONFIGURATION V4.1]
-         * 사용자가 제공한 '일별 대시보드' 통합 시트 URL 적용
+         * [DATA CONFIGURATION]
+         * 사용자가 제공한 실제 시트 URL 매핑
          */
         const CONFIG = {
             urls: {
-                hq_total: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZW2aTNo146wvq7KqVLiVsAQnx6Sgis__MwkTepvXat5_kPHxvoNyU79i4rLV3GkRqsI3HstzWP32L/pub?gid=0&single=true&output=csv",
+                hq: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZW2aTNo146wvq7KqVLiVsAQnx6Sgis__MwkTepvXat5_kPHxvoNyU79i4rLV3GkRqsI3HstzWP32L/pub?gid=0&single=true&output=csv",
                 gangnam: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTy5PRIhx_YumADmE-_uGse2JpX8RmzVI-9H01GilmOh7XeJoi5wNCzgNyDCBKOyv9e_O3YdduXn7XX/pub?gid=1315615338&single=true&output=csv",
-                daehakro: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz_VG0F8yxDwxZYTiJP92Dv0CZPu99abqE-m3RRehHZGdYgB1YAlru9ki82V7wkpz7JI5GvJo8Monx/pub?gid=1671808379&single=true&output=csv",
-                // CCTV는 기존 유지
-                cctv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-4E2_vIblHjCsFtlWS5DcYaAHajRPI18Ifu9qJ4qlI-objT4C_hL5rifKocjf_TIpxEsGjUCw1hh6/pub?gid=0&single=true&output=csv"
-            },
-            storeIds: {
-                gangnam: "9bdd9fbe-4c4b-485b-b750-705c8faf3bda",
-                daehakro: "63b0a84d-5379-48e4-b378-7289a627d31d"
+                daehakro: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQz_VG0F8yxDwxZYTiJP92Dv0CZPu99abqE-m3RRehHZGdYgB1YAlru9ki82V7wkpz7JI5GvJo8Monx/pub?gid=1671808379&single=true&output=csv"
             }
         };
 
@@ -70,7 +63,7 @@
             text: '#1e293b', subText: '#64748b'
         };
 
-        // --- Icons ---
+        // --- Icons (Manual SVG) ---
         const Icons = {
             Menu: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
             Home: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
@@ -78,104 +71,93 @@
             PieChart: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
             Target: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
             Eye: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>,
-            Settings: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
+            Users: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
             LogOut: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
             ChevronRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
             Zap: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
-            Refresh: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>,
-            Users: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         };
 
-        // --- Intelligent Data Parser ---
-        const smartParseCSV = async (url) => {
+        // --- Data Parser & Helper ---
+        const parseMoney = (val) => {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            return parseInt(val.toString().replace(/[^0-9-]/g, '')) || 0;
+        };
+        const parseFloatVal = (val) => {
+            if (!val) return 0;
+            return parseFloat(val.toString().replace(/[^0-9.-]/g, '')) || 0;
+        };
+
+        // [Smart CSV Parser] Finds the actual header row
+        const fetchSmartCSV = async (url) => {
             if (!url) return [];
-            try {
-                const response = await fetch(url);
-                const text = await response.text();
-                
-                // 1. Raw Parse without Header
-                const raw = Papa.parse(text, { header: false }).data;
-                
-                // 2. Find the Header Row (Look for '일' or '날짜' or 'Date')
-                let headerRowIndex = -1;
-                for (let i = 0; i < Math.min(raw.length, 20); i++) {
-                    const rowStr = JSON.stringify(raw[i]);
-                    if (rowStr.includes('일') || rowStr.includes('날짜') || rowStr.includes('Date') || rowStr.includes('요일')) {
-                        headerRowIndex = i;
-                        break;
-                    }
+            const response = await fetch(url);
+            const text = await response.text();
+            
+            // Parse full raw data
+            const result = Papa.parse(text, { header: false });
+            const rows = result.data;
+            
+            // Find header row index (searching for known keywords)
+            let headerIdx = -1;
+            const keywords = ['일자', '날짜', 'Date', '총매출', '매출'];
+            
+            for(let i=0; i < Math.min(rows.length, 20); i++) {
+                const rowStr = JSON.stringify(rows[i]);
+                if (keywords.some(k => rowStr.includes(k))) {
+                    headerIdx = i;
+                    break;
                 }
-                
-                if (headerRowIndex === -1) return [];
-
-                // 3. Map Data
-                const headers = raw[headerRowIndex].map(h => h ? h.trim() : `col_${Math.random()}`);
-                const data = raw.slice(headerRowIndex + 1).map(row => {
-                    const obj = {};
-                    headers.forEach((h, idx) => {
-                        obj[h] = row[idx];
-                    });
-                    return obj;
-                });
-                
-                return data;
-            } catch (e) {
-                console.error("Parsing Error:", e);
-                return [];
             }
-        };
 
-        // --- Helper: Clean Numbers ---
-        const cleanNum = (val) => {
-            if (typeof val === 'number') return val;
-            if (!val) return 0;
-            return parseInt(val.replace(/[^0-9-]/g, '')) || 0;
-        };
-        
-        const cleanFloat = (val) => {
-            if (!val) return 0;
-            if (typeof val === 'number') return val;
-            return parseFloat(val.replace(/[^0-9.-]/g, '')) || 0;
+            if (headerIdx === -1) return [];
+
+            // Map headers to data
+            const headers = rows[headerIdx].map(h => h ? h.trim() : `col_${Math.random()}`);
+            return rows.slice(headerIdx + 1).map(row => {
+                const obj = {};
+                headers.forEach((h, idx) => {
+                    obj[h] = row[idx];
+                });
+                return obj;
+            });
         };
 
         // --- Components ---
+
         const Sidebar = ({ mode, activeMenu, setActiveMenu, isOpen, toggleSidebar, onLogout }) => {
             const menuItems = mode === 'PARTNER' ? [
                 { id: 'dashboard', label: '홈 (대시보드)', icon: Icons.Home },
                 { id: 'pnl', label: '수익성 분석 (P&L)', icon: Icons.PieChart },
                 { id: 'sales', label: '매출/메뉴 분석', icon: Icons.TrendingUp },
-                { id: 'marketing', label: '마케팅/고객', icon: Icons.Users },
-                { id: 'cctv', label: '매장/상권 분석', icon: Icons.Eye },
+                { id: 'marketing', label: '마케팅 (CRM)', icon: Icons.Users },
+                { id: 'cctv', label: '상권/CCTV 분석', icon: Icons.Eye },
             ] : [
                 { id: 'dashboard', label: '전사 대시보드', icon: Icons.Home },
                 { id: 'stores', label: '가맹점 현황', icon: Icons.PieChart },
             ];
 
             return (
-                <aside className={`bg-slate-900 text-white transition-all duration-300 flex flex-col z-50 h-full fixed left-0 top-0 ${isOpen ? 'w-64' : 'w-20'}`}>
+                <aside className={`bg-slate-900 text-white flex flex-col fixed left-0 top-0 h-full z-50 transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'}`}>
                     <div className="h-16 flex items-center justify-center border-b border-slate-800 cursor-pointer" onClick={toggleSidebar}>
                         <div className="flex items-center gap-2">
                             <div className="bg-blue-600 p-1.5 rounded text-white"><Icons.Zap className="w-6 h-6"/></div>
-                            {isOpen && <span className="font-bold text-xl">RestoGenie</span>}
+                            {isOpen && <span className="font-bold text-xl tracking-tight">RestoGenie</span>}
                         </div>
                     </div>
-
                     <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-                        {isOpen && <div className="text-xs font-bold text-slate-500 px-3 mb-2 uppercase">{mode} MENU</div>}
+                        {isOpen && <div className="text-xs font-bold text-slate-500 px-3 mb-2 uppercase">{mode} MODE</div>}
                         {menuItems.map(item => (
                             <button 
-                                key={item.id}
+                                key={item.id} 
                                 onClick={() => setActiveMenu(item.id)}
-                                className={`sidebar-item w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-1 ${
-                                    activeMenu === item.id ? 'active' : 'text-slate-400 hover:text-white'
-                                }`}
+                                className={`sidebar-link w-full flex items-center gap-3 px-3 py-3 rounded-lg ${activeMenu === item.id ? 'active' : 'text-slate-400'}`}
                             >
                                 <item.icon className="w-5 h-5 flex-shrink-0" />
                                 {isOpen && <span className="text-sm whitespace-nowrap">{item.label}</span>}
                             </button>
                         ))}
                     </div>
-
                     <div className="p-4 border-t border-slate-800">
                         <button onClick={onLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 w-full px-2">
                             <Icons.LogOut className="w-5 h-5" />
@@ -186,33 +168,24 @@
             );
         };
 
-        const StatCard = ({ label, value, subValue, trend, onClick, color = "blue" }) => {
+        const StatCard = ({ label, value, subValue, trend, onClick, color }) => {
             const isPos = trend >= 0;
-            const bgColors = {
-                blue: 'bg-blue-50 text-blue-600',
-                green: 'bg-green-50 text-green-600',
-                purple: 'bg-purple-50 text-purple-600',
-                orange: 'bg-orange-50 text-orange-600'
-            };
             return (
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all relative group h-full">
-                    <h4 className="text-slate-500 text-xs font-bold uppercase tracking-wide mb-2">{label}</h4>
-                    <div className="flex items-end gap-2 mb-1">
-                        <h2 className={`text-2xl font-bold text-slate-800`}>{value}</h2>
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all relative group h-full flex flex-col justify-between">
+                    <div>
+                        <h4 className="text-slate-500 text-xs font-bold uppercase tracking-wide mb-2">{label}</h4>
+                        <h2 className="text-2xl font-bold text-slate-800">{value}</h2>
+                        {subValue && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${isPos ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                    {isPos ? '▲' : '▼'} {Math.abs(trend)}%
+                                </span>
+                                <span className="text-xs text-slate-400">{subValue}</span>
+                            </div>
+                        )}
                     </div>
-                    {subValue && (
-                        <div className="flex items-center gap-2 mt-2">
-                            <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${isPos ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                {isPos ? '▲' : '▼'} {Math.abs(trend)}%
-                            </span>
-                            <span className="text-xs text-slate-400">{subValue}</span>
-                        </div>
-                    )}
                     {onClick && (
-                        <button 
-                            onClick={onClick}
-                            className="absolute top-4 right-4 text-slate-300 hover:text-blue-600 text-xs flex items-center gap-1 transition"
-                        >
+                        <button onClick={onClick} className="absolute top-4 right-4 text-slate-300 hover:text-blue-600 text-xs flex items-center gap-1 transition">
                             더보기 <Icons.ChevronRight className="w-3 h-3"/>
                         </button>
                     )}
@@ -220,10 +193,10 @@
             );
         };
 
-        // --- Main App ---
+        // --- Main Application ---
         function App() {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [mode, setMode] = useState('PARTNER'); // PARTNER | HQ
+            const [mode, setMode] = useState('PARTNER'); 
             const [activeMenu, setActiveMenu] = useState('dashboard');
             const [sidebarOpen, setSidebarOpen] = useState(true);
             const [selectedStore, setSelectedStore] = useState('gangnam');
@@ -235,114 +208,84 @@
             const [chartData, setChartData] = useState([]);
             const [pattyData, setPattyData] = useState([]);
 
-            // Fetch Data
+            // Fetch & Process Data
             const fetchData = async () => {
                 setIsLoading(true);
                 try {
-                    // 1. Determine URL based on Mode & Store
-                    let targetUrl = "";
-                    if (mode === 'HQ') {
-                        targetUrl = CONFIG.urls.hq_total;
-                    } else {
-                        targetUrl = CONFIG.urls[selectedStore];
-                    }
-
-                    // 2. Fetch & Parse
-                    const data = await smartParseCSV(targetUrl);
+                    let url = (mode === 'HQ') ? CONFIG.urls.hq : CONFIG.urls[selectedStore];
+                    const data = await fetchSmartCSV(url);
                     
-                    // 3. Process Data
-                    // Filter valid rows (must have date and sales)
-                    const validData = data.filter(row => {
-                        const date = row['일'] || row['날짜'] || row['일자'];
-                        const sales = cleanNum(row['매출'] || row['총매출'] || row['총주문금액']);
-                        return date && sales > 0;
-                    }).map(row => {
-                        // Normalize Keys
+                    // Process Data (Filter valid rows & normalize keys)
+                    const validData = data.map(row => {
+                        // Flexible key mapping for different sheet structures
+                        const date = row['일자'] || row['날짜'] || row['일'] || row['Date'];
+                        if (!date) return null;
+
                         return {
-                            date: row['일'] || row['날짜'] || row['일자'],
-                            sales: cleanNum(row['매출'] || row['총매출'] || row['총주문금액']),
-                            hall: cleanNum(row['홀매출'] || row['홀']),
-                            delivery: cleanNum(row['배달매출'] || row['배달']),
-                            orders: cleanNum(row['주문수'] || row['주문 수'] || row['주문']),
-                            profit: cleanNum(row['공헌이익'] || row['매총익']),
-                            costRate: cleanFloat(row['원가율'] || row['원가율(%)']),
-                            signupRate: cleanFloat(row['가입비중(%)'] || row['가입비중']),
-                            revisitRate: cleanFloat(row['재방문율(%)'] || row['재방문율']),
-                            // Patty Sales
-                            beef: cleanNum(row['비프']),
-                            pork: cleanNum(row['갈비']),
-                            chicken: cleanNum(row['치킨']),
-                            shrimp: cleanNum(row['새우'])
+                            date: date,
+                            sales: parseMoney(row['총매출'] || row['매출'] || row['Total Sales']),
+                            hall: parseMoney(row['홀매출'] || row['홀']),
+                            delivery: parseMoney(row['배달매출'] || row['배달']),
+                            profit: parseMoney(row['공헌이익'] || row['이익']),
+                            costRate: parseFloatVal(row['원가율'] || row['원가율(%)']),
+                            signupRate: parseFloatVal(row['가입비중'] || row['가입비중(%)']),
+                            revisitRate: parseFloatVal(row['재방문율'] || row['재방문율(%)']),
+                            // Patty Mix
+                            beef: parseMoney(row['비프']),
+                            pork: parseMoney(row['갈비']),
+                            chicken: parseMoney(row['치킨']),
+                            shrimp: parseMoney(row['새우'])
                         };
-                    }).sort((a,b) => a.date.localeCompare(b.date)); // Sort by date ascending
+                    }).filter(Boolean).sort((a,b) => a.date.localeCompare(b.date));
 
-                    setRawData(validData);
-
-                    // 4. Calculate Aggregates (Last 30 days or all)
-                    const recent = validData.slice(-30); 
-                    
+                    // Calculate KPI (Recent 30 records)
+                    const recent = validData.slice(-30);
                     const totalSales = recent.reduce((acc, r) => acc + r.sales, 0);
-                    const totalOrders = recent.reduce((acc, r) => acc + r.orders, 0);
                     const totalProfit = recent.reduce((acc, r) => acc + r.profit, 0);
-                    
-                    // Avg Rates
                     const avgCost = recent.reduce((acc, r) => acc + r.costRate, 0) / (recent.length || 1);
-                    const avgSignup = recent.reduce((acc, r) => acc + r.signupRate, 0) / (recent.length || 1);
                     const avgRevisit = recent.reduce((acc, r) => acc + r.revisitRate, 0) / (recent.length || 1);
 
-                    // Patty Total
+                    // Patty Chart
                     const pattyTotal = {
                         '비프': recent.reduce((acc, r) => acc + r.beef, 0),
                         '갈비': recent.reduce((acc, r) => acc + r.pork, 0),
                         '치킨': recent.reduce((acc, r) => acc + r.chicken, 0),
-                        '새우': recent.reduce((acc, r) => acc + r.shrimp, 0),
+                        '새우': recent.reduce((acc, r) => acc + r.shrimp, 0)
                     };
+                    const pieData = Object.entries(pattyTotal)
+                        .map(([name, value]) => ({ name, value }))
+                        .filter(i => i.value > 0);
 
+                    setRawData(validData);
+                    setChartData(recent);
+                    setPattyData(pieData);
                     setKpi({
                         sales: totalSales,
-                        orders: totalOrders,
-                        ticket: totalOrders ? Math.round(totalSales / totalOrders) : 0,
                         profit: totalProfit,
-                        margin: totalSales ? ((totalProfit / totalSales) * 100).toFixed(1) : 0,
+                        margin: totalSales ? ((totalProfit/totalSales)*100).toFixed(1) : 0,
                         costRate: avgCost.toFixed(1),
-                        signupRate: avgSignup.toFixed(1),
                         revisitRate: avgRevisit.toFixed(1)
                     });
 
-                    setChartData(recent); // Daily Chart Data
-                    
-                    setPattyData(Object.entries(pattyTotal)
-                        .map(([name, value]) => ({ name, value }))
-                        .filter(x => x.value > 0)
-                        .sort((a,b) => b.value - a.value));
-
-                } catch (e) {
-                    console.error(e);
+                } catch (error) {
+                    console.error("Data Error:", error);
                 } finally {
                     setIsLoading(false);
                 }
             };
 
-            useEffect(() => { 
-                if(isLoggedIn) fetchData(); 
-            }, [isLoggedIn, selectedStore, mode]);
+            useEffect(() => { if(isLoggedIn) fetchData(); }, [isLoggedIn, selectedStore, mode]);
 
-            // Login View
-            if (!isLoggedIn) {
-                return (
-                    <div className="min-h-screen flex items-center justify-center bg-slate-900 font-[Pretendard]">
-                        <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-                            <div className="text-center mb-8">
-                                <h1 className="text-3xl font-bold text-slate-800 mb-2">RestoGenie</h1>
-                                <p className="text-slate-500">AI-Driven Restaurant Management</p>
-                            </div>
-                            <button onClick={() => setIsLoggedIn(true)} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-                                데모 계정으로 로그인
-                            </button>
-                        </div>
+            if (!isLoggedIn) return (
+                <div className="min-h-screen flex items-center justify-center bg-slate-900 font-[Pretendard]">
+                    <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+                        <div className="inline-block p-4 rounded-full bg-blue-50 text-blue-600 mb-4"><Icons.Zap className="w-8 h-8"/></div>
+                        <h1 className="text-2xl font-bold text-slate-800 mb-2">RestoGenie</h1>
+                        <p className="text-slate-500 mb-8">Data-Driven Franchise Management</p>
+                        <button onClick={() => setIsLoggedIn(true)} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">데모 시작하기</button>
                     </div>
-                );
-            }
+                </div>
+            );
 
             return (
                 <div className="flex h-screen bg-slate-50 font-[Pretendard] overflow-hidden">
@@ -357,58 +300,52 @@
 
                     <main className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
                         {/* Header */}
-                        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-8 z-10">
+                        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-8 z-10 sticky top-0">
                             <h2 className="text-xl font-bold text-slate-800">
                                 {mode === 'HQ' ? '전사 통합 대시보드' : (activeMenu === 'dashboard' ? '매장 현황 대시보드' : '상세 분석')}
                             </h2>
                             <div className="flex items-center gap-4">
                                 {mode === 'PARTNER' && (
-                                    <select value={selectedStore} onChange={(e) => setSelectedStore(e.target.value)} className="bg-slate-100 text-sm font-bold py-2 px-4 rounded border border-slate-200 outline-none">
+                                    <select value={selectedStore} onChange={(e) => setSelectedStore(e.target.value)} className="bg-slate-100 text-sm font-bold py-2 px-4 rounded border border-slate-200 outline-none cursor-pointer hover:bg-slate-200 transition">
                                         <option value="gangnam">강남점 (직영)</option>
                                         <option value="daehakro">대학로점 (가맹)</option>
                                     </select>
                                 )}
-                                <button onClick={() => { setMode(mode === 'HQ' ? 'PARTNER' : 'HQ'); setActiveMenu('dashboard'); }} className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded">
+                                <button onClick={() => { setMode(mode === 'HQ' ? 'PARTNER' : 'HQ'); setActiveMenu('dashboard'); }} className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded hover:bg-slate-700 transition">
                                     {mode === 'HQ' ? 'HQ 모드' : '점주 모드'}
                                 </button>
                             </div>
                         </header>
 
-                        {/* Content */}
+                        {/* Content Body */}
                         <div className="flex-1 overflow-y-auto p-8">
                             {isLoading ? (
-                                <div className="flex h-full items-center justify-center gap-2"><div className="spinner"></div> 데이터 연동 중...</div>
+                                <div className="flex h-full items-center justify-center gap-2 text-slate-500"><div className="spinner"></div> 데이터 연동 중...</div>
                             ) : (
                                 <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
                                     
-                                    {/* 1. Dashboard Overview */}
+                                    {/* 1. DASHBOARD */}
                                     {activeMenu === 'dashboard' && (
                                         <>
                                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                                <StatCard label="기간 총 매출" value={`₩${kpi.sales?.toLocaleString()}`} subValue="전월 대비" trend={12.5} color="blue" onClick={() => setActiveMenu('sales')} />
-                                                <StatCard label="공헌 이익" value={`₩${kpi.profit?.toLocaleString()}`} subValue={`이익률 ${kpi.margin}%`} trend={5.4} color="green" onClick={() => setActiveMenu('pnl')} />
-                                                <StatCard label="총 주문 건수" value={`${kpi.orders?.toLocaleString()}건`} subValue={`객단가 ₩${kpi.ticket?.toLocaleString()}`} trend={-2.1} color="purple" onClick={() => setActiveMenu('sales')} />
-                                                <StatCard label="원가율 (Cost)" value={`${kpi.costRate}%`} subValue="목표 30% 이내" trend={-1.2} color="orange" onClick={() => setActiveMenu('pnl')} />
-                                            </div>
-                                            
-                                            {/* Customer Stats */}
-                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                                <StatCard label="신규 회원 가입율" value={`${kpi.signupRate}%`} subValue="멤버십 유입" trend={8.4} color="indigo" onClick={() => setActiveMenu('marketing')} />
-                                                <StatCard label="재방문율 (Retention)" value={`${kpi.revisitRate}%`} subValue="4주 기준" trend={2.1} color="indigo" onClick={() => setActiveMenu('marketing')} />
+                                                <StatCard label="기간 총 매출" value={`₩${kpi.sales?.toLocaleString()}`} subValue="최근 30일" trend={12.5} onClick={() => setActiveMenu('sales')} />
+                                                <StatCard label="공헌 이익" value={`₩${kpi.profit?.toLocaleString()}`} subValue={`이익률 ${kpi.margin}%`} trend={5.4} onClick={() => setActiveMenu('pnl')} />
+                                                <StatCard label="평균 원가율" value={`${kpi.costRate}%`} subValue="목표 30% 이하" trend={-1.2} onClick={() => setActiveMenu('pnl')} />
+                                                <StatCard label="재방문율" value={`${kpi.revisitRate}%`} subValue="고객 충성도" trend={2.1} onClick={() => setActiveMenu('marketing')} />
                                             </div>
 
                                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                                 <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                                     <div className="flex justify-between items-center mb-6">
                                                         <h3 className="font-bold text-slate-800">일별 매출 추이 (홀 vs 배달)</h3>
-                                                        <button onClick={() => setActiveMenu('sales')} className="text-xs text-blue-600 font-bold">상세보기</button>
+                                                        <button onClick={() => setActiveMenu('sales')} className="text-xs text-blue-600 font-bold hover:underline">상세보기</button>
                                                     </div>
                                                     <div className="h-72">
                                                         <ResponsiveContainer width="100%" height="100%">
                                                             <AreaChart data={chartData}>
                                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                                                <XAxis dataKey="date" tick={{fontSize:12}} axisLine={false} tickLine={false} />
-                                                                <YAxis tick={{fontSize:12}} axisLine={false} tickLine={false} width={40} />
+                                                                <XAxis dataKey="date" tick={{fontSize:11}} tickFormatter={(val) => val.substring(5)} />
+                                                                <YAxis tick={{fontSize:11}} width={40} />
                                                                 <Tooltip />
                                                                 <Legend />
                                                                 <Area type="monotone" dataKey="hall" name="홀 매출" stackId="1" stroke="#2563eb" fill="#3b82f6" />
@@ -440,40 +377,67 @@
                                         </>
                                     )}
 
-                                    {/* 2. Sales Detail */}
+                                    {/* 2. SALES DETAIL */}
                                     {activeMenu === 'sales' && (
-                                        <div className="space-y-6">
-                                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                                                <h3 className="font-bold text-lg mb-4">상세 매출 로그</h3>
-                                                <div className="overflow-x-auto">
-                                                    <table className="w-full text-sm text-left text-slate-600">
-                                                        <thead className="bg-slate-50 text-slate-700 uppercase font-bold">
-                                                            <tr>
-                                                                <th className="px-6 py-3">날짜</th>
-                                                                <th className="px-6 py-3">총매출</th>
-                                                                <th className="px-6 py-3">홀 매출</th>
-                                                                <th className="px-6 py-3">배달 매출</th>
-                                                                <th className="px-6 py-3">주문수</th>
-                                                                <th className="px-6 py-3">공헌이익</th>
+                                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                            <h3 className="font-bold text-lg mb-4 text-slate-800">상세 매출 로그</h3>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm text-left text-slate-600">
+                                                    <thead className="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200">
+                                                        <tr>
+                                                            <th className="px-6 py-3">날짜</th>
+                                                            <th className="px-6 py-3">총매출</th>
+                                                            <th className="px-6 py-3">홀 매출</th>
+                                                            <th className="px-6 py-3">배달 매출</th>
+                                                            <th className="px-6 py-3">원가율</th>
+                                                            <th className="px-6 py-3">공헌이익</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100">
+                                                        {chartData.slice().reverse().map((row, idx) => (
+                                                            <tr key={idx} className="hover:bg-slate-50 transition">
+                                                                <td className="px-6 py-3 font-medium">{row.date}</td>
+                                                                <td className="px-6 py-3 font-bold text-slate-800">₩{row.sales.toLocaleString()}</td>
+                                                                <td className="px-6 py-3 text-blue-600">₩{row.hall.toLocaleString()}</td>
+                                                                <td className="px-6 py-3 text-indigo-600">₩{row.delivery.toLocaleString()}</td>
+                                                                <td className="px-6 py-3">{row.costRate}%</td>
+                                                                <td className="px-6 py-3 font-bold text-green-600">₩{row.profit.toLocaleString()}</td>
                                                             </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {chartData.slice().reverse().map((row, idx) => (
-                                                                <tr key={idx} className="border-b hover:bg-slate-50">
-                                                                    <td className="px-6 py-4">{row.date}</td>
-                                                                    <td className="px-6 py-4 font-bold text-slate-800">₩{row.sales.toLocaleString()}</td>
-                                                                    <td className="px-6 py-4 text-blue-600">₩{row.hall.toLocaleString()}</td>
-                                                                    <td className="px-6 py-4 text-indigo-600">₩{row.delivery.toLocaleString()}</td>
-                                                                    <td className="px-6 py-4">{row.orders}건</td>
-                                                                    <td className="px-6 py-4 font-bold text-green-600">₩{row.profit.toLocaleString()}</td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* 3. PROFIT (P&L) */}
+                                    {activeMenu === 'pnl' && (
+                                        <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm text-center h-96 flex flex-col justify-center items-center">
+                                            <div className="bg-green-50 p-4 rounded-full mb-4"><Icons.PieChart className="w-12 h-12 text-green-600"/></div>
+                                            <h3 className="text-2xl font-bold text-slate-800">수익성 분석 (P&L)</h3>
+                                            <p className="text-slate-500 mt-2 mb-6">매출 대비 이익 구조 시각화 (준비 중)</p>
+                                            <div className="w-full max-w-lg bg-slate-100 rounded-full h-6 overflow-hidden flex">
+                                                <div className="bg-blue-600 h-full flex items-center justify-center text-[10px] text-white" style={{width: '30%'}}>원가 30%</div>
+                                                <div className="bg-yellow-400 h-full flex items-center justify-center text-[10px] text-white" style={{width: '20%'}}>판관비 20%</div>
+                                                <div className="bg-green-500 h-full flex items-center justify-center text-[10px] text-white" style={{width: '50%'}}>이익 50%</div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* 4. MARKETING / CCTV */}
+                                    {(activeMenu === 'marketing' || activeMenu === 'cctv') && (
+                                        <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                                            <h3 className="font-bold text-lg mb-4">고객 분석 (CRM & CCTV)</h3>
+                                            <div className="h-80 w-full bg-slate-50 rounded-xl flex items-center justify-center border border-dashed border-slate-300">
+                                                <div className="text-center text-slate-400">
+                                                    <Icons.Users className="w-12 h-12 mx-auto mb-2 opacity-50"/>
+                                                    <p>상세 고객 데이터 시각화 준비 중입니다.</p>
+                                                    <p className="text-xs">재방문율: {kpi.revisitRate}% / 가입비중: {kpi.signupRate}%</p>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
+
                                 </div>
                             )}
                         </div>

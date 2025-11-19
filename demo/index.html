@@ -50,8 +50,7 @@
             <div class="text-center mb-8">
                 <div class="flex items-center justify-center gap-2 mb-1">
                     <h1 class="text-3xl font-bold text-navy-900 tracking-tight">RestoGenie</h1>
-                    <!-- VERSION BADGE ADDED HERE -->
-                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full border border-blue-200 shadow-sm">v2.6 Live</span>
+                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full border border-blue-200 shadow-sm">v2.6.1 Live</span>
                 </div>
                 <p class="text-slate-500 text-sm">AI-Powered F&B Management</p>
             </div>
@@ -245,7 +244,7 @@
             // Routing
             if (pageId === 'dashboard' || pageId === 'home') renderDashboard(content);
             else if (pageId === 'ai_center') renderAIReportCenter(content);
-            else if (pageId === 'commercial') renderCCTV(content);
+            else if (pageId === 'commercial') renderCCTV(content); // Restored
             else if (pageId === 'marketing') renderMarketing(content);
             else if (pageId === 'store_mgmt') renderStoreMgmt(content);
             else if (pageId === 'menu_cost') renderMenuCost(content);
@@ -262,7 +261,7 @@
             renderPage(CURRENT_PAGE_ID); // Re-render current page with new period data
         }
 
-        // ================= PAGE RENDERERS (LIVE) =================
+        // ================= PAGE RENDERERS (FIXED CHARTS) =================
 
         // 1. Dashboard (HQ & Partner)
         function renderDashboard(container) {
@@ -280,7 +279,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-bold mb-4">매출 추이 (${CURRENT_PERIOD})</h3>
-                        <canvas id="mainChart" height="250"></canvas>
+                        <!-- FIXED HEIGHT WRAPPER -->
+                        <div class="relative h-64 w-full">
+                            <canvas id="mainChart"></canvas>
+                        </div>
                     </div>
                     <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-blue-100">
                         <h3 class="font-bold text-indigo-900 mb-4 flex items-center"><i class="ph ph-sparkle mr-2"></i>AI Insight</h3>
@@ -312,7 +314,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-bold mb-4">채널별 효율 (ROAS)</h3>
-                        <canvas id="roasChart" height="200"></canvas>
+                        <!-- FIXED HEIGHT WRAPPER -->
+                        <div class="relative h-64 w-full">
+                            <canvas id="roasChart"></canvas>
+                        </div>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-bold mb-4">배달 플랫폼 광고 성과</h3>
@@ -336,7 +341,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-bold mb-4">메뉴 ABC 분석 (매출 기여도)</h3>
-                        <canvas id="abcChart" height="200"></canvas>
+                        <!-- FIXED HEIGHT WRAPPER -->
+                        <div class="relative h-64 w-full">
+                            <canvas id="abcChart"></canvas>
+                        </div>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-bold mb-4">원가율 높은 매장 Top 3</h3>
@@ -394,7 +402,10 @@
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-bold mb-4">QSC - 매출 상관관계</h3>
-                        <canvas id="qscChart" height="200"></canvas>
+                        <!-- FIXED HEIGHT WRAPPER -->
+                        <div class="relative h-64 w-full">
+                            <canvas id="qscChart"></canvas>
+                        </div>
                         <p class="mt-4 text-xs text-slate-500 text-center">QSC 점수가 90점 이상인 매장은 평균 매출이 15% 높습니다.</p>
                     </div>
                 </div>
@@ -431,13 +442,40 @@
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                     <h3 class="font-bold mb-4">비용 구성 상세</h3>
-                    <canvas id="costDetailChart" height="150"></canvas>
+                    <!-- FIXED HEIGHT WRAPPER -->
+                    <div class="relative h-64 w-full">
+                        <canvas id="costDetailChart"></canvas>
+                    </div>
                 </div>
             `;
             setTimeout(() => initChart('costDetailChart', 'bar', [cost, revenue*0.1, revenue*0.05, revenue*0.2], ['재료비', '임대료', '공과금', '인건비']), 50);
         }
 
-        // 6. Automation (Partner) - Live
+        // 6. Commercial / CCTV (Restored)
+        function renderCCTV(container) {
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="font-bold mb-4">유입 퍼널 (Conversion Funnel)</h3>
+                        <div class="h-64 bg-slate-50 rounded flex flex-col items-center justify-center space-y-2 p-4">
+                            <div class="w-full bg-blue-200 p-3 rounded text-center">유동 인구 <span class="font-bold">45,200</span></div>
+                            <div class="w-[70%] bg-blue-300 p-3 rounded text-center">방문객 <span class="font-bold">1,898</span> (4.2%)</div>
+                            <div class="w-[40%] bg-blue-500 text-white p-3 rounded text-center">구매 <span class="font-bold">1,233</span> (65%)</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <h3 class="font-bold mb-4">방문객 인구 통계</h3>
+                        <!-- FIXED HEIGHT WRAPPER -->
+                        <div class="relative h-64 w-full">
+                            <canvas id="demoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+             setTimeout(() => initChart('demoChart', 'doughnut', [10, 45, 25, 15, 5], ['10대', '20대(여)', '20대(남)', '30대', '40대+']), 50);
+        }
+
+        // 7. Automation (Partner) - Live
         function renderAutomation(container) {
             container.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -485,7 +523,7 @@
             `;
         }
 
-        // 7. AI Report Center (Fix & Logic)
+        // 8. AI Report Center (Fix & Logic)
         function renderAIReportCenter(container) {
             container.innerHTML = `
                 <div class="mb-6">
@@ -592,18 +630,20 @@
         }
 
         // --- Helper: Init Chart.js ---
-        let currentChart = null;
         function initChart(id, type, data, labels) {
             const ctx = document.getElementById(id);
             if(!ctx) return;
             
-            // Dummy data scaling based on labels or type
+            // Important: Check if chart instance already exists and destroy it (optional but good practice)
+            // Since we re-render full HTML, currentChart is lost unless stored.
+            // For this simple implementation, replacing HTML clears the canvas context.
+            
             const chartData = {
                 labels: labels || ['월', '화', '수', '목', '금', '토', '일'],
                 datasets: [{
                     label: 'Data',
                     data: data,
-                    backgroundColor: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'],
+                    backgroundColor: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e2e8f0'],
                     borderColor: '#2563eb',
                     borderWidth: 1
                 }]
@@ -619,7 +659,7 @@
                 data: chartData,
                 options: { 
                     responsive: true, 
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false, // Works now because parent has fixed height
                     plugins: { legend: { display: type !== 'bar' && type !== 'line' } }
                 }
             });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie - Real Data Dashboard</title>
+    <title>RestoGenie - 통합 대시보드</title>
     
     <!-- Libraries -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -41,7 +41,7 @@
                     <i data-lucide="database-zap" class="text-white w-10 h-10"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">RestoGenie <span class="text-indigo-400 text-sm align-top">PRO</span></h1>
-                <p class="text-slate-400 text-sm">실시간 데이터 통합 대시보드</p>
+                <p class="text-slate-400 text-sm">데이터 인텔리전스 플랫폼</p>
             </div>
             <div class="space-y-4">
                 <div class="relative">
@@ -181,7 +181,6 @@
     <script>
         // --- CONFIG ---
         const GEMINI_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ";
-        // Real Data Sheets provided by User
         const SHEETS = {
             hq_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQZW2aTNo146wvq7KqVLiVsAQnx6Sgis__MwkTepvXat5_kPHxvoNyU79i4rLV3GkRqsI3HstzWP32L/pub?gid=0&single=true&output=csv',
             gangnam_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTy5PRIhx_YumADmE-_uGse2JpX8RmzVI-9H01GilmOh7XeJoi5wNCzgNyDCBKOyv9e_O3YdduXn7XX/pub?gid=1315615338&single=true&output=csv',
@@ -203,12 +202,17 @@
                         this.fetchCSV(SHEETS.gangnam_daily),
                         this.fetchCSV(SHEETS.daehakro_daily)
                     ]);
-                    GLOBAL_DATA = { hq, gangnam, daehakro };
+                    // Check if data is valid
+                    GLOBAL_DATA = { 
+                        hq: Array.isArray(hq) ? hq : [], 
+                        gangnam: Array.isArray(gangnam) ? gangnam : [], 
+                        daehakro: Array.isArray(daehakro) ? daehakro : [] 
+                    };
                     console.log("Data Loaded:", GLOBAL_DATA);
-                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> 실시간 데이터 (${hq.length+gangnam.length}건)`;
+                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> 실시간 데이터 (${GLOBAL_DATA.hq.length + GLOBAL_DATA.gangnam.length}건)`;
                 } catch (e) {
                     console.error("Fetch Error", e);
-                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> 데이터 연결 실패`;
+                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> 데이터 연결 실패 (데모 모드)`;
                 } finally {
                     document.getElementById('loading-overlay').classList.add('hidden-force');
                     this.loadPage(this.user === 'hq' ? 'dashboard' : 'home');
@@ -266,47 +270,60 @@
 
             // --- Data Logic ---
             getFilteredData() {
-                let rawData = [];
-                if (this.storeId === 'all') rawData = GLOBAL_DATA.hq;
-                else if (this.storeId === 'gangnam') rawData = GLOBAL_DATA.gangnam;
-                else if (this.storeId === 'daehakro') rawData = GLOBAL_DATA.daehakro;
+                try {
+                    let rawData = [];
+                    if (this.storeId === 'all') rawData = GLOBAL_DATA.hq;
+                    else if (this.storeId === 'gangnam') rawData = GLOBAL_DATA.gangnam;
+                    else if (this.storeId === 'daehakro') rawData = GLOBAL_DATA.daehakro;
 
-                if (!rawData || rawData.length === 0) return this.getDummyData();
+                    // Safety Check
+                    if (!Array.isArray(rawData) || rawData.length === 0) return this.getDummyData();
 
-                const days = this.period === 'day' ? 1 : this.period === 'week' ? 7 : 30;
-                const sliced = rawData.slice(0, days); 
-                const prevSliced = this.compare ? rawData.slice(days, days * 2) : [];
+                    const days = this.period === 'day' ? 1 : this.period === 'week' ? 7 : 30;
+                    const sliced = rawData.slice(0, days);
+                    const prevSliced = this.compare ? rawData.slice(days, days * 2) : [];
 
-                // Helper: Find column that contains keyword (robust parsing)
-                const getVal = (row, keys) => {
-                    const key = Object.keys(row).find(k => keys.some(x => k.includes(x)));
-                    return key ? this.parseMoney(row[key]) : 0;
-                };
+                    // Safe getVal helper
+                    const getVal = (row, keys) => {
+                        if(!row || typeof row !== 'object') return 0;
+                        const key = Object.keys(row).find(k => keys.some(x => k.includes(x)));
+                        return key ? this.parseMoney(row[key]) : 0;
+                    };
 
-                // Metric Aggregation
-                const current = {
-                    sales: sliced.reduce((acc, r) => acc + getVal(r, ['매출','총매출']), 0),
-                    hall: sliced.reduce((acc, r) => acc + getVal(r, ['홀매출','홀']), 0),
-                    delivery: sliced.reduce((acc, r) => acc + getVal(r, ['배달매출','배달']), 0),
-                    profit: sliced.reduce((acc, r) => acc + getVal(r, ['공헌이익','이익']), 0),
-                    orders: sliced.reduce((acc, r) => acc + getVal(r, ['주문수','주문']), 0),
-                    costRate: sliced.length ? (sliced.reduce((acc, r) => acc + getVal(r, ['원가율']), 0) / sliced.length) : 35,
-                    retention: sliced.length ? (sliced.reduce((acc, r) => acc + getVal(r, ['재방문']), 0) / sliced.length) : 0,
-                    signup: sliced.length ? (sliced.reduce((acc, r) => acc + getVal(r, ['가입']), 0) / sliced.length) : 0,
-                    patties: this.aggregatePatties(sliced)
-                };
+                    // Aggregation
+                    const sum = (arr, keys) => arr.reduce((acc, r) => acc + getVal(r, keys), 0);
+                    
+                    const current = {
+                        sales: sum(sliced, ['매출', '총매출']),
+                        hall: sum(sliced, ['홀매출', '홀']),
+                        delivery: sum(sliced, ['배달매출', '배달']),
+                        profit: sum(sliced, ['공헌이익', '이익']),
+                        orders: sum(sliced, ['주문수', '주문']),
+                        costRate: sliced.length ? (sum(sliced, ['원가율']) / sliced.length) : 35,
+                        retention: sliced.length ? (sum(sliced, ['재방문']) / sliced.length) : 0,
+                        signup: sliced.length ? (sum(sliced, ['가입']) / sliced.length) : 0,
+                        patties: this.aggregatePatties(sliced)
+                    };
 
-                // Calculate Cost Amount (if not explicit)
-                current.cost = current.sales * (current.costRate / 100);
+                    // Safe Cost Calculation
+                    current.cost = current.sales * (current.costRate / 100 || 0.35);
 
-                const prev = this.compare ? {
-                    sales: prevSliced.reduce((acc, r) => acc + getVal(r, ['매출','총매출']), 0),
-                    orders: prevSliced.reduce((acc, r) => acc + getVal(r, ['주문수','주문']), 0)
-                } : null;
+                    const prev = this.compare ? {
+                        sales: sum(prevSliced, ['매출', '총매출']),
+                        orders: sum(prevSliced, ['주문수', '주문'])
+                    } : null;
 
-                const trend = (curr, old) => old ? ((curr - old) / old * 100).toFixed(1) : 0;
+                    const trend = (curr, old) => (old > 0) ? ((curr - old) / old * 100).toFixed(1) : 0;
 
-                return { ...current, salesTrend: prev ? trend(current.sales, prev.sales) : 0, ordersTrend: prev ? trend(current.orders, prev.orders) : 0 };
+                    return {
+                        ...current,
+                        salesTrend: prev ? trend(current.sales, prev.sales) : 0,
+                        ordersTrend: prev ? trend(current.orders, prev.orders) : 0
+                    };
+                } catch(e) {
+                    console.error("Filter Logic Error:", e);
+                    return this.getDummyData();
+                }
             },
 
             parseMoney(val) {
@@ -316,9 +333,10 @@
             },
 
             aggregatePatties(data) {
-                // Look for patty columns
                 const result = { '비프':0, '갈비':0, '치킨':0, '새우':0 };
+                if (!data) return result;
                 data.forEach(row => {
+                    if(!row) return;
                     for (const key in row) {
                         if (key.includes('비프')) result['비프'] += this.parseMoney(row[key]);
                         if (key.includes('갈비')) result['갈비'] += this.parseMoney(row[key]);
@@ -329,7 +347,7 @@
                 return result;
             },
 
-            getDummyData() { return { sales:0, hall:0, delivery:0, profit:0, orders:0, cost:0, salesTrend:0, patties:{'비프':0} }; },
+            getDummyData() { return { sales:0, hall:0, delivery:0, profit:0, orders:0, cost:0, costRate:0, retention:0, signup:0, salesTrend:0, patties:{'비프':0} }; },
 
             // --- Page Load ---
             changePeriod(val) { this.period = val; this.refresh(); },
@@ -339,67 +357,71 @@
             toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('mobile-overlay').classList.toggle('hidden'); },
 
             loadPage(pageId) {
-                // Style Active
+                // Active State
                 document.querySelectorAll('#sidebar button').forEach(b => b.className = b.className.replace('bg-slate-800 text-white', 'text-slate-400'));
-                document.getElementById(`btn-${pageId}`)?.classList.replace('text-slate-400', 'bg-slate-800 text-white');
+                const btn = document.getElementById(`btn-${pageId}`);
+                if(btn) btn.classList.replace('text-slate-400', 'bg-slate-800 text-white');
                 
                 const main = document.getElementById('main-content');
-                const data = this.getFilteredData();
-                const isHQ = this.user === 'hq';
+                try {
+                    const data = this.getFilteredData();
+                    const isHQ = this.user === 'hq';
 
-                if (pageId === 'dashboard' || pageId === 'home') {
-                    main.innerHTML = `
-                        <div class="space-y-6 fade-in">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                                ${this.kpiCard('총 매출', `₩${Math.floor(data.sales).toLocaleString()}`, data.salesTrend, 'dollar-sign', isHQ?'blue':'indigo')}
-                                ${this.kpiCard('공헌 이익', `₩${Math.floor(data.profit).toLocaleString()}`, 0, 'wallet', 'emerald')}
-                                ${this.kpiCard('주문 건수', `${data.orders.toLocaleString()}건`, data.ordersTrend, 'shopping-bag', 'amber')}
-                                ${this.kpiCard('재방문율', `${(data.retention*100).toFixed(1)}%`, 0, 'repeat', 'purple')}
-                            </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-4">매출 트렌드 (실시간)</h3>
-                                    <div id="chart-main" class="h-72"></div>
+                    if (pageId === 'dashboard' || pageId === 'home') {
+                        main.innerHTML = `
+                            <div class="space-y-6 fade-in">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                                    ${this.kpiCard('총 매출', `₩${Math.floor(data.sales).toLocaleString()}`, data.salesTrend, 'dollar-sign', isHQ?'blue':'indigo')}
+                                    ${this.kpiCard('공헌 이익', `₩${Math.floor(data.profit).toLocaleString()}`, 0, 'wallet', 'emerald')}
+                                    ${this.kpiCard('주문 건수', `${data.orders.toLocaleString()}건`, data.ordersTrend, 'shopping-bag', 'amber')}
+                                    ${this.kpiCard('재방문율', `${(data.retention*100).toFixed(1)}%`, 0, 'repeat', 'purple')}
                                 </div>
-                                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-4">패티별 판매 비중</h3>
-                                    <div id="chart-patty" class="h-72 flex items-center justify-center"></div>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-4">채널별 성과</h3>
-                                    <div class="space-y-4">
-                                        ${this.progressItem('홀 매출', data.hall, data.sales, 'bg-blue-500')}
-                                        ${this.progressItem('배달 매출', data.delivery, data.sales, 'bg-amber-500')}
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                                        <h3 class="text-lg font-bold text-white mb-4">매출 트렌드 (실시간)</h3>
+                                        <div id="chart-main" class="h-72"></div>
+                                    </div>
+                                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                                        <h3 class="text-lg font-bold text-white mb-4">패티별 판매 비중</h3>
+                                        <div id="chart-patty" class="h-72 flex items-center justify-center"></div>
                                     </div>
                                 </div>
-                                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-around">
-                                    <div class="text-center"><p class="text-slate-400 text-sm">원가율</p><p class="text-3xl font-bold text-white">${(data.costRate*100).toFixed(1)}%</p></div>
-                                    <div class="w-px h-16 bg-slate-700"></div>
-                                    <div class="text-center"><p class="text-slate-400 text-sm">신규 회원 가입률</p><p class="text-3xl font-bold text-indigo-400">${(data.signup*100).toFixed(1)}%</p></div>
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                                        <h3 class="text-lg font-bold text-white mb-4">채널별 성과</h3>
+                                        <div class="space-y-4">
+                                            ${this.progressItem('홀 매출', data.hall, data.sales, 'bg-blue-500')}
+                                            ${this.progressItem('배달 매출', data.delivery, data.sales, 'bg-amber-500')}
+                                        </div>
+                                    </div>
+                                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-around">
+                                        <div class="text-center"><p class="text-slate-400 text-sm">원가율</p><p class="text-3xl font-bold text-white">${(data.costRate*100).toFixed(1)}%</p></div>
+                                        <div class="w-px h-16 bg-slate-700"></div>
+                                        <div class="text-center"><p class="text-slate-400 text-sm">신규 회원 가입률</p><p class="text-3xl font-bold text-indigo-400">${(data.signup*100).toFixed(1)}%</p></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>`;
-                    this.renderCharts(data);
-                } else if (pageId === 'sales') {
-                    // Partner Profit Analysis
-                    main.innerHTML = `
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in">
-                             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                <h3 class="text-lg font-bold text-white mb-6">손익 구조 분석 (Waterfall)</h3>
-                                <div class="space-y-2">
-                                    ${this.waterfallItem('총 매출', data.sales, 100, 'bg-slate-600')}
-                                    ${this.waterfallItem('(-) 원가', data.cost, (data.cost/data.sales)*100, 'bg-red-500/50')}
-                                    ${this.waterfallItem('(=) 공헌이익', data.profit, (data.profit/data.sales)*100, 'bg-emerald-500')}
-                                </div>
-                                <p class="text-center text-slate-400 text-sm mt-6">공헌이익률 <span class="text-emerald-400 font-bold">${((data.profit/data.sales)*100).toFixed(1)}%</span></p>
-                             </div>
-                        </div>`;
-                } else {
-                    main.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-500"><i data-lucide="hammer" class="w-12 h-12 mb-4 opacity-50"></i><p>페이지 준비 중</p></div>`;
+                            </div>`;
+                        this.renderCharts(data);
+                    } else if (pageId === 'sales') {
+                        main.innerHTML = `
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in">
+                                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                                    <h3 class="text-lg font-bold text-white mb-6">손익 구조 분석 (Waterfall)</h3>
+                                    <div class="space-y-2">
+                                        ${this.waterfallItem('총 매출', data.sales, 100, 'bg-slate-600')}
+                                        ${this.waterfallItem('(-) 원가', data.cost, (data.cost/data.sales)*100, 'bg-red-500/50')}
+                                        ${this.waterfallItem('(=) 공헌이익', data.profit, (data.profit/data.sales)*100, 'bg-emerald-500')}
+                                    </div>
+                                 </div>
+                            </div>`;
+                    } else {
+                        main.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-500"><i data-lucide="hammer" class="w-12 h-12 mb-4 opacity-50"></i><p>페이지 준비 중</p></div>`;
+                    }
+                    lucide.createIcons();
+                } catch(e) {
+                    console.error(e);
+                    main.innerHTML = `<div class="text-red-500 text-center mt-10">오류 발생: ${e.message}</div>`;
                 }
-                lucide.createIcons();
             },
 
             kpiCard(title, val, trend, icon, color) {
@@ -417,7 +439,7 @@
             },
             progressItem(label, val, total, color) {
                 const pct = total ? (val / total * 100) : 0;
-                return `<div><div class="flex justify-between text-sm mb-1"><span class="text-slate-300">${label}</span><span class="font-bold text-white">₩${val.toLocaleString()} (${pct.toFixed(0)}%)</span></div><div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full ${color}" style="width:${pct}%"></div></div></div>`;
+                return `<div><div class="flex justify-between text-sm mb-1"><span class="text-slate-300">${label}</span><span class="font-bold text-white">₩${Math.floor(val).toLocaleString()} (${pct.toFixed(0)}%)</span></div><div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full ${color}" style="width:${pct}%"></div></div></div>`;
             },
             waterfallItem(label, val, pct, color) {
                  return `<div class="flex items-center gap-4"><div class="w-24 text-sm text-slate-400 text-right">${label}</div><div class="flex-1 bg-slate-800 rounded-r h-8 relative"><div class="absolute left-0 top-0 h-full ${color} rounded-r flex items-center px-3 text-xs text-white font-bold whitespace-nowrap" style="width:${Math.max(pct||0, 5)}%">${Math.floor(val).toLocaleString()}</div></div></div>`;
@@ -425,7 +447,8 @@
 
             renderCharts(data) {
                 setTimeout(() => {
-                    // Fake trend for demo based on total sales (since daily breakdown logic is complex to mock perfectly here)
+                    if(!document.getElementById("chart-main")) return;
+                    // Simple trend visualization for demo (mock daily distribution based on total)
                     const trendData = [data.sales*0.1, data.sales*0.15, data.sales*0.2, data.sales*0.18, data.sales*0.25, data.sales*0.12];
                     new ApexCharts(document.querySelector("#chart-main"), {
                         series: [{ name: '매출', data: trendData }],
@@ -451,7 +474,7 @@
                 }, 50);
             },
 
-            // --- AI ---
+            // --- AI & Utils ---
             openAiModal(type) {
                 document.getElementById('ai-modal').classList.remove('hidden-force');
                 document.getElementById('ai-content-area').innerHTML = `<div class="flex flex-col items-center justify-center h-full"><p class="text-indigo-300 animate-pulse">분석 대기 중...</p><button onclick="app.generateReport('${type}')" class="mt-4 px-6 py-3 bg-indigo-600 rounded-xl text-white font-bold shadow-lg">분석 시작</button></div>`;

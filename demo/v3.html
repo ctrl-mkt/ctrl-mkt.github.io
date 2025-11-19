@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V9.1 (Embedded Data)</title>
+    <title>RestoGenie V8.1 (QA Fixed)</title>
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -33,12 +33,25 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         
-        /* Chatbot Window */
-        .chat-window { transition: transform 0.3s ease, opacity 0.3s ease; transform-origin: bottom right; }
+        /* Error Box */
+        #error-box { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #fee2e2; color: #991b1b; padding: 1rem; z-index: 9999; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
+    <div id="error-box"></div>
     <div id="root"></div>
+
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            var extra = !col ? '' : '\ncolumn: ' + col;
+            extra += !error ? '' : '\nerror: ' + error;
+            console.error("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
+            var errorBox = document.getElementById('error-box');
+            errorBox.style.display = 'block';
+            errorBox.innerText = "System Error: " + msg + " (Line: " + line + ")";
+            return true;
+        };
+    </script>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
@@ -49,6 +62,10 @@
             LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
             PieChart, Pie, Cell, AreaChart, Area, FunnelChart, Funnel, LabelList 
         } = Recharts;
+
+        if (!LineChart) {
+            throw new Error("Recharts library failed to load. Please check internet connection or CDN url.");
+        }
 
         // --- Icons ---
         const Icons = {
@@ -297,7 +314,7 @@
                         <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center">
                             <div className="inline-block p-4 rounded-full bg-blue-50 text-blue-600 mb-4"><Icons.Zap className="w-10 h-10"/></div>
                             <h1 className="text-3xl font-bold text-slate-800 mb-2">RestoGenie</h1>
-                            <p className="text-slate-500 mb-8">Data-Driven Management V8.0</p>
+                            <p className="text-slate-500 mb-8">Data-Driven Management V8.1</p>
                             <div className="bg-slate-100 p-4 rounded-lg text-left text-xs text-slate-600 mb-6">
                                 <p className="font-bold mb-2">✅ 로드된 데이터 (Embedded):</p>
                                 <ul className="list-disc list-inside space-y-1">

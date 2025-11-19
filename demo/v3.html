@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V3.4 (Real Data Connected)</title>
+    <title>RestoGenie V3.5 (Stable)</title>
     
-    <!-- 1. Fonts & Icons -->
+    <!-- 1. Fonts -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    
+    <!-- 2. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. React & Recharts -->
+    <!-- 3. React & ReactDOM (v18) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- 3. PapaParse (CSV Parser) -->
+    <!-- 4. Babel (Standalone) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- 5. Recharts (Fixed Version 2.12.7 for Stability) -->
+    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+    
+    <!-- 6. PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
@@ -26,21 +31,33 @@
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #error-display { display: none; padding: 20px; background: #fee2e2; color: #991b1b; position: fixed; top: 0; left: 0; width: 100%; z-index: 10000; font-size: 14px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
+    <div id="error-display"></div>
     <div id="root"></div>
+
+    <!-- Global Error Handler -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            const display = document.getElementById('error-display');
+            display.style.display = 'block';
+            display.innerHTML = `<strong>System Error:</strong> ${message} <br><small>${source}:${lineno}</small>`;
+            console.error(error);
+        };
+    </script>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo, useCallback } = React;
+        // Safe Destructuring for Recharts
         const { 
             LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
             PieChart, Pie, Cell, AreaChart, Area, FunnelChart, Funnel, LabelList, ComposedChart 
         } = Recharts;
 
         /**
-         * [CONFIGURATION] Real Data Connection
-         * 제공해주신 구글 시트 CSV URL과 매장 ID를 매핑했습니다.
+         * [CONFIGURATION]
          */
         const CONFIG = {
             urls: {
@@ -60,7 +77,7 @@
             }
         };
 
-        // --- Icons ---
+        // --- Icons Definition (Manual SVG to avoid dependency issues) ---
         const Icons = {
             Zap: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
             Calendar: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
@@ -70,7 +87,8 @@
             Target: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
             Users: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
             ArrowUpRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>,
-            ArrowDownRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 7 10 10"/><path d="M17 7v10H7"/></svg>
+            ArrowDownRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 7 10 10"/><path d="M17 7v10H7"/></svg>,
+            LogOut: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
         };
 
         const THEME = {
@@ -79,7 +97,6 @@
         };
 
         // --- Logic Helpers ---
-        
         const fetchCsv = (url) => {
             return new Promise((resolve) => {
                 if (!url) { resolve([]); return; }
@@ -103,7 +120,6 @@
         };
 
         // --- Components ---
-
         const FilterBar = ({ filter, setFilter, onRefresh, isLoading }) => {
             const periods = [{ id: 'today', label: '오늘' }, { id: '7days', label: '최근 7일' }, { id: '30days', label: '최근 30일' }, { id: 'month', label: '이번 달' }];
             return (
@@ -158,7 +174,6 @@
         };
 
         // --- Main App ---
-
         function App() {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [mode, setMode] = useState('PARTNER');
@@ -173,27 +188,28 @@
                 cctvFunnel: []
             });
 
-            // --- Core Data Processing Logic ---
+            // --- Data Processing ---
             const processData = useCallback((rawData, period, storeId) => {
                 const { start, end } = getDateRange(period);
                 const duration = end - start;
                 const prevStart = new Date(start.getTime() - duration);
                 const prevEnd = new Date(end.getTime() - duration);
                 
-                // 1. Sales Logic
-                const filterSales = (data, s, e) => data.filter(row => {
-                    const d = new Date(row.business_date);
-                    // Filter by Date AND 'PAID' status
-                    return d >= s && d <= e && row.order_status === 'PAID';
-                });
+                const filterSales = (data, s, e) => {
+                    if (!data) return [];
+                    return data.filter(row => {
+                        const d = new Date(row.business_date);
+                        return d >= s && d <= e && row.order_status === 'PAID';
+                    });
+                };
 
                 const currentSales = filterSales(rawData.sales, start, end);
                 const prevSales = filterSales(rawData.sales, prevStart, prevEnd);
 
-                const totalSales = currentSales.reduce((acc, cur) => acc + (Number(cur.sale_amt) || 0), 0);
-                const prevTotalSales = prevSales.reduce((acc, cur) => acc + (Number(cur.sale_amt) || 0), 0);
+                const sumSales = (arr) => arr.reduce((acc, cur) => acc + (Number(cur.sale_amt) || 0), 0);
+                const totalSales = sumSales(currentSales);
+                const prevTotalSales = sumSales(prevSales);
                 
-                // 2. Chart Aggregation
                 const chartMap = {};
                 let loop = new Date(start);
                 while(loop <= end) {
@@ -202,20 +218,18 @@
                     loop.setDate(loop.getDate() + 1);
                 }
                 currentSales.forEach(r => { if(chartMap[r.business_date]) chartMap[r.business_date].current += (Number(r.sale_amt) || 0); });
-                
-                // Comparison Mapping (Align Previous dates to Current chart)
                 prevSales.forEach(r => {
                     const d = new Date(r.business_date);
-                    const diff = d - prevStart; // milliseconds from start of prev period
+                    const diff = d - prevStart;
                     const targetDate = new Date(start.getTime() + diff);
                     const k = targetDate.toISOString().split('T')[0];
                     if(chartMap[k]) chartMap[k].comparison += (Number(r.sale_amt) || 0);
                 });
-                
-                // 3. Menu Logic
+
+                // Menu
                 const menuMap = {};
-                const currentMenu = rawData.menu.filter(row => {
-                    const d = new Date(row.created_at); // Format: 2025-11-19 11:10:09
+                const currentMenu = (rawData.menu || []).filter(row => {
+                    const d = new Date(row.created_at);
                     return d >= start && d <= end;
                 });
                 currentMenu.forEach(row => {
@@ -224,21 +238,18 @@
                 });
                 const menuList = Object.entries(menuMap).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value).slice(0, 5);
 
-                // 4. CCTV Logic (Store ID Filtering)
+                // CCTV
                 const targetUUID = CONFIG.storeIds[storeId];
-                const cctvFiltered = rawData.cctv.filter(row => {
-                    const d = new Date(row.place_enter_daily); // YYYY-MM-DD
+                const cctvFiltered = (rawData.cctv || []).filter(row => {
+                    const d = new Date(row.place_enter_daily);
                     return d >= start && d <= end && row.place === targetUUID;
                 });
-
                 let traffic = 0, visit = 0;
                 cctvFiltered.forEach(row => {
                     const count = Number(row.total_count) || 0;
                     if (row.widget_name === '유동인구') traffic += count;
                     else if (row.widget_name === '매장 방문') visit += count;
                 });
-
-                // Fallback for Demo if CCTV is empty
                 if (traffic === 0 && visit === 0) { traffic = 12500; visit = 450; }
 
                 return {
@@ -248,7 +259,7 @@
                         prevSales: prevTotalSales,
                         orders: currentSales.length,
                         prevOrders: prevSales.length,
-                        profit: totalSales * 0.28, // Est. Margin
+                        profit: totalSales * 0.28,
                         ticket: currentSales.length ? Math.round(totalSales / currentSales.length) : 0
                     },
                     menuData: menuList,
@@ -274,6 +285,7 @@
                 } catch (e) {
                     console.error(e);
                     setDataState(prev => ({ ...prev, isLoading: false }));
+                    alert("데이터 로딩 중 오류가 발생했습니다.");
                 }
             };
 
@@ -283,8 +295,8 @@
                 <div className="min-h-screen flex items-center justify-center bg-slate-900 font-[Pretendard]">
                     <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center">
                         <div className="inline-block p-4 rounded-full bg-blue-50 text-blue-600 mb-4"><Icons.Zap className="w-8 h-8"/></div>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-2">RestoGenie V3.4</h1>
-                        <p className="text-slate-500 mb-8">Live Data Integration</p>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">RestoGenie V3.5</h1>
+                        <p className="text-slate-500 mb-8">Fixed & Stable Version</p>
                         <form onSubmit={(e) => { e.preventDefault(); setIsLoggedIn(true); }} className="space-y-4">
                             <input type="text" defaultValue="slamburger01" className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"/>
                             <input type="password" defaultValue="password" className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"/>
@@ -300,7 +312,7 @@
                     <header className="bg-slate-900 text-white h-16 flex items-center justify-between px-6 shadow-lg z-50 sticky top-0">
                         <div className="flex items-center gap-3">
                             <div className="bg-blue-600 p-1.5 rounded text-white font-bold"><Icons.Zap className="w-5 h-5"/></div>
-                            <span className="font-bold text-lg tracking-wide">RestoGenie <span className="text-blue-400 text-xs ml-1">v3.4 Live</span></span>
+                            <span className="font-bold text-lg tracking-wide">RestoGenie <span className="text-blue-400 text-xs ml-1">v3.5 Fixed</span></span>
                         </div>
                         <div className="flex items-center gap-4">
                              <select value={selectedStore} onChange={(e) => setSelectedStore(e.target.value)} className="bg-slate-800 text-white text-xs font-bold py-1 px-3 rounded border border-slate-700 outline-none">
@@ -308,6 +320,7 @@
                                 <option value="daehakro">대학로점 (가맹)</option>
                              </select>
                              <button onClick={() => setMode(mode === 'HQ' ? 'PARTNER' : 'HQ')} className="text-xs text-blue-400 hover:underline">{mode === 'HQ' ? '본사 모드' : '점주 모드'}</button>
+                             <button onClick={() => setIsLoggedIn(false)} className="text-slate-400 hover:text-white"><Icons.LogOut className="w-5 h-5"/></button>
                         </div>
                     </header>
 

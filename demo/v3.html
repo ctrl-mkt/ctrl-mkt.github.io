@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V9.0 (Final AI Integration)</title>
+    <title>RestoGenie V8.0 (Embedded Data)</title>
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -17,7 +17,6 @@
     <!-- Dependencies -->
     <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
     <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
         body { font-family: 'Pretendard', sans-serif; }
@@ -34,7 +33,7 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         
-        /* Chatbot */
+        /* Chatbot Window */
         .chat-window { transition: transform 0.3s ease, opacity 0.3s ease; transform-origin: bottom right; }
     </style>
 </head>
@@ -42,22 +41,15 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useMemo } = React;
         const { 
             LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
-            PieChart, Pie, Cell, AreaChart, Area, FunnelChart, Funnel, LabelList, Treemap 
+            PieChart, Pie, Cell, AreaChart, Area, FunnelChart, Funnel, LabelList 
         } = window.Recharts;
-
-        const THEME = {
-            primary: '#1e3a8a', secondary: '#2563eb', accent: '#60a5fa', 
-            success: '#10b981', warning: '#f59e0b', danger: '#ef4444'
-        };
 
         // --- Icons ---
         const Icons = {
-            Upload: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>,
-            Key: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>,
-            Bot: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="10" x="3" y="11" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" x2="8" y1="16" y2="16"/><line x1="16" x2="16" y1="16" y2="16"/></svg>,
+            Menu: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
             Home: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
             TrendingUp: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
             PieChart: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>,
@@ -68,232 +60,231 @@
             MessageSquare: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
             X: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 18 18"/></svg>,
             ChevronRight: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>,
+            Calendar: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
             FileText: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>,
+            Bot: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>,
             Filter: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         };
 
-        // --- Logic Helpers ---
-        const parseMoney = (v) => parseInt(String(v).replace(/[^0-9-]/g, '')) || 0;
-        const parseDate = (v) => {
-            if(!v) return null;
-            const s = String(v);
-            if (s.match(/^\d{4}-\d{2}-\d{2}/)) return s.substring(0,10);
-            return null;
+        const THEME = {
+            primary: '#1e3a8a', secondary: '#2563eb', accent: '#60a5fa', 
+            success: '#10b981', warning: '#f59e0b', danger: '#ef4444'
         };
 
-        // --- Gemini AI Service ---
-        const generateAI = async (prompt, apiKey) => {
-            if (!apiKey) return "API Key가 설정되지 않았습니다. 우측 상단 설정에서 Key를 입력해주세요.";
+        // --- DATA GENERATION ENGINE (Simulating Database from CSV Content) ---
+        
+        // 1. Configuration
+        const DB_RANGE = { start: '2025-09-01', end: '2025-11-19' };
+        const STORES = {
+            gangnam: { id: '9bdd9fbe-4c4b-485b-b750-705c8faf3bda', name: '강남점' },
+            daehakro: { id: '63b0a84d-5379-48e4-b378-7289a627d31d', name: '대학로점' }
+        };
+
+        // 2. Mock Data Generator based on CSV Patterns
+        const generateDailySales = (storeType) => {
+            const data = [];
+            const start = new Date(DB_RANGE.start);
+            const end = new Date(DB_RANGE.end);
             
-            try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-                    }
-                );
-                const data = await response.json();
-                if(data.error) return `AI Error: ${data.error.message}`;
-                return data.candidates?.[0]?.content?.parts?.[0]?.text || "AI 응답 생성 실패";
-            } catch (e) {
-                return `Network Error: ${e.message}`;
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                
+                // Base Sales (Gangnam is higher)
+                let baseSales = storeType === 'gangnam' ? 1200000 : 800000;
+                if (isWeekend) baseSales *= 1.4; // Weekend peak
+                
+                // Random fluctuation
+                const sales = Math.round(baseSales + (Math.random() * 400000 - 200000));
+                const orders = Math.round(sales / 13500); // Avg Ticket ~13,500
+                const hallRatio = storeType === 'gangnam' ? 0.5 : 0.6;
+                
+                data.push({
+                    date: dateStr,
+                    sales: sales,
+                    orders: orders,
+                    hall: Math.round(sales * hallRatio),
+                    delivery: Math.round(sales * (1 - hallRatio)),
+                    profit: Math.round(sales * 0.28), // 28% Margin
+                    costRate: (30 + Math.random() * 2).toFixed(1),
+                });
+            }
+            return data;
+        };
+
+        const generateMenuData = (storeType) => {
+            // Items from attached CSVs
+            const items = [
+                { name: "SLAM 갈비 버거 SET", price: 11700, weight: 30 },
+                { name: "더 크리스피 갈비 버거 SET", price: 9700, weight: 25 },
+                { name: "더 치킨 버거 SET", price: 8700, weight: 15 },
+                { name: "아메리카노 (Ice)", price: 3800, weight: 10 },
+                { name: "오리지널 버거", price: 6800, weight: 20 }
+            ];
+            
+            return items.map(item => ({
+                name: item.name,
+                value: Math.round(item.weight * (storeType==='gangnam'? 15 : 10) + Math.random()*10)
+            })).sort((a,b) => b.value - a.value);
+        };
+
+        const generateCCTVData = (storeType) => {
+            // Funnel based on CSV patterns
+            const traffic = storeType === 'gangnam' ? 242100 : 154000;
+            const visit = Math.round(traffic * 0.045); // ~4.5% conversion
+            const buy = Math.round(visit * 0.35); // ~35% conversion
+            
+            return [
+                { name: '유동인구', value: traffic, fill: '#cbd5e1' },
+                { name: '매장방문', value: visit, fill: '#2563eb' },
+                { name: '구매', value: buy, fill: '#1e3a8a' }
+            ];
+        };
+
+        // 3. Embedded Database
+        const DB = {
+            gangnam: {
+                sales: generateDailySales('gangnam'),
+                menu: generateMenuData('gangnam'),
+                cctv: generateCCTVData('gangnam')
+            },
+            daehakro: {
+                sales: generateDailySales('daehakro'),
+                menu: generateMenuData('daehakro'),
+                cctv: generateCCTVData('daehakro')
             }
         };
 
-        // --- Main Component ---
+        // --- Helpers ---
+        const aggregateData = (d1, d2) => {
+            const map = new Map();
+            [...d1, ...d2].forEach(item => {
+                if(!map.has(item.date)) map.set(item.date, {...item});
+                else {
+                    const ex = map.get(item.date);
+                    ex.sales += item.sales;
+                    ex.orders += item.orders;
+                    ex.hall += item.hall;
+                    ex.delivery += item.delivery;
+                    ex.profit += item.profit;
+                }
+            });
+            return Array.from(map.values()).sort((a,b)=>a.date.localeCompare(b.date));
+        };
+
+        // --- Main App ---
         function App() {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [apiKey, setApiKey] = useState("");
-            const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-            
-            // Data Store (Local)
-            const [db, setDb] = useState({
-                gangnam_sales: [],
-                gangnam_menu: [],
-                daehakro_sales: [],
-                daehakro_menu: [],
-                cctv: []
-            });
-            const [isDataLoaded, setIsDataLoaded] = useState(false);
-            
-            // UI State
-            const [mode, setMode] = useState('PARTNER');
+            const [mode, setMode] = useState('PARTNER'); 
             const [activeMenu, setActiveMenu] = useState('dashboard');
-            const [selectedStore, setSelectedStore] = useState('gangnam');
             const [sidebarOpen, setSidebarOpen] = useState(true);
-            const [isChatOpen, setIsChatOpen] = useState(false);
-            const [chatLogs, setChatLogs] = useState([{role: 'ai', text: '안녕하세요! 데이터를 업로드하면 제가 분석해드릴게요.'}]);
-            const [chatInput, setChatInput] = useState("");
-            const [reportContent, setReportContent] = useState("");
-            const [isProcessing, setIsProcessing] = useState(false);
             
             // Filters
+            const [selectedStore, setSelectedStore] = useState('gangnam');
             const [hqFilter, setHqFilter] = useState('TTL'); // TTL, gangnam, daehakro
-            const [dateFilter, setDateFilter] = useState('30days'); // 7days, 30days, all
+            const [dateFilter, setDateFilter] = useState('3months'); // Default to 3 months
 
-            // --- Derived Data State ---
-            const [kpi, setKpi] = useState({ sales: 0, orders: 0, profit: 0, ticket: 0, costRate: 0 });
+            // Computed Data
             const [chartData, setChartData] = useState([]);
+            const [kpi, setKpi] = useState({});
             const [menuData, setMenuData] = useState([]);
             const [cctvFunnel, setCctvFunnel] = useState([]);
+            
+            // AI & Chat
+            const [isChatOpen, setIsChatOpen] = useState(false);
+            const [chatInput, setChatInput] = useState("");
+            const [chatLogs, setChatLogs] = useState([{ role: 'ai', text: '안녕하세요! 2025년 9월~11월 데이터가 로드되었습니다.' }]);
+            const [reportContent, setReportContent] = useState("");
+            const [isReportLoading, setIsReportLoading] = useState(false);
 
-            // --- File Upload Handler ---
-            const handleFileUpload = (e) => {
-                const files = Array.from(e.target.files);
-                if(files.length === 0) return;
-                
-                setIsProcessing(true);
-                let newDb = { ...db };
-                let processedCount = 0;
-
-                files.forEach(file => {
-                    Papa.parse(file, {
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: (res) => {
-                            const data = res.data;
-                            const fileName = file.name;
-                            
-                            // Smart Mapping based on Filename keywords
-                            if (fileName.includes("강남") && fileName.includes("Sales")) newDb.gangnam_sales = data;
-                            else if (fileName.includes("대학로") && fileName.includes("Sales")) newDb.daehakro_sales = data;
-                            else if (fileName.includes("강남") && fileName.includes("메뉴")) newDb.gangnam_menu = data;
-                            else if (fileName.includes("대학로") && fileName.includes("메뉴")) newDb.daehakro_menu = data;
-                            else if (fileName.includes("CCTV")) newDb.cctv = data;
-                            else if (fileName.includes("강남")) newDb.gangnam_sales = data; // Fallback
-                            else if (fileName.includes("대학로")) newDb.daehakro_sales = data; // Fallback
-
-                            processedCount++;
-                            if (processedCount === files.length) {
-                                setDb(newDb);
-                                setIsDataLoaded(true);
-                                setIsProcessing(false);
-                            }
-                        }
-                    });
-                });
-            };
-
-            // --- Data Processing Effect ---
+            // --- Load Data Effect ---
             useEffect(() => {
-                if (!isDataLoaded) return;
-                
-                let rawSales = [];
-                let rawMenu = [];
-                let rawCCTV = db.cctv;
+                if (!isLoggedIn) return;
 
-                // 1. Select Data Source based on Mode/Filter
+                let raw = [];
+                let menus = [];
+                let funnel = [];
+
                 if (mode === 'HQ') {
                     if (hqFilter === 'TTL') {
-                        rawSales = [...db.gangnam_sales, ...db.daehakro_sales];
-                        rawMenu = [...db.gangnam_menu, ...db.daehakro_menu];
-                    } else if (hqFilter === 'gangnam') {
-                        rawSales = db.gangnam_sales;
-                        rawMenu = db.gangnam_menu;
+                        raw = aggregateData(DB.gangnam.sales, DB.daehakro.sales);
+                        // Merge menus roughly
+                        const m1 = DB.gangnam.menu;
+                        const m2 = DB.daehakro.menu;
+                        // Simple merge for demo
+                        menus = m1; 
+                        funnel = DB.gangnam.cctv.map((item, i) => ({...item, value: item.value + DB.daehakro.cctv[i].value}));
                     } else {
-                        rawSales = db.daehakro_sales;
-                        rawMenu = db.daehakro_menu;
+                        raw = DB[hqFilter].sales;
+                        menus = DB[hqFilter].menu;
+                        funnel = DB[hqFilter].cctv;
                     }
                 } else {
-                    rawSales = (selectedStore === 'gangnam') ? db.gangnam_sales : db.daehakro_sales;
-                    rawMenu = (selectedStore === 'gangnam') ? db.gangnam_menu : db.daehakro_menu;
+                    raw = DB[selectedStore].sales;
+                    menus = DB[selectedStore].menu;
+                    funnel = DB[selectedStore].cctv;
                 }
 
-                // 2. Normalize & Aggregate Sales
-                const aggMap = {};
-                rawSales.forEach(row => {
-                    const date = parseDate(row['영업일'] || row['business_date']);
-                    if (!date) return;
-                    
-                    // Filter Logic
-                    const status = row['주문 상태'] || row['order_status'];
-                    if (status && status !== 'PAID') return;
+                // Apply Date Filter
+                let filtered = raw;
+                const now = new Date(DB_RANGE.end);
+                if (dateFilter === '7days') {
+                    filtered = raw.slice(-7);
+                } else if (dateFilter === '30days') {
+                    filtered = raw.slice(-30);
+                } else if (dateFilter === '3months') {
+                    // All data is already 3 months
+                    filtered = raw; 
+                }
 
-                    const amt = parseMoney(row['실 결제 금액'] || row['sale_amt'] || row['결제 금액'] || row['total_amt']);
-                    
-                    if (!aggMap[date]) aggMap[date] = { date, sales: 0, orders: 0 };
-                    aggMap[date].sales += amt;
-                    aggMap[date].orders += 1; 
-                });
+                // KPI
+                const totalSales = filtered.reduce((a,b)=>a+b.sales, 0);
+                const totalOrders = filtered.reduce((a,b)=>a+b.orders, 0);
+                const totalProfit = filtered.reduce((a,b)=>a+b.profit, 0);
+                const avgCost = (filtered.reduce((a,b)=>a+parseFloat(b.costRate),0)/filtered.length).toFixed(1);
 
-                let dailyData = Object.values(aggMap).sort((a,b) => a.date.localeCompare(b.date));
-                
-                // 3. Date Filtering
-                if (dateFilter === '7days') dailyData = dailyData.slice(-7);
-                else if (dateFilter === '30days') dailyData = dailyData.slice(-30);
-                
-                // 4. KPI Calculation
-                const totalSales = dailyData.reduce((a,b) => a + b.sales, 0);
-                const totalOrders = dailyData.reduce((a,b) => a + b.orders, 0);
-                const totalProfit = Math.round(totalSales * 0.28); // Est 28%
-                
-                setChartData(dailyData);
+                setChartData(filtered);
+                setMenuData(menus);
+                setCctvFunnel(funnel);
                 setKpi({
                     sales: totalSales,
                     orders: totalOrders,
                     profit: totalProfit,
                     margin: totalSales ? ((totalProfit/totalSales)*100).toFixed(1) : 0,
-                    ticket: totalOrders ? Math.round(totalSales/totalOrders) : 0,
-                    costRate: 32.5
+                    costRate: avgCost,
+                    ticket: totalOrders ? Math.round(totalSales/totalOrders) : 0
                 });
 
-                // 5. Menu Data
-                const menuMap = {};
-                rawMenu.forEach(row => {
-                    const name = row['상품명'] || row['product_name'] || row['메뉴명'];
-                    const qty = parseMoney(row['상품 수량'] || row['quantity'] || 1);
-                    if (name) menuMap[name] = (menuMap[name] || 0) + qty;
-                });
-                setMenuData(Object.entries(menuMap).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value).slice(0, 5));
+            }, [isLoggedIn, mode, selectedStore, hqFilter, dateFilter]);
 
-                // 6. CCTV Data
-                const totalTraffic = rawCCTV.filter(r => (r['widget_name']||'').includes('유동')).reduce((a,b) => a + parseMoney(b['total_count']||0), 0) || 15000;
-                const totalVisit = rawCCTV.filter(r => (r['widget_name']||'').includes('방문')).reduce((a,b) => a + parseMoney(b['total_count']||0), 0) || 600;
-                setCctvFunnel([
-                    { name: '유동인구', value: totalTraffic, fill: '#cbd5e1' },
-                    { name: '매장방문', value: totalVisit, fill: '#2563eb' },
-                    { name: '구매', value: totalOrders, fill: '#1e3a8a' }
-                ]);
-
-            }, [isDataLoaded, db, mode, selectedStore, hqFilter, dateFilter]);
-
-            // --- AI Actions ---
-            const handleReport = async (type) => {
-                if(!apiKey) { setIsApiKeyModalOpen(true); return; }
-                setIsProcessing(true);
-                
-                const summary = `
-                    분석 대상: ${mode === 'HQ' ? hqFilter : selectedStore}
-                    기간: 최근 ${dateFilter}
-                    총 매출: ${kpi.sales}원
-                    총 주문: ${kpi.orders}건
-                    주요 메뉴: ${menuData.map(m => m.name).join(', ')}
-                `;
-                
-                const prompt = type === 'weekly' 
-                    ? `이 데이터를 바탕으로 '주간 회의록'을 작성해줘. (형식: 매출요약, 이슈사항, 액션플랜)\n${summary}`
-                    : `이 데이터를 바탕으로 '가맹점주 미팅 아젠다'를 작성해줘. (형식: 성과분석, 제안사항)\n${summary}`;
-                
-                const result = await generateAI(prompt, apiKey);
-                setReportContent(result);
-                setIsProcessing(false);
+            // --- Handlers ---
+            const generateReport = (type) => {
+                setIsReportLoading(true);
+                setTimeout(() => {
+                    const target = mode==='HQ' ? (hqFilter==='TTL'?'전사':hqFilter) : selectedStore;
+                    const text = type === 'weekly' 
+                        ? `[${target} 주간 회의록]\n\n1. 성과 요약\n- 기간: ${dateFilter === '3months' ? '최근 3개월' : dateFilter}\n- 총 매출: ₩${kpi.sales.toLocaleString()}\n- 공헌이익: ₩${kpi.profit.toLocaleString()} (${kpi.margin}%)\n\n2. 주요 이슈\n- 대학로점 주말 배달 매출 15% 상승\n- 강남점 런치 타임 원가율 안정화 추세 (${kpi.costRate}%)\n\n3. 액션 아이템\n- 겨울 시즌 메뉴 '스노우 치즈볼' 프로모션 기획\n- 대학로점 CCTV 분석 기반 인력 배치 조정`
+                        : `[${target} 점주 미팅 아젠다]\n\n1. 매출 분석 보고\n- 최근 3개월 추세: 상승세 유지\n- 객단가: ₩${kpi.ticket.toLocaleString()}\n\n2. 운영 제안\n- 배달 플랫폼 광고 효율 최적화 필요 (현재 ROAS 350%)\n- 'SLAM 갈비 버거' 세트 판매 비중 확대 전략 논의\n\n3. Q&A 및 건의사항 접수`;
+                    setReportContent(text);
+                    setIsReportLoading(false);
+                }, 1500);
             };
 
-            const handleChat = async () => {
-                if(!apiKey) { setIsApiKeyModalOpen(true); return; }
+            const sendChat = () => {
                 if(!chatInput.trim()) return;
-                
                 const q = chatInput;
                 setChatLogs(prev => [...prev, {role: 'user', text: q}]);
                 setChatInput("");
                 
-                const context = `현재 매장 데이터: 매출 ${kpi.sales}원, 주문수 ${kpi.orders}건.`;
-                const prompt = `너는 레스토지니 AI야. 다음 데이터를 참고해서 질문에 답해줘.\n${context}\n질문: ${q}`;
-                
-                const reply = await generateAI(prompt, apiKey);
-                setChatLogs(prev => [...prev, {role: 'ai', text: reply}]);
+                setTimeout(() => {
+                    let answer = "죄송합니다. 해당 질문에 대한 데이터를 찾을 수 없습니다.";
+                    if (q.includes("매출")) answer = `현재 조회된 기간의 총 매출은 ₩${kpi.sales.toLocaleString()} 입니다.`;
+                    else if (q.includes("메뉴")) answer = `가장 많이 팔린 메뉴는 '${menuData[0].name}' 입니다.`;
+                    else if (q.includes("이익")) answer = `현재 공헌이익률은 ${kpi.margin}% 입니다.`;
+                    else if (q.includes("강남")) answer = "강남점은 홀 매출 비중이 높은 편입니다.";
+                    
+                    setChatLogs(prev => [...prev, {role: 'ai', text: answer}]);
+                }, 800);
             };
 
             // --- Render ---
@@ -301,35 +292,41 @@
                 return (
                     <div className="min-h-screen flex items-center justify-center bg-slate-900 font-[Pretendard]">
                         <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center">
-                             <div className="bg-blue-100 p-4 rounded-full inline-block mb-4"><Icons.Zap className="w-8 h-8 text-blue-600"/></div>
-                             <h1 className="text-2xl font-bold mb-2">RestoGenie V9.0</h1>
-                             <p className="text-slate-500 mb-6 text-sm">Full Integration (CSV + AI)</p>
-                             <button onClick={()=>setIsLoggedIn(true)} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700">Start System</button>
+                            <div className="inline-block p-4 rounded-full bg-blue-50 text-blue-600 mb-4"><Icons.Zap className="w-10 h-10"/></div>
+                            <h1 className="text-3xl font-bold text-slate-800 mb-2">RestoGenie</h1>
+                            <p className="text-slate-500 mb-8">Data-Driven Management V8.0</p>
+                            <div className="bg-slate-100 p-4 rounded-lg text-left text-xs text-slate-600 mb-6">
+                                <p className="font-bold mb-2">✅ 로드된 데이터 (Embedded):</p>
+                                <ul className="list-disc list-inside space-y-1">
+                                    <li>강남/대학로점 Sales DB (2025.09 ~ 11)</li>
+                                    <li>메뉴 판매 DB & CCTV 유동인구 DB</li>
+                                </ul>
+                            </div>
+                            <button onClick={() => setIsLoggedIn(true)} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">데모 시작하기</button>
                         </div>
                     </div>
-                )
+                );
             }
 
             return (
                 <div className="flex h-screen bg-slate-50 font-[Pretendard] overflow-hidden">
-                    
                     {/* Sidebar */}
-                    <aside className={`bg-slate-900 text-white flex-shrink-0 transition-all ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
+                    <aside className={`bg-slate-900 text-white fixed left-0 top-0 h-full z-50 transition-all duration-300 flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'}`}>
                         <div className="h-16 flex items-center justify-center border-b border-slate-800 cursor-pointer" onClick={()=>setSidebarOpen(!sidebarOpen)}>
                             <div className="flex items-center gap-2">
-                                <Icons.Zap className="w-6 h-6 text-blue-500"/>
-                                {sidebarOpen && <span className="font-bold text-lg">RestoGenie</span>}
+                                <div className="bg-blue-600 p-1.5 rounded text-white"><Icons.Zap className="w-6 h-6"/></div>
+                                {sidebarOpen && <span className="font-bold text-xl">RestoGenie</span>}
                             </div>
                         </div>
-                        <div className="flex-1 p-3 space-y-1 overflow-y-auto">
-                            {sidebarOpen && <div className="px-3 py-2 text-xs font-bold text-slate-500">{mode} MENU</div>}
+                        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+                            {sidebarOpen && <div className="text-xs font-bold text-slate-500 px-3 mb-2 uppercase">{mode} MODE</div>}
                             {mode === 'PARTNER' ? (
                                 <>
                                     <SidebarBtn id="dashboard" label="홈 (대시보드)" icon={Icons.Home} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
-                                    <SidebarBtn id="pnl" label="수익성 (P&L)" icon={Icons.PieChart} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
                                     <SidebarBtn id="sales" label="매출/메뉴 분석" icon={Icons.TrendingUp} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
+                                    <SidebarBtn id="pnl" label="수익성 (P&L)" icon={Icons.PieChart} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
                                     <SidebarBtn id="marketing" label="마케팅/고객" icon={Icons.Users} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
-                                    <SidebarBtn id="cctv" label="상권/CCTV" icon={Icons.Eye} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
+                                    <SidebarBtn id="cctv" label="매장/상권 분석" icon={Icons.Eye} active={activeMenu} set={setActiveMenu} open={sidebarOpen}/>
                                 </>
                             ) : (
                                 <>
@@ -338,207 +335,213 @@
                                 </>
                             )}
                         </div>
+                        <div className="p-4 border-t border-slate-800">
+                            <button onClick={()=>setIsLoggedIn(false)} className="flex items-center gap-3 text-slate-400 hover:text-white w-full px-2">
+                                <Icons.LogOut className="w-5 h-5" />
+                                {sidebarOpen && <span className="text-sm">로그아웃</span>}
+                            </button>
+                        </div>
                     </aside>
 
                     {/* Main Content */}
-                    <main className="flex-1 flex flex-col min-w-0 relative">
-                        {/* Header */}
-                        <header className="h-16 bg-white border-b flex items-center justify-between px-6">
+                    <main className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+                        <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-8 sticky top-0 z-40 shadow-sm">
                             <div className="flex items-center gap-4">
-                                <h2 className="font-bold text-xl">{mode === 'HQ' ? '전사 통합 관리' : '매장 대시보드'}</h2>
-                                <div className="flex gap-2">
-                                    {/* File Uploader */}
-                                    <label className="flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-blue-100 text-sm border border-blue-200">
-                                        <Icons.Upload className="w-4 h-4"/> CSV 데이터 업로드
-                                        <input type="file" multiple accept=".csv" className="hidden" onChange={handleFileUpload}/>
-                                    </label>
-                                    <button onClick={()=>setIsApiKeyModalOpen(true)} className="flex items-center gap-2 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200 text-sm">
-                                        <Icons.Key className="w-4 h-4"/> API Key 설정
-                                    </button>
+                                <h2 className="text-xl font-bold text-slate-800">
+                                    {mode === 'HQ' ? '전사 통합 관리' : (activeMenu === 'dashboard' ? '매장 대시보드' : '상세 분석')}
+                                </h2>
+                                {mode === 'HQ' && (
+                                    <div className="flex bg-slate-100 rounded-lg p-1">
+                                        {['TTL', 'gangnam', 'daehakro'].map(f => (
+                                            <button key={f} onClick={() => setHqFilter(f)} className={`px-3 py-1 text-xs font-bold rounded-md transition ${hqFilter === f ? 'bg-white shadow text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}>
+                                                {f === 'TTL' ? '전체' : f === 'gangnam' ? '강남점' : '대학로점'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-2 ml-4 border-l pl-4">
+                                    <span className="text-xs font-bold text-slate-400 flex items-center gap-1"><Icons.Filter className="w-3 h-3"/> 기간</span>
+                                    <select value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="bg-slate-50 text-xs py-1 px-2 rounded border outline-none cursor-pointer hover:bg-slate-100">
+                                        <option value="3months">최근 3개월 (9~11월)</option>
+                                        <option value="30days">최근 30일</option>
+                                        <option value="7days">최근 7일</option>
+                                    </select>
                                 </div>
                             </div>
-                            
                             <div className="flex items-center gap-3">
-                                {mode === 'HQ' && (
-                                    <select value={hqFilter} onChange={(e)=>setHqFilter(e.target.value)} className="bg-slate-100 text-sm font-bold p-2 rounded outline-none">
-                                        <option value="TTL">전체(TTL)</option>
-                                        <option value="gangnam">강남점</option>
-                                        <option value="daehakro">대학로점</option>
-                                    </select>
-                                )}
                                 {mode === 'PARTNER' && (
-                                    <select value={selectedStore} onChange={(e)=>setSelectedStore(e.target.value)} className="bg-slate-100 text-sm font-bold p-2 rounded outline-none">
+                                    <select value={selectedStore} onChange={e => setSelectedStore(e.target.value)} className="bg-slate-100 text-sm font-bold py-2 px-4 rounded border outline-none">
                                         <option value="gangnam">강남점</option>
                                         <option value="daehakro">대학로점</option>
                                     </select>
                                 )}
-                                <button onClick={()=>setMode(mode==='HQ'?'PARTNER':'HQ')} className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded hover:bg-slate-700">
-                                    {mode==='HQ'?'HQ':'점주'}
+                                <button onClick={() => { setMode(mode === 'HQ' ? 'PARTNER' : 'HQ'); setActiveMenu('dashboard'); }} className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded hover:bg-slate-700 transition">
+                                    {mode === 'HQ' ? 'HQ 모드' : '점주 모드'}
                                 </button>
                             </div>
                         </header>
 
-                        {/* Content Area */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
-                            {!isDataLoaded ? (
-                                <div className="h-full flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-300 rounded-xl m-4 bg-white">
-                                    <Icons.Upload className="w-16 h-16 mb-4 opacity-50"/>
-                                    <p className="text-lg font-bold mb-2">데이터가 없습니다.</p>
-                                    <p className="text-sm text-center">상단 'CSV 데이터 업로드' 버튼을 눌러<br/>Sales/Menu/CCTV 파일을 업로드해주세요.</p>
-                                </div>
-                            ) : (
-                                <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
-                                    
-                                    {/* Filters */}
-                                    <div className="flex justify-end mb-2">
-                                        <select value={dateFilter} onChange={(e)=>setDateFilter(e.target.value)} className="bg-white border rounded px-3 py-1 text-sm shadow-sm">
-                                            <option value="30days">최근 30일</option>
-                                            <option value="7days">최근 7일</option>
-                                            <option value="all">전체 기간</option>
-                                        </select>
+                        <div className="flex-1 overflow-y-auto p-8">
+                            <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
+                                
+                                {/* DASHBOARD & SALES VIEW */}
+                                {(activeMenu === 'dashboard' || activeMenu === 'sales') && (
+                                    <>
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                            <StatCard label="기간 총 매출" value={`₩${kpi.sales.toLocaleString()}`} subValue="데이터 기반" trend={12} color="blue" onClick={() => setActiveMenu('sales')} />
+                                            <StatCard label="공헌 이익" value={`₩${kpi.profit.toLocaleString()}`} subValue={`이익률 ${kpi.margin}%`} trend={5} color="green" onClick={() => setActiveMenu('pnl')} />
+                                            <StatCard label="총 주문 건수" value={`${kpi.orders.toLocaleString()}건`} subValue={`객단가 ₩${kpi.ticket.toLocaleString()}`} trend={-1} color="indigo" onClick={() => setActiveMenu('sales')} />
+                                            <StatCard label="평균 원가율" value={`${kpi.costRate}%`} subValue="목표 30% 이내" trend={-0.5} color="orange" onClick={() => setActiveMenu('pnl')} />
+                                        </div>
+
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                            <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                                <div className="flex justify-between items-center mb-6">
+                                                    <h3 className="font-bold text-slate-800 text-lg">일별 매출 추이 (2025.09 ~ 11)</h3>
+                                                </div>
+                                                <div className="h-72">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <AreaChart data={chartData}>
+                                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                            <XAxis dataKey="date" tick={{fontSize:11, fill:'#94a3b8'}} tickFormatter={val => val.substring(5)} axisLine={false} tickLine={false} />
+                                                            <YAxis tick={{fontSize:11, fill:'#94a3b8'}} axisLine={false} tickLine={false} width={40} tickFormatter={val => `${(val/10000).toFixed(0)}만`} />
+                                                            <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}} formatter={(value) => `₩${value.toLocaleString()}`} />
+                                                            <Area type="monotone" dataKey="sales" stroke="#2563eb" fill="#dbeafe" strokeWidth={2} />
+                                                        </AreaChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                                <div className="flex justify-between items-center mb-6">
+                                                    <h3 className="font-bold text-slate-800">메뉴 판매 순위</h3>
+                                                </div>
+                                                <div className="h-72">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <PieChart>
+                                                            <Pie data={menuData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                                                {menuData.map((entry, index) => (
+                                                                    <Cell key={`cell-${index}`} fill={[THEME.primary, THEME.secondary, THEME.accent, '#94a3b8', '#cbd5e1'][index % 5]} />
+                                                                ))}
+                                                            </Pie>
+                                                            <Tooltip formatter={(value) => `${value}개`} />
+                                                            <Legend verticalAlign="bottom" />
+                                                        </PieChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {activeMenu === 'sales' && (
+                                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                                <h3 className="font-bold text-lg mb-4 text-slate-800">상세 매출 로그</h3>
+                                                <div className="overflow-x-auto max-h-96">
+                                                    <table className="w-full text-sm text-left text-slate-600">
+                                                        <thead className="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200 sticky top-0">
+                                                            <tr><th className="px-6 py-3">날짜</th><th className="px-6 py-3">매출</th><th className="px-6 py-3">홀 매출</th><th className="px-6 py-3">배달 매출</th><th className="px-6 py-3">주문수</th></tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-slate-100">
+                                                            {chartData.slice().reverse().map((row, idx) => (
+                                                                <tr key={idx} className="hover:bg-slate-50">
+                                                                    <td className="px-6 py-4 font-medium">{row.date}</td>
+                                                                    <td className="px-6 py-4 font-bold text-slate-800">₩{row.sales.toLocaleString()}</td>
+                                                                    <td className="px-6 py-4 text-blue-600">₩{row.hall.toLocaleString()}</td>
+                                                                    <td className="px-6 py-4 text-indigo-600">₩{row.delivery.toLocaleString()}</td>
+                                                                    <td className="px-6 py-4">{row.orders}건</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {/* P&L VIEW */}
+                                {activeMenu === 'pnl' && (
+                                    <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center min-h-[500px]">
+                                        <h3 className="text-2xl font-bold text-slate-800 mb-2">수익성 분석 (P&L)</h3>
+                                        <p className="text-slate-500 mb-8">기간 내 매출 대비 수익 구조</p>
+                                        <div className="flex gap-4 items-end justify-center h-64 w-full max-w-lg">
+                                            <div className="w-24 bg-blue-600 rounded-t flex items-center justify-center text-white text-xs" style={{height:'100%'}}>매출 (100%)</div>
+                                            <div className="w-24 bg-red-400 rounded-t flex items-center justify-center text-white text-xs" style={{height:`${kpi.costRate}%`}}>원가 ({kpi.costRate}%)</div>
+                                            <div className="w-24 bg-yellow-400 rounded-t flex items-center justify-center text-white text-xs" style={{height:'20%'}}>수수료 (20%)</div>
+                                            <div className="w-24 bg-green-500 rounded-t flex items-center justify-center text-white text-xs" style={{height:`${kpi.margin}%`}}>이익 ({kpi.margin}%)</div>
+                                        </div>
                                     </div>
+                                )}
 
-                                    {/* Dashboard & Sales View */}
-                                    {(activeMenu === 'dashboard' || activeMenu === 'sales') && (
-                                        <>
-                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                                <StatCard label="기간 매출" value={`₩${kpi.sales.toLocaleString()}`} subValue="데이터 기반" trend={12} color="blue" />
-                                                <StatCard label="총 주문수" value={`${kpi.orders.toLocaleString()}건`} subValue={`객단가 ₩${kpi.ticket.toLocaleString()}`} trend={-1} color="indigo" />
-                                                <StatCard label="공헌 이익" value={`₩${kpi.profit.toLocaleString()}`} subValue={`마진율 ${kpi.margin}%`} trend={5} color="green" />
-                                                <StatCard label="원가율" value={`${kpi.costRate}%`} subValue="목표 30%" trend={-0.5} color="orange" />
-                                            </div>
+                                {/* CCTV / MARKETING VIEW */}
+                                {(activeMenu === 'cctv' || activeMenu === 'marketing') && (
+                                    <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                                        <h3 className="font-bold text-lg mb-6">매장 유입 퍼널 (CCTV 기반)</h3>
+                                        <div className="h-80">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <FunnelChart>
+                                                    <Tooltip />
+                                                    <Funnel data={cctvFunnel} dataKey="value" isAnimationActive>
+                                                        <LabelList position="right" fill="#000" stroke="none" dataKey="name" />
+                                                    </Funnel>
+                                                </FunnelChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                        <div className="text-center mt-4 text-sm text-slate-500">
+                                            <p>유동인구 대비 구매 전환율: {((cctvFunnel[2]?.value / cctvFunnel[0]?.value)*100).toFixed(2)}%</p>
+                                        </div>
+                                    </div>
+                                )}
 
-                                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border">
-                                                    <h3 className="font-bold mb-4">일별 매출 추이</h3>
-                                                    <div className="h-80">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                            <AreaChart data={chartData}>
-                                                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-                                                                <XAxis dataKey="date" tick={{fontSize:12}}/>
-                                                                <YAxis tick={{fontSize:12}} width={40}/>
-                                                                <Tooltip formatter={(value)=>`₩${value.toLocaleString()}`}/>
-                                                                <Area type="monotone" dataKey="sales" stroke="#2563eb" fill="#dbeafe"/>
-                                                            </AreaChart>
-                                                        </ResponsiveContainer>
-                                                    </div>
+                                {/* REPORT CENTER */}
+                                {activeMenu === 'report' && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-4">
+                                            <button onClick={()=>generateReport('weekly')} className="w-full p-6 bg-white border rounded-xl text-left hover:border-blue-500 transition shadow-sm group">
+                                                <h3 className="font-bold text-lg group-hover:text-blue-600">주간 회의 리포트 생성</h3>
+                                                <p className="text-sm text-slate-500 mt-2">현재 로딩된 매출 데이터를 분석하여 회의록 초안 작성</p>
+                                            </button>
+                                            <button onClick={()=>generateReport('meeting')} className="w-full p-6 bg-white border rounded-xl text-left hover:border-green-500 transition shadow-sm group">
+                                                <h3 className="font-bold text-lg group-hover:text-green-600">점주 미팅 아젠다 생성</h3>
+                                                <p className="text-sm text-slate-500 mt-2">매장 성과 분석 및 제안 사항 생성</p>
+                                            </button>
+                                        </div>
+                                        <div className="bg-white p-6 rounded-xl border shadow-sm min-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed">
+                                            {isReportLoading ? (
+                                                <div className="flex items-center justify-center h-full gap-2 text-slate-500">
+                                                    <div className="spinner"></div> AI 분석 중...
                                                 </div>
-                                                <div className="bg-white p-6 rounded-xl shadow-sm border">
-                                                    <h3 className="font-bold mb-4">메뉴 판매 순위</h3>
-                                                    <div className="h-80">
-                                                        <ResponsiveContainer width="100%" height="100%">
-                                                            <PieChart>
-                                                                <Pie data={menuData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                                                                    {menuData.map((entry, index) => (
-                                                                        <Cell key={`cell-${index}`} fill={[THEME.primary, THEME.secondary, THEME.accent, '#94a3b8'][index % 4]} />
-                                                                    ))}
-                                                                </Pie>
-                                                                <Tooltip />
-                                                                <Legend verticalAlign="bottom"/>
-                                                            </PieChart>
-                                                        </ResponsiveContainer>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {/* P&L View */}
-                                    {activeMenu === 'pnl' && (
-                                        <div className="bg-white p-8 rounded-xl border shadow-sm flex flex-col items-center justify-center min-h-[400px]">
-                                            <h3 className="text-2xl font-bold mb-2">수익성 분석 (P&L)</h3>
-                                            <div className="flex gap-2 mt-8 items-end h-64 w-full max-w-md">
-                                                <div className="w-1/4 bg-blue-600 text-white text-xs flex items-center justify-center rounded-t" style={{height: '100%'}}>매출</div>
-                                                <div className="w-1/4 bg-red-400 text-white text-xs flex items-center justify-center rounded-t" style={{height: `${kpi.costRate}%`}}>원가</div>
-                                                <div className="w-1/4 bg-yellow-400 text-white text-xs flex items-center justify-center rounded-t" style={{height: '20%'}}>비용</div>
-                                                <div className="w-1/4 bg-green-500 text-white text-xs flex items-center justify-center rounded-t" style={{height: `${kpi.margin}%`}}>이익</div>
-                                            </div>
+                                            ) : (
+                                                reportContent || "리포트 생성 버튼을 클릭하세요."
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
+                                )}
 
-                                    {/* CCTV/Marketing View */}
-                                    {(activeMenu === 'cctv' || activeMenu === 'marketing') && (
-                                        <div className="bg-white p-8 rounded-xl border shadow-sm">
-                                            <h3 className="font-bold text-lg mb-6">매장 유입 퍼널 (CCTV)</h3>
-                                            <div className="h-80">
-                                                <ResponsiveContainer width="100%" height="100%">
-                                                    <FunnelChart>
-                                                        <Tooltip />
-                                                        <Funnel data={cctvFunnel} dataKey="value" isAnimationActive>
-                                                            <LabelList position="right" fill="#000" stroke="none" dataKey="name" />
-                                                        </Funnel>
-                                                    </FunnelChart>
-                                                </ResponsiveContainer>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Report View */}
-                                    {activeMenu === 'report' && (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-4">
-                                                <button onClick={()=>handleReport('weekly')} className="w-full p-6 bg-white border rounded-xl text-left hover:border-blue-500 transition shadow-sm group">
-                                                    <h3 className="font-bold text-lg group-hover:text-blue-600">주간 회의 리포트 생성</h3>
-                                                    <p className="text-sm text-slate-500 mt-2">현재 데이터 기반 회의록 작성</p>
-                                                </button>
-                                                <button onClick={()=>handleReport('meeting')} className="w-full p-6 bg-white border rounded-xl text-left hover:border-green-500 transition shadow-sm group">
-                                                    <h3 className="font-bold text-lg group-hover:text-green-600">점주 미팅 아젠다 생성</h3>
-                                                    <p className="text-sm text-slate-500 mt-2">매장 성과 분석 및 제안 사항</p>
-                                                </button>
-                                            </div>
-                                            <div className="bg-white p-6 rounded-xl border shadow-sm min-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed">
-                                                {isProcessing ? "AI 생성 중..." : (reportContent || "리포트를 생성해주세요.")}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            </div>
                         </div>
 
-                        {/* API Key Modal */}
-                        {isApiKeyModalOpen && (
-                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                                <div className="bg-white p-6 rounded-xl w-96 shadow-2xl">
-                                    <h3 className="font-bold text-lg mb-4">Gemini API Key 설정</h3>
-                                    <input 
-                                        type="password" 
-                                        className="w-full border p-2 rounded mb-4 text-sm" 
-                                        placeholder="Paste API Key here" 
-                                        value={apiKey}
-                                        onChange={(e)=>setApiKey(e.target.value)}
-                                    />
-                                    <div className="flex justify-end gap-2">
-                                        <button onClick={()=>setIsApiKeyModalOpen(false)} className="px-4 py-2 bg-slate-200 rounded text-sm">닫기</button>
-                                        <button onClick={()=>setIsApiKeyModalOpen(false)} className="px-4 py-2 bg-blue-600 text-white rounded text-sm">저장</button>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Chatbot Overlay */}
+                        <div className={`fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transition-all ${isChatOpen ? 'h-[500px] opacity-100' : 'h-0 opacity-0 overflow-hidden pointer-events-none'}`}>
+                             <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
+                                 <span className="font-bold flex items-center gap-2"><Icons.Bot className="w-5 h-5"/> AI Copilot</span>
+                                 <button onClick={()=>setIsChatOpen(false)}><Icons.X className="w-5 h-5"/></button>
+                             </div>
+                             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+                                 {chatLogs.map((msg, i) => (
+                                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                         <div className={`max-w-[85%] p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{msg.text}</div>
+                                     </div>
+                                 ))}
+                             </div>
+                             <div className="p-3 bg-white border-t flex gap-2">
+                                 <input className="flex-1 border rounded-full px-4 py-2 text-sm outline-none" value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyPress={e=>e.key==='Enter'&&sendChat()} placeholder="질문하기..."/>
+                                 <button onClick={sendChat} className="bg-blue-600 text-white p-2 rounded-full"><Icons.ChevronRight className="w-4 h-4"/></button>
+                             </div>
+                        </div>
+                        {!isChatOpen && (
+                            <button onClick={()=>setIsChatOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-110 z-50">
+                                <Icons.MessageSquare className="w-6 h-6"/>
+                            </button>
                         )}
-
-                        {/* Chatbot */}
-                        <button onClick={()=>setIsChatOpen(!isChatOpen)} className="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110 z-50">
-                            {isChatOpen ? <Icons.X className="w-6 h-6"/> : <Icons.MessageSquare className="w-6 h-6"/>}
-                        </button>
-                        {isChatOpen && (
-                            <div className="fixed bottom-24 right-8 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden z-50 chat-window">
-                                <div className="bg-slate-800 p-4 text-white flex items-center gap-3">
-                                    <div className="bg-green-500 p-1.5 rounded-full"><Icons.Bot className="w-4 h-4 text-white"/></div>
-                                    <span className="font-bold">AI Copilot</span>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
-                                    {chatLogs.map((m, i) => (
-                                        <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[85%] p-3 rounded-xl text-sm ${m.role === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{m.text}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="p-3 bg-white border-t flex gap-2">
-                                    <input className="flex-1 border rounded-full px-4 py-2 text-sm outline-none" value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyPress={e=>e.key==='Enter'&&sendChat()} placeholder="질문하기..."/>
-                                    <button onClick={sendChat} className="bg-blue-600 text-white p-2 rounded-full"><Icons.ChevronRight className="w-4 h-4"/></button>
-                                </div>
-                            </div>
-                        )}
-
                     </main>
                 </div>
             );
@@ -579,3 +582,5 @@
     </script>
 </body>
 </html>
+```
+```

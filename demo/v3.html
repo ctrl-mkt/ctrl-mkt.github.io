@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V3.5 (Stable)</title>
+    <title>RestoGenie V3.6 (Hotfix)</title>
     
     <!-- 1. Fonts -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -18,10 +18,13 @@
     <!-- 4. Babel (Standalone) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- 5. Recharts (Fixed Version 2.12.7 for Stability) -->
-    <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+    <!-- 5. [CRITICAL FIX] Prop-Types (Required for Recharts UMD) -->
+    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+
+    <!-- 6. Recharts (Stable UMD Version) -->
+    <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
     
-    <!-- 6. PapaParse -->
+    <!-- 7. PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <style>
@@ -31,7 +34,7 @@
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; }
         .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #error-display { display: none; padding: 20px; background: #fee2e2; color: #991b1b; position: fixed; top: 0; left: 0; width: 100%; z-index: 10000; font-size: 14px; }
+        #error-display { display: none; padding: 20px; background: #fee2e2; color: #991b1b; position: fixed; top: 0; left: 0; width: 100%; z-index: 10000; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -43,14 +46,24 @@
         window.onerror = function(message, source, lineno, colno, error) {
             const display = document.getElementById('error-display');
             display.style.display = 'block';
-            display.innerHTML = `<strong>System Error:</strong> ${message} <br><small>${source}:${lineno}</small>`;
-            console.error(error);
+            display.innerHTML = `
+                <div style="font-weight:bold; margin-bottom:8px;">⚠️ 시스템 오류가 발생했습니다.</div>
+                <div>${message}</div>
+                <div style="font-size:12px; color:#666; margin-top:4px;">${source}:${lineno}</div>
+            `;
+            console.error("Global Error Catch:", error);
         };
     </script>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo, useCallback } = React;
-        // Safe Destructuring for Recharts
+        
+        // [CRITICAL FIX] Ensure Recharts is loaded before destructuring
+        let Recharts = window.Recharts;
+        if (!Recharts) {
+            throw new Error("Recharts library failed to load. Please refresh the page.");
+        }
+
         const { 
             LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
             PieChart, Pie, Cell, AreaChart, Area, FunnelChart, Funnel, LabelList, ComposedChart 
@@ -77,7 +90,7 @@
             }
         };
 
-        // --- Icons Definition (Manual SVG to avoid dependency issues) ---
+        // --- Icons Definition ---
         const Icons = {
             Zap: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
             Calendar: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>,
@@ -199,7 +212,9 @@
                     if (!data) return [];
                     return data.filter(row => {
                         const d = new Date(row.business_date);
-                        return d >= s && d <= e && row.order_status === 'PAID';
+                        // Filter by Date AND 'PAID' status (if column exists)
+                        const isPaid = row.order_status ? row.order_status === 'PAID' : true;
+                        return d >= s && d <= e && isPaid;
                     });
                 };
 
@@ -295,7 +310,7 @@
                 <div className="min-h-screen flex items-center justify-center bg-slate-900 font-[Pretendard]">
                     <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md text-center">
                         <div className="inline-block p-4 rounded-full bg-blue-50 text-blue-600 mb-4"><Icons.Zap className="w-8 h-8"/></div>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-2">RestoGenie V3.5</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">RestoGenie V3.6</h1>
                         <p className="text-slate-500 mb-8">Fixed & Stable Version</p>
                         <form onSubmit={(e) => { e.preventDefault(); setIsLoggedIn(true); }} className="space-y-4">
                             <input type="text" defaultValue="slamburger01" className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"/>
@@ -312,7 +327,7 @@
                     <header className="bg-slate-900 text-white h-16 flex items-center justify-between px-6 shadow-lg z-50 sticky top-0">
                         <div className="flex items-center gap-3">
                             <div className="bg-blue-600 p-1.5 rounded text-white font-bold"><Icons.Zap className="w-5 h-5"/></div>
-                            <span className="font-bold text-lg tracking-wide">RestoGenie <span className="text-blue-400 text-xs ml-1">v3.5 Fixed</span></span>
+                            <span className="font-bold text-lg tracking-wide">RestoGenie <span className="text-blue-400 text-xs ml-1">v3.6 Fixed</span></span>
                         </div>
                         <div className="flex items-center gap-4">
                              <select value={selectedStore} onChange={(e) => setSelectedStore(e.target.value)} className="bg-slate-800 text-white text-xs font-bold py-1 px-3 rounded border border-slate-700 outline-none">

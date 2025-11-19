@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V8.0 (Embedded Data)</title>
+    <title>RestoGenie V9.1 (Embedded Data)</title>
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -42,10 +42,13 @@
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
+        
+        // Safe Recharts Access
+        const Recharts = window.Recharts || {};
         const { 
             LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
             PieChart, Pie, Cell, AreaChart, Area, FunnelChart, Funnel, LabelList 
-        } = window.Recharts;
+        } = Recharts;
 
         // --- Icons ---
         const Icons = {
@@ -388,9 +391,9 @@
                                 {(activeMenu === 'dashboard' || activeMenu === 'sales') && (
                                     <>
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                            <StatCard label="기간 총 매출" value={`₩${kpi.sales.toLocaleString()}`} subValue="데이터 기반" trend={12} color="blue" onClick={() => setActiveMenu('sales')} />
-                                            <StatCard label="공헌 이익" value={`₩${kpi.profit.toLocaleString()}`} subValue={`이익률 ${kpi.margin}%`} trend={5} color="green" onClick={() => setActiveMenu('pnl')} />
-                                            <StatCard label="총 주문 건수" value={`${kpi.orders.toLocaleString()}건`} subValue={`객단가 ₩${kpi.ticket.toLocaleString()}`} trend={-1} color="indigo" onClick={() => setActiveMenu('sales')} />
+                                            <StatCard label="기간 총 매출" value={`₩${kpi.sales.toLocaleString()}`} subValue="전월 대비" trend={12.5} onClick={() => setActiveMenu('sales')} />
+                                            <StatCard label="공헌 이익" value={`₩${kpi.profit.toLocaleString()}`} subValue={`이익률 ${kpi.margin}%`} trend={5.4} color="green" onClick={() => setActiveMenu('pnl')} />
+                                            <StatCard label="총 주문 건수" value={`${kpi.orders.toLocaleString()}건`} subValue={`객단가 ₩${kpi.ticket.toLocaleString()}`} trend={-1.2} color="indigo" onClick={() => setActiveMenu('sales')} />
                                             <StatCard label="평균 원가율" value={`${kpi.costRate}%`} subValue="목표 30% 이내" trend={-0.5} color="orange" onClick={() => setActiveMenu('pnl')} />
                                         </div>
 

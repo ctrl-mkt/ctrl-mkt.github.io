@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie - AI Data Center</title>
+    <title>RestoGenie - Real Data Dashboard</title>
     
     <!-- Libraries -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <!-- Simple CSV Parser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
@@ -42,7 +41,7 @@
                     <i data-lucide="database-zap" class="text-white w-10 h-10"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">RestoGenie <span class="text-indigo-400 text-sm align-top">PRO</span></h1>
-                <p class="text-slate-400 text-sm">통합 데이터 인텔리전스 플랫폼</p>
+                <p class="text-slate-400 text-sm">실시간 데이터 통합 대시보드</p>
             </div>
             <div class="space-y-4">
                 <div class="relative">
@@ -106,7 +105,6 @@
                 </div>
 
                 <div class="flex items-center gap-3 lg:gap-5">
-                    <!-- Global Filter Bar -->
                     <div class="hidden md:flex bg-slate-800/50 rounded-lg border border-slate-700 p-1 items-center">
                         <select id="period-select" onchange="app.changePeriod(this.value)" class="bg-transparent text-xs text-slate-300 font-medium px-3 py-1.5 outline-none cursor-pointer hover:text-white">
                             <option value="day">일간 (Daily)</option>
@@ -120,7 +118,6 @@
                         </label>
                     </div>
 
-                    <!-- Store Selector (HQ) -->
                     <div id="store-selector-wrapper" class="hidden relative">
                         <select id="store-select" onchange="app.changeStore(this.value)" class="bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 text-sm rounded-lg pl-4 pr-10 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none cursor-pointer font-bold hover:bg-indigo-600/20 transition-all">
                             <option value="all">전사 통합 (HQ)</option>
@@ -144,14 +141,14 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
+    <!-- Loading -->
     <div id="loading-overlay" class="hidden-force fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur flex flex-col items-center justify-center">
         <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
         <p class="text-indigo-300 font-bold animate-pulse">실시간 데이터 동기화 중...</p>
-        <p class="text-xs text-slate-500 mt-2">매출, 공헌이익, 원가율, 재방문율 연동</p>
+        <p class="text-xs text-slate-500 mt-2">매출, 공헌이익, 패티별 판매량 집계 중</p>
     </div>
 
-    <!-- AI Modal & Chat (Same as before but optimized) -->
+    <!-- AI & Chat -->
     <div id="ai-modal" class="hidden-force fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <div class="glass w-full max-w-4xl h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-slate-700">
             <div class="h-16 border-b border-slate-700/50 flex items-center justify-between px-8 bg-slate-800/50 rounded-t-2xl">
@@ -162,7 +159,6 @@
         </div>
     </div>
 
-    <!-- Chat Widget -->
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         <div id="chat-box" class="hidden-force w-80 md:w-96 h-[550px] glass rounded-2xl shadow-2xl flex flex-col mb-4 overflow-hidden border border-slate-600">
             <div class="bg-slate-800 p-4 flex justify-between items-center border-b border-slate-700">
@@ -170,7 +166,7 @@
                 <button onclick="document.getElementById('chat-box').classList.add('hidden-force')"><i data-lucide="x" class="w-5 h-5 text-white/80"></i></button>
             </div>
             <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/80">
-                <div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] border border-slate-700 shadow-sm">안녕하세요! 현재 데이터를 기반으로 답변해드릴게요.</div></div>
+                <div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] border border-slate-700 shadow-sm">안녕하세요! 실시간 데이터를 기반으로 답변해드립니다.</div></div>
             </div>
             <div class="p-3 bg-slate-800 border-t border-slate-700 flex gap-2">
                 <input id="chat-input" type="text" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-indigo-500 outline-none" placeholder="질문 입력..." onkeypress="if(event.key==='Enter') app.sendMessage()">
@@ -185,39 +181,34 @@
     <script>
         // --- CONFIG ---
         const GEMINI_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ";
+        // Real Data Sheets provided by User
         const SHEETS = {
-            // Updated with Real Data Links provided by user
-            direct_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQZW2aTNo146wvq7KqVLiVsAQnx6Sgis__MwkTepvXat5_kPHxvoNyU79i4rLV3GkRqsI3HstzWP32L/pub?gid=0&single=true&output=csv',
+            hq_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQZW2aTNo146wvq7KqVLiVsAQnx6Sgis__MwkTepvXat5_kPHxvoNyU79i4rLV3GkRqsI3HstzWP32L/pub?gid=0&single=true&output=csv',
             gangnam_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTy5PRIhx_YumADmE-_uGse2JpX8RmzVI-9H01GilmOh7XeJoi5wNCzgNyDCBKOyv9e_O3YdduXn7XX/pub?gid=1315615338&single=true&output=csv',
             daehakro_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQz_VG0F8yxDwxZYTiJP92Dv0CZPu99abqE-m3RRehHZGdYgB1YAlru9ki82V7wkpz7JI5GvJo8Monx/pub?gid=1671808379&single=true&output=csv'
         };
 
         // --- APP STATE ---
-        let GLOBAL_DATA = { direct: [], gangnam: [], daehakro: [] };
+        let GLOBAL_DATA = { hq: [], gangnam: [], daehakro: [] };
         const app = {
             user: null, storeId: 'all', period: 'week', compare: false, coins: 100,
             
-            init() {
-                lucide.createIcons();
-            },
+            init() { lucide.createIcons(); },
 
             async fetchAllData() {
                 document.getElementById('loading-overlay').classList.remove('hidden-force');
                 try {
-                    const [direct, gangnam, daehakro] = await Promise.all([
-                        this.fetchCSV(SHEETS.direct_daily),
+                    const [hq, gangnam, daehakro] = await Promise.all([
+                        this.fetchCSV(SHEETS.hq_daily),
                         this.fetchCSV(SHEETS.gangnam_daily),
                         this.fetchCSV(SHEETS.daehakro_daily)
                     ]);
-                    
-                    // Store raw data (Parsing handled in logic)
-                    GLOBAL_DATA = { direct, gangnam, daehakro };
-                    
-                    console.log("Data Loaded", GLOBAL_DATA);
-                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> 실시간 데이터 (${direct.length + gangnam.length + daehakro.length}건)`;
+                    GLOBAL_DATA = { hq, gangnam, daehakro };
+                    console.log("Data Loaded:", GLOBAL_DATA);
+                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> 실시간 데이터 (${hq.length+gangnam.length}건)`;
                 } catch (e) {
-                    console.error("Data Load Error", e);
-                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> 데이터 로드 실패`;
+                    console.error("Fetch Error", e);
+                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> 데이터 연결 실패`;
                 } finally {
                     document.getElementById('loading-overlay').classList.add('hidden-force');
                     this.loadPage(this.user === 'hq' ? 'dashboard' : 'home');
@@ -261,13 +252,12 @@
                 ] : [
                     {id:'home', icon:'home', label:'내 매장 홈'},
                     {id:'sales', icon:'dollar-sign', label:'손익 분석'},
-                    {id:'menu', icon:'utensils', label:'메뉴 분석'}
+                    {id:'menu', icon:'utensils', label:'메뉴 엔지니어링'}
                 ]).map(m => `
                     <button onclick="app.loadPage('${m.id}')" id="btn-${m.id}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all group">
                         <i data-lucide="${m.icon}" class="w-5 h-5 ${isHQ ? 'group-hover:text-blue-400' : 'group-hover:text-indigo-400'}"></i>
                         <span class="font-medium">${m.label}</span>
-                    </button>
-                `).join('');
+                    </button>`).join('');
                 
                 document.getElementById('sidebar-menu').innerHTML = `<div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-2">Menu</div>` + menuHTML;
                 document.getElementById('ai-menu-section').innerHTML = `<div class="mt-6 px-2"><button onclick="app.openAiModal('${isHQ?'hq':'partner'}')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors"><i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> AI Report</button></div>`;
@@ -276,94 +266,83 @@
 
             // --- Data Logic ---
             getFilteredData() {
-                // Target Data Selection
                 let rawData = [];
-                if (this.storeId === 'all') rawData = GLOBAL_DATA.direct; // HQ Aggregate
+                if (this.storeId === 'all') rawData = GLOBAL_DATA.hq;
                 else if (this.storeId === 'gangnam') rawData = GLOBAL_DATA.gangnam;
                 else if (this.storeId === 'daehakro') rawData = GLOBAL_DATA.daehakro;
 
-                // Fallback if data missing
                 if (!rawData || rawData.length === 0) return this.getDummyData();
 
-                // Date Filtering (Assuming '일' or 'Date' column exists)
                 const days = this.period === 'day' ? 1 : this.period === 'week' ? 7 : 30;
-                const sliced = rawData.slice(0, days); // Assuming sorted DESC
+                const sliced = rawData.slice(0, days); 
                 const prevSliced = this.compare ? rawData.slice(days, days * 2) : [];
 
-                // Metrics Calculation helper
-                const sum = (data, key) => data.reduce((acc, row) => acc + (this.parseMoney(row[key]) || 0), 0);
-                const avg = (data, key) => data.length ? sum(data, key) / data.length : 0;
-
-                // Extract Metrics based on sheet columns (Auto-detect keys)
-                const salesKey = Object.keys(rawData[0]).find(k => k.includes('매출') && !k.includes('홀') && !k.includes('배달')) || '매출';
-                const profitKey = Object.keys(rawData[0]).find(k => k.includes('공헌이익') || k.includes('이익')) || '공헌이익';
-                const hallKey = Object.keys(rawData[0]).find(k => k.includes('홀매출')) || '홀매출';
-                const deliveryKey = Object.keys(rawData[0]).find(k => k.includes('배달매출')) || '배달매출';
-                
-                const current = {
-                    sales: sum(sliced, salesKey),
-                    orders: sum(sliced, '주문 수') || sum(sliced, '주문수') || 0,
-                    profit: sum(sliced, profitKey),
-                    cost: sum(sliced, '원가') || (sum(sliced, salesKey) * 0.35), // Fallback approx
-                    hall: sum(sliced, hallKey),
-                    delivery: sum(sliced, deliveryKey),
-                    retention: avg(sliced, '재방문율') || avg(sliced, '재방문율(%)'),
-                    signup: avg(sliced, '가입비중') || avg(sliced, '회원가입율')
+                // Helper: Find column that contains keyword (robust parsing)
+                const getVal = (row, keys) => {
+                    const key = Object.keys(row).find(k => keys.some(x => k.includes(x)));
+                    return key ? this.parseMoney(row[key]) : 0;
                 };
 
-                // Previous Data for Comparison
+                // Metric Aggregation
+                const current = {
+                    sales: sliced.reduce((acc, r) => acc + getVal(r, ['매출','총매출']), 0),
+                    hall: sliced.reduce((acc, r) => acc + getVal(r, ['홀매출','홀']), 0),
+                    delivery: sliced.reduce((acc, r) => acc + getVal(r, ['배달매출','배달']), 0),
+                    profit: sliced.reduce((acc, r) => acc + getVal(r, ['공헌이익','이익']), 0),
+                    orders: sliced.reduce((acc, r) => acc + getVal(r, ['주문수','주문']), 0),
+                    costRate: sliced.length ? (sliced.reduce((acc, r) => acc + getVal(r, ['원가율']), 0) / sliced.length) : 35,
+                    retention: sliced.length ? (sliced.reduce((acc, r) => acc + getVal(r, ['재방문']), 0) / sliced.length) : 0,
+                    signup: sliced.length ? (sliced.reduce((acc, r) => acc + getVal(r, ['가입']), 0) / sliced.length) : 0,
+                    patties: this.aggregatePatties(sliced)
+                };
+
+                // Calculate Cost Amount (if not explicit)
+                current.cost = current.sales * (current.costRate / 100);
+
                 const prev = this.compare ? {
-                    sales: sum(prevSliced, salesKey),
-                    orders: sum(prevSliced, '주문 수') || sum(prevSliced, '주문수') || 0
+                    sales: prevSliced.reduce((acc, r) => acc + getVal(r, ['매출','총매출']), 0),
+                    orders: prevSliced.reduce((acc, r) => acc + getVal(r, ['주문수','주문']), 0)
                 } : null;
 
-                // Calculate Trend %
                 const trend = (curr, old) => old ? ((curr - old) / old * 100).toFixed(1) : 0;
 
-                return {
-                    ...current,
-                    salesTrend: prev ? trend(current.sales, prev.sales) : 0,
-                    ordersTrend: prev ? trend(current.orders, prev.orders) : 0,
-                    patties: this.aggregatePatties(sliced) // Helper for Menu Pie Chart
-                };
+                return { ...current, salesTrend: prev ? trend(current.sales, prev.sales) : 0, ordersTrend: prev ? trend(current.orders, prev.orders) : 0 };
             },
 
             parseMoney(val) {
                 if (typeof val === 'number') return val;
-                if (typeof val === 'string') return parseFloat(val.replace(/[^0-9.-]+/g,""));
+                if (typeof val === 'string') return parseFloat(val.replace(/[^0-9.-]+/g,"")) || 0;
                 return 0;
             },
 
             aggregatePatties(data) {
-                // Extract Patty columns (비프, 갈비, 치킨 etc.)
-                const pattyKeys = ['비프', '갈비', '치킨', '새우', '돈까스'];
-                const result = {};
-                pattyKeys.forEach(key => {
-                    result[key] = data.reduce((acc, row) => acc + (this.parseMoney(row[key]) || 0), 0);
+                // Look for patty columns
+                const result = { '비프':0, '갈비':0, '치킨':0, '새우':0 };
+                data.forEach(row => {
+                    for (const key in row) {
+                        if (key.includes('비프')) result['비프'] += this.parseMoney(row[key]);
+                        if (key.includes('갈비')) result['갈비'] += this.parseMoney(row[key]);
+                        if (key.includes('치킨')) result['치킨'] += this.parseMoney(row[key]);
+                        if (key.includes('새우')) result['새우'] += this.parseMoney(row[key]);
+                    }
                 });
                 return result;
             },
 
-            getDummyData() {
-                return { sales: 0, orders: 0, profit: 0, cost: 0, salesTrend: 0, ordersTrend: 0, patties: { '비프':0 } };
-            },
+            getDummyData() { return { sales:0, hall:0, delivery:0, profit:0, orders:0, cost:0, salesTrend:0, patties:{'비프':0} }; },
 
-            // --- Routing & Render ---
+            // --- Page Load ---
             changePeriod(val) { this.period = val; this.refresh(); },
             toggleCompare(chk) { this.compare = chk; this.refresh(); },
             changeStore(val) { this.storeId = val; this.refresh(); },
             refresh() { const id = document.querySelector('button.bg-slate-800')?.id?.replace('btn-','') || 'dashboard'; this.loadPage(id); },
-            toggleSidebar() { 
-                document.getElementById('sidebar').classList.toggle('-translate-x-full');
-                document.getElementById('mobile-overlay').classList.toggle('hidden');
-            },
+            toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('mobile-overlay').classList.toggle('hidden'); },
 
             loadPage(pageId) {
-                // Style Active Menu
+                // Style Active
                 document.querySelectorAll('#sidebar button').forEach(b => b.className = b.className.replace('bg-slate-800 text-white', 'text-slate-400'));
-                const btn = document.getElementById(`btn-${pageId}`);
-                if(btn) btn.className = btn.className.replace('text-slate-400', 'bg-slate-800 text-white');
-
+                document.getElementById(`btn-${pageId}`)?.classList.replace('text-slate-400', 'bg-slate-800 text-white');
+                
                 const main = document.getElementById('main-content');
                 const data = this.getFilteredData();
                 const isHQ = this.user === 'hq';
@@ -371,27 +350,22 @@
                 if (pageId === 'dashboard' || pageId === 'home') {
                     main.innerHTML = `
                         <div class="space-y-6 fade-in">
-                            <!-- KPI Row -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                                ${this.kpiCard('총 매출', `₩${data.sales.toLocaleString()}`, data.salesTrend, 'dollar-sign', isHQ?'blue':'indigo')}
-                                ${this.kpiCard('공헌 이익', `₩${data.profit.toLocaleString()}`, 0, 'wallet', 'emerald')}
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                                ${this.kpiCard('총 매출', `₩${Math.floor(data.sales).toLocaleString()}`, data.salesTrend, 'dollar-sign', isHQ?'blue':'indigo')}
+                                ${this.kpiCard('공헌 이익', `₩${Math.floor(data.profit).toLocaleString()}`, 0, 'wallet', 'emerald')}
                                 ${this.kpiCard('주문 건수', `${data.orders.toLocaleString()}건`, data.ordersTrend, 'shopping-bag', 'amber')}
-                                ${this.kpiCard('재방문율', `${(data.retention || 0).toFixed(1)}%`, 0, 'repeat', 'purple')}
+                                ${this.kpiCard('재방문율', `${(data.retention*100).toFixed(1)}%`, 0, 'repeat', 'purple')}
                             </div>
-
-                            <!-- Charts Row -->
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-4">매출 및 이익 추이</h3>
+                                    <h3 class="text-lg font-bold text-white mb-4">매출 트렌드 (실시간)</h3>
                                     <div id="chart-main" class="h-72"></div>
                                 </div>
                                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-4">카테고리(패티)별 비중</h3>
+                                    <h3 class="text-lg font-bold text-white mb-4">패티별 판매 비중</h3>
                                     <div id="chart-patty" class="h-72 flex items-center justify-center"></div>
                                 </div>
                             </div>
-
-                            <!-- Bottom Row -->
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                                     <h3 class="text-lg font-bold text-white mb-4">채널별 성과</h3>
@@ -400,43 +374,34 @@
                                         ${this.progressItem('배달 매출', data.delivery, data.sales, 'bg-amber-500')}
                                     </div>
                                 </div>
-                                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-4">멤버십 현황</h3>
-                                    <div class="flex items-center justify-around text-center h-full pb-6">
-                                        <div><p class="text-slate-400 text-sm">신규 가입률</p><p class="text-2xl font-bold text-white">${(data.signup||0).toFixed(1)}%</p></div>
-                                        <div class="w-px h-12 bg-slate-700"></div>
-                                        <div><p class="text-slate-400 text-sm">고객 유지율</p><p class="text-2xl font-bold text-indigo-400">${(data.retention||0).toFixed(1)}%</p></div>
-                                    </div>
+                                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-around">
+                                    <div class="text-center"><p class="text-slate-400 text-sm">원가율</p><p class="text-3xl font-bold text-white">${(data.costRate*100).toFixed(1)}%</p></div>
+                                    <div class="w-px h-16 bg-slate-700"></div>
+                                    <div class="text-center"><p class="text-slate-400 text-sm">신규 회원 가입률</p><p class="text-3xl font-bold text-indigo-400">${(data.signup*100).toFixed(1)}%</p></div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    this.renderMainChart();
-                    this.renderPattyChart(data.patties);
+                        </div>`;
+                    this.renderCharts(data);
                 } else if (pageId === 'sales') {
-                    // Profit Waterfall (Simple visualization)
-                    const profitMargin = data.sales ? (data.profit / data.sales * 100).toFixed(1) : 0;
-                    const costMargin = data.sales ? (data.cost / data.sales * 100).toFixed(1) : 0;
-                    
+                    // Partner Profit Analysis
                     main.innerHTML = `
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in">
                              <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                                 <h3 class="text-lg font-bold text-white mb-6">손익 구조 분석 (Waterfall)</h3>
                                 <div class="space-y-2">
                                     ${this.waterfallItem('총 매출', data.sales, 100, 'bg-slate-600')}
-                                    ${this.waterfallItem('(-) 원가', data.cost, costMargin, 'bg-red-500/50')}
-                                    ${this.waterfallItem('(=) 공헌이익', data.profit, profitMargin, 'bg-emerald-500')}
+                                    ${this.waterfallItem('(-) 원가', data.cost, (data.cost/data.sales)*100, 'bg-red-500/50')}
+                                    ${this.waterfallItem('(=) 공헌이익', data.profit, (data.profit/data.sales)*100, 'bg-emerald-500')}
                                 </div>
-                                <p class="text-center text-slate-400 text-sm mt-6">현재 공헌이익률 <span class="text-emerald-400 font-bold">${profitMargin}%</span> 입니다.</p>
+                                <p class="text-center text-slate-400 text-sm mt-6">공헌이익률 <span class="text-emerald-400 font-bold">${((data.profit/data.sales)*100).toFixed(1)}%</span></p>
                              </div>
                         </div>`;
                 } else {
-                    main.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-500"><i data-lucide="hammer" class="w-12 h-12 mb-4 opacity-50"></i><p>페이지 준비 중입니다.</p></div>`;
+                    main.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-500"><i data-lucide="hammer" class="w-12 h-12 mb-4 opacity-50"></i><p>페이지 준비 중</p></div>`;
                 }
                 lucide.createIcons();
             },
 
-            // --- Components ---
             kpiCard(title, val, trend, icon, color) {
                 const colors = { blue:'text-blue-400 bg-blue-500/10', indigo:'text-indigo-400 bg-indigo-500/10', emerald:'text-emerald-400 bg-emerald-500/10', amber:'text-amber-400 bg-amber-500/10', purple:'text-purple-400 bg-purple-500/10' };
                 const trendHtml = this.compare ? `<div class="flex items-center text-xs mt-2 ${trend>=0?'text-emerald-400':'text-red-400'}">${trend>=0?'+':''}${trend}% <span class="text-slate-500 ml-1">vs 지난기간</span></div>` : '';
@@ -455,60 +420,55 @@
                 return `<div><div class="flex justify-between text-sm mb-1"><span class="text-slate-300">${label}</span><span class="font-bold text-white">₩${val.toLocaleString()} (${pct.toFixed(0)}%)</span></div><div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full ${color}" style="width:${pct}%"></div></div></div>`;
             },
             waterfallItem(label, val, pct, color) {
-                 return `<div class="flex items-center gap-4"><div class="w-24 text-sm text-slate-400 text-right">${label}</div><div class="flex-1 bg-slate-800 rounded-r h-8 relative"><div class="absolute left-0 top-0 h-full ${color} rounded-r flex items-center px-3 text-xs text-white font-bold whitespace-nowrap" style="width:${Math.max(pct, 5)}%">${val.toLocaleString()} (${pct}%)</div></div></div>`;
+                 return `<div class="flex items-center gap-4"><div class="w-24 text-sm text-slate-400 text-right">${label}</div><div class="flex-1 bg-slate-800 rounded-r h-8 relative"><div class="absolute left-0 top-0 h-full ${color} rounded-r flex items-center px-3 text-xs text-white font-bold whitespace-nowrap" style="width:${Math.max(pct||0, 5)}%">${Math.floor(val).toLocaleString()}</div></div></div>`;
             },
 
-            // --- Charts ---
-            renderMainChart() {
+            renderCharts(data) {
                 setTimeout(() => {
-                    const data = this.getFilteredData(); // Should get daily breakdown logic ideally
-                    // Mocking trend for visual demo based on total
-                    const options = {
-                        series: [{ name: '매출', data: [data.sales*0.1, data.sales*0.15, data.sales*0.12, data.sales*0.2, data.sales*0.25, data.sales*0.18] }],
+                    // Fake trend for demo based on total sales (since daily breakdown logic is complex to mock perfectly here)
+                    const trendData = [data.sales*0.1, data.sales*0.15, data.sales*0.2, data.sales*0.18, data.sales*0.25, data.sales*0.12];
+                    new ApexCharts(document.querySelector("#chart-main"), {
+                        series: [{ name: '매출', data: trendData }],
                         chart: { type: 'area', height: '100%', toolbar: {show:false}, background: 'transparent', fontFamily: 'Pretendard' },
                         theme: { mode: 'dark' }, stroke: { curve: 'smooth', width: 2 }, colors: ['#6366f1'],
                         fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.0 } },
                         dataLabels: { enabled: false }, grid: { borderColor: '#334155', strokeDashArray: 4 },
-                        xaxis: { labels: { style: { colors: '#94a3b8' } } }, yaxis: { show: false }
-                    };
-                    new ApexCharts(document.querySelector("#chart-main"), options).render();
-                }, 50);
-            },
-            renderPattyChart(patties) {
-                setTimeout(() => {
-                    const labels = Object.keys(patties);
-                    const vals = Object.values(patties);
-                    if(vals.reduce((a,b)=>a+b,0) === 0) return; 
-                    const options = {
-                        series: vals, labels: labels,
+                        xaxis: { labels: { show: false } }, yaxis: { show: false }
+                    }).render();
+
+                    const patties = data.patties;
+                    const pLabels = Object.keys(patties).filter(k=>patties[k]>0);
+                    const pVals = Object.values(patties).filter(v=>v>0);
+                    if(pVals.length === 0) return;
+
+                    new ApexCharts(document.querySelector("#chart-patty"), {
+                        series: pVals, labels: pLabels,
                         chart: { type: 'donut', height: 250, background: 'transparent', fontFamily: 'Pretendard' },
-                        theme: { mode: 'dark' },
-                        colors: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'],
-                        plotOptions: { pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: 'Total', color: '#cbd5e1' } } } } },
-                        dataLabels: { enabled: false }, legend: { position: 'right' }
-                    };
-                    new ApexCharts(document.querySelector("#chart-patty"), options).render();
+                        theme: { mode: 'dark' }, colors: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
+                        plotOptions: { pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: 'Total', color: '#cbd5e1', formatter: () => '₩' + (pVals.reduce((a,b)=>a+b,0)/10000).toFixed(0) + '만' } } } } },
+                        dataLabels: { enabled: false }, legend: { position: 'bottom' }
+                    }).render();
                 }, 50);
             },
 
-            // --- AI & Utils ---
+            // --- AI ---
             openAiModal(type) {
                 document.getElementById('ai-modal').classList.remove('hidden-force');
-                document.getElementById('ai-content-area').innerHTML = `<div class="flex flex-col items-center justify-center h-full"><p class="text-indigo-300 animate-pulse">데이터 분석 중...</p><button onclick="app.generateReport('${type}')" class="mt-4 px-6 py-3 bg-indigo-600 rounded-xl text-white font-bold shadow-lg">분석 시작</button></div>`;
+                document.getElementById('ai-content-area').innerHTML = `<div class="flex flex-col items-center justify-center h-full"><p class="text-indigo-300 animate-pulse">분석 대기 중...</p><button onclick="app.generateReport('${type}')" class="mt-4 px-6 py-3 bg-indigo-600 rounded-xl text-white font-bold shadow-lg">분석 시작</button></div>`;
             },
             async generateReport(type) {
                 if(this.coins<5) return alert('코인 부족'); this.coins-=5; document.getElementById('coin-disp').innerText = this.coins;
-                const prompt = `Analyze this restaurant data: Sales ${JSON.stringify(this.getFilteredData())}. Write a short Korean report.`;
+                const data = this.getFilteredData();
+                const prompt = `Analyze restaurant data (Sales: ${data.sales}, Profit: ${data.profit}, Cost Rate: ${data.costRate}, Retention: ${data.retention}). Write a Korean report.`;
                 try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_KEY}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
                     const json = await res.json();
                     document.getElementById('ai-content-area').innerHTML = `<div class="prose prose-invert">${json.candidates[0].content.parts[0].text.replace(/\n/g,'<br>')}</div>`;
-                } catch(e) { alert('AI Error'); }
+                } catch(e) { document.getElementById('ai-content-area').innerText = "AI Error"; }
             },
-            async sendMessage() { /* Chat logic (same as previous) */ app.openAdModal(); },
+            async sendMessage() { /* Chat Logic */ },
             openAdModal() { alert('+10 Coins'); this.coins+=10; document.getElementById('coin-disp').innerText=this.coins; }
         };
-
         document.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>

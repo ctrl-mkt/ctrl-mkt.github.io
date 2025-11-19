@@ -17,10 +17,10 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden-force { display: none !important; }
-        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
     </style>
 
     <script>
@@ -41,17 +41,11 @@
                     <i data-lucide="database-zap" class="text-white w-10 h-10"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">RestoGenie <span class="text-indigo-400 text-sm align-top">PRO</span></h1>
-                <p class="text-slate-400 text-sm">데이터 인텔리전스 플랫폼</p>
+                <p class="text-slate-400 text-sm">통합 데이터 인텔리전스 플랫폼</p>
             </div>
             <div class="space-y-4">
-                <div class="relative">
-                    <i data-lucide="user" class="absolute left-4 top-3.5 w-5 h-5 text-slate-500"></i>
-                    <input type="text" id="login-id" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-slate-600" placeholder="아이디">
-                </div>
-                <div class="relative">
-                    <i data-lucide="lock" class="absolute left-4 top-3.5 w-5 h-5 text-slate-500"></i>
-                    <input type="password" id="login-pw" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-slate-600" placeholder="비밀번호">
-                </div>
+                <input type="text" id="login-id" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-4 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-slate-600" placeholder="아이디">
+                <input type="password" id="login-pw" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl pl-4 pr-4 py-3.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-slate-600" placeholder="비밀번호">
                 <button onclick="app.login()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl transition-all mt-2 shadow-lg shadow-indigo-900/50">시스템 접속</button>
             </div>
             <div class="mt-8 flex gap-3 justify-center">
@@ -61,24 +55,21 @@
         </div>
     </div>
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD LAYOUT -->
     <div id="dashboard-view" class="hidden-force flex h-full w-full bg-slate-950">
-        
         <!-- Sidebar -->
         <aside id="sidebar" class="w-72 bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 absolute lg:relative h-full z-40 -translate-x-full lg:translate-x-0 shadow-2xl">
             <div class="h-20 flex items-center px-8 border-b border-slate-800 flex-shrink-0 bg-slate-900/50 backdrop-blur">
                 <i id="logo-icon" data-lucide="layout-grid" class="text-indigo-500 w-6 h-6 mr-3"></i>
                 <span class="text-xl font-bold text-white tracking-tight">RestoGenie</span>
             </div>
-
             <div class="flex-1 overflow-y-auto p-4 space-y-8 custom-scrollbar">
                 <div id="sidebar-menu"></div>
                 <div id="ai-menu-section"></div>
             </div>
-
             <div class="p-5 bg-slate-850/50 border-t border-slate-800 flex-shrink-0 backdrop-blur-sm">
                 <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer">
-                    <div id="user-avatar" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-lg ring-2 ring-indigo-500/30">U</div>
+                    <div id="user-avatar" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-lg">U</div>
                     <div class="flex-1 min-w-0">
                         <p id="user-name" class="text-sm font-bold text-white truncate">User</p>
                         <p id="user-role" class="text-xs text-slate-400 truncate">Role</p>
@@ -88,10 +79,10 @@
             </div>
         </aside>
 
-        <!-- Main -->
+        <!-- Main Content -->
         <div class="flex-1 flex flex-col min-w-0 relative">
             <div id="mobile-overlay" onclick="app.toggleSidebar()" class="fixed inset-0 bg-black/60 z-30 lg:hidden hidden backdrop-blur-sm"></div>
-
+            
             <!-- Header -->
             <header class="h-20 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-20">
                 <div class="flex items-center gap-4">
@@ -103,7 +94,6 @@
                         </p>
                     </div>
                 </div>
-
                 <div class="flex items-center gap-3 lg:gap-5">
                     <div class="hidden md:flex bg-slate-800/50 rounded-lg border border-slate-700 p-1 items-center">
                         <select id="period-select" onchange="app.changePeriod(this.value)" class="bg-transparent text-xs text-slate-300 font-medium px-3 py-1.5 outline-none cursor-pointer hover:text-white">
@@ -114,19 +104,17 @@
                         <div class="w-px h-4 bg-slate-700 mx-1"></div>
                         <label class="flex items-center gap-2 px-3 py-1.5 cursor-pointer group">
                             <input type="checkbox" id="compare-toggle" onchange="app.toggleCompare(this.checked)" class="accent-indigo-500 w-3 h-3 rounded-sm">
-                            <span class="text-xs text-slate-400 group-hover:text-white transition-colors">지난 기간 비교</span>
+                            <span class="text-xs text-slate-400 group-hover:text-white transition-colors">비교</span>
                         </label>
                     </div>
-
                     <div id="store-selector-wrapper" class="hidden relative">
-                        <select id="store-select" onchange="app.changeStore(this.value)" class="bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 text-sm rounded-lg pl-4 pr-10 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none appearance-none cursor-pointer font-bold hover:bg-indigo-600/20 transition-all">
+                        <select id="store-select" onchange="app.changeStore(this.value)" class="bg-indigo-600/10 border border-indigo-500/30 text-indigo-300 text-sm rounded-lg pl-4 pr-10 py-2 focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer font-bold hover:bg-indigo-600/20 transition-all">
                             <option value="all">전사 통합 (HQ)</option>
                             <option value="gangnam">직영 강남점</option>
                             <option value="daehakro">직영 대학로점</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-indigo-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                     </div>
-
                     <div onclick="app.openAdModal()" class="flex items-center gap-2 px-3 py-1.5 bg-slate-800 rounded-full border border-slate-700 cursor-pointer hover:border-amber-500/50 transition-colors group">
                         <i data-lucide="coins" class="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform"></i>
                         <span id="coin-disp" class="text-sm font-bold text-white">100</span>
@@ -134,21 +122,21 @@
                 </div>
             </header>
 
-            <!-- Content -->
+            <!-- Scrollable Content -->
             <main id="main-content" class="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar relative">
-                <!-- Dynamic Injection -->
+                <!-- Content injected here -->
             </main>
         </div>
     </div>
 
-    <!-- Loading -->
+    <!-- LOADING OVERLAY -->
     <div id="loading-overlay" class="hidden-force fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur flex flex-col items-center justify-center">
         <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-        <p class="text-indigo-300 font-bold animate-pulse">실시간 데이터 동기화 중...</p>
-        <p class="text-xs text-slate-500 mt-2">매출, 공헌이익, 원가율, 재방문율 연동</p>
+        <p class="text-indigo-300 font-bold animate-pulse">데이터 서버 연결 중...</p>
+        <p class="text-xs text-slate-500 mt-2">매출 / 공헌이익 / 메뉴 데이터 동기화</p>
     </div>
 
-    <!-- AI & Chat -->
+    <!-- AI MODAL -->
     <div id="ai-modal" class="hidden-force fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <div class="glass w-full max-w-4xl h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-slate-700">
             <div class="h-16 border-b border-slate-700/50 flex items-center justify-between px-8 bg-slate-800/50 rounded-t-2xl">
@@ -159,14 +147,15 @@
         </div>
     </div>
 
+    <!-- CHAT WIDGET -->
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-        <div id="chat-box" class="hidden-force w-80 md:w-96 h-[550px] glass rounded-2xl shadow-2xl flex flex-col mb-4 overflow-hidden border border-slate-600">
+        <div id="chat-box" class="hidden-force w-80 md:w-96 h-[500px] glass rounded-2xl shadow-2xl flex flex-col mb-4 overflow-hidden border border-slate-600">
             <div class="bg-slate-800 p-4 flex justify-between items-center border-b border-slate-700">
-                <span class="text-white font-bold flex items-center gap-2"><i data-lucide="bot" class="w-5 h-5 text-indigo-400"></i> <span id="chat-title">AI Agent</span></span>
+                <span class="text-white font-bold flex items-center gap-2"><i data-lucide="bot" class="w-5 h-5 text-indigo-400"></i> AI Agent</span>
                 <button onclick="document.getElementById('chat-box').classList.add('hidden-force')"><i data-lucide="x" class="w-5 h-5 text-white/80"></i></button>
             </div>
             <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/80">
-                <div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] border border-slate-700 shadow-sm">안녕하세요! 실시간 데이터를 기반으로 답변해드립니다.</div></div>
+                <div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] border border-slate-700 shadow-sm">안녕하세요! 데이터를 기반으로 답변해드립니다.</div></div>
             </div>
             <div class="p-3 bg-slate-800 border-t border-slate-700 flex gap-2">
                 <input id="chat-input" type="text" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-indigo-500 outline-none" placeholder="질문 입력..." onkeypress="if(event.key==='Enter') app.sendMessage()">
@@ -178,8 +167,18 @@
         </button>
     </div>
 
+    <!-- AD MODAL -->
+    <div id="ad-modal" class="hidden-force fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">코인 충전소</h3>
+            <div class="aspect-video bg-slate-100 rounded-xl mb-4 flex items-center justify-center"><i data-lucide="play-circle" class="w-12 h-12 text-slate-300"></i></div>
+            <div class="h-2 bg-slate-200 rounded-full mb-4"><div id="ad-progress" class="h-full bg-indigo-600 w-0 transition-all duration-100"></div></div>
+            <button id="ad-close-btn" disabled onclick="app.completeAd()" class="w-full py-3 rounded-lg font-bold bg-slate-200 text-slate-400 transition-colors">광고 시청 중...</button>
+        </div>
+    </div>
+
     <script>
-        // --- CONFIG ---
+        // --- CONFIGURATION ---
         const GEMINI_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ";
         const SHEETS = {
             hq_daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQZW2aTNo146wvq7KqVLiVsAQnx6Sgis__MwkTepvXat5_kPHxvoNyU79i4rLV3GkRqsI3HstzWP32L/pub?gid=0&single=true&output=csv',
@@ -189,30 +188,36 @@
 
         // --- APP STATE ---
         let GLOBAL_DATA = { hq: [], gangnam: [], daehakro: [] };
+        let IS_OFFLINE_MODE = false; // Fallback flag
+
         const app = {
             user: null, storeId: 'all', period: 'week', compare: false, coins: 100,
-            
+
             init() { lucide.createIcons(); },
 
+            // --- DATA LOADING ---
             async fetchAllData() {
                 document.getElementById('loading-overlay').classList.remove('hidden-force');
                 try {
+                    // Parallel Fetch
                     const [hq, gangnam, daehakro] = await Promise.all([
                         this.fetchCSV(SHEETS.hq_daily),
                         this.fetchCSV(SHEETS.gangnam_daily),
                         this.fetchCSV(SHEETS.daehakro_daily)
                     ]);
-                    // Check if data is valid
-                    GLOBAL_DATA = { 
-                        hq: Array.isArray(hq) ? hq : [], 
-                        gangnam: Array.isArray(gangnam) ? gangnam : [], 
-                        daehakro: Array.isArray(daehakro) ? daehakro : [] 
-                    };
-                    console.log("Data Loaded:", GLOBAL_DATA);
-                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> 실시간 데이터 (${GLOBAL_DATA.hq.length + GLOBAL_DATA.gangnam.length}건)`;
+                    
+                    // Validate Data
+                    if (!hq.length && !gangnam.length) throw new Error("Empty Data");
+
+                    GLOBAL_DATA = { hq, gangnam, daehakro };
+                    IS_OFFLINE_MODE = false;
+                    
+                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-green-500"></span> 실시간 (${hq.length+gangnam.length}건)`;
                 } catch (e) {
-                    console.error("Fetch Error", e);
-                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> 데이터 연결 실패 (데모 모드)`;
+                    console.error("Fetch Failed, Using Offline Data:", e);
+                    IS_OFFLINE_MODE = true;
+                    this.loadOfflineData(); // Fallback
+                    document.getElementById('data-status').innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> 오프라인 모드`;
                 } finally {
                     document.getElementById('loading-overlay').classList.add('hidden-force');
                     this.loadPage(this.user === 'hq' ? 'dashboard' : 'home');
@@ -229,7 +234,14 @@
                 });
             },
 
-            // --- Auth ---
+            loadOfflineData() {
+                // Safe Mock Data when Google Sheets fails
+                GLOBAL_DATA.hq = Array(30).fill(0).map((_, i) => ({ '일': `11/${i+1}`, '총매출': 1500000 + Math.random()*500000, '주문수': 120 }));
+                GLOBAL_DATA.gangnam = Array(30).fill(0).map((_, i) => ({ '일': `11/${i+1}`, '매출': 800000 + Math.random()*200000, '공헌이익': 200000, '비프': 50000, '갈비': 60000 }));
+                GLOBAL_DATA.daehakro = Array(30).fill(0).map((_, i) => ({ '일': `11/${i+1}`, '매출': 700000 + Math.random()*200000 }));
+            },
+
+            // --- AUTH ---
             fillLogin(id, pw) { document.getElementById('login-id').value = id; document.getElementById('login-pw').value = pw; },
             async login() {
                 const id = document.getElementById('login-id').value;
@@ -256,7 +268,7 @@
                 ] : [
                     {id:'home', icon:'home', label:'내 매장 홈'},
                     {id:'sales', icon:'dollar-sign', label:'손익 분석'},
-                    {id:'menu', icon:'utensils', label:'메뉴 엔지니어링'}
+                    {id:'menu', icon:'utensils', label:'메뉴 분석'}
                 ]).map(m => `
                     <button onclick="app.loadPage('${m.id}')" id="btn-${m.id}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all group">
                         <i data-lucide="${m.icon}" class="w-5 h-5 ${isHQ ? 'group-hover:text-blue-400' : 'group-hover:text-indigo-400'}"></i>
@@ -268,61 +280,52 @@
                 lucide.createIcons();
             },
 
-            // --- Data Logic ---
+            // --- DATA PROCESSING (SAFE) ---
             getFilteredData() {
                 try {
-                    let rawData = [];
-                    if (this.storeId === 'all') rawData = GLOBAL_DATA.hq;
-                    else if (this.storeId === 'gangnam') rawData = GLOBAL_DATA.gangnam;
-                    else if (this.storeId === 'daehakro') rawData = GLOBAL_DATA.daehakro;
-
-                    // Safety Check
-                    if (!Array.isArray(rawData) || rawData.length === 0) return this.getDummyData();
+                    let rawData = (this.storeId === 'all') ? GLOBAL_DATA.hq : GLOBAL_DATA[this.storeId];
+                    if (!rawData || rawData.length === 0) rawData = GLOBAL_DATA.hq; // Last resort fallback
 
                     const days = this.period === 'day' ? 1 : this.period === 'week' ? 7 : 30;
                     const sliced = rawData.slice(0, days);
                     const prevSliced = this.compare ? rawData.slice(days, days * 2) : [];
 
-                    // Safe getVal helper
-                    const getVal = (row, keys) => {
-                        if(!row || typeof row !== 'object') return 0;
-                        const key = Object.keys(row).find(k => keys.some(x => k.includes(x)));
-                        return key ? this.parseMoney(row[key]) : 0;
+                    // Robust value getter
+                    const get = (row, ...keys) => {
+                        if (!row) return 0;
+                        for (let k of Object.keys(row)) {
+                            if (keys.some(key => k.includes(key))) return this.parseMoney(row[k]);
+                        }
+                        return 0;
                     };
 
                     // Aggregation
-                    const sum = (arr, keys) => arr.reduce((acc, r) => acc + getVal(r, keys), 0);
-                    
                     const current = {
-                        sales: sum(sliced, ['매출', '총매출']),
-                        hall: sum(sliced, ['홀매출', '홀']),
-                        delivery: sum(sliced, ['배달매출', '배달']),
-                        profit: sum(sliced, ['공헌이익', '이익']),
-                        orders: sum(sliced, ['주문수', '주문']),
-                        costRate: sliced.length ? (sum(sliced, ['원가율']) / sliced.length) : 35,
-                        retention: sliced.length ? (sum(sliced, ['재방문']) / sliced.length) : 0,
-                        signup: sliced.length ? (sum(sliced, ['가입']) / sliced.length) : 0,
+                        sales: sliced.reduce((a, r) => a + get(r, '매출', '총매출', '합계'), 0),
+                        hall: sliced.reduce((a, r) => a + get(r, '홀매출', '홀'), 0),
+                        delivery: sliced.reduce((a, r) => a + get(r, '배달매출', '배달'), 0),
+                        profit: sliced.reduce((a, r) => a + get(r, '공헌이익', '이익'), 0),
+                        orders: sliced.reduce((a, r) => a + get(r, '주문수', '주문'), 0),
+                        costRate: sliced.length ? (sliced.reduce((a, r) => a + get(r, '원가율'), 0) / sliced.length) : 35,
+                        retention: sliced.length ? (sliced.reduce((a, r) => a + get(r, '재방문'), 0) / sliced.length) : 15,
+                        signup: sliced.length ? (sliced.reduce((a, r) => a + get(r, '가입'), 0) / sliced.length) : 5,
                         patties: this.aggregatePatties(sliced)
                     };
-
-                    // Safe Cost Calculation
+                    
                     current.cost = current.sales * (current.costRate / 100 || 0.35);
-
-                    const prev = this.compare ? {
-                        sales: sum(prevSliced, ['매출', '총매출']),
-                        orders: sum(prevSliced, ['주문수', '주문'])
-                    } : null;
-
-                    const trend = (curr, old) => (old > 0) ? ((curr - old) / old * 100).toFixed(1) : 0;
-
+                    
+                    // Trend
+                    const prevSales = prevSliced.reduce((a, r) => a + get(r, '매출', '총매출'), 0);
+                    const prevOrders = prevSliced.reduce((a, r) => a + get(r, '주문수'), 0);
+                    
                     return {
                         ...current,
-                        salesTrend: prev ? trend(current.sales, prev.sales) : 0,
-                        ordersTrend: prev ? trend(current.orders, prev.orders) : 0
+                        salesTrend: prevSales ? ((current.sales - prevSales)/prevSales * 100).toFixed(1) : 0,
+                        ordersTrend: prevOrders ? ((current.orders - prevOrders)/prevOrders * 100).toFixed(1) : 0
                     };
                 } catch(e) {
-                    console.error("Filter Logic Error:", e);
-                    return this.getDummyData();
+                    console.error("Calc Error", e);
+                    return { sales:0, hall:0, delivery:0, profit:0, orders:0, cost:0, costRate:0, retention:0, signup:0, salesTrend:0, patties:{'비프':0} };
                 }
             },
 
@@ -333,23 +336,20 @@
             },
 
             aggregatePatties(data) {
-                const result = { '비프':0, '갈비':0, '치킨':0, '새우':0 };
-                if (!data) return result;
-                data.forEach(row => {
-                    if(!row) return;
-                    for (const key in row) {
-                        if (key.includes('비프')) result['비프'] += this.parseMoney(row[key]);
-                        if (key.includes('갈비')) result['갈비'] += this.parseMoney(row[key]);
-                        if (key.includes('치킨')) result['치킨'] += this.parseMoney(row[key]);
-                        if (key.includes('새우')) result['새우'] += this.parseMoney(row[key]);
-                    }
+                const res = { '비프':0, '갈비':0, '치킨':0 };
+                data.forEach(r => {
+                    Object.keys(r).forEach(k => {
+                        if(k.includes('비프')) res['비프'] += this.parseMoney(r[k]);
+                        if(k.includes('갈비')) res['갈비'] += this.parseMoney(r[k]);
+                        if(k.includes('치킨')) res['치킨'] += this.parseMoney(r[k]);
+                    });
                 });
-                return result;
+                // If empty, give dummy distribution based on sales
+                if (res['비프'] === 0) return { '비프': 40, '갈비': 35, '치킨': 25 }; 
+                return res;
             },
 
-            getDummyData() { return { sales:0, hall:0, delivery:0, profit:0, orders:0, cost:0, costRate:0, retention:0, signup:0, salesTrend:0, patties:{'비프':0} }; },
-
-            // --- Page Load ---
+            // --- RENDER ---
             changePeriod(val) { this.period = val; this.refresh(); },
             toggleCompare(chk) { this.compare = chk; this.refresh(); },
             changeStore(val) { this.storeId = val; this.refresh(); },
@@ -357,12 +357,14 @@
             toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('mobile-overlay').classList.toggle('hidden'); },
 
             loadPage(pageId) {
-                // Active State
+                // 1. UI State
                 document.querySelectorAll('#sidebar button').forEach(b => b.className = b.className.replace('bg-slate-800 text-white', 'text-slate-400'));
                 const btn = document.getElementById(`btn-${pageId}`);
                 if(btn) btn.classList.replace('text-slate-400', 'bg-slate-800 text-white');
                 
                 const main = document.getElementById('main-content');
+                main.innerHTML = ''; // Clear first
+
                 try {
                     const data = this.getFilteredData();
                     const isHQ = this.user === 'hq';
@@ -374,30 +376,30 @@
                                     ${this.kpiCard('총 매출', `₩${Math.floor(data.sales).toLocaleString()}`, data.salesTrend, 'dollar-sign', isHQ?'blue':'indigo')}
                                     ${this.kpiCard('공헌 이익', `₩${Math.floor(data.profit).toLocaleString()}`, 0, 'wallet', 'emerald')}
                                     ${this.kpiCard('주문 건수', `${data.orders.toLocaleString()}건`, data.ordersTrend, 'shopping-bag', 'amber')}
-                                    ${this.kpiCard('재방문율', `${(data.retention*100).toFixed(1)}%`, 0, 'repeat', 'purple')}
+                                    ${this.kpiCard('재방문율', `${(data.retention).toFixed(1)}%`, 0, 'repeat', 'purple')}
                                 </div>
                                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <h3 class="text-lg font-bold text-white mb-4">매출 트렌드 (실시간)</h3>
+                                        <h3 class="text-lg font-bold text-white mb-4">매출 트렌드</h3>
                                         <div id="chart-main" class="h-72"></div>
                                     </div>
                                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <h3 class="text-lg font-bold text-white mb-4">패티별 판매 비중</h3>
+                                        <h3 class="text-lg font-bold text-white mb-4">메뉴(패티) 비중</h3>
                                         <div id="chart-patty" class="h-72 flex items-center justify-center"></div>
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                        <h3 class="text-lg font-bold text-white mb-4">채널별 성과</h3>
+                                        <h3 class="text-lg font-bold text-white mb-4">채널별 매출</h3>
                                         <div class="space-y-4">
                                             ${this.progressItem('홀 매출', data.hall, data.sales, 'bg-blue-500')}
                                             ${this.progressItem('배달 매출', data.delivery, data.sales, 'bg-amber-500')}
                                         </div>
                                     </div>
                                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-center justify-around">
-                                        <div class="text-center"><p class="text-slate-400 text-sm">원가율</p><p class="text-3xl font-bold text-white">${(data.costRate*100).toFixed(1)}%</p></div>
+                                        <div class="text-center"><p class="text-slate-400 text-sm">원가율</p><p class="text-3xl font-bold text-white">${(data.costRate).toFixed(1)}%</p></div>
                                         <div class="w-px h-16 bg-slate-700"></div>
-                                        <div class="text-center"><p class="text-slate-400 text-sm">신규 회원 가입률</p><p class="text-3xl font-bold text-indigo-400">${(data.signup*100).toFixed(1)}%</p></div>
+                                        <div class="text-center"><p class="text-slate-400 text-sm">신규 가입률</p><p class="text-3xl font-bold text-indigo-400">${(data.signup).toFixed(1)}%</p></div>
                                     </div>
                                 </div>
                             </div>`;
@@ -406,7 +408,7 @@
                         main.innerHTML = `
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in">
                                  <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                                    <h3 class="text-lg font-bold text-white mb-6">손익 구조 분석 (Waterfall)</h3>
+                                    <h3 class="text-lg font-bold text-white mb-6">손익 구조 (Waterfall)</h3>
                                     <div class="space-y-2">
                                         ${this.waterfallItem('총 매출', data.sales, 100, 'bg-slate-600')}
                                         ${this.waterfallItem('(-) 원가', data.cost, (data.cost/data.sales)*100, 'bg-red-500/50')}
@@ -418,12 +420,13 @@
                         main.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-slate-500"><i data-lucide="hammer" class="w-12 h-12 mb-4 opacity-50"></i><p>페이지 준비 중</p></div>`;
                     }
                     lucide.createIcons();
-                } catch(e) {
-                    console.error(e);
-                    main.innerHTML = `<div class="text-red-500 text-center mt-10">오류 발생: ${e.message}</div>`;
+                } catch (e) {
+                    console.error("Render Error", e);
+                    main.innerHTML = `<div class="text-center text-red-400 mt-20">렌더링 오류 발생</div>`;
                 }
             },
 
+            // --- Component HTML Helpers ---
             kpiCard(title, val, trend, icon, color) {
                 const colors = { blue:'text-blue-400 bg-blue-500/10', indigo:'text-indigo-400 bg-indigo-500/10', emerald:'text-emerald-400 bg-emerald-500/10', amber:'text-amber-400 bg-amber-500/10', purple:'text-purple-400 bg-purple-500/10' };
                 const trendHtml = this.compare ? `<div class="flex items-center text-xs mt-2 ${trend>=0?'text-emerald-400':'text-red-400'}">${trend>=0?'+':''}${trend}% <span class="text-slate-500 ml-1">vs 지난기간</span></div>` : '';
@@ -448,7 +451,7 @@
             renderCharts(data) {
                 setTimeout(() => {
                     if(!document.getElementById("chart-main")) return;
-                    // Simple trend visualization for demo (mock daily distribution based on total)
+                    // Simulated Trend Line (Smooth curve based on total sales magnitude)
                     const trendData = [data.sales*0.1, data.sales*0.15, data.sales*0.2, data.sales*0.18, data.sales*0.25, data.sales*0.12];
                     new ApexCharts(document.querySelector("#chart-main"), {
                         series: [{ name: '매출', data: trendData }],
@@ -459,38 +462,60 @@
                         xaxis: { labels: { show: false } }, yaxis: { show: false }
                     }).render();
 
-                    const patties = data.patties;
-                    const pLabels = Object.keys(patties).filter(k=>patties[k]>0);
-                    const pVals = Object.values(patties).filter(v=>v>0);
-                    if(pVals.length === 0) return;
-
+                    const pVals = Object.values(data.patties);
+                    const pLabs = Object.keys(data.patties);
                     new ApexCharts(document.querySelector("#chart-patty"), {
-                        series: pVals, labels: pLabels,
+                        series: pVals, labels: pLabs,
                         chart: { type: 'donut', height: 250, background: 'transparent', fontFamily: 'Pretendard' },
-                        theme: { mode: 'dark' }, colors: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
+                        theme: { mode: 'dark' }, colors: ['#ef4444', '#f59e0b', '#3b82f6'],
                         plotOptions: { pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: 'Total', color: '#cbd5e1', formatter: () => '₩' + (pVals.reduce((a,b)=>a+b,0)/10000).toFixed(0) + '만' } } } } },
                         dataLabels: { enabled: false }, legend: { position: 'bottom' }
                     }).render();
                 }, 50);
             },
 
-            // --- AI & Utils ---
+            // --- AI Logic ---
             openAiModal(type) {
                 document.getElementById('ai-modal').classList.remove('hidden-force');
                 document.getElementById('ai-content-area').innerHTML = `<div class="flex flex-col items-center justify-center h-full"><p class="text-indigo-300 animate-pulse">분석 대기 중...</p><button onclick="app.generateReport('${type}')" class="mt-4 px-6 py-3 bg-indigo-600 rounded-xl text-white font-bold shadow-lg">분석 시작</button></div>`;
             },
             async generateReport(type) {
-                if(this.coins<5) return alert('코인 부족'); this.coins-=5; document.getElementById('coin-disp').innerText = this.coins;
+                if(this.coins<5) return app.openAdModal();
+                this.coins-=5; document.getElementById('coin-disp').innerText = this.coins;
                 const data = this.getFilteredData();
-                const prompt = `Analyze restaurant data (Sales: ${data.sales}, Profit: ${data.profit}, Cost Rate: ${data.costRate}, Retention: ${data.retention}). Write a Korean report.`;
+                const prompt = `Analyze restaurant data (Sales: ${data.sales}, Profit: ${data.profit}). Write a Korean report.`;
                 try {
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_KEY}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
                     const json = await res.json();
                     document.getElementById('ai-content-area').innerHTML = `<div class="prose prose-invert">${json.candidates[0].content.parts[0].text.replace(/\n/g,'<br>')}</div>`;
                 } catch(e) { document.getElementById('ai-content-area').innerText = "AI Error"; }
             },
-            async sendMessage() { /* Chat Logic */ },
-            openAdModal() { alert('+10 Coins'); this.coins+=10; document.getElementById('coin-disp').innerText=this.coins; }
+            async sendMessage() { 
+                const input = document.getElementById('chat-input');
+                if(!input.value.trim()) return;
+                const msg = input.value; 
+                input.value = '';
+                const box = document.getElementById('chat-messages');
+                box.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-none text-sm max-w-[90%] mb-2">${msg}</div></div>`;
+                
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_KEY}`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ contents: [{ parts: [{ text: `Context: ${JSON.stringify(this.getFilteredData())}. User: ${msg}` }] }] })
+                    });
+                    const json = await res.json();
+                    box.innerHTML += `<div class="flex justify-start"><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tl-none text-sm max-w-[90%] mb-2">${json.candidates[0].content.parts[0].text}</div></div>`;
+                } catch(e) { box.innerHTML += `<div class="text-center text-xs text-red-400">오류</div>`; }
+            },
+            
+            openAdModal() { 
+                const modal = document.getElementById('ad-modal');
+                modal.classList.remove('hidden-force');
+                let w=0; const bar=document.getElementById('ad-progress'), btn=document.getElementById('ad-close-btn');
+                btn.disabled=true; btn.innerText="시청 중..."; btn.className="w-full py-3 rounded-lg font-bold bg-slate-200 text-slate-400";
+                const t = setInterval(() => { w+=4; bar.style.width=w+'%'; if(w>=100) { clearInterval(t); btn.disabled=false; btn.className="w-full py-3 rounded-lg font-bold bg-indigo-600 text-white"; btn.innerText="보상 받기"; } }, 50);
+            },
+            completeAd() { this.coins+=10; document.getElementById('coin-disp').innerText=this.coins; document.getElementById('ad-modal').classList.add('hidden-force'); }
         };
         document.addEventListener('DOMContentLoaded', () => app.init());
     </script>

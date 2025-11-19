@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestoGenie V5.3 (Live API Integration)</title>
+    <title>RestoGenie V5.4 (Aggregation Fixed)</title>
     
     <!-- 1. Fonts & Icons -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -55,7 +55,6 @@
 
         /**
          * [API CONFIGURATION]
-         * Provided GAS Script URLs
          */
         const CONFIG = {
             api: {
@@ -111,7 +110,6 @@
                 const res = await fetch(url);
                 if (!res.ok) throw new Error('Network response was not ok');
                 const data = await res.json();
-                // Apps Script usually returns array of objects. If it returns {data: [...]}, handle it.
                 return Array.isArray(data) ? data : (data.data || []);
             } catch (error) {
                 console.error("API Fetch Error:", error);
@@ -121,12 +119,12 @@
 
         const normalizeSalesData = (data) => {
             return data.map(row => {
-                // Detect various column names from different sheets
                 const date = row['business_date'] || row['영업일'] || row['일자'] || row['Date'];
                 if (!date) return null;
                 
                 const sales = parseMoney(row['sale_amt'] || row['실 결제 금액'] || row['결제 금액'] || row['매출'] || row['total_amt']);
-                const orders = parseMoney(row['order_count'] || row['주문수'] || 0) || (sales > 0 ? 1 : 0); // Basic fallback
+                // Transaction data has row per order, so count is 1. Aggregated data has 'order_count'.
+                const orders = parseMoney(row['order_count'] || row['주문수'] || 0) || (sales > 0 ? 1 : 0);
                 
                 return {
                     date: date.substring(0, 10),
@@ -136,10 +134,10 @@
             }).filter(Boolean);
         };
 
-        // Merge two datasets for TTL view
-        const mergeSalesData = (d1, d2) => {
+        // [CRITICAL FIX] Auto Aggregator: Merge multiple rows with same date
+        const aggregateDaily = (data) => {
             const map = new Map();
-            [...d1, ...d2].forEach(item => {
+            data.forEach(item => {
                 if (!map.has(item.date)) {
                     map.set(item.date, { date: item.date, sales: 0, orders: 0 });
                 }
@@ -221,13 +219,13 @@
 
         const Chatbot = ({ isOpen, toggle }) => {
             const [input, setInput] = useState("");
-            const [msgs, setMsgs] = useState([{ role: 'ai', text: '안녕하세요! 레스토지니 AI 비서입니다. 데이터에 기반해 답변해 드립니다.' }]);
+            const [msgs, setMsgs] = useState([{ role: 'ai', text: '안녕하세요! 레스토지니 AI 비서입니다. 매장 현황에 대해 궁금한 점이 있으신가요?' }]);
 
             const send = () => {
                 if (!input.trim()) return;
                 setMsgs(prev => [...prev, { role: 'user', text: input }]);
                 setTimeout(() => {
-                    setMsgs(prev => [...prev, { role: 'ai', text: '현재 데모에서는 실시간 AI 답변이 제한됩니다.' }]);
+                    setMsgs(prev => [...prev, { role: 'ai', text: '현재 데모 버전에서는 정해진 답변만 가능합니다. (실제 연동 시 AI 답변 제공)' }]);
                 }, 1000);
                 setInput("");
             };
@@ -283,38 +281,39 @@
             const fetchData = async () => {
                 setIsLoading(true);
                 try {
-                    let salesPromise, menuPromise;
                     let finalSalesData = [];
 
-                    // --- 1. Fetch Sales Data ---
                     if (mode === 'HQ') {
                         const gangnamFetch = fetchJson(CONFIG.api.gangnam.sales);
                         const daehakroFetch = fetchJson(CONFIG.api.daehakro.sales);
 
+                        // Fetch both and then filter/merge
+                        const [gData, dData] = await Promise.all([gangnamFetch, daehakroFetch]);
+                        
                         if (hqFilter === 'TTL') {
-                            const [gData, dData] = await Promise.all([gangnamFetch, daehakroFetch]);
-                            finalSalesData = mergeSalesData(normalizeSalesData(gData), normalizeSalesData(dData));
+                            finalSalesData = aggregateDaily([
+                                ...normalizeSalesData(gData), 
+                                ...normalizeSalesData(dData)
+                            ]);
                         } else if (hqFilter === 'gangnam') {
-                            finalSalesData = normalizeSalesData(await gangnamFetch);
+                            finalSalesData = aggregateDaily(normalizeSalesData(gData));
                         } else if (hqFilter === 'daehakro') {
-                            finalSalesData = normalizeSalesData(await daehakroFetch);
+                            finalSalesData = aggregateDaily(normalizeSalesData(dData));
                         }
                     } else {
                         // Partner Mode
                         const url = CONFIG.api[selectedStore].sales;
-                        finalSalesData = normalizeSalesData(await fetchJson(url));
+                        const rawData = await fetchJson(url);
+                        // [FIX] Aggregation is key here for transaction data
+                        finalSalesData = aggregateDaily(normalizeSalesData(rawData));
                     }
 
-                    // --- 2. Fetch Menu Data (for Pie Chart) ---
-                    let menuUrl = "";
-                    if (mode === 'HQ') {
-                        menuUrl = (hqFilter === 'daehakro') ? CONFIG.api.daehakro.menu : CONFIG.api.gangnam.menu;
-                    } else {
-                        menuUrl = CONFIG.api[selectedStore].menu;
-                    }
-                    const rawMenu = await fetchJson(menuUrl);
+                    // Menu Data (Mock Logic for Demo purpose, using real fetch)
+                    let menuUrl = CONFIG.api[selectedStore].menu; 
+                    if(mode === 'HQ' && hqFilter === 'daehakro') menuUrl = CONFIG.api.daehakro.menu;
+                    else if(mode === 'HQ') menuUrl = CONFIG.api.gangnam.menu;
                     
-                    // Process Menu Data
+                    const rawMenu = await fetchJson(menuUrl);
                     const menuMap = {};
                     rawMenu.forEach(row => {
                         const name = row['product_name'] || row['상품명'] || row['메뉴명'];
@@ -326,15 +325,15 @@
                         .sort((a,b) => b.value - a.value)
                         .slice(0, 5);
 
-                    // --- 3. Filter by Date ---
+                    // Filter by Date
                     let filtered = finalSalesData;
                     if (dateFilter === '7days') filtered = finalSalesData.slice(-7);
                     else if (dateFilter === '30days') filtered = finalSalesData.slice(-30);
 
-                    // --- 4. Calculate KPIs ---
+                    // KPIs
                     const totalSales = filtered.reduce((acc, r) => acc + r.sales, 0);
                     const totalOrders = filtered.reduce((acc, r) => acc + r.orders, 0);
-                    const estimatedProfit = Math.round(totalSales * 0.28); // Mock 28% margin
+                    const estimatedProfit = Math.round(totalSales * 0.28); 
 
                     setChartData(filtered);
                     setMenuData(processedMenu);
@@ -376,7 +375,10 @@
                         <div className="inline-block p-4 rounded-full bg-blue-50 text-blue-600 mb-4"><Icons.Zap className="w-8 h-8"/></div>
                         <h1 className="text-2xl font-bold text-slate-800 mb-2">RestoGenie</h1>
                         <p className="text-slate-500 mb-8">Live Data Dashboard</p>
-                        <button onClick={() => setIsLoggedIn(true)} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">Login (Demo)</button>
+                        <div className="flex flex-col gap-2">
+                            <input type="text" value="slamburger01" readOnly className="p-3 bg-slate-50 border rounded text-center text-slate-500 text-sm"/>
+                            <button onClick={() => setIsLoggedIn(true)} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">Login</button>
+                        </div>
                     </div>
                 </div>
             );

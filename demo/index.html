@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Markdown Parser for AI Responses -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <!-- Tailwind Configuration -->
@@ -40,6 +41,17 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
+        
+        /* Markdown Styles */
+        .prose h1 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; color: #1e293b; }
+        .prose h2 { font-size: 1.25em; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        .prose h3 { font-size: 1.1em; font-weight: bold; margin-top: 0.8em; color: #475569; }
+        .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1em; }
+        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1em; font-size: 0.9em; }
+        .prose th, .prose td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+        .prose th { background-color: #f8fafc; font-weight: bold; }
+        .prose strong { color: #0f172a; font-weight: 700; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased overflow-hidden h-screen flex flex-col">
@@ -50,7 +62,7 @@
             <div class="text-center mb-8">
                 <div class="flex items-center justify-center gap-2 mb-1">
                     <h1 class="text-3xl font-bold text-navy-900 tracking-tight">RestoGenie</h1>
-                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full border border-blue-200 shadow-sm">v2.6.1 Live</span>
+                    <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full border border-blue-200 shadow-sm">v3.1 AI Prompt Live</span>
                 </div>
                 <p class="text-slate-500 text-sm">AI-Powered F&B Management</p>
             </div>
@@ -145,7 +157,7 @@
                 </button>
             </div>
 
-            <div id="chatbot-modal" class="hidden absolute bottom-20 right-6 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col z-50 overflow-hidden">
+            <div id="chatbot-modal" class="hidden absolute bottom-20 right-6 w-[450px] h-[650px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col z-50 overflow-hidden">
                 <div class="bg-navy-900 p-4 flex justify-between items-center text-white">
                     <div class="flex items-center gap-2"><i class="ph ph-robot"></i><span class="font-bold">RestoGenie AI</span></div>
                     <button onclick="toggleChatbot()" class="hover:text-gray-300"><i class="ph ph-x"></i></button>
@@ -153,12 +165,16 @@
                 <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
                     <div class="flex gap-2">
                         <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600"><i class="ph ph-robot"></i></div>
-                        <div class="bg-white p-3 rounded-r-xl rounded-bl-xl shadow-sm text-sm text-slate-700 border border-slate-100">안녕하세요! 레스토지니 AI입니다. 무엇을 도와드릴까요?</div>
+                        <div class="bg-white p-3 rounded-r-xl rounded-bl-xl shadow-sm text-sm text-slate-700 border border-slate-100">
+                            안녕하세요! 레스토지니 AI입니다.<br>
+                            실시간 매장 데이터와 10월 OKR 리포트를 학습했습니다.<br>
+                            무엇이든 물어보세요!
+                        </div>
                     </div>
                 </div>
                 <div class="p-3 bg-white border-t border-slate-100">
                     <div class="flex items-center bg-slate-100 rounded-full px-4 py-2">
-                        <input type="text" id="chat-input" class="bg-transparent flex-1 outline-none text-sm" placeholder="메시지 입력..." onkeypress="handleChatKey(event)">
+                        <input type="text" id="chat-input" class="bg-transparent flex-1 outline-none text-sm" placeholder="예: 강남점 배달 매출 분석해줘" onkeypress="handleChatKey(event)">
                         <button onclick="sendChat()" class="text-blue-600 hover:text-blue-800 ml-2"><i class="ph ph-paper-plane-right"></i></button>
                     </div>
                 </div>
@@ -168,18 +184,111 @@
 
     <script>
         // ================= CONFIG & STATE =================
-        const GEMINI_API_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ"; 
+        const GEMINI_API_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ"; // Provided API Key
         let CURRENT_ROLE = null;
         let COINS = parseInt(localStorage.getItem('restogenie_coins')) || 100;
         let CURRENT_STORE = 'all';
-        let CURRENT_PERIOD = 'month'; // 'day', 'week', 'month'
+        let CURRENT_PERIOD = 'month'; 
         let CURRENT_PAGE_ID = 'dashboard';
+        let DB_CACHE = null; // To store fetched GAS data
 
-        // Mock Data Generators based on Filter
-        const getFactor = () => CURRENT_PERIOD === 'day' ? 1 : (CURRENT_PERIOD === 'week' ? 7 : 30);
-        const fmtMoney = (n) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(n);
+        // Data Sources
+        const GAS_URLS = {
+            gangnamSales: 'https://script.google.com/macros/s/AKfycbxr6BhzISGKFkFN2WV01WVimeyScO-EkmuCvLa7fW7UirzNW-GdFaZEjYxLFyzc8K-u/exec',
+            daehakroSales: 'https://script.google.com/macros/s/AKfycbxjsm0CAv0MHXlMeMEbE6zYVOGPyelMsypLjCP7x-AY4pyihaAhYNkhVSHwfvJ8v9d7/exec',
+            gangnamMenu: 'https://script.google.com/macros/s/AKfycbxBN0nSsS4hKhlgQ7uZiaUdvsL5vcIlYXknxUA9RerSwrsTbRBLPQef-Quz-Hrx75V-/exec',
+            daehakroMenu: 'https://script.google.com/macros/s/AKfycbyFwfswTigzJyqQUW43LscmlYwRlCC0sbvyZNGBxmRJdbqwL-hvbTiP05Nmp5Rv13GV/exec',
+            cctv: 'https://script.google.com/macros/s/AKfycbw9jQJ5lD4ABwqaTH-p1TdyfB8heCe-0-wEdRB1Z_YnjNfZ4Pw0jj_OLw6X8J4uES7o/exec'
+        };
 
-        // ================= CORE FUNCTIONS =================
+        // OKR Report Context (Static Base)
+        const OKR_CONTEXT = `
+[10월 OKR 종합 리포트 요약]
+1. 전사 매출: 대학로점 신규 오픈 성공으로 매출 볼륨 확대. 기존 직영점은 정체.
+2. 대학로점: '극단 제휴' 마케팅 성공, 홀 매출 비중 80% 달성, 2030 타겟 적중.
+3. 강남점: 쿠팡이츠 배달 매출은 300% 증가했으나, 중복 할인 및 수수료 이슈로 객단가가 1.3만원대로 하락. 이익률 개선 시급.
+4. 레스토지니 솔루션: CIC 체제 전환, 12월 론칭 목표.
+5. 가맹 사업: 3040 생계형 창업자 타겟, '쉬운 시스템, 압도적 수익성' 강조.
+6. 운영 이슈: 강남점 갈비파이 재고 관리 필요, 대학로점 주말 가족 고객용 음료(페트/주스) 도입 필요.
+`;
+
+        // ================= DATA FETCHING (REAL API) =================
+        async function fetchAllData() {
+            if (DB_CACHE) return DB_CACHE;
+            
+            console.log("Fetching GAS Data...");
+            try {
+                // Parallel Fetch
+                const [gSales, dSales, gMenu, dMenu, cctv] = await Promise.all([
+                    fetch(GAS_URLS.gangnamSales).then(r => r.json()).catch(() => ({ error: true, name: 'Gangnam Sales' })),
+                    fetch(GAS_URLS.daehakroSales).then(r => r.json()).catch(() => ({ error: true, name: 'Daehakro Sales' })),
+                    fetch(GAS_URLS.gangnamMenu).then(r => r.json()).catch(() => ({ error: true, name: 'Gangnam Menu' })),
+                    fetch(GAS_URLS.daehakroMenu).then(r => r.json()).catch(() => ({ error: true, name: 'Daehakro Menu' })),
+                    fetch(GAS_URLS.cctv).then(r => r.json()).catch(() => ({ error: true, name: 'CCTV' }))
+                ]);
+
+                DB_CACHE = {
+                    gangnamSales: gSales,
+                    daehakroSales: dSales,
+                    gangnamMenu: gMenu,
+                    daehakroMenu: dMenu,
+                    cctv: cctv
+                };
+                console.log("Data Fetched Successfully:", DB_CACHE);
+                return DB_CACHE;
+            } catch (e) {
+                console.error("Fetch Error:", e);
+                // Fallback Mock Data if CORS/Network fails
+                return { error: "Failed to fetch live data" };
+            }
+        }
+
+        // ================= GEMINI API INTEGRATION =================
+        async function callGeminiAPI(prompt, systemContext = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            
+            // Prepare Data Context
+            const dbData = await fetchAllData();
+            const dbContextString = JSON.stringify(dbData).substring(0, 30000); // Truncate to prevent token overflow if huge
+
+            const fullPrompt = `
+You are RestoGenie's AI Analyst.
+Use the following Context to answer the user's request accurately.
+
+[Context 1: OKR Report Summary]
+${OKR_CONTEXT}
+
+[Context 2: Live Database Data (JSON)]
+${dbContextString}
+
+[User Instructions]
+${systemContext}
+
+[User Request]
+${prompt}
+            `;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: fullPrompt }] }]
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    console.error(data.error);
+                    return "AI 오류: " + data.error.message;
+                }
+                return data.candidates[0].content.parts[0].text;
+            } catch (e) {
+                return "네트워크 오류가 발생했습니다. 다시 시도해주세요.";
+            }
+        }
+
+        // ================= CORE UI FUNCTIONS =================
         function init() {
             updateCoinDisplay();
             document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -188,6 +297,7 @@
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('role-screen').classList.remove('hidden');
                     document.getElementById('role-screen').classList.add('flex');
+                    fetchAllData(); // Prefetch data
                 } else alert('ID: demo / PW: ctrlm2025!');
             });
         }
@@ -241,10 +351,9 @@
             document.getElementById('page-title').innerText = MENUS[CURRENT_ROLE].find(m => m.id === pageId)?.label || pageId;
             content.innerHTML = '';
 
-            // Routing
             if (pageId === 'dashboard' || pageId === 'home') renderDashboard(content);
             else if (pageId === 'ai_center') renderAIReportCenter(content);
-            else if (pageId === 'commercial') renderCCTV(content); // Restored
+            else if (pageId === 'commercial') renderCCTV(content);
             else if (pageId === 'marketing') renderMarketing(content);
             else if (pageId === 'store_mgmt') renderStoreMgmt(content);
             else if (pageId === 'menu_cost') renderMenuCost(content);
@@ -252,304 +361,48 @@
             else if (pageId === 'automation') renderAutomation(content);
         }
 
-        function setDateFilter(period) {
-            CURRENT_PERIOD = period;
-            document.querySelectorAll('.date-filter-btn').forEach(btn => {
-                const active = btn.dataset.period === period;
-                btn.className = `date-filter-btn px-3 py-1 rounded-md text-sm font-medium transition ${active ? 'bg-white shadow-sm text-blue-600' : 'text-slate-600 hover:bg-white'}`;
-            });
-            renderPage(CURRENT_PAGE_ID); // Re-render current page with new period data
-        }
+        // Chart & Rendering Logic
+        const getFactor = () => CURRENT_PERIOD === 'day' ? 1 : (CURRENT_PERIOD === 'week' ? 7 : 30);
+        const fmtMoney = (n) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(n);
+        
+        function renderDashboard(c) { c.innerHTML = `<div class="grid grid-cols-4 gap-4 mb-4">${createCard('총 매출',fmtMoney(8500000*getFactor()),'+12%','ph-currency-krw','text-blue-600')}${createCard('주문수','320건','+5%','ph-receipt','text-purple-600')}${createCard('객단가','15,200원','-2%','ph-users-three','text-orange-500')}${createCard('배달비중','45%','+15%p','ph-moped','text-green-600')}</div><div class="h-64 bg-white p-4 rounded-xl shadow-sm"><canvas id="mainChart"></canvas></div>`; setTimeout(()=>initChart('mainChart','line',[100,120,115,140,135,160,170]),50); }
+        function renderMarketing(c) { c.innerHTML = `<div class="h-64 bg-white p-4 rounded-xl shadow-sm"><h3 class="font-bold mb-2">ROAS 분석</h3><canvas id="roasChart"></canvas></div>`; setTimeout(()=>initChart('roasChart','bar',[400,350,250,500],['배민','쿠팡','요기요','네이버']),50); }
+        function renderCCTV(c) { c.innerHTML = `<div class="h-64 bg-white p-4 rounded-xl shadow-sm"><h3 class="font-bold mb-2">인구 통계</h3><canvas id="demoChart"></canvas></div>`; setTimeout(()=>initChart('demoChart','doughnut',[10,45,25,15,5],['10대','20대','30대','40대','기타']),50); }
+        function renderStoreMgmt(c) { c.innerHTML = `<div class="h-64 bg-white p-4 rounded-xl shadow-sm"><h3 class="font-bold mb-2">QSC 점수</h3><canvas id="qscChart"></canvas></div>`; setTimeout(()=>initChart('qscChart','scatter',[{x:80,y:200},{x:95,y:350}],null),50); }
+        function renderMenuCost(c) { c.innerHTML = `<div class="h-64 bg-white p-4 rounded-xl shadow-sm"><h3 class="font-bold mb-2">메뉴 분석</h3><canvas id="abcChart"></canvas></div>`; setTimeout(()=>initChart('abcChart','doughnut',[45,30,15,10],['A','B','C','D']),50); }
+        function renderPerformance(c) { c.innerHTML = `<div class="h-64 bg-white p-4 rounded-xl shadow-sm"><h3 class="font-bold mb-2">손익 상세</h3><canvas id="costChart"></canvas></div>`; setTimeout(()=>initChart('costChart','bar',[300,100,50,80],['재료','임대','공과','인건']),50); }
+        function renderAutomation(c) { c.innerHTML = `<div class="p-6 bg-white rounded-xl shadow-sm"><h3 class="font-bold text-lg mb-2">AI 자동화</h3><p>AI 광고 에이전트: <span class="text-green-600 font-bold">Active</span></p></div>`; }
 
-        // ================= PAGE RENDERERS (FIXED CHARTS) =================
-
-        // 1. Dashboard (HQ & Partner)
-        function renderDashboard(container) {
-            const f = getFactor();
-            const sales = (CURRENT_STORE === 'all' ? 8500000 : 4200000) * f;
-            const orders = (CURRENT_STORE === 'all' ? 320 : 150) * f;
-            
-            container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    ${createCard('총 매출', fmtMoney(sales), '+12.5%', 'ph-currency-krw', 'text-blue-600')}
-                    ${createCard('주문수', `${orders}건`, '+5.3%', 'ph-receipt', 'text-purple-600')}
-                    ${createCard('객단가', '15,200원', '-2.1%', 'ph-users-three', 'text-orange-500')}
-                    ${createCard('배달 비중', '45%', '+15%p', 'ph-moped', 'text-green-600')}
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">매출 추이 (${CURRENT_PERIOD})</h3>
-                        <!-- FIXED HEIGHT WRAPPER -->
-                        <div class="relative h-64 w-full">
-                            <canvas id="mainChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-blue-100">
-                        <h3 class="font-bold text-indigo-900 mb-4 flex items-center"><i class="ph ph-sparkle mr-2"></i>AI Insight</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li class="bg-white p-3 rounded shadow-sm border-l-4 border-red-400">
-                                <span class="text-red-500 font-bold block">⚠ 강남점 수익성 경고</span>
-                                쿠팡이츠 매출 300% 급증했으나 객단가 하락 심각. 프로모션 조정 필요.
-                            </li>
-                            <li class="bg-white p-3 rounded shadow-sm border-l-4 border-green-400">
-                                <span class="text-green-600 font-bold block">🚀 대학로점 홀 매출 호조</span>
-                                극단 제휴 효과로 홀 비중 80% 달성. 2030 타겟 적중.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-            setTimeout(() => initChart('mainChart', 'line', [100, 120, 115, 140, 135, 160, 170]), 50);
-        }
-
-        // 2. Marketing Status (HQ) - Live
-        function renderMarketing(container) {
-            const f = getFactor();
-            container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    ${createCard('총 광고비', fmtMoney(850000 * f), '+5%', 'ph-megaphone', 'text-pink-500')}
-                    ${createCard('전체 ROAS', '380%', '-12%', 'ph-trend-up', 'text-blue-500')}
-                    ${createCard('클릭당 비용(CPC)', '450원', '+20원', 'ph-cursor-click', 'text-indigo-500')}
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">채널별 효율 (ROAS)</h3>
-                        <!-- FIXED HEIGHT WRAPPER -->
-                        <div class="relative h-64 w-full">
-                            <canvas id="roasChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">배달 플랫폼 광고 성과</h3>
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">채널</th><th class="p-2">광고비</th><th class="p-2">매출</th><th class="p-2">ROAS</th></tr></thead>
-                            <tbody>
-                                <tr class="border-b"><td class="p-2">배달의민족</td><td class="p-2">50만원</td><td class="p-2">200만원</td><td class="p-2 text-blue-600 font-bold">400%</td></tr>
-                                <tr class="border-b"><td class="p-2">쿠팡이츠</td><td class="p-2">80만원</td><td class="p-2">280만원</td><td class="p-2 text-yellow-600 font-bold">350%</td></tr>
-                                <tr><td class="p-2">요기요</td><td class="p-2">20만원</td><td class="p-2">50만원</td><td class="p-2 text-red-600 font-bold">250%</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            setTimeout(() => initChart('roasChart', 'bar', [400, 350, 250, 500], ['배민', '쿠팡', '요기요', '네이버']), 50);
-        }
-
-        // 3. Menu/Cost Status (HQ) - Live
-        function renderMenuCost(container) {
-            container.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">메뉴 ABC 분석 (매출 기여도)</h3>
-                        <!-- FIXED HEIGHT WRAPPER -->
-                        <div class="relative h-64 w-full">
-                            <canvas id="abcChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">원가율 높은 매장 Top 3</h3>
-                        <ul class="space-y-4">
-                            <li class="flex justify-between items-center">
-                                <span>1. 강남점</span>
-                                <span class="text-red-500 font-bold">42.5% (Warning)</span>
-                            </li>
-                            <li class="flex justify-between items-center">
-                                <span>2. 신당점</span>
-                                <span class="text-yellow-500 font-bold">38.0%</span>
-                            </li>
-                            <li class="flex justify-between items-center">
-                                <span>3. 대학로점</span>
-                                <span class="text-green-500 font-bold">34.2% (Good)</span>
-                            </li>
-                        </ul>
-                        <div class="mt-6 bg-slate-50 p-3 rounded text-xs text-slate-500">
-                            * 강남점은 갈비파이 신메뉴 로스율이 높습니다. 발주량 조절이 필요합니다.
-                        </div>
-                    </div>
-                </div>
-            `;
-            setTimeout(() => initChart('abcChart', 'doughnut', [45, 30, 15, 10], ['A등급 (갈비파이)', 'B등급 (치즈버거)', 'C등급 (사이드)', 'D등급']), 50);
-        }
-
-        // 4. Store Operation Management (HQ) - Live
-        function renderStoreMgmt(container) {
-            container.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">QSC 점검 현황 (최근 1주)</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-blue-50 cursor-pointer">
-                                <div>
-                                    <div class="font-bold">대학로점</div>
-                                    <div class="text-xs text-slate-500">점검자: 김평안 SV</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-blue-600 font-bold text-lg">95점</div>
-                                    <div class="text-xs text-slate-400">2025.11.18</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-blue-50 cursor-pointer">
-                                <div>
-                                    <div class="font-bold">강남점</div>
-                                    <div class="text-xs text-slate-500">점검자: 이준용 본부장</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-yellow-600 font-bold text-lg">82점</div>
-                                    <div class="text-xs text-slate-400">2025.11.15</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">QSC - 매출 상관관계</h3>
-                        <!-- FIXED HEIGHT WRAPPER -->
-                        <div class="relative h-64 w-full">
-                            <canvas id="qscChart"></canvas>
-                        </div>
-                        <p class="mt-4 text-xs text-slate-500 text-center">QSC 점수가 90점 이상인 매장은 평균 매출이 15% 높습니다.</p>
-                    </div>
-                </div>
-            `;
-            setTimeout(() => initChart('qscChart', 'scatter', 
-                [{x: 80, y: 200}, {x: 85, y: 240}, {x: 90, y: 300}, {x: 95, y: 350}], 
-                [], 'scatter'
-            ), 50);
-        }
-
-        // 5. Performance Analysis (Partner) - Live
-        function renderPerformance(container) {
-            const f = getFactor();
-            const revenue = 35000000 * f / 30;
-            const cost = revenue * 0.38; // 38% Cost
-            const profit = revenue - cost - (revenue * 0.1); // 10% rent/etc
-            
-            container.innerHTML = `
-                <h3 class="text-lg font-bold mb-4">손익 분석 (Profit & Loss)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-blue-500">
-                        <div class="text-sm text-slate-500">총 매출</div>
-                        <div class="text-2xl font-bold text-navy-900">${fmtMoney(revenue)}</div>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-red-400">
-                        <div class="text-sm text-slate-500">총 비용 (원가+판관비)</div>
-                        <div class="text-2xl font-bold text-slate-700">${fmtMoney(cost + revenue*0.1)}</div>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-green-500">
-                        <div class="text-sm text-slate-500">영업 이익</div>
-                        <div class="text-2xl font-bold text-green-600">${fmtMoney(profit)}</div>
-                        <div class="text-xs text-green-500 mt-1">이익률 22%</div>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="font-bold mb-4">비용 구성 상세</h3>
-                    <!-- FIXED HEIGHT WRAPPER -->
-                    <div class="relative h-64 w-full">
-                        <canvas id="costDetailChart"></canvas>
-                    </div>
-                </div>
-            `;
-            setTimeout(() => initChart('costDetailChart', 'bar', [cost, revenue*0.1, revenue*0.05, revenue*0.2], ['재료비', '임대료', '공과금', '인건비']), 50);
-        }
-
-        // 6. Commercial / CCTV (Restored)
-        function renderCCTV(container) {
-            container.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">유입 퍼널 (Conversion Funnel)</h3>
-                        <div class="h-64 bg-slate-50 rounded flex flex-col items-center justify-center space-y-2 p-4">
-                            <div class="w-full bg-blue-200 p-3 rounded text-center">유동 인구 <span class="font-bold">45,200</span></div>
-                            <div class="w-[70%] bg-blue-300 p-3 rounded text-center">방문객 <span class="font-bold">1,898</span> (4.2%)</div>
-                            <div class="w-[40%] bg-blue-500 text-white p-3 rounded text-center">구매 <span class="font-bold">1,233</span> (65%)</div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-bold mb-4">방문객 인구 통계</h3>
-                        <!-- FIXED HEIGHT WRAPPER -->
-                        <div class="relative h-64 w-full">
-                            <canvas id="demoChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            `;
-             setTimeout(() => initChart('demoChart', 'doughnut', [10, 45, 25, 15, 5], ['10대', '20대(여)', '20대(남)', '30대', '40대+']), 50);
-        }
-
-        // 7. Automation (Partner) - Live
-        function renderAutomation(container) {
-            container.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-blue-100">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center">
-                                <div class="p-2 bg-blue-100 rounded-lg mr-3 text-blue-600"><i class="ph ph-robot text-2xl"></i></div>
-                                <div>
-                                    <h3 class="font-bold text-lg">AI 광고 에이전트</h3>
-                                    <p class="text-xs text-slate-500">ROAS 최적화를 위해 입찰가를 자동 조정합니다.</p>
-                                </div>
-                            </div>
-                            <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="toggle" id="ai-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-blue-600"/>
-                                <label for="ai-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-blue-600"></label>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-lg text-sm space-y-2">
-                            <div class="flex justify-between"><span>현재 상태</span><span class="text-green-600 font-bold">작동 중 (Active)</span></div>
-                            <div class="flex justify-between"><span>오늘 절감액</span><span class="font-bold">12,500원</span></div>
-                            <div class="flex justify-between"><span>타겟 ROAS</span><span class="font-bold">400%</span></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center">
-                                <div class="p-2 bg-purple-100 rounded-lg mr-3 text-purple-600"><i class="ph ph-chat-teardrop-text text-2xl"></i></div>
-                                <div>
-                                    <h3 class="font-bold text-lg">리뷰 자동 답글</h3>
-                                    <p class="text-xs text-slate-500">긍정 리뷰에 감사 인사를 자동으로 남깁니다.</p>
-                                </div>
-                            </div>
-                             <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                                <label class="toggle-label block overflow-hidden h-6 rounded-full bg-blue-600 cursor-pointer"></label>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-lg">
-                            <p class="text-xs text-slate-500 mb-2">최근 자동 답글 예시:</p>
-                            <p class="text-sm italic text-slate-700">"고객님, 소중한 별점 5점 감사합니다! 다음에도 맛있는 버거로 보답하겠습니다 :)"</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 8. AI Report Center (Fix & Logic)
+        // ================= AI REPORT CENTER (UPDATED PROMPTS) =================
         function renderAIReportCenter(container) {
             container.innerHTML = `
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-navy-900">AI 리포트 센터</h2>
-                    <p class="text-slate-500">오류가 수정되어 정상 이용 가능합니다.</p>
+                    <p class="text-slate-500">Gemini AI가 실시간 데이터와 OKR을 분석하여 리포트를 생성합니다.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Weekly Report -->
                     <div onclick="generateReport('weekly')" class="bg-white p-8 rounded-2xl shadow-lg hover:border-blue-400 border border-transparent transition cursor-pointer flex flex-col items-center text-center group">
                         <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600 group-hover:scale-110 transition"><i class="ph ph-presentation-chart text-3xl"></i></div>
                         <h3 class="text-xl font-bold mb-2">본사 주간 회의 자료</h3>
-                        <p class="text-sm text-slate-500 mb-4">전사 매출, OKR 이슈 분석 리포트</p>
+                        <p class="text-sm text-slate-500 mb-4">전사 매출, 이슈, OKR 달성 현황 분석</p>
                         <span class="text-blue-600 font-bold text-sm bg-blue-50 px-3 py-1 rounded-full">-5 Coin</span>
                     </div>
+                    <!-- Store Report -->
                     <div onclick="generateReport('store')" class="bg-white p-8 rounded-2xl shadow-lg hover:border-indigo-400 border border-transparent transition cursor-pointer flex flex-col items-center text-center group">
                         <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4 text-indigo-600 group-hover:scale-110 transition"><i class="ph ph-store-front text-3xl"></i></div>
                         <h3 class="text-xl font-bold mb-2">가맹점 분석 리포트</h3>
-                        <p class="text-sm text-slate-500 mb-4">SV 방문용 매장 진단 리포트</p>
+                        <p class="text-sm text-slate-500 mb-4">SV 방문용 매장 진단 (매출/QSC/제언)</p>
                         <span class="text-indigo-600 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-full">-1 Coin</span>
                     </div>
                 </div>
+                <!-- Report Result -->
                 <div id="report-result" class="mt-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-200 hidden">
                     <div class="flex justify-between items-center mb-4 border-b pb-4">
-                        <h3 class="text-xl font-bold"><i class="ph ph-file-text mr-2"></i>Report View</h3>
-                        <button onclick="document.getElementById('report-result').classList.add('hidden')"><i class="ph ph-x text-xl"></i></button>
+                        <h3 class="text-xl font-bold text-navy-900"><i class="ph ph-file-text mr-2"></i>생성 결과</h3>
+                        <button onclick="document.getElementById('report-result').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="ph ph-x text-xl"></i></button>
                     </div>
-                    <div id="report-content" class="prose max-w-none text-sm"></div>
+                    <div id="report-content" class="prose max-w-none text-sm text-slate-700"></div>
                 </div>
             `;
         }
@@ -561,137 +414,137 @@
 
             COINS -= cost;
             updateCoinDisplay();
-            
+
             const resultDiv = document.getElementById('report-result');
             const contentDiv = document.getElementById('report-content');
             resultDiv.classList.remove('hidden');
-            contentDiv.innerHTML = '<div class="flex flex-col items-center py-12"><div class="loader mb-4"></div><p>AI 분석 중...</p></div>';
+            contentDiv.innerHTML = '<div class="flex flex-col items-center py-12"><div class="loader mb-4"></div><p class="text-blue-600 font-bold">Gemini가 GAS 데이터를 분석 중입니다...</p></div>';
             resultDiv.scrollIntoView({ behavior: 'smooth' });
 
-            // Fallback Content (To ensure it works even if API fails)
-            const fallbackContent = type === 'weekly' ? 
-                `# 2025년 11월 3주차 본사 주간 회의록
+            // Defined Prompts
+            let userInstruction = "";
+            let promptText = "";
+
+            if (type === 'weekly') {
+                userInstruction = `
+25년 11월 11일, 회의 자료(Context)를 참고하여 아래 지침 및 구조에 따라 회의록을 작성해 주세요.
+
+회의록의 주요 항목은 표로 작성하고 표에는 담당자와 데드라인을 함께 작성해주세요.
+
+시작 전, 다음의 개념적 체크리스트로 절차를 점검해 주세요:
+- 결정사항 파악 및 명확하게 정리
+- 액션 아이템 도출 및 명확하게 정리
+- 회의의 주요 논의와 맥락 요약
+
 ## 1. 결정사항
-| 항목 | 내용 | 담당자 |
-|---|---|---|
-| 강남점 수익성 | 쿠팡이츠 프로모션 축소 및 세트 메뉴 가격 500원 인상 결정 | 이준용 |
-| 대학로점 마케팅 | 극단 제휴 티켓 프로모션 12월까지 연장 확정 | 박요한 |
+**정의:** 해당 회의에서 새롭게 합의되거나 최종적으로 확정된 전략, 정책, 목표, 또는 중요한 변경사항만을 명확하게 정리합니다. 이는 참석자 전원 혹은 주요 의사결정권자 간에 명확하게 동의된 내용만을 의미합니다.
+
+**포함 금지:**
+    - 이미 진행 중인 업무 상황 보고 또는 단순 현황 공유는 제외합니다.
+    - 개인의 의견, 통찰, 제안 등 회의 중 나온 아이디어 성격의 논의도 포함하지 않습니다.
+    - 추가 논의나 검토가 필요한 사항(최종 결론이 내려지지 않은 내용)은 결정사항에 포함하지 않습니다.
+    - 기존 결정사항의 단순 연장 확인은 포함하지 않습니다.
 
 ## 2. 액션 아이템
-* **[운영]** 신당점 QSC 긴급 점검 (이번주 금요일까지) - 김평안 SV
-* **[개발]** 레스토지니 가맹점용 앱 베타 테스트 (다음주 월요일 시작) - 김도윤
+**정의:** 각 담당자에게 새롭게 할당되었거나 기존에 진행 중이던 업무 중 이번 회의에서 완료 시기나 실행 계획이 구체적으로 정해진 태스크 또는 검토 요청 사항을 명확하게 정리합니다.
 
-## 3. 회의 맥락
-강남점 배달 매출은 늘었으나 이익률이 10%대로 떨어져 우려가 큽니다. 반면 대학로점은 홀 매출 비중이 높아 안정적입니다.` 
-                : 
-                `# 매장 점검 리포트 (${CURRENT_STORE === 'daehakro' ? '대학로점' : '강남점'})
-## 1. 매출 분석
-* **현황**: 전월 대비 매출 12.5% 상승. 특히 점심 시간대 회전율이 좋습니다.
-* **제안**: 저녁 시간대 주류 세트 메뉴 추가를 통한 객단가 상승 유도 필요.
+**포함 기준:**
+    - 각 액션 아이템은 반드시 담당자와 함께 명확하게 제시되어야 하며, 담당자 기준으로 모든 액션 아이템을 구조화합니다.
+    - 기한이 언급되었다면 함께 명시해 주세요.
+    - 구체적인 결과물 또는 실행해야 할 행동 내용이 분명해야 합니다.
 
-## 2. QSC 점검
-* **위생**: 주방 바닥 청결 상태 우수 (95점)
-* **서비스**: 알바생 응대 매뉴얼 재교육 필요 (미소 응대 부족)
+## 3. 회의 맥락 및 주요 논의
+**정의:** 위 ‘결정사항’ 및 ‘액션 아이템’으로 분류되지 않은 논의 중 주요 토론 내용, 현황 공유, 각자의 고민·제안·통찰·배경 정보 등을 포괄적으로 기록합니다.
+**목적:** 회의의 전체적 흐름·주요 논점, 그리고 결정사항 및 액션 아이템이 도출된 맥락을 이해하는 데 도움이 되도록 작성합니다. 시간 순서 또는 주제별로 정리하며, 가독성을 높이세요.
 
-## 3. 총평
-전반적으로 관리가 잘 되고 있으나, 피크타임 인력 배치를 최적화하면 매출 5% 추가 상승이 가능합니다.`;
+## 4. Task Tracker
+**정의:** 위 ‘결정사항’ 및 ‘액션 아이템’으로 분류한 내용을 포함하여, 회의간 나온 할일이 완수될때까지 현황을 확인하기 위한 Task Traker입니다.
+**목적:** 항목별로 책임 부서, 담당자, 참여자, 데드라인, 업무 상세를 함께 작성해주세요.
+**양식:** 미팅일시 / 부서 / PO / 참여자(선택) / 데드라인 / 업무내용 / 세부내용(불렛포인트)
 
-            try {
-                // Try Real API Call
-                const prompt = type === 'weekly' ? "주간 회의록 작성해줘" : "매장 점검 리포트 작성해줘";
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                const data = await res.json();
-                if(data.error) throw new Error("API Error");
-                contentDiv.innerHTML = marked.parse(data.candidates[0].content.parts[0].text);
-            } catch (e) {
-                console.warn("API Failed, using fallback");
-                contentDiv.innerHTML = marked.parse(fallbackContent); // Seamless Fallback
-            }
-        }
+### 추가 지침
+- 각 섹션은 반드시 명확히 구분하여 작성해 주세요.
+- 회의록 원문에 근거하여 내용만 작성하며, 원문에 없는 내용은 추가하지 마세요.
+- ‘결정사항’과 ‘액션 아이템’은 간결하고, 명사형 표현으로 끝맺으세요.
+- 각 섹션의 항목들은 단순 나열이 아닌, 적절히 구조화(항목 간 관계 명확히) 하세요.
 
-        // --- Helper: Create Card HTML ---
-        function createCard(title, value, diff, icon, color) {
-            return `
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-slate-500 text-sm font-medium">${title}</span>
-                        <i class="ph ${icon} ${color} text-xl bg-slate-50 p-2 rounded-lg"></i>
-                    </div>
-                    <div class="text-2xl font-bold text-navy-900 mb-1">${value}</div>
-                    <div class="flex items-center text-xs ${diff.includes('+') ? 'text-red-500' : 'text-blue-500'}">
-                        <i class="ph ${diff.includes('+') ? 'ph-trend-up' : 'ph-trend-down'} mr-1"></i>
-                        <span>${diff} vs 지난달</span>
-                    </div>
-                </div>
-            `;
-        }
+작업 후, 각 섹션이 지침대로 작성됐는지 스스로 점검해 주시고, 필요한 경우 수정하여 최종 회의록을 완성하세요.
+                `;
+                promptText = "제공된 10월 OKR 리포트와 실시간 매장 데이터를 회의 Transcript로 간주하고, 위 지침에 맞춰 본사 주간 회의록을 작성해줘.";
+            } else {
+                const storeName = CURRENT_STORE === 'daehakro' ? '대학로점' : '강남점';
+                userInstruction = `
+본사 SV가 ${storeName}을 방문하여 점검하기 위한 자료를 준비하고자 합니다.
+제공된 매장 데이터와 OKR 리포트 맥락을 바탕으로 아래 관점에서 상세한 점검 리포트를 작성해 주세요.
 
-        // --- Helper: Init Chart.js ---
-        function initChart(id, type, data, labels) {
-            const ctx = document.getElementById(id);
-            if(!ctx) return;
-            
-            // Important: Check if chart instance already exists and destroy it (optional but good practice)
-            // Since we re-render full HTML, currentChart is lost unless stored.
-            // For this simple implementation, replacing HTML clears the canvas context.
-            
-            const chartData = {
-                labels: labels || ['월', '화', '수', '목', '금', '토', '일'],
-                datasets: [{
-                    label: 'Data',
-                    data: data,
-                    backgroundColor: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e2e8f0'],
-                    borderColor: '#2563eb',
-                    borderWidth: 1
-                }]
-            };
-
-            if(type === 'scatter') {
-                 chartData.datasets[0].data = data; // Scatter uses objects {x,y}
-                 chartData.labels = undefined;
+1. **매출에 대한 분석과 매출 증대 대안**: 현재 매출 추이 분석 및 구체적인 증대 방안 제시
+2. **매장 운영 관리에 대한 분석과 대안**: QSC, 인력 운영 등 운영 현황 분석 및 개선안
+3. **원가 및 발주에 대한 통제**: 식자재 원가율 분석 및 발주 효율화 방안
+4. **매장 관리 현황에 대한 이슈 (체크할 것)**: 데이터에서 감지된 이상 징후나 중점 점검 사항
+5. **기타 매장 표준화에 대한 제안**: 브랜드 표준 준수 여부 및 제언
+                `;
+                promptText = `${storeName}의 최신 데이터를 분석하여 위 5가지 관점의 가맹점주 미팅용 사전 자료를 작성해줘.`;
             }
 
-            new Chart(ctx, {
-                type: type,
-                data: chartData,
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, // Works now because parent has fixed height
-                    plugins: { legend: { display: type !== 'bar' && type !== 'line' } }
-                }
-            });
+            // Call Real API
+            const reportText = await callGeminiAPI(promptText, userInstruction);
+            contentDiv.innerHTML = marked.parse(reportText);
         }
 
-        // --- Chatbot & Coin Logic ---
-        function updateCoinDisplay() {
-            document.querySelectorAll('#coin-balance').forEach(el => el.innerText = `${COINS} C`);
-            localStorage.setItem('restogenie_coins', COINS);
-        }
-        function rechargeCoins() { COINS += 10; updateCoinDisplay(); alert("충전 완료!"); }
+        // ================= AI CHATBOT (REAL GEMINI) =================
         function toggleChatbot() { document.getElementById('chatbot-modal').classList.toggle('hidden'); }
         function handleChatKey(e) { if(e.key==='Enter') sendChat(); }
+        
         async function sendChat() {
             const input = document.getElementById('chat-input');
             const text = input.value;
             if(!text) return;
+
             const history = document.getElementById('chat-history');
+            // User Bubble
             history.innerHTML += `<div class="flex gap-2 flex-row-reverse"><div class="bg-blue-600 text-white p-3 rounded-l-xl rounded-br-xl text-sm">${text}</div></div>`;
             input.value = '';
-            
-            // Simple Mock Response for Chat
-            setTimeout(() => {
-                history.innerHTML += `<div class="flex gap-2"><div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-r-xl rounded-bl-xl text-sm border border-slate-100">확인했습니다. "${text}"에 대한 분석 결과, 강남점의 배달 비중이 높아지고 있으나 공헌이익률 관리가 필요해 보입니다.</div></div>`;
-                history.scrollTop = history.scrollHeight;
-            }, 1000);
+            history.scrollTop = history.scrollHeight;
+
+            // Loading Bubble
+            const loadingId = 'loading-' + Date.now();
+            history.innerHTML += `
+                <div id="${loadingId}" class="flex gap-2">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="ph ph-robot"></i></div>
+                    <div class="bg-white p-3 rounded-r-xl rounded-bl-xl text-sm border border-slate-100">
+                        <div class="loader w-4 h-4 border-2"></div>
+                    </div>
+                </div>
+            `;
+            history.scrollTop = history.scrollHeight;
+
+            // Call Real API
+            const systemContext = "당신은 레스토지니의 친절한 AI 비서입니다. 제공된 DB 데이터를 기반으로 짧고 명확하게 답변하세요. 수치는 정확하게 인용하세요.";
+            const responseText = await callGeminiAPI(text, systemContext);
+
+            // Remove Loading & Show Response
+            document.getElementById(loadingId).remove();
+            history.innerHTML += `
+                <div class="flex gap-2">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="ph ph-robot"></i></div>
+                    <div class="bg-white p-3 rounded-r-xl rounded-bl-xl text-sm border border-slate-100 prose prose-sm">
+                        ${marked.parse(responseText)}
+                    </div>
+                </div>
+            `;
+            history.scrollTop = history.scrollHeight;
         }
-        function handleStoreChange() {
-             const sel = document.getElementById('store-selector');
-             CURRENT_STORE = sel.value;
-             renderPage('dashboard');
+
+        // ================= HELPERS =================
+        function createCard(t,v,d,i,c){return `<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100"><div class="flex justify-between mb-2"><span class="text-slate-500 text-sm">${t}</span><i class="ph ${i} ${c} text-xl"></i></div><div class="text-2xl font-bold text-navy-900">${v}</div><div class="text-xs ${d.includes('+')?'text-red-500':'text-blue-500'}">${d} vs 지난달</div></div>`}
+        function initChart(id,t,d,l){
+            const ctx=document.getElementById(id); if(!ctx)return;
+            new Chart(ctx,{type:t,data:{labels:l||['M','T','W','T','F','S','S'],datasets:[{label:'Data',data:d,backgroundColor:['#3b82f6','#60a5fa','#93c5fd','#bfdbfe'],borderColor:'#2563eb',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
         }
+        function updateCoinDisplay() { document.querySelectorAll('#coin-balance').forEach(el => el.innerText = `${COINS} C`); localStorage.setItem('restogenie_coins', COINS); }
+        function rechargeCoins() { COINS += 10; updateCoinDisplay(); alert("충전 완료!"); }
+        function handleStoreChange() { CURRENT_STORE = document.getElementById('store-selector').value; renderPage('dashboard'); }
+        function setDateFilter(p) { CURRENT_PERIOD = p; renderPage(CURRENT_PAGE_ID); }
     </script>
 </body>
 </html>

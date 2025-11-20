@@ -63,7 +63,7 @@
                 <div class="flex items-center justify-center gap-2 mb-1">
                     <h1 class="text-3xl font-bold text-navy-900 tracking-tight">RestoGenie</h1>
                     <!-- Version Updated -->
-                    <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full border border-green-200 shadow-sm">v3.2 Stable</span>
+                    <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded-full border border-purple-200 shadow-sm">v3.4 AI Upgraded</span>
                 </div>
                 <p class="text-slate-500 text-sm">AI-Powered F&B Management</p>
             </div>
@@ -186,6 +186,9 @@
     <script>
         // ================= CONFIG & STATE =================
         const GEMINI_API_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ"; 
+        // UPDATED: Using the latest available flash preview model
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025"; 
+        
         let CURRENT_ROLE = null;
         let COINS = parseInt(localStorage.getItem('restogenie_coins')) || 100;
         let CURRENT_STORE = 'all';
@@ -246,9 +249,8 @@
 
         // ================= GEMINI API INTEGRATION =================
         async function callGeminiAPI(prompt, systemContext = "") {
-            // FIX: Changed model from 'gemini-1.5-flash' to 'gemini-pro' for compatibility
-            // Note: 'gemini-pro' is safe for v1beta endpoint in most regions
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+            // UPDATED: Targeting the specific preview model version
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
             
             // Prepare Data Context
             const dbData = await fetchAllData();
@@ -283,8 +285,7 @@ ${prompt}
                 const data = await response.json();
                 if (data.error) {
                     console.error(data.error);
-                    // Return Error Message directly to UI
-                    return `[AI Error] ${data.error.message}\n(모델을 찾을 수 없거나 지원하지 않는 리전입니다. 키를 확인해주세요.)`;
+                    return `[AI Error] ${data.error.message}\n(모델(${GEMINI_MODEL}) 호출 실패. API 키 권한이나 리전을 확인해주세요.)`;
                 }
                 return data.candidates[0].content.parts[0].text;
             } catch (e) {
@@ -377,7 +378,7 @@ ${prompt}
         function renderPerformance(c) { c.innerHTML = `<div class="h-64 bg-white p-4 rounded-xl shadow-sm"><h3 class="font-bold mb-2">손익 상세</h3><canvas id="costChart"></canvas></div>`; setTimeout(()=>initChart('costChart','bar',[300,100,50,80],['재료','임대','공과','인건']),50); }
         function renderAutomation(c) { c.innerHTML = `<div class="p-6 bg-white rounded-xl shadow-sm"><h3 class="font-bold text-lg mb-2">AI 자동화</h3><p>AI 광고 에이전트: <span class="text-green-600 font-bold">Active</span></p></div>`; }
 
-        // ================= AI REPORT CENTER =================
+        // ================= AI REPORT CENTER (UPDATED PROMPTS) =================
         function renderAIReportCenter(container) {
             container.innerHTML = `
                 <div class="mb-6">
@@ -495,7 +496,7 @@ ${prompt}
             contentDiv.innerHTML = marked.parse(reportText);
         }
 
-        // ================= AI CHATBOT =================
+        // ================= AI CHATBOT (REAL GEMINI) =================
         function toggleChatbot() { document.getElementById('chatbot-modal').classList.toggle('hidden'); }
         function handleChatKey(e) { if(e.key==='Enter') sendChat(); }
         

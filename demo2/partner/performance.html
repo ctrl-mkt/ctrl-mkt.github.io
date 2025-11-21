@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoGenie Partner - Performance</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+                    colors: { navy: { 900: '#0f172a', 800: '#1e293b' }, lightblue: { 500: '#0ea5e9' } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-navy-900 text-white flex flex-col shadow-lg">
+        <div class="p-6 flex items-center gap-2 cursor-pointer" onclick="location.href='../partner.html'">
+            <i class="ph ph-robot text-2xl text-lightblue-500"></i>
+            <span class="text-xl font-bold">RestoGenie P.</span>
+        </div>
+        <div class="px-6 pb-4"><span class="bg-lightblue-900 text-lightblue-200 text-xs px-2 py-1 rounded">Partner Mode</span></div>
+        <nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+            <a href="../partner.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-house text-lg mr-3"></i><span class="font-medium">홈 (Home)</span></a>
+            <a href="performance.html" class="flex items-center px-3 py-3 bg-lightblue-600 text-white rounded-lg transition"><i class="ph ph-chart-line-up text-lg mr-3"></i><span class="font-medium">성과 분석</span></a>
+            <a href="automation.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-gear text-lg mr-3"></i><span class="font-medium">자동화/설정</span></a>
+        </nav>
+        <div class="p-4 border-t border-navy-800">
+            <a href="../index.html" class="flex items-center text-slate-400 hover:text-white transition"><i class="ph ph-sign-out mr-2"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col">
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6">
+            <h2 class="text-xl font-bold text-slate-800">Performance Analysis</h2>
+            <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">v4.1 Multi-Page</span>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <h3 class="text-lg font-bold mb-2">손익 분석 (Profit & Loss)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-blue-500">
+                    <div class="text-sm text-slate-500">총 매출</div>
+                    <div class="text-2xl font-bold text-navy-900">35,000,000원</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-red-400">
+                    <div class="text-sm text-slate-500">총 비용 (원가+판관비)</div>
+                    <div class="text-2xl font-bold text-slate-700">27,500,000원</div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-green-500">
+                    <div class="text-sm text-slate-500">영업 이익</div>
+                    <div class="text-2xl font-bold text-green-600">7,500,000원</div>
+                    <div class="text-xs text-green-500 mt-1">이익률 21.4%</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="font-bold mb-4">비용 상세 구성</h3>
+                <div class="h-64 relative w-full">
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        new Chart(document.getElementById('costChart'), {
+            type: 'bar',
+            data: { labels: ['재료비','임대료','인건비','배달수수료','기타'], datasets: [{ label: '비용', data: [1200, 300, 800, 350, 100], backgroundColor: '#ef4444' }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+</body>
+</html>

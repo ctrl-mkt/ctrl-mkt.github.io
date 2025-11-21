@@ -266,13 +266,13 @@
                     fetch(DB_URLS.manual).then(r => r.json())
                 ]);
 
+                // Unpack safely
                 const [sG, sD, mG, mD, cctv, manual] = results.map(r => r.status === 'fulfilled' ? r.value : []);
                 
-                GLOBAL_DATA = { sales: { gangnam: sG, daehakro: sD }, menu: { gangnam: mG, daehakro: mD }, cctv, manual };
+                GLOBAL_DATA = { sales: { gangnam: sG || [], daehakro: sD || [] }, menu: { gangnam: mG || [], daehakro: mD || [] }, cctv: cctv || [], manual: manual || [] };
                 console.log("Integrated Data:", GLOBAL_DATA);
 
                 // 1. Normalize & Merge Sales
-                // Handles different column names (e.g., date/날짜, amount/매출)
                 const normalizeSales = (data, store) => {
                     if (!Array.isArray(data)) return [];
                     return data.map(i => ({
@@ -338,13 +338,12 @@
         function renderSalesChart(data) {
             const salesByDate = {};
             data.forEach(i => { 
-                // Handle date formats like "2025-10-01T..."
                 let d = i.date;
                 if (typeof d === 'string' && d.includes('T')) d = d.split('T')[0];
                 salesByDate[d] = (salesByDate[d] || 0) + i.amount; 
             });
             
-            const labels = Object.keys(salesByDate).sort().slice(-14); // Last 14 days
+            const labels = Object.keys(salesByDate).sort().slice(-14); 
             const values = labels.map(d => salesByDate[d]);
 
             new Chart(document.getElementById('salesTrendChart'), {
@@ -412,7 +411,6 @@
                 hist.scrollTop = hist.scrollHeight;
 
                 try {
-                    // Contextualize
                     const context = JSON.stringify(GLOBAL_DATA).substring(0, 50000);
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},

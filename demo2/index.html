@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoGenie HQ - Dashboard</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+                    colors: { 
+                        navy: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }, 
+                        blue: { 500: '#3b82f6', 600: '#2563eb' },
+                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 500: '#6b7280', 800: '#1f2937' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex h-screen overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col z-20">
+        <div class="p-6 flex items-center gap-2 cursor-pointer border-b border-gray-100" onclick="location.href='hq.html'">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">R</div>
+            <span class="text-xl font-bold text-navy-900">Resto Genie</span>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <div class="text-xs font-bold text-gray-400 mb-2 px-3">MAIN</div>
+            <a href="hq.html" class="flex items-center px-3 py-2.5 bg-blue-50 text-blue-600 rounded-lg transition font-medium">
+                <i class="ph ph-house text-lg mr-3"></i>홈 (대시보드)
+            </a>
+            <a href="hq/ai_center.html" class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-navy-900 rounded-lg transition font-medium">
+                <i class="ph ph-brain text-lg mr-3"></i>AI 리포트 센터
+            </a>
+
+            <div class="text-xs font-bold text-gray-400 mt-6 mb-2 px-3">ANALYTICS</div>
+            <a href="hq/marketing.html" class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-navy-900 rounded-lg transition font-medium">
+                <i class="ph ph-megaphone text-lg mr-3"></i>마케팅 현황
+            </a>
+            <a href="hq/commercial.html" class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-navy-900 rounded-lg transition font-medium">
+                <i class="ph ph-map-pin text-lg mr-3"></i>상권 분석 (CCTV)
+            </a>
+            <a href="hq/store_mgmt.html" class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-navy-900 rounded-lg transition font-medium">
+                <i class="ph ph-store-front text-lg mr-3"></i>매장 운영 관리
+            </a>
+            <a href="hq/menu_cost.html" class="flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-navy-900 rounded-lg transition font-medium">
+                <i class="ph ph-hamburger text-lg mr-3"></i>메뉴/원가 현황
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-100">
+            <a href="index.html" class="flex items-center px-3 py-2 text-gray-500 hover:text-red-500 transition text-sm font-medium">
+                <i class="ph ph-sign-out mr-2"></i> 로그아웃
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-gray-50">
+        <!-- TOP HEADER -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <h2 class="text-lg font-bold text-navy-900">Company Name</h2>
+                <div class="h-4 w-px bg-gray-300"></div>
+                <span class="text-sm text-gray-500">통합 대시보드</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <!-- Date Picker Mock -->
+                <div class="flex items-center bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 cursor-pointer hover:bg-gray-200 transition">
+                    <i class="ph ph-calendar-blank mr-2"></i> 2025-07-11 (금)
+                </div>
+                <!-- User Profile -->
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="text-sm font-bold text-navy-900">박찬일</div>
+                        <div class="text-xs text-gray-500">최고관리자</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border border-gray-300">
+                        <i class="ph ph-user text-2xl text-gray-400 w-full h-full flex items-center justify-center"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- SCROLLABLE DASHBOARD -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-6">
+            
+            <!-- 1. 5-Column KPI Cards (기획서 반영) -->
+            <div class="grid grid-cols-5 gap-4">
+                <!-- Card 1: 매출 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500 font-medium mb-2">매출</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight">91,258,534 원</div>
+                    <div class="flex items-center mt-2 text-xs">
+                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -3.2%</span>
+                        <span class="text-gray-400">전주 대비</span>
+                    </div>
+                </div>
+                <!-- Card 2: 주문건수 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500 font-medium mb-2">주문건수</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight">1,268 건</div>
+                    <div class="flex items-center mt-2 text-xs">
+                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -2.2%</span>
+                        <span class="text-gray-400">전주 대비</span>
+                    </div>
+                </div>
+                <!-- Card 3: 건단가 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500 font-medium mb-2">건단가</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight">5,499 원</div>
+                    <div class="flex items-center mt-2 text-xs">
+                        <span class="text-red-500 bg-red-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW +3.2%</span>
+                        <span class="text-gray-400">전주 대비</span>
+                    </div>
+                </div>
+                <!-- Card 4: 상품원가 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500 font-medium mb-2">상품원가</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight">555,361 원</div>
+                    <div class="flex items-center mt-2 text-xs">
+                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -1.2%</span>
+                        <span class="text-gray-400">전주 대비</span>
+                    </div>
+                </div>
+                <!-- Card 5: 광고비 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500 font-medium mb-2">광고비</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight">254,340 원</div>
+                    <div class="flex items-center mt-2 text-xs">
+                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -3.2%</span>
+                        <span class="text-gray-400">전주 대비</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Charts Section -->
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Left: Sales Trend (Wide) -->
+                <div class="col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-navy-900">매출 및 상품원가 추이</h3>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 text-xs font-bold bg-navy-900 text-white rounded-md">일별</button>
+                            <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 rounded-md">주별</button>
+                            <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 rounded-md">월별</button>
+                        </div>
+                    </div>
+                    <div class="h-72 w-full">
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Right: Channel Mix -->
+                <div class="col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-navy-900">채널별 매출 비중</h3>
+                        <i class="ph ph-dots-three text-gray-400 cursor-pointer"></i>
+                    </div>
+                    <div class="h-60 w-full relative flex justify-center">
+                        <canvas id="channelChart"></canvas>
+                        <!-- Center Text Overlay -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span class="text-xs text-gray-400">Total</span>
+                            <span class="text-xl font-bold text-navy-900">9.8억</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>배달의민족</span>
+                            <span class="font-bold">38%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-cyan-400 mr-2"></span>쿠팡이츠</span>
+                            <span class="font-bold">32%</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-gray-300 mr-2"></span>기타</span>
+                            <span class="font-bold">30%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. TOP Sales Stores Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-navy-900">TOP 매출 매장</h3>
+                    <a href="#" class="text-sm text-blue-600 font-bold hover:underline">전체보기</a>
+                </div>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-xs text-gray-500 uppercase">
+                            <th class="px-6 py-4 font-semibold w-16 text-center">NO</th>
+                            <th class="px-6 py-4 font-semibold">매장명 / 유형</th>
+                            <th class="px-6 py-4 font-semibold text-right">매출 (주문수)</th>
+                            <th class="px-6 py-4 font-semibold text-right">건단가</th>
+                            <th class="px-6 py-4 font-semibold text-center">상태</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-sm">
+                        <tr class="hover:bg-blue-50/50 transition cursor-pointer">
+                            <td class="px-6 py-4 text-center font-bold text-blue-600">1</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-navy-900">지니커피 서울 종로 광화문 디타워점</div>
+                                <div class="text-xs text-gray-400 mt-0.5">직영 / 카페·디저트</div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="font-bold text-navy-900">1,200,000원</div>
+                                <div class="text-xs text-gray-500">500건</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-gray-700">10,000원</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/50 transition cursor-pointer">
+                            <td class="px-6 py-4 text-center font-bold text-navy-900">2</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-navy-900">슬램버거 대학로점</div>
+                                <div class="text-xs text-gray-400 mt-0.5">가맹 / 패스트푸드</div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="font-bold text-navy-900">980,000원</div>
+                                <div class="text-xs text-gray-500">320건</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-gray-700">12,500원</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
+                        </tr>
+                        <tr class="hover:bg-blue-50/50 transition cursor-pointer">
+                            <td class="px-6 py-4 text-center font-bold text-navy-900">3</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-navy-900">슬램버거 강남점</div>
+                                <div class="text-xs text-gray-400 mt-0.5">직영 / 패스트푸드</div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="font-bold text-navy-900">850,000원</div>
+                                <div class="text-xs text-gray-500">280건</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium text-gray-700">13,200원</td>
+                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Floating Chatbot Button -->
+        <div class="absolute bottom-8 right-8 z-50">
+            <button onclick="document.getElementById('chatbot-modal').classList.toggle('hidden')" class="bg-navy-900 hover:bg-blue-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 flex items-center justify-center">
+                <i class="ph ph-sparkle text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Chatbot Modal (Consistent with other pages) -->
+        <div id="chatbot-modal" class="hidden absolute bottom-24 right-8 w-[400px] h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden ring-1 ring-black/5">
+            <div class="bg-navy-900 p-4 text-white font-bold flex justify-between items-center">
+                <div class="flex items-center gap-2"><i class="ph ph-robot"></i> RestoGenie AI</div>
+                <button onclick="document.getElementById('chatbot-modal').classList.add('hidden')" class="hover:text-gray-300"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="flex-1 p-4 bg-gray-50 overflow-y-auto space-y-4" id="chat-history">
+                <div class="flex gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0"><i class="ph ph-robot"></i></div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 text-gray-700">
+                        안녕하세요, 박찬일 님! 👋<br>오늘 강남점 매출이 전주 대비 10% 하락했습니다. 원인을 분석해드릴까요?
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100">
+                <div class="relative">
+                    <input type="text" id="chat-input" class="w-full bg-gray-100 rounded-full pl-4 pr-12 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="무엇이든 물어보세요...">
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-blue-600 hover:text-blue-800"><i class="ph ph-paper-plane-right text-lg"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // 1. Sales Trend Chart Configuration
+        const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: ['07.01', '07.02', '07.03', '07.04', '07.05', '07.06', '07.07'],
+                datasets: [
+                    {
+                        label: '매출',
+                        data: [120, 135, 125, 145, 160, 155, 170],
+                        borderColor: '#2563eb', // Blue 600
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: '상품원가',
+                        data: [40, 45, 42, 48, 55, 50, 58],
+                        borderColor: '#9ca3af', // Gray 400
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } },
+                    x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                },
+                interaction: { mode: 'index', intersect: false }
+            }
+        });
+
+        // 2. Channel Mix Chart Configuration
+        const ctxChannel = document.getElementById('channelChart').getContext('2d');
+        new Chart(ctxChannel, {
+            type: 'doughnut',
+            data: {
+                labels: ['배달의민족', '쿠팡이츠', '기타'],
+                datasets: [{
+                    data: [38, 32, 30],
+                    backgroundColor: ['#3b82f6', '#22d3ee', '#d1d5db'], // Blue, Cyan, Gray
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 3. Chatbot Logic (Gemini Integration Placeholder)
+        const chatInput = document.getElementById('chat-input');
+        chatInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter' && chatInput.value.trim()) {
+                const msg = chatInput.value;
+                const hist = document.getElementById('chat-history');
+                
+                // User Bubble
+                hist.innerHTML += `<div class="flex gap-2 flex-row-reverse animate-fadeIn"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="ph ph-user"></i></div><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm">${msg}</div></div>`;
+                chatInput.value = '';
+                hist.scrollTop = hist.scrollHeight;
+
+                // AI Loading
+                const loadId = 'loading-' + Date.now();
+                hist.innerHTML += `<div id="${loadId}" class="flex gap-2 animate-fadeIn"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100"><div class="loader w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div></div>`;
+                hist.scrollTop = hist.scrollHeight;
+
+                // Simulation response
+                setTimeout(() => {
+                    document.getElementById(loadId).remove();
+                    hist.innerHTML += `<div class="flex gap-2 animate-fadeIn"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 text-gray-700">데이터 분석 결과, 7월 11일 현재 배달의민족 매출 비중이 38%로 가장 높습니다. 쿠팡이츠 프로모션을 고려해보세요.</div></div>`;
+                    hist.scrollTop = hist.scrollHeight;
+                }, 1000);
+            }
+        });
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</body>
+</html>

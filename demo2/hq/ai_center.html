@@ -51,7 +51,7 @@
         <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 flex-shrink-0 z-10">
             <h2 class="text-xl font-bold text-slate-800">AI Report Center</h2>
             <div class="flex items-center gap-4">
-                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full border border-indigo-200 shadow-sm">v4.3 Full Integration</span>
+                <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full border border-green-200 shadow-sm">v4.4 Error Fix</span>
                 <div class="text-sm text-slate-500">Coins: <span id="coin-balance" class="font-bold text-yellow-500">100</span></div>
             </div>
         </header>
@@ -148,8 +148,17 @@
                     fetch(DB_URLS.menuGangnam).then(r=>r.json()), fetch(DB_URLS.menuDaehakro).then(r=>r.json()),
                     fetch(DB_URLS.cctv).then(r=>r.json()), fetch(DB_URLS.manual).then(r=>r.json())
                 ]);
-                const [sG, sD, mG, mD, cctv, manual] = results.map(r => r.status==='fulfilled'?r.value:{});
-                const context = JSON.stringify({ sales:{gangnam:sG, daehakro:sD}, menu:{gangnam:mG, daehakro:mD}, cctv, manual }).substring(0,50000);
+                // Safe unpacking using logical OR
+                const [sG, sD, mG, mD, cctv, manual] = results.map(r => r.status==='fulfilled' ? r.value : []);
+                
+                // Construct Context safely
+                const contextObj = { 
+                    sales: { gangnam: sG || [], daehakro: sD || [] }, 
+                    menu: { gangnam: mG || [], daehakro: mD || [] }, 
+                    cctv: cctv || [], 
+                    manual: manual || [] 
+                };
+                const context = JSON.stringify(contextObj).substring(0, 50000);
 
                 const userPrompt = type === 'weekly' 
                     ? "제공된 모든 데이터(매출,메뉴,CCTV,매뉴얼)를 바탕으로 본사 주간 회의록을 작성해줘. (결정사항, 액션아이템, 회의맥락, Task Tracker 포함)"
@@ -162,15 +171,20 @@
                         contents: [{ parts: [{ text: `System: Data Context: ${context}\n\nRequest: ${userPrompt}` }] }] 
                     })
                 });
+                
+                if (!res.ok) throw new Error(`API 호출 실패: ${res.status}`);
+                
                 const data = await res.json();
-                const content = data.candidates[0].content.parts[0].text;
+                // FIX: Optional Chaining to prevent 'undefined reading 0' error
+                const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI가 응답을 생성하지 못했습니다. (데이터 부족 또는 정책 위반 가능성)";
                 
                 const newLog = { id: Date.now(), title: type === 'weekly' ? '주간 회의 자료 (통합)' : '가맹점 분석 리포트 (통합)', date: new Date().toLocaleString(), content: content };
                 reportLogs.unshift(newLog);
                 renderLogs();
                 loadReport(newLog.id);
             } catch(e) { 
-                document.getElementById('view-content').innerHTML = `<p class="text-red-500">오류: ${e.message}</p>`;
+                document.getElementById('view-content').innerHTML = `<div class="p-4 bg-red-50 text-red-600 rounded-lg border border-red-200"><strong>오류 발생:</strong> ${e.message}</div>`;
+                console.error(e);
             }
         }
     </script>

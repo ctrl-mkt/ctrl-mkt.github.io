@@ -272,15 +272,25 @@
                 console.log("Integrated Data:", GLOBAL_DATA);
 
                 // 1. Normalize & Merge Sales
-                const normalizeSales = (data, store) => data.map(i => ({
-                    store,
-                    date: i.date || i['날짜'] || '2025-01-01',
-                    amount: Number(i.amount || i['매출'] || 0),
-                    count: Number(i.count || i['주문수'] || 1),
-                    channel: i.channel || i['채널'] || '기타'
-                }));
+                // Handles different column names (e.g., date/날짜, amount/매출)
+                const normalizeSales = (data, store) => {
+                    if (!Array.isArray(data)) return [];
+                    return data.map(i => ({
+                        store,
+                        date: i.date || i['날짜'] || i['일자'] || '2025-01-01',
+                        amount: Number(i.amount || i['매출'] || i['금액'] || 0),
+                        count: Number(i.count || i['주문수'] || i['건수'] || 1),
+                        channel: i.channel || i['채널'] || i['플랫폼'] || '기타'
+                    }));
+                };
 
                 const allSales = [...normalizeSales(sG, '강남점'), ...normalizeSales(sD, '대학로점')];
+
+                if (allSales.length === 0) {
+                    console.warn("No sales data found.");
+                    document.getElementById('kpi-sales').innerText = "데이터 없음";
+                    return;
+                }
 
                 // 2. Update KPIs
                 const totalSales = allSales.reduce((sum, i) => sum + i.amount, 0);
@@ -327,8 +337,14 @@
 
         function renderSalesChart(data) {
             const salesByDate = {};
-            data.forEach(i => { salesByDate[i.date] = (salesByDate[i.date] || 0) + i.amount; });
-            const labels = Object.keys(salesByDate).sort().slice(-14);
+            data.forEach(i => { 
+                // Handle date formats like "2025-10-01T..."
+                let d = i.date;
+                if (typeof d === 'string' && d.includes('T')) d = d.split('T')[0];
+                salesByDate[d] = (salesByDate[d] || 0) + i.amount; 
+            });
+            
+            const labels = Object.keys(salesByDate).sort().slice(-14); // Last 14 days
             const values = labels.map(d => salesByDate[d]);
 
             new Chart(document.getElementById('salesTrendChart'), {
@@ -347,7 +363,10 @@
         function renderChannelChart(data) {
             const salesByCh = {};
             let total = 0;
-            data.forEach(i => { salesByCh[i.channel] = (salesByCh[i.channel] || 0) + i.amount; total += i.amount; });
+            data.forEach(i => { 
+                salesByCh[i.channel] = (salesByCh[i.channel] || 0) + i.amount; 
+                total += i.amount; 
+            });
             
             document.getElementById('donut-total').innerText = (total / 100000000).toFixed(1) + "억";
             const labels = Object.keys(salesByCh);
@@ -367,7 +386,7 @@
             });
 
             document.getElementById('channel-legend').innerHTML = labels.map((l, i) => {
-                const pct = Math.round((values[i] / total) * 100);
+                const pct = total > 0 ? Math.round((values[i] / total) * 100) : 0;
                 const color = ['bg-blue-500', 'bg-cyan-400', 'bg-slate-400', 'bg-amber-400', 'bg-pink-400'][i % 5];
                 return `<div class="flex justify-between text-sm"><span class="flex items-center"><span class="w-3 h-3 rounded-full ${color} mr-2"></span>${l}</span><span class="font-bold">${pct}%</span></div>`;
             }).join('');

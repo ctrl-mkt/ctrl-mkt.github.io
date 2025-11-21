@@ -1,0 +1,313 @@
+import React, { useState } from 'react';
+import { Calendar, CheckCircle, FileText, Layout, Flag, ChevronRight, Download } from 'lucide-react';
+
+const RestoGenieWBS = () => {
+  const [activeTab, setActiveTab] = useState('all');
+
+  // WBS 데이터 구조화
+  const wbsData = [
+    {
+      id: 1,
+      phase: '사전 준비',
+      phaseType: 'prep',
+      week: '0주차',
+      title: '계약 및 행정 절차',
+      description: '프로젝트 착수를 위한 계약 및 필수 서류 확보',
+      tasks: [
+        '계약서 날인 및 교환',
+        'NDA(비밀유지서약서) 체결',
+        '사업자등록증 및 통장 사본 수취'
+      ],
+      kits: ['계약서', 'NDA', '사업자/통장사본']
+    },
+    {
+      id: 2,
+      phase: '온보딩',
+      phaseType: 'onboarding',
+      week: '1주차',
+      title: '기본 정보 취득 & 요구사항 정의',
+      description: '계정, 연동, 매뉴얼 등 기본 정보 취득 및 정리',
+      tasks: [
+        '기본 계정 및 API 정보 수집',
+        '매장 및 테스트 매장 정보 확보',
+        '기존 매뉴얼 및 담당자 소통 채널 확립',
+        '요구사항 정의서 작성'
+      ],
+      kits: [
+        '요구사항 정의서 (계정, API, 매장정보 등)',
+        '초기 WBS'
+      ]
+    },
+    {
+      id: 3,
+      phase: '온보딩',
+      phaseType: 'onboarding',
+      week: '2주차',
+      title: '니즈 분석 & 기본 연동',
+      description: '개발 화면에 대한 고객사 니즈 정리 및 기본 연동 시작',
+      tasks: [
+        '기본 연동 작업 수행',
+        '고객사 니즈와 자사 솔루션 간 Gap 분석',
+        '업무 진척 상황 공유'
+      ],
+      kits: [
+        '업무 진척 보고서',
+        'WBS 업데이트 (V1.1)'
+      ]
+    },
+    {
+      id: 4,
+      phase: '온보딩',
+      phaseType: 'onboarding',
+      week: '3주차',
+      title: '모니터링 & Ideal 니즈 도출',
+      description: '이탈 방지를 위한 동석 모니터링 및 핵심 니즈 구체화',
+      tasks: [
+        '현장 동석 모니터링 (사용률 증대)',
+        'Ideal 니즈(핵심 요구사항) 정리 및 확정',
+        '본사/가맹점주별 리포트 작성'
+      ],
+      kits: [
+        '고객사 온보딩 리포트 (직급/규모별)',
+        '업무 진척 보고서',
+        'WBS 업데이트 (Final)'
+      ]
+    },
+    {
+      id: 5,
+      phase: '개발/배포',
+      phaseType: 'dev',
+      week: '4주차',
+      title: '1차 배포 (Demo)',
+      description: '데모 화면 배포 및 개발 요건 합의',
+      tasks: [
+        '데모 버전 배포',
+        '핵심 개발 요건 최종 합의',
+        '피드백 수렴'
+      ],
+      kits: ['1차 데모 버전', '요건 합의서']
+    },
+    {
+      id: 6,
+      phase: '개발/배포',
+      phaseType: 'dev',
+      week: '6주차',
+      title: '1.5차 배포 (기능 추가)',
+      description: '데모 화면 기능 고도화 및 협의',
+      tasks: [
+        '협의된 추가 기능 구현 및 배포',
+        'UI/UX 개선 사항 반영',
+        '중간 점검 미팅'
+      ],
+      kits: ['1.5차 배포 버전', '기능 명세서 수정본']
+    },
+    {
+      id: 7,
+      phase: '개발/배포',
+      phaseType: 'dev',
+      week: '8주차',
+      title: '2차 배포 (HQ 기능 오픈)',
+      description: 'HQ 기본 기능 오픈 (B2B 화면 기획 반영)',
+      tasks: [
+        'HQ 어드민 핵심 기능 오픈',
+        '실무자 대상 기능 교육',
+        '운영 데이터 검증'
+      ],
+      kits: ['HQ 어드민 매뉴얼', '운영 가이드']
+    },
+    {
+      id: 8,
+      phase: '개발/배포',
+      phaseType: 'dev',
+      week: '12주차',
+      title: '3차 배포 (Grand Open)',
+      description: '최종 커스텀 니즈 반영 및 가맹점주 화면 오픈',
+      tasks: [
+        '최종 커스텀 기능 반영',
+        '가맹점주용 모바일/PC 화면 오픈',
+        '프로젝트 종료 및 운영 이관'
+      ],
+      kits: ['최종 산출물', '가맹점주 매뉴얼', '완료 보고서']
+    }
+  ];
+
+  // 필터링 로직
+  const filteredData = activeTab === 'all' 
+    ? wbsData 
+    : wbsData.filter(item => item.phaseType === activeTab);
+
+  // 색상 헬퍼 함수
+  const getPhaseColor = (type) => {
+    switch(type) {
+      case 'prep': return 'bg-gray-100 text-gray-600 border-gray-200';
+      case 'onboarding': return 'bg-blue-50 text-blue-600 border-blue-200';
+      case 'dev': return 'bg-indigo-50 text-indigo-600 border-indigo-200';
+      default: return 'bg-gray-50 text-gray-600';
+    }
+  };
+
+  const getPhaseBadge = (type) => {
+    switch(type) {
+      case 'prep': return 'bg-gray-500';
+      case 'onboarding': return 'bg-blue-500';
+      case 'dev': return 'bg-indigo-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-800">
+      <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-slate-200">
+        
+        {/* Header */}
+        <div className="bg-slate-900 text-white p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2 text-blue-400 font-semibold tracking-wide uppercase text-sm">
+              <Layout className="w-4 h-4" />
+              Project Schedule
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold">레스토지니 가맹본사 솔루션 온보딩 WBS</h1>
+            <p className="text-slate-400 mt-1">고객사 개발 온보딩 및 배포 시나리오 로드맵</p>
+          </div>
+          <div className="flex gap-2">
+             {/* Print button simulation */}
+            <button 
+              onClick={() => window.print()} 
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition px-4 py-2 rounded-lg text-sm font-medium"
+            >
+              <Download className="w-4 h-4" />
+              PDF 저장
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-slate-200 px-6 pt-4 gap-6 overflow-x-auto">
+          {['all', 'prep', 'onboarding', 'dev'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-4 text-sm font-medium transition-colors whitespace-nowrap border-b-2 ${
+                activeTab === tab 
+                  ? 'border-blue-600 text-blue-600' 
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {tab === 'all' && '전체 일정'}
+              {tab === 'prep' && '사전 준비 (0주차)'}
+              {tab === 'onboarding' && '온보딩 (1~3주차)'}
+              {tab === 'dev' && '개발 및 배포 (4~12주차)'}
+            </button>
+          ))}
+        </div>
+
+        {/* Table Content */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px] text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold tracking-wider">
+                <th className="p-5 w-24">주차</th>
+                <th className="p-5 w-32">단계</th>
+                <th className="p-5 w-1/4">주요 업무 (Key Activity)</th>
+                <th className="p-5">상세 내역 (Details)</th>
+                <th className="p-5 w-1/4">필요 키트 & 산출물 (Deliverables)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredData.map((row) => (
+                <tr key={row.id} className="hover:bg-slate-50/80 transition-colors group">
+                  {/* Week */}
+                  <td className="p-5 align-top">
+                    <div className="flex items-center gap-2 font-bold text-slate-700">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      {row.week}
+                    </div>
+                  </td>
+
+                  {/* Phase */}
+                  <td className="p-5 align-top">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPhaseColor(row.phaseType)}`}>
+                      {row.phase}
+                    </span>
+                  </td>
+
+                  {/* Title & Desc */}
+                  <td className="p-5 align-top">
+                    <div className="font-bold text-slate-800 text-lg mb-1">{row.title}</div>
+                    <div className="text-sm text-slate-500 leading-relaxed">{row.description}</div>
+                  </td>
+
+                  {/* Tasks */}
+                  <td className="p-5 align-top">
+                    <ul className="space-y-2">
+                      {row.tasks.map((task, idx) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{task}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+
+                  {/* Kits / Deliverables */}
+                  <td className="p-5 align-top bg-slate-50/30">
+                    <div className="flex flex-col gap-2">
+                      {row.kits.map((kit, idx) => (
+                        <div key={idx} className="flex items-center gap-2 bg-white border border-slate-200 shadow-sm rounded-md px-3 py-2 text-sm text-slate-700 hover:border-blue-300 hover:shadow-md transition-all cursor-default">
+                          <FileText className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                          <span className="truncate">{kit}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Visual Timeline Summary (Footer) */}
+        <div className="p-8 bg-slate-50 border-t border-slate-200">
+          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <Flag className="w-4 h-4" />
+            Project Roadmap Summary
+          </h3>
+          <div className="relative flex items-center justify-between w-full mt-6 px-2">
+            {/* Progress Line */}
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -z-10 rounded-full"></div>
+            
+            {/* Timeline Points */}
+            {[
+              { label: '계약/착수', week: '0W', done: true },
+              { label: '온보딩', week: '3W', done: true },
+              { label: '1차 배포', week: '4W', done: false },
+              { label: '1.5차 배포', week: '6W', done: false },
+              { label: 'HQ 오픈', week: '8W', done: false },
+              { label: 'Grand Open', week: '12W', done: false },
+            ].map((point, idx) => (
+              <div key={idx} className="flex flex-col items-center bg-slate-50 px-2 z-10">
+                <div className={`w-4 h-4 rounded-full border-2 ${point.done ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-300'}`}></div>
+                <div className="mt-2 text-xs font-bold text-slate-700">{point.week}</div>
+                <div className="text-[10px] text-slate-500 font-medium hidden md:block mt-1">{point.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="max-w-6xl mx-auto mt-4 text-center text-slate-400 text-xs">
+        © 2024 RestoGenie Corp. All rights reserved.
+      </div>
+      
+      <style>{`
+        @media print {
+          body { background: white; }
+          button { display: none; }
+          .shadow-xl { shadow: none; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default RestoGenieWBS;

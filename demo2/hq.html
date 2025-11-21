@@ -68,23 +68,21 @@
         <!-- TOP HEADER -->
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0">
             <div class="flex items-center gap-4">
-                <h2 class="text-lg font-bold text-navy-900">Company Name</h2>
+                <h2 class="text-lg font-bold text-navy-900">슬램버거 본사 (Slamburger HQ)</h2>
                 <div class="h-4 w-px bg-gray-300"></div>
-                <span class="text-sm text-gray-500">통합 대시보드</span>
+                <span class="text-sm text-gray-500">통합 대시보드 (Real-time Data)</span>
             </div>
             <div class="flex items-center gap-6">
-                <!-- Date Picker Mock -->
-                <div class="flex items-center bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 cursor-pointer hover:bg-gray-200 transition">
-                    <i class="ph ph-calendar-blank mr-2"></i> 2025-07-11 (금)
+                <div class="flex items-center bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-600">
+                    <i class="ph ph-calendar-blank mr-2"></i> 2025.10 기준 (Live)
                 </div>
-                <!-- User Profile -->
                 <div class="flex items-center gap-3">
                     <div class="text-right">
-                        <div class="text-sm font-bold text-navy-900">박찬일</div>
-                        <div class="text-xs text-gray-500">최고관리자</div>
+                        <div class="text-sm font-bold text-navy-900">관리자</div>
+                        <div class="text-xs text-gray-500">HQ Admin</div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border border-gray-300">
-                        <i class="ph ph-user text-2xl text-gray-400 w-full h-full flex items-center justify-center"></i>
+                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border border-gray-300 flex items-center justify-center">
+                        <i class="ph ph-user text-xl text-gray-500"></i>
                     </div>
                 </div>
             </div>
@@ -93,65 +91,66 @@
         <!-- SCROLLABLE DASHBOARD -->
         <div class="flex-1 overflow-y-auto p-8 space-y-6">
             
-            <!-- 1. 5-Column KPI Cards (기획서 반영) -->
+            <!-- Loading Indicator -->
+            <div id="loading-overlay" class="hidden fixed inset-0 bg-white/80 z-50 flex items-center justify-center backdrop-blur-sm">
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="text-navy-900 font-bold animate-pulse">실시간 매장 데이터 연동 중...</p>
+                </div>
+            </div>
+
+            <!-- 1. 5-Column KPI Cards -->
             <div class="grid grid-cols-5 gap-4">
                 <!-- Card 1: 매출 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 font-medium mb-2">매출</div>
-                    <div class="text-2xl font-bold text-navy-900 tracking-tight">91,258,534 원</div>
-                    <div class="flex items-center mt-2 text-xs">
-                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -3.2%</span>
-                        <span class="text-gray-400">전주 대비</span>
+                    <div class="text-sm text-gray-500 font-medium mb-2">전사 총매출</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight" id="total-sales">-</div>
+                    <div class="flex items-center mt-2 text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded w-fit">
+                        <span id="sales-wow">데이터 수신 중...</span>
                     </div>
                 </div>
                 <!-- Card 2: 주문건수 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 font-medium mb-2">주문건수</div>
-                    <div class="text-2xl font-bold text-navy-900 tracking-tight">1,268 건</div>
-                    <div class="flex items-center mt-2 text-xs">
-                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -2.2%</span>
-                        <span class="text-gray-400">전주 대비</span>
+                    <div class="text-sm text-gray-500 font-medium mb-2">총 주문건수</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight" id="total-orders">-</div>
+                    <div class="flex items-center mt-2 text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded w-fit">
+                        <span>실시간 집계</span>
                     </div>
                 </div>
                 <!-- Card 3: 건단가 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 font-medium mb-2">건단가</div>
-                    <div class="text-2xl font-bold text-navy-900 tracking-tight">5,499 원</div>
-                    <div class="flex items-center mt-2 text-xs">
-                        <span class="text-red-500 bg-red-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW +3.2%</span>
-                        <span class="text-gray-400">전주 대비</span>
+                    <div class="text-sm text-gray-500 font-medium mb-2">평균 객단가</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight" id="avg-ticket">-</div>
+                    <div class="flex items-center mt-2 text-xs text-red-500 bg-red-50 px-1.5 py-0.5 rounded w-fit">
+                        <span id="ticket-wow">분석 중</span>
                     </div>
                 </div>
-                <!-- Card 4: 상품원가 -->
+                <!-- Card 4: 상품원가 (추정) -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 font-medium mb-2">상품원가</div>
-                    <div class="text-2xl font-bold text-navy-900 tracking-tight">555,361 원</div>
-                    <div class="flex items-center mt-2 text-xs">
-                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -1.2%</span>
-                        <span class="text-gray-400">전주 대비</span>
+                    <div class="text-sm text-gray-500 font-medium mb-2">총 상품원가 (Est.)</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight" id="total-cogs">-</div>
+                    <div class="flex items-center mt-2 text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded w-fit">
+                        <span>원가율 약 35% 적용</span>
                     </div>
                 </div>
-                <!-- Card 5: 광고비 -->
+                <!-- Card 5: 광고비 (추정) -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 font-medium mb-2">광고비</div>
-                    <div class="text-2xl font-bold text-navy-900 tracking-tight">254,340 원</div>
-                    <div class="flex items-center mt-2 text-xs">
-                        <span class="text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded font-bold mr-2">WoW -3.2%</span>
-                        <span class="text-gray-400">전주 대비</span>
+                    <div class="text-sm text-gray-500 font-medium mb-2">총 광고비 (Est.)</div>
+                    <div class="text-2xl font-bold text-navy-900 tracking-tight" id="total-ad">-</div>
+                    <div class="flex items-center mt-2 text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded w-fit">
+                        <span>매출 대비 약 8%</span>
                     </div>
                 </div>
             </div>
 
             <!-- 2. Charts Section -->
             <div class="grid grid-cols-12 gap-6">
-                <!-- Left: Sales Trend (Wide) -->
+                <!-- Left: Sales Trend -->
                 <div class="col-span-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-navy-900">매출 및 상품원가 추이</h3>
+                        <h3 class="text-lg font-bold text-navy-900">전사 일별 매출 추이</h3>
                         <div class="flex gap-2">
-                            <button class="px-3 py-1 text-xs font-bold bg-navy-900 text-white rounded-md">일별</button>
-                            <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 rounded-md">주별</button>
-                            <button class="px-3 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 rounded-md">월별</button>
+                            <span class="text-xs text-gray-400">* 최근 30일 데이터</span>
                         </div>
                     </div>
                     <div class="h-72 w-full">
@@ -163,29 +162,16 @@
                 <div class="col-span-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-bold text-navy-900">채널별 매출 비중</h3>
-                        <i class="ph ph-dots-three text-gray-400 cursor-pointer"></i>
                     </div>
                     <div class="h-60 w-full relative flex justify-center">
                         <canvas id="channelChart"></canvas>
-                        <!-- Center Text Overlay -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <span class="text-xs text-gray-400">Total</span>
-                            <span class="text-xl font-bold text-navy-900">9.8억</span>
+                            <span class="text-lg font-bold text-navy-900" id="donut-total">-</span>
                         </div>
                     </div>
-                    <div class="mt-4 space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>배달의민족</span>
-                            <span class="font-bold">38%</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-cyan-400 mr-2"></span>쿠팡이츠</span>
-                            <span class="font-bold">32%</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-gray-300 mr-2"></span>기타</span>
-                            <span class="font-bold">30%</span>
-                        </div>
+                    <div class="mt-4 space-y-2" id="channel-legend">
+                        <!-- Legend Injected by JS -->
                     </div>
                 </div>
             </div>
@@ -193,73 +179,35 @@
             <!-- 3. TOP Sales Stores Table -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-navy-900">TOP 매출 매장</h3>
-                    <a href="#" class="text-sm text-blue-600 font-bold hover:underline">전체보기</a>
+                    <h3 class="text-lg font-bold text-navy-900">실시간 매장 매출 순위</h3>
                 </div>
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-gray-50 text-xs text-gray-500 uppercase">
-                            <th class="px-6 py-4 font-semibold w-16 text-center">NO</th>
-                            <th class="px-6 py-4 font-semibold">매장명 / 유형</th>
-                            <th class="px-6 py-4 font-semibold text-right">매출 (주문수)</th>
-                            <th class="px-6 py-4 font-semibold text-right">건단가</th>
+                            <th class="px-6 py-4 font-semibold w-16 text-center">순위</th>
+                            <th class="px-6 py-4 font-semibold">매장명</th>
+                            <th class="px-6 py-4 font-semibold text-right">매출액</th>
+                            <th class="px-6 py-4 font-semibold text-right">주문수</th>
+                            <th class="px-6 py-4 font-semibold text-right">객단가</th>
                             <th class="px-6 py-4 font-semibold text-center">상태</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 text-sm">
-                        <tr class="hover:bg-blue-50/50 transition cursor-pointer">
-                            <td class="px-6 py-4 text-center font-bold text-blue-600">1</td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-navy-900">지니커피 서울 종로 광화문 디타워점</div>
-                                <div class="text-xs text-gray-400 mt-0.5">직영 / 카페·디저트</div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="font-bold text-navy-900">1,200,000원</div>
-                                <div class="text-xs text-gray-500">500건</div>
-                            </td>
-                            <td class="px-6 py-4 text-right font-medium text-gray-700">10,000원</td>
-                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/50 transition cursor-pointer">
-                            <td class="px-6 py-4 text-center font-bold text-navy-900">2</td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-navy-900">슬램버거 대학로점</div>
-                                <div class="text-xs text-gray-400 mt-0.5">가맹 / 패스트푸드</div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="font-bold text-navy-900">980,000원</div>
-                                <div class="text-xs text-gray-500">320건</div>
-                            </td>
-                            <td class="px-6 py-4 text-right font-medium text-gray-700">12,500원</td>
-                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
-                        </tr>
-                        <tr class="hover:bg-blue-50/50 transition cursor-pointer">
-                            <td class="px-6 py-4 text-center font-bold text-navy-900">3</td>
-                            <td class="px-6 py-4">
-                                <div class="font-bold text-navy-900">슬램버거 강남점</div>
-                                <div class="text-xs text-gray-400 mt-0.5">직영 / 패스트푸드</div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="font-bold text-navy-900">850,000원</div>
-                                <div class="text-xs text-gray-500">280건</div>
-                            </td>
-                            <td class="px-6 py-4 text-right font-medium text-gray-700">13,200원</td>
-                            <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
-                        </tr>
+                    <tbody class="divide-y divide-gray-100 text-sm" id="store-rank-body">
+                        <tr><td colspan="6" class="text-center py-8 text-gray-400">데이터를 불러오는 중입니다...</td></tr>
                     </tbody>
                 </table>
             </div>
 
         </div>
 
-        <!-- Floating Chatbot Button -->
+        <!-- Chatbot Floating Button -->
         <div class="absolute bottom-8 right-8 z-50">
             <button onclick="document.getElementById('chatbot-modal').classList.toggle('hidden')" class="bg-navy-900 hover:bg-blue-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 flex items-center justify-center">
                 <i class="ph ph-sparkle text-2xl"></i>
             </button>
         </div>
 
-        <!-- Chatbot Modal (Consistent with other pages) -->
+        <!-- Chatbot Modal -->
         <div id="chatbot-modal" class="hidden absolute bottom-24 right-8 w-[400px] h-[600px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden ring-1 ring-black/5">
             <div class="bg-navy-900 p-4 text-white font-bold flex justify-between items-center">
                 <div class="flex items-center gap-2"><i class="ph ph-robot"></i> RestoGenie AI</div>
@@ -269,13 +217,14 @@
                 <div class="flex gap-2">
                     <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0"><i class="ph ph-robot"></i></div>
                     <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 text-gray-700">
-                        안녕하세요, 박찬일 님! 👋<br>오늘 강남점 매출이 전주 대비 10% 하락했습니다. 원인을 분석해드릴까요?
+                        안녕하세요! 슬램버거 실시간 데이터를 분석 중입니다.<br>
+                        강남점과 대학로점 현황에 대해 물어보세요.
                     </div>
                 </div>
             </div>
             <div class="p-4 bg-white border-t border-gray-100">
                 <div class="relative">
-                    <input type="text" id="chat-input" class="w-full bg-gray-100 rounded-full pl-4 pr-12 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="무엇이든 물어보세요...">
+                    <input type="text" id="chat-input" class="w-full bg-gray-100 rounded-full pl-4 pr-12 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="예: 강남점 배달 매출 분석해줘">
                     <button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-blue-600 hover:text-blue-800"><i class="ph ph-paper-plane-right text-lg"></i></button>
                 </div>
             </div>
@@ -284,100 +233,216 @@
     </main>
 
     <script>
-        // 1. Sales Trend Chart Configuration
-        const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
-        new Chart(ctxTrend, {
-            type: 'line',
-            data: {
-                labels: ['07.01', '07.02', '07.03', '07.04', '07.05', '07.06', '07.07'],
-                datasets: [
-                    {
-                        label: '매출',
-                        data: [120, 135, 125, 145, 160, 155, 170],
-                        borderColor: '#2563eb', // Blue 600
+        // --- CONFIG & DATA SOURCES ---
+        const URLS = {
+            gangnam: 'https://script.google.com/macros/s/AKfycbxr6BhzISGKFkFN2WV01WVimeyScO-EkmuCvLa7fW7UirzNW-GdFaZEjYxLFyzc8K-u/exec',
+            daehakro: 'https://script.google.com/macros/s/AKfycbxjsm0CAv0MHXlMeMEbE6zYVOGPyelMsypLjCP7x-AY4pyihaAhYNkhVSHwfvJ8v9d7/exec',
+            gangnamMenu: 'https://script.google.com/macros/s/AKfycbxBN0nSsS4hKhlgQ7uZiaUdvsL5vcIlYXknxUA9RerSwrsTbRBLPQef-Quz-Hrx75V-/exec',
+            daehakroMenu: 'https://script.google.com/macros/s/AKfycbyFwfswTigzJyqQUW43LscmlYwRlCC0sbvyZNGBxmRJdbqwL-hvbTiP05Nmp5Rv13GV/exec',
+            cctv: 'https://script.google.com/macros/s/AKfycbw9jQJ5lD4ABwqaTH-p1TdyfB8heCe-0-wEdRB1Z_YnjNfZ4Pw0jj_OLw6X8J4uES7o/exec'
+        };
+
+        // Format Currency
+        const fmt = (n) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(n);
+        const fmtNum = (n) => new Intl.NumberFormat('ko-KR').format(n);
+
+        // --- MAIN LOGIC ---
+        async function initDashboard() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            
+            try {
+                // 1. Fetch Sales Data (Parallel)
+                const [gData, dData] = await Promise.all([
+                    fetch(URLS.gangnam).then(r => r.json()),
+                    fetch(URLS.daehakro).then(r => r.json())
+                ]);
+
+                // 2. Process Data
+                // Assumption: Data is array of objects like {date: 'YYYY-MM-DD', amount: 1000, channel: '...', ...}
+                // We will aggregate robustly.
+                
+                const allSales = [...gData, ...dData];
+                
+                // --- KPI Calculation ---
+                const totalSales = allSales.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+                const totalOrders = allSales.length; // Assuming 1 row = 1 order. If aggregated, sum 'count' field.
+                // If data is daily aggregated: sum(item.order_count)
+                // Let's assume row-level for detailed analytics or pre-aggregated. 
+                // Safe fallback: if item.count exists, use it. Else 1.
+                const realTotalOrders = allSales.reduce((sum, item) => sum + (Number(item.count) || 1), 0);
+                
+                const avgTicket = realTotalOrders > 0 ? Math.round(totalSales / realTotalOrders) : 0;
+
+                // Update KPI Cards
+                document.getElementById('total-sales').innerText = fmt(totalSales);
+                document.getElementById('total-orders').innerText = fmtNum(realTotalOrders) + " 건";
+                document.getElementById('avg-ticket').innerText = fmt(avgTicket);
+                
+                // Estimates
+                document.getElementById('total-cogs').innerText = fmt(Math.round(totalSales * 0.35)); // 35% Cost
+                document.getElementById('total-ad').innerText = fmt(Math.round(totalSales * 0.08)); // 8% Ad
+
+                // --- Store Ranking Table ---
+                const gSales = gData.reduce((s, i) => s + (Number(i.amount)||0), 0);
+                const dSales = dData.reduce((s, i) => s + (Number(i.amount)||0), 0);
+                const gCount = gData.reduce((s, i) => s + (Number(i.count)||1), 0);
+                const dCount = dData.reduce((s, i) => s + (Number(i.count)||1), 0);
+
+                const stores = [
+                    { name: '슬램버거 강남점', sales: gSales, count: gCount, ticket: gSales/gCount },
+                    { name: '슬램버거 대학로점', sales: dSales, count: dCount, ticket: dSales/dCount }
+                ].sort((a, b) => b.sales - a.sales);
+
+                const tbody = document.getElementById('store-rank-body');
+                tbody.innerHTML = stores.map((s, idx) => `
+                    <tr class="hover:bg-blue-50/50 transition cursor-pointer">
+                        <td class="px-6 py-4 text-center font-bold ${idx===0?'text-blue-600':'text-navy-900'}">${idx+1}</td>
+                        <td class="px-6 py-4 font-bold text-navy-900">${s.name}</td>
+                        <td class="px-6 py-4 text-right font-bold text-navy-900">${fmt(s.sales)}</td>
+                        <td class="px-6 py-4 text-right text-gray-500">${fmtNum(s.count)}건</td>
+                        <td class="px-6 py-4 text-right font-medium text-gray-700">${fmt(Math.round(s.ticket))}</td>
+                        <td class="px-6 py-4 text-center"><span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">영업중</span></td>
+                    </tr>
+                `).join('');
+
+                // --- Charts ---
+                renderSalesChart(allSales);
+                renderChannelChart(allSales);
+
+            } catch (e) {
+                console.error(e);
+                alert("데이터를 불러오는 중 오류가 발생했습니다. (Console 확인)");
+            } finally {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        }
+
+        function renderSalesChart(data) {
+            // Aggregate by Date
+            const salesByDate = {};
+            data.forEach(item => {
+                const date = item.date ? item.date.split('T')[0] : 'Unknown'; // Simple date parsing
+                salesByDate[date] = (salesByDate[date] || 0) + (Number(item.amount) || 0);
+            });
+
+            // Sort Dates
+            const labels = Object.keys(salesByDate).sort().slice(-14); // Last 14 days
+            const values = labels.map(d => salesByDate[d]);
+
+            new Chart(document.getElementById('salesTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '전사 매출',
+                        data: values,
+                        borderColor: '#2563eb',
                         backgroundColor: 'rgba(37, 99, 235, 0.1)',
                         borderWidth: 2,
                         tension: 0.4,
-                        fill: true,
-                        pointRadius: 0,
-                        pointHoverRadius: 6
-                    },
-                    {
-                        label: '상품원가',
-                        data: [40, 45, 42, 48, 55, 50, 58],
-                        borderColor: '#9ca3af', // Gray 400
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 6
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } }
+                        fill: true
+                    }]
                 },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { font: { size: 11 } } },
-                    x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderChannelChart(data) {
+            // Aggregate by Channel
+            const salesByChannel = {};
+            let total = 0;
+            data.forEach(item => {
+                const ch = item.channel || '기타'; // Field name assumption
+                const amt = Number(item.amount) || 0;
+                salesByChannel[ch] = (salesByChannel[ch] || 0) + amt;
+                total += amt;
+            });
+
+            document.getElementById('donut-total').innerText = (total / 100000000).toFixed(1) + "억";
+
+            const labels = Object.keys(salesByChannel);
+            const values = Object.values(salesByChannel);
+            
+            new Chart(document.getElementById('channelChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#3b82f6', '#22d3ee', '#94a3b8', '#fbbf24', '#f472b6'],
+                        borderWidth: 0
+                    }]
                 },
-                interaction: { mode: 'index', intersect: false }
-            }
-        });
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '75%', 
+                    plugins: { legend: { display: false } } 
+                }
+            });
 
-        // 2. Channel Mix Chart Configuration
-        const ctxChannel = document.getElementById('channelChart').getContext('2d');
-        new Chart(ctxChannel, {
-            type: 'doughnut',
-            data: {
-                labels: ['배달의민족', '쿠팡이츠', '기타'],
-                datasets: [{
-                    data: [38, 32, 30],
-                    backgroundColor: ['#3b82f6', '#22d3ee', '#d1d5db'], // Blue, Cyan, Gray
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '75%',
-                plugins: { legend: { display: false } }
-            }
-        });
+            // Custom Legend
+            const legendHTML = labels.map((l, i) => {
+                const pct = Math.round((values[i] / total) * 100);
+                const color = ['bg-blue-500', 'bg-cyan-400', 'bg-slate-400', 'bg-amber-400', 'bg-pink-400'][i % 5];
+                return `
+                    <div class="flex justify-between text-sm">
+                        <span class="flex items-center"><span class="w-3 h-3 rounded-full ${color} mr-2"></span>${l}</span>
+                        <span class="font-bold">${pct}%</span>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('channel-legend').innerHTML = legendHTML;
+        }
 
-        // 3. Chatbot Logic (Gemini Integration Placeholder)
-        const chatInput = document.getElementById('chat-input');
-        chatInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && chatInput.value.trim()) {
-                const msg = chatInput.value;
-                const hist = document.getElementById('chat-history');
+        // Start
+        initDashboard();
+
+        // --- CHATBOT (Gemini 2.5 Flash Integration) ---
+        const GEMINI_API_KEY = "AIzaSyCILSrQKjRiupRcyNd1pFJUksNMkGVY8AQ"; // User Provided Key
+        const MODEL = "gemini-2.5-flash-preview-09-2025";
+
+        document.getElementById('chat-input').addEventListener('keypress', async (e) => {
+            if(e.key === 'Enter' && e.target.value.trim()) {
+                const userMsg = e.target.value;
+                const history = document.getElementById('chat-history');
                 
-                // User Bubble
-                hist.innerHTML += `<div class="flex gap-2 flex-row-reverse animate-fadeIn"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 flex-shrink-0"><i class="ph ph-user"></i></div><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm">${msg}</div></div>`;
-                chatInput.value = '';
-                hist.scrollTop = hist.scrollHeight;
+                // User Msg
+                history.innerHTML += `<div class="flex gap-2 flex-row-reverse"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none text-sm">${userMsg}</div></div>`;
+                e.target.value = '';
+                history.scrollTop = history.scrollHeight;
 
-                // AI Loading
-                const loadId = 'loading-' + Date.now();
-                hist.innerHTML += `<div id="${loadId}" class="flex gap-2 animate-fadeIn"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100"><div class="loader w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div></div>`;
-                hist.scrollTop = hist.scrollHeight;
+                // Loading
+                const loadId = 'load-'+Date.now();
+                history.innerHTML += `<div id="${loadId}" class="flex gap-2"><div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100"><div class="loader w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div></div>`;
+                history.scrollTop = history.scrollHeight;
 
-                // Simulation response
-                setTimeout(() => {
+                try {
+                    // Fetch latest data context for AI
+                    const [gData, dData] = await Promise.all([fetch(URLS.gangnam).then(r=>r.json()), fetch(URLS.daehakro).then(r=>r.json())]);
+                    const context = JSON.stringify({ gangnam: gData.slice(-5), daehakro: dData.slice(-5) }); // Send last 5 records context
+
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ 
+                            contents: [{ parts: [{ text: `Context (Sales Data JSON): ${context}\n\nUser Question: ${userMsg}\n\nAnswer simply in Korean.` }] }] 
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다. 답변을 생성하지 못했습니다.";
+
                     document.getElementById(loadId).remove();
-                    hist.innerHTML += `<div class="flex gap-2 animate-fadeIn"><div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 text-gray-700">데이터 분석 결과, 7월 11일 현재 배달의민족 매출 비중이 38%로 가장 높습니다. 쿠팡이츠 프로모션을 고려해보세요.</div></div>`;
-                    hist.scrollTop = hist.scrollHeight;
-                }, 1000);
+                    history.innerHTML += `<div class="flex gap-2"><div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="ph ph-robot"></i></div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 prose prose-sm">${marked.parse(aiText)}</div></div>`;
+                    history.scrollTop = history.scrollHeight;
+
+                } catch (err) {
+                    document.getElementById(loadId).remove();
+                    history.innerHTML += `<div class="flex gap-2"><div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600"><i class="ph ph-warning"></i></div><div class="bg-white p-3 text-red-600 text-sm">오류: ${err.message}</div></div>`;
+                }
             }
         });
     </script>
-    <style>
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
-    </style>
 </body>
 </html>

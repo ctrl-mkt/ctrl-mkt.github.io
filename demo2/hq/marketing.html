@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoGenie HQ - Marketing</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+                    colors: { navy: { 900: '#0f172a', 800: '#1e293b' }, blue: { 500: '#3b82f6' } }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-navy-900 text-white flex flex-col shadow-lg z-20">
+        <div class="p-6 flex items-center gap-2 cursor-pointer" onclick="location.href='../hq.html'">
+            <i class="ph ph-robot text-2xl text-blue-400"></i>
+            <span class="text-xl font-bold">RestoGenie HQ</span>
+        </div>
+        <div class="px-6 pb-4"><span class="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded">HQ Mode</span></div>
+        <nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+            <a href="../hq.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-chart-pie-slice text-lg mr-3"></i><span class="font-medium">HQ 종합 대시보드</span></a>
+            <a href="marketing.html" class="flex items-center px-3 py-3 bg-blue-600 text-white rounded-lg transition"><i class="ph ph-megaphone text-lg mr-3"></i><span class="font-medium">마케팅 현황</span></a>
+            <a href="commercial.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-map-pin text-lg mr-3"></i><span class="font-medium">상권 분석 (CCTV)</span></a>
+            <a href="store_mgmt.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-store-front text-lg mr-3"></i><span class="font-medium">매장 운영 관리</span></a>
+            <a href="menu_cost.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-hamburger text-lg mr-3"></i><span class="font-medium">메뉴/원가 현황</span></a>
+            <a href="ai_center.html" class="flex items-center px-3 py-3 text-slate-300 hover:bg-navy-800 hover:text-white rounded-lg transition"><i class="ph ph-brain text-lg mr-3"></i><span class="font-medium">AI 리포트 센터</span></a>
+        </nav>
+        <div class="p-4 border-t border-navy-800">
+            <a href="../index.html" class="flex items-center text-slate-400 hover:text-white transition"><i class="ph ph-sign-out mr-2"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col">
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6">
+            <h2 class="text-xl font-bold text-slate-800">마케팅 현황</h2>
+            <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">v4.1 Sub-Page</span>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold mb-4">채널별 ROAS (광고 효율)</h3>
+                    <div class="h-64 w-full"><canvas id="roasChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold mb-4">플랫폼별 광고비 지출</h3>
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">채널</th><th class="p-2">비용</th><th class="p-2">매출</th><th class="p-2">ROAS</th></tr></thead>
+                        <tbody>
+                            <tr class="border-b"><td class="p-2">배달의민족</td><td class="p-2">50만원</td><td class="p-2">200만원</td><td class="p-2 text-blue-600 font-bold">400%</td></tr>
+                            <tr class="border-b"><td class="p-2">쿠팡이츠</td><td class="p-2">80만원</td><td class="p-2">280만원</td><td class="p-2 text-red-500 font-bold">350%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-6 right-6 z-50">
+            <button class="bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform"><i class="ph ph-sparkle text-2xl"></i></button>
+        </div>
+    </main>
+
+    <script>
+        new Chart(document.getElementById('roasChart'), {
+            type: 'bar',
+            data: { labels: ['배민', '쿠팡', '요기요', '네이버'], datasets: [{ label: 'ROAS(%)', data: [400, 350, 250, 500], backgroundColor: '#3b82f6' }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+</body>
+</html>

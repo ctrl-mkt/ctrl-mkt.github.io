@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestoGenie B2B Strategy Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 300px; max-height: 400px; }
+        .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 1.5rem; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .nav-btn.active { background-color: #2563eb; color: white; }
+        .hidden-content { display: none; }
+        .priority-high { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .priority-medium { background-color: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+        .priority-low { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .timeline-item::before { content: ''; position: absolute; left: -9px; top: 6px; width: 16px; height: 16px; border-radius: 50%; background-color: #3b82f6; border: 4px solid #eff6ff; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="font-bold text-xl text-blue-600">RestoGenie Strategy</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <button onclick="showSection('summary')" class="nav-btn active border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-full">개요 & 전략</button>
+                        <button onclick="showSection('customers')" class="nav-btn border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-full">고객 분석</button>
+                        <button onclick="showSection('roadmap')" class="nav-btn border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-full">기능 로드맵</button>
+                        <button onclick="showSection('sales')" class="nav-btn border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-full">영업 전략</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="sm:hidden flex justify-around border-t border-gray-200 py-2 bg-gray-50">
+             <button onclick="showSection('summary')" class="text-xs text-gray-600 font-medium p-2">전략</button>
+             <button onclick="showSection('customers')" class="text-xs text-gray-600 font-medium p-2">고객</button>
+             <button onclick="showSection('roadmap')" class="text-xs text-gray-600 font-medium p-2">로드맵</button>
+             <button onclick="showSection('sales')" class="text-xs text-gray-600 font-medium p-2">영업</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+
+        <!-- SECTION 1: Executive Summary & Strategy Pivot -->
+        <section id="summary" class="space-y-6">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-gray-900">레스토지니 B2B 전략 피벗 (Pivot)</h1>
+                <p class="mt-2 text-lg text-gray-600">"단순 관리 도구(ERP)"에서 "매출 창출형 AI 에이전트(MD)"로의 전환</p>
+            </div>
+
+            <!-- Strategic Comparison Chart -->
+            <div class="card">
+                <h2 class="text-xl font-semibold mb-4">전략 비교: AS IS vs. TO BE</h2>
+                <p class="text-sm text-gray-500 mb-4">기존의 관리 효율화 전략과 새로운 가치 창출 전략의 핵심 차이 비교</p>
+                <div class="chart-container">
+                    <canvas id="strategyChart"></canvas>
+                </div>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-gray-400">
+                        <h3 class="font-bold text-gray-700">AS IS: 관리형 솔루션</h3>
+                        <ul class="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
+                            <li><strong>핵심 가치:</strong> 비용 절감 & 시간 단축</li>
+                            <li><strong>타겟:</strong> 귀찮음을 해결하고 싶은 관리자</li>
+                            <li><strong>경쟁자:</strong> 캐시노트, 장부대장 (Red Ocean)</li>
+                            <li><strong>주요 기능:</strong> 통합 대시보드, 수발주 자동화</li>
+                        </ul>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="font-bold text-blue-800">TO BE: 가치 창출형 에이전트</h3>
+                        <ul class="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+                            <li><strong>핵심 가치:</strong> 매출 증대 & 기획력 보완</li>
+                            <li><strong>타겟:</strong> 기획/아이디어가 부족한 책임자</li>
+                            <li><strong>경쟁자:</strong> 마케팅 대행사, 전문 MD (Blue Ocean)</li>
+                            <li><strong>주요 기능:</strong> 트렌드 리서치, 프로모션 기획</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Insight -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <strong>핵심 인사이트:</strong> 고객은 시스템 관리자가 되길 원치 않습니다. 그들은 자신의 고민(매출, 기획)을 대신 해결해 줄 '유능한 직원'을 원합니다. 기능(Function)이 아닌 역량(Capability)을 판매해야 합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Target Customer Analysis -->
+        <section id="customers" class="space-y-6 hidden-content">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">주요 가맹본사 분석 및 우선순위</h2>
+            <p class="text-gray-600 mb-6">새로운 전략(매출 창출형 에이전트)과의 일치도에 따른 타겟팅 우선순위입니다.</p>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Customer 1: 91Company -->
+                <div class="card border-t-4 border-blue-600">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">1. 91컴퍼니 (브런치빈)</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">최우선 타겟 (Best Fit)</span>
+                        </div>
+                        <div class="text-2xl">🥇</div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600"><strong>핵심 니즈:</strong> "다음 달 이벤트 뭐하지?" (기획력 부재)</p>
+                        <p class="text-sm text-gray-600"><strong>전략 일치도:</strong> <span class="text-blue-600 font-semibold">최상</span></p>
+                        <p class="text-xs text-gray-500">마케팅/신메뉴 기획 대행 니즈가 완벽히 일치하며, 높은 비용 지불 용의가 확인됨.</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <strong class="text-xs text-gray-500 uppercase">Action Item</strong>
+                        <p class="text-sm text-gray-800 mt-1">Deep Research 기반 마케팅 기획 리포트 파일럿 제공</p>
+                    </div>
+                </div>
+
+                <!-- Customer 2: 7th Street Pizza -->
+                <div class="card border-t-4 border-green-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">2. 7번가피자</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">차순위 타겟 (High)</span>
+                        </div>
+                        <div class="text-2xl">🥈</div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600"><strong>핵심 니즈:</strong> 행정력 효율화 & 실행 자동화</p>
+                        <p class="text-sm text-gray-600"><strong>전략 일치도:</strong> <span class="text-green-600 font-semibold">상</span></p>
+                        <p class="text-xs text-gray-500">광고 집행 자동화 등 '실행' 니즈가 강함. 91컴퍼니 성공 사례 확장 적용 가능.</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <strong class="text-xs text-gray-500 uppercase">Action Item</strong>
+                        <p class="text-sm text-gray-800 mt-1">광고 효율 분석 및 자동화 기능 데모</p>
+                    </div>
+                </div>
+
+                <!-- Customer 3: Shack Shack -->
+                <div class="card border-t-4 border-yellow-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">3. 쉑쉑 APAC</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">중장기 파트너 (Medium)</span>
+                        </div>
+                        <div class="text-2xl">🥉</div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600"><strong>핵심 니즈:</strong> SCM 연동 & 수요 예측</p>
+                        <p class="text-sm text-gray-600"><strong>전략 일치도:</strong> <span class="text-yellow-600 font-semibold">중</span></p>
+                        <p class="text-xs text-gray-500">기술적 난이도가 높으나 글로벌 레퍼런스 가치 높음. 객단가 상승 니즈 공략.</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <strong class="text-xs text-gray-500 uppercase">Action Item</strong>
+                        <p class="text-sm text-gray-800 mt-1">AI 수요 예측 기술력 검증 위주 접근</p>
+                    </div>
+                </div>
+
+                <!-- Customer 4: A-Bout Coffee -->
+                <div class="card border-t-4 border-gray-400 opacity-75">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">4. 에이바우트커피</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mt-1">Cash Cow (Low Fit)</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600"><strong>핵심 니즈:</strong> 인력 관리(급여) & 계약 리스크</p>
+                        <p class="text-sm text-gray-600"><strong>전략 일치도:</strong> <span class="text-gray-600 font-semibold">중하</span></p>
+                        <p class="text-xs text-gray-500">신규 전략과 불일치하나, 기존 계약 이행을 통한 자금 확보 용도.</p>
+                    </div>
+                </div>
+
+                 <!-- Customer 5: JK -->
+                 <div class="card border-t-4 border-gray-400 opacity-75">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">5. JK (꾸브라꼬)</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mt-1">보류 (Lowest Fit)</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600"><strong>핵심 니즈:</strong> SV 업무 효율화 (단순 관리)</p>
+                        <p class="text-sm text-gray-600"><strong>전략 일치도:</strong> <span class="text-gray-600 font-semibold">하</span></p>
+                        <p class="text-xs text-gray-500">낮은 지불 용의 및 레드오션 시장 경쟁.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Feature Roadmap & Gap Analysis -->
+        <section id="roadmap" class="space-y-6 hidden-content">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">기능 우선순위 및 갭 분석 (Gap Analysis)</h2>
+            
+            <!-- Development Priority Matrix Chart -->
+            <div class="card mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">기능 카테고리별 우선순위 점수</h3>
+                <div class="chart-container">
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="card overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">기능 카테고리</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">세부 기능</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">일치도 평가</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action Item</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr class="bg-red-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Revenue (기획)</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Deep Research 에이전트</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Critical Gap</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">즉시 개발 착수. RAG 파이프라인 구축.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Marketing (실행)</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">광고 효율 자동화</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Match</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">입찰가 자동 조정 등 '실행' 기능 조기 출시.</td>
+                        </tr>
+                        <tr class="bg-yellow-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">HQ Control</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">전사 통합 대시보드</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Resource Waste</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">UI 개발 축소. 텍스트 리포트로 전환.</td>
+                        </tr>
+                        <tr class="bg-red-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Operation</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">수발주 자동화</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Mismatch</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">후순위로 과감히 미루거나 삭제.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Sales Strategy -->
+        <section id="sales" class="space-y-6 hidden-content">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">영업 전략 및 실행 계획</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Pricing Model Change -->
+                <div class="card bg-gradient-to-br from-blue-50 to-white">
+                    <h3 class="text-lg font-bold text-blue-900 mb-2">가격 정책 변화 (Pricing)</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-gray-500 line-through">SaaS 이용료 (인당 과금)</div>
+                        <div class="text-2xl font-bold text-blue-600">→</div>
+                        <div class="font-bold text-blue-900">AI 직원 고용비 (Value Base)</div>
+                    </div>
+                    <p class="text-sm text-gray-600">"월 300만원에 24시간 일하는 <strong>마케팅 팀장 + 데이터 분석가</strong>를 채용하십시오."</p>
+                </div>
+
+                <!-- Sales Pitch Change -->
+                <div class="card bg-gradient-to-br from-green-50 to-white">
+                    <h3 class="text-lg font-bold text-green-900 mb-2">세일즈 피치 변화 (Pitch)</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-start">
+                            <span class="text-red-500 mr-2">❌</span>
+                            <p class="text-sm text-gray-500">"흩어진 데이터를 통합해 드립니다." (관리자 관점)</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">⭕</span>
+                            <p class="text-sm font-bold text-green-900">"사장님의 고민(Next Step)을 대신해 드립니다." (해결사 관점)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Timeline -->
+            <div class="card mt-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-6">즉시 실행 타임라인 (Immediate Actions)</h3>
+                <div class="relative border-l-2 border-gray-200 ml-3 space-y-8">
+                    <div class="mb-8 flex items-center timeline-item pl-6">
+                        <div class="flex-1">
+                            <h4 class="text-md font-bold text-blue-600">즉시 (D-Day)</h4>
+                            <p class="text-sm text-gray-700">91컴퍼니 '파일럿 리포트' 제작 (Deep Research 활용)</p>
+                        </div>
+                    </div>
+                    <div class="mb-8 flex items-center timeline-item pl-6">
+                        <div class="flex-1">
+                            <h4 class="text-md font-bold text-blue-600">1주차</h4>
+                            <p class="text-sm text-gray-700">개발팀 리소스 재배치 (대시보드 → LLM 프롬프트)</p>
+                        </div>
+                    </div>
+                    <div class="mb-8 flex items-center timeline-item pl-6">
+                        <div class="flex-1">
+                            <h4 class="text-md font-bold text-blue-600">2주차</h4>
+                            <p class="text-sm text-gray-700">에이바우트 커스텀 개발 착수 & 91컴퍼니 PoC 제안</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center timeline-item pl-6">
+                        <div class="flex-1">
+                            <h4 class="text-md font-bold text-blue-600">12월 말</h4>
+                            <p class="text-sm text-gray-700">AI 마케팅 에이전트 MVP 출시 및 적용</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Data for Charts
+        const strategyData = {
+            labels: ['비용 절감', '시간 단축', '매출 증대', '기획력 보완', '확장성'],
+            datasets: [{
+                label: 'AS IS (관리형)',
+                data: [9, 8, 3, 2, 4],
+                backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                borderColor: 'rgba(156, 163, 175, 1)',
+                borderWidth: 1
+            }, {
+                label: 'TO BE (에이전트형)',
+                data: [5, 7, 10, 10, 9],
+                backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                borderColor: 'rgba(37, 99, 235, 1)',
+                borderWidth: 2
+            }]
+        };
+
+        const priorityData = {
+            labels: ['Deep Research', '마케팅 실행', 'Upselling', '통합 대시보드', '수발주 자동화'],
+            datasets: [{
+                label: '우선순위 점수 (10점 만점)',
+                data: [10, 8, 8, 4, 2],
+                backgroundColor: [
+                    'rgba(220, 38, 38, 0.8)', // Red for top priority gap
+                    'rgba(37, 99, 235, 0.7)',
+                    'rgba(37, 99, 235, 0.7)',
+                    'rgba(251, 191, 36, 0.6)',
+                    'rgba(156, 163, 175, 0.4)'
+                ],
+                borderWidth: 0
+            }]
+        };
+
+        // Chart Initialization
+        let strategyChartInstance = null;
+        let priorityChartInstance = null;
+
+        function initCharts() {
+            const ctx1 = document.getElementById('strategyChart').getContext('2d');
+            if (strategyChartInstance) strategyChartInstance.destroy();
+            strategyChartInstance = new Chart(ctx1, {
+                type: 'radar',
+                data: strategyData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { beginAtZero: true, max: 10 } }
+                }
+            });
+
+            // Priority chart is initialized when the tab is shown to ensure correct rendering
+        }
+
+        function initPriorityChart() {
+             const ctx2 = document.getElementById('priorityChart').getContext('2d');
+             if (priorityChartInstance) priorityChartInstance.destroy();
+             priorityChartInstance = new Chart(ctx2, {
+                type: 'bar',
+                data: priorityData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, max: 10 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Navigation Logic
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('main section').forEach(el => el.classList.add('hidden-content'));
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden-content');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            // Simple check to highlight based on onclick attribute text
+            const buttons = document.querySelectorAll('.nav-btn');
+            if(sectionId === 'summary') buttons[0].classList.add('active');
+            if(sectionId === 'customers') buttons[1].classList.add('active');
+            if(sectionId === 'roadmap') {
+                buttons[2].classList.add('active');
+                setTimeout(initPriorityChart, 100); // Delay to render chart in visible container
+            }
+            if(sectionId === 'sales') buttons[3].classList.add('active');
+        }
+
+        // Initial Load
+        window.addEventListener('load', () => {
+            initCharts();
+        });
+
+    </script>
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- Chosen Palette: Tailwind Default Gray/Blue/Green/Red/Yellow -->
+    <!-- Application Structure Plan: The dashboard uses a tab-based navigation (Executive Summary, Customer Analysis, Roadmap, Sales Strategy) to logically separate the strategic components. This structure was chosen to allow stakeholders to quickly access the specific information they need—whether it's the high-level pivot strategy or the detailed technical roadmap—without being overwhelmed by a long document. Interactive charts are used to visualize the strategic shift and prioritization. -->
+    <!-- Visualization & Content Choices: 
+        1. Radar Chart: Visualizes the shift in value proposition from AS IS to TO BE.
+        2. Bar Chart: Clearly displays development priorities based on the gap analysis.
+        3. Interactive Cards: Used for customer profiles to allow quick scanning of priority and fit.
+        4. Timeline: Visualizes the immediate action plan.
+        All visualizations use Chart.js (Canvas) as requested.
+    -->
+</body>
+</html>

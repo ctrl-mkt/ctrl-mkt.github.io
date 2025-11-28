@@ -4,410 +4,488 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RestoGenie 수익 리포트 - 슬램버거 강남점</title>
+    <!-- Pretendard Font -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
         :root {
             /* Toss Color System */
-            --toss-blue: #3182F6;
-            --toss-blue-light: #E8F3FF;
-            --toss-red: #E54E5A;
-            --toss-red-light: #FDEBEA;
-            --toss-green: #24C853;
-            --toss-green-light: #E4FBF0;
+            --blue-500: #3182F6;
+            --blue-100: #E8F3FF;
+            --red-500: #E54E5A;
+            --red-100: #FDEBEA;
+            --green-500: #24C853; /* Positive change usually uses Red in KR stocks, but Toss uses Blue/Red contextually. Here Red=Risk, Blue/Green=Good for clarity */
+            --green-100: #E4FBF0;
             
-            --grey-900: #191F28; /* Primary Text */
+            --grey-900: #191F28;
             --grey-800: #333D4B;
-            --grey-700: #4E5968; /* Secondary Text */
+            --grey-700: #4E5968;
             --grey-600: #6B7684;
-            --grey-500: #8B95A1; /* Tertiary Text */
+            --grey-500: #8B95A1;
             --grey-400: #B0B8C1;
             --grey-300: #D1D6DB;
-            --grey-100: #F2F4F6; /* Background */
-            --grey-50: #F9FAFB;
-            
+            --grey-200: #E5E8EB;
+            --grey-100: #F2F4F6;
             --white: #FFFFFF;
+
+            --font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+            font-family: var(--font-family);
             background-color: var(--grey-100);
             color: var(--grey-900);
             line-height: 1.5;
-            padding: 20px 16px 40px;
+            padding-bottom: 80px; /* Space for bottom actions */
         }
 
-        .app-container {
-            max-width: 600px; /* 모바일 뷰 최적화 */
+        .container {
+            max-width: 720px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
-        /* Typography Utilities */
-        .text-header { font-size: 24px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
-        .text-title { font-size: 18px; font-weight: 700; color: var(--grey-900); margin-bottom: 12px; }
-        .text-subtitle { font-size: 15px; font-weight: 500; color: var(--grey-700); }
-        .text-body { font-size: 15px; color: var(--grey-800); line-height: 1.6; }
-        .text-caption { font-size: 13px; color: var(--grey-500); }
-        .text-bold { font-weight: 700; }
+        /* Typography */
+        h1 { font-size: 26px; font-weight: 700; line-height: 1.3; color: var(--grey-900); }
+        h2 { font-size: 20px; font-weight: 700; color: var(--grey-900); margin-bottom: 12px; }
+        h3 { font-size: 16px; font-weight: 600; color: var(--grey-800); }
         
-        /* Layout Components */
+        .t-body { font-size: 15px; color: var(--grey-700); line-height: 1.6; }
+        .t-caption { font-size: 13px; color: var(--grey-500); }
+        .t-bold { font-weight: 700; color: var(--grey-900); }
+        .t-blue { color: var(--blue-500); }
+        .t-red { color: var(--red-500); }
+
+        /* Header */
+        header {
+            padding: 60px 0 30px;
+        }
+        .header-tag {
+            display: inline-block;
+            background-color: var(--blue-100);
+            color: var(--blue-500);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .header-sub {
+            margin-top: 12px;
+            font-size: 15px;
+            color: var(--grey-600);
+        }
+
+        /* Cards & Sections */
+        .section { margin-bottom: 40px; }
+        
         .card {
             background-color: var(--white);
             border-radius: 24px;
             padding: 24px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
 
-        .section-header {
-            margin: 32px 4px 12px;
+        .card-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
-        }
-        
-        .section-header .text-title { margin-bottom: 0; font-size: 20px; }
-
-        /* Badge & Chips */
-        .badge {
-            display: inline-flex;
             align-items: center;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-blue { background-color: var(--toss-blue-light); color: var(--toss-blue); }
-        .badge-red { background-color: var(--toss-red-light); color: var(--toss-red); }
-        .badge-green { background-color: var(--toss-green-light); color: var(--toss-green); }
-        .badge-grey { background-color: var(--grey-100); color: var(--grey-600); }
-
-        /* Custom Components */
-        
-        /* 1. Summary Box */
-        .summary-box {
-            background-color: var(--grey-50);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 16px;
-        }
-        .summary-highlight {
-            color: var(--toss-blue);
-            font-weight: 700;
-            font-size: 17px;
-            margin-bottom: 8px;
-            display: block;
+            margin-bottom: 16px;
         }
 
-        /* 2. List Items (Good/Bad) */
-        .list-item {
+        /* List Items (Good/Bad) */
+        .pros-cons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .pc-item {
             display: flex;
             gap: 12px;
-            margin-bottom: 12px;
-            align-items: flex-start;
         }
-        .list-item:last-child { margin-bottom: 0; }
-        .list-icon {
-            flex-shrink: 0;
+        .pc-icon {
             width: 24px;
             height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
             font-size: 12px;
-            font-weight: bold;
         }
-        .icon-good { background-color: var(--toss-green-light); color: var(--toss-green); }
-        .icon-bad { background-color: var(--toss-red-light); color: var(--toss-red); }
+        .icon-good { background-color: var(--blue-100); color: var(--blue-500); }
+        .icon-bad { background-color: var(--red-100); color: var(--red-500); }
 
-        /* 3. KPI Grid */
+        /* KPI Grid */
         .kpi-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
-        .kpi-card {
-            background-color: var(--grey-50);
-            padding: 16px;
-            border-radius: 16px;
+        .kpi-box {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 20px;
         }
-        .kpi-label { font-size: 13px; color: var(--grey-600); margin-bottom: 6px; }
+        .kpi-label { font-size: 13px; color: var(--grey-600); margin-bottom: 8px; }
         .kpi-value { font-size: 18px; font-weight: 700; color: var(--grey-900); }
-        .kpi-diff { font-size: 12px; font-weight: 600; margin-top: 4px; }
-        .diff-pos { color: var(--toss-red); } /* Toss uses Red for Increase usually in stocks, but standard is red=bad green=good. Following context. Let's use Red for Risk, Blue/Green for Good */
-        .color-blue { color: var(--toss-blue); }
-        .color-red { color: var(--toss-red); }
+        .kpi-desc { font-size: 12px; margin-top: 4px; font-weight: 500; }
 
-        /* 4. Simple Table */
-        .simple-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
+        /* Data List (Table Replacement) */
+        .data-list {
+            list-style: none;
         }
-        .simple-table td {
-            padding: 12px 0;
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
             border-bottom: 1px solid var(--grey-100);
+            font-size: 15px;
         }
-        .simple-table tr:last-child td { border-bottom: none; }
-        .table-label { color: var(--grey-700); }
-        .table-value { text-align: right; font-weight: 600; color: var(--grey-900); }
+        .data-row:last-child { border-bottom: none; }
+        .data-label { color: var(--grey-700); }
+        .data-val { font-weight: 600; color: var(--grey-900); text-align: right; }
 
-        /* 5. Insight Avatar */
-        .insight-item {
+        /* Insight Bubbles */
+        .insight-card {
             display: flex;
             gap: 16px;
-            margin-bottom: 24px;
+            padding: 20px;
+            background-color: var(--grey-100); /* Slightly different from main bg if on white */
+            border-radius: 20px;
+            margin-bottom: 12px;
         }
-        .insight-item:last-child { margin-bottom: 0; }
-        .insight-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 16px;
-            background-color: var(--toss-blue-light);
-            color: var(--toss-blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
+        .insight-num {
+            font-size: 16px; font-weight: 800; color: var(--blue-500);
             flex-shrink: 0;
         }
 
-        /* 6. Action List */
-        .action-list {
-            list-style: none;
-        }
+        /* Action List */
         .action-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
+            align-items: flex-start;
+            padding: 20px 0;
             border-bottom: 1px solid var(--grey-100);
         }
-        .action-item:last-child { border-bottom: none; }
-        .action-content { flex: 1; margin-right: 16px; }
-        .action-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .action-desc { font-size: 13px; color: var(--grey-600); }
-        .action-btn {
-            background-color: var(--grey-100);
-            color: var(--grey-700);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
+        .action-check {
+            width: 20px; height: 20px;
+            border: 2px solid var(--grey-300);
+            border-radius: 50%;
+            margin-right: 16px;
+            margin-top: 2px;
         }
+        .badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            background-color: var(--grey-100);
+            color: var(--grey-600);
+        }
+        .badge-essential { background-color: var(--red-100); color: var(--red-500); }
+        .badge-growth { background-color: var(--blue-100); color: var(--blue-500); }
 
         /* Footer */
-        .footer {
+        footer {
+            margin-top: 60px;
             text-align: center;
-            margin-top: 40px;
-            color: var(--grey-400);
+            color: var(--grey-500);
             font-size: 12px;
+            padding: 20px;
         }
 
         /* Divider */
-        .divider {
-            height: 1px;
-            background-color: var(--grey-100);
-            margin: 20px 0;
+        .divider { height: 1px; background-color: var(--grey-100); margin: 24px 0; }
+        
+        /* Highlight Box */
+        .highlight-box {
+            background-color: var(--blue-500);
+            color: var(--white);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
+        .highlight-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .highlight-text { font-size: 14px; opacity: 0.9; line-height: 1.6; }
 
     </style>
 </head>
 <body>
 
-<div class="app-container">
-
-    <header style="margin-bottom: 24px;">
-        <span class="badge badge-blue" style="margin-bottom: 12px;">Profitability Focus Edition</span>
-        <h1 class="text-header">슬램버거 강남점<br>수익성 리포트</h1>
-        <p class="text-subtitle" style="margin-top: 8px;">최근 2개월 간의 매출과 비용을 분석하여,<br>수익성 중심의 운영 방향을 제안합니다.</p>
+<div class="container">
+    
+    <!-- HEADER -->
+    <header>
+        <span class="header-tag">RestoGenie 매장 분석</span>
+        <h1>슬램버거 강남점<br>수익성 리포트</h1>
+        <p class="header-sub">최근 2개월의 매출과 비용을 분석했어요.<br>남는 돈을 늘리기 위한 핵심 전략을 확인해보세요.</p>
+        <div style="margin-top: 24px; display: flex; gap: 8px; font-size: 13px; color: var(--grey-600);">
+            <span>📅 최근 2개월 기준</span>
+            <span>📍 강남점 단일 분석</span>
+        </div>
     </header>
 
-    <div class="section-header">
-        <h2 class="text-title">1. 3초 요약</h2>
-    </div>
-
-    <div class="card">
-        <h3 class="text-title" style="font-size: 16px;">"안정적이지만, 무거운 고정비"</h3>
-        <p class="text-body">
-            매출은 전월 대비 <strong>4.25%</strong> 늘며 완만하게 성장 중입니다. 하지만 매출의 <strong>절반 이상(55.7%)</strong>이 고정비로 나가고 있어 체감 수익은 크지 않습니다.
-        </p>
-        <div class="summary-box">
-            <span class="summary-highlight">지금 바로 남는 돈을 늘리려면?</span>
-            <p class="text-caption" style="color: var(--grey-700);">오프라인은 이미 잘하고 있습니다. <br>이제 잠들어 있는 '온라인'을 깨우고, '고정비' 다이어트를 시작할 때입니다.</p>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="list-item">
-            <div class="list-icon icon-good">👍</div>
-            <div>
-                <div class="text-bold" style="font-size: 14px; margin-bottom: 2px;">잘하고 있어요</div>
-                <div class="text-caption">평균 손익률 35.6% 유지 중<br>변동비(재료비 등) 관리 매우 우수</div>
+    <!-- SECTION 1: 요약 -->
+    <div class="section">
+        <h2>1. 3초 요약</h2>
+        
+        <div class="highlight-box">
+            <div class="highlight-title">"안정적이지만, 무거운 고정비"</div>
+            <div class="highlight-text">
+                매출은 지난달보다 <strong>4.25%</strong> 늘며 꾸준히 성장하고 있어요.
+                하지만 고정비가 수익의 절반 이상을 차지하고 있어, 사장님이 체감하는 이익은 크지 않을 수 있습니다.
             </div>
         </div>
-        <div class="divider"></div>
-        <div class="list-item">
-            <div class="list-icon icon-bad">👀</div>
-            <div>
-                <div class="text-bold" style="font-size: 14px; margin-bottom: 2px;">아쉬워요</div>
-                <div class="text-caption">매출 97%가 오프라인에 쏠려있음<br>고정비 비중이 너무 높음</div>
-            </div>
-        </div>
-    </div>
 
-    <div class="section-header">
-        <h2 class="text-title">2. 핵심 지표</h2>
-        <span class="text-caption">최근 2개월 기준</span>
-    </div>
-
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">당월 매출</div>
-            <div class="kpi-value">512만원</div>
-            <div class="kpi-diff color-blue">+4.25%</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">평균 손익률</div>
-            <div class="kpi-value">35.6%</div>
-            <div class="kpi-diff color-blue">양호</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">고정비</div>
-            <div class="kpi-value">285만원</div>
-            <div class="kpi-diff color-red">매출의 55%</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-label">변동비</div>
-            <div class="kpi-value">24만원</div>
-            <div class="kpi-diff color-blue">매출의 4.7%</div>
-        </div>
-        <div class="kpi-card" style="grid-column: span 2;">
-            <div class="kpi-label">채널 비중</div>
-            <div style="display: flex; align-items: baseline; justify-content: space-between;">
-                <div class="kpi-value">오프라인 97%</div>
-                <div class="text-caption">온라인 3%</div>
+        <div class="card">
+            <h3>잘하고 있어요 👍</h3>
+            <div class="pros-cons" style="margin-top: 16px;">
+                <div class="pc-item">
+                    <div class="pc-icon icon-good">1</div>
+                    <div>
+                        <div class="t-bold">매출이 꾸준히 오르고 있어요</div>
+                        <div class="t-caption">전월 대비 +4.25% 성장하며 우상향 중이에요.</div>
+                    </div>
+                </div>
+                <div class="pc-item">
+                    <div class="pc-icon icon-good">2</div>
+                    <div>
+                        <div class="t-bold">남는 돈의 비율이 좋아요</div>
+                        <div class="t-caption">평균 손익률 35.6%로 안정적이에요.</div>
+                    </div>
+                </div>
+                <div class="pc-item">
+                    <div class="pc-icon icon-good">3</div>
+                    <div>
+                        <div class="t-bold">재료비 관리를 잘하셨어요</div>
+                        <div class="t-caption">매출 대비 변동비가 4.76%로 낮게 유지되고 있어요.</div>
+                    </div>
+                </div>
             </div>
-            <div style="width: 100%; height: 6px; background: #eee; border-radius: 10px; margin-top: 8px; overflow: hidden;">
-                <div style="width: 97%; height: 100%; background: var(--toss-blue);"></div>
+
+            <div class="divider"></div>
+
+            <h3>아쉬워요 👀</h3>
+            <div class="pros-cons" style="margin-top: 16px;">
+                <div class="pc-item">
+                    <div class="pc-icon icon-bad">1</div>
+                    <div>
+                        <div class="t-bold">숨만 쉬어도 나가는 돈이 많아요</div>
+                        <div class="t-caption">고정비가 매출의 55.7%나 차지해요.</div>
+                    </div>
+                </div>
+                <div class="pc-item">
+                    <div class="pc-icon icon-bad">2</div>
+                    <div>
+                        <div class="t-bold">오프라인에만 너무 쏠려 있어요</div>
+                        <div class="t-caption">매출의 97%가 오프라인이에요. 온라인은 잠들어 있어요.</div>
+                    </div>
+                </div>
+                <div class="pc-item">
+                    <div class="pc-icon icon-bad">3</div>
+                    <div>
+                        <div class="t-bold">일부 장부 내용이 비어있어요</div>
+                        <div class="t-caption">전월 변동비와 이번 달 매입 기록이 없어 정확한 진단이 어려워요.</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="section-header">
-        <h2 class="text-title">3. 상세 분석</h2>
+    <!-- SECTION 2: 핵심 지표 -->
+    <div class="section">
+        <h2>2. 핵심 지표 스냅샷</h2>
+        <div class="kpi-grid">
+            <div class="kpi-box">
+                <div class="kpi-label">이번 달 매출</div>
+                <div class="kpi-value">512만원</div>
+                <div class="kpi-desc t-blue">+4.25% 성장</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">평균 손익률</div>
+                <div class="kpi-value">35.6%</div>
+                <div class="kpi-desc t-blue">안정적</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">고정비</div>
+                <div class="kpi-value">285만원</div>
+                <div class="kpi-desc t-red">매출의 55.7%</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">변동비</div>
+                <div class="kpi-value">24만원</div>
+                <div class="kpi-desc t-blue">매출의 4.7%</div>
+            </div>
+            <div class="kpi-box" style="grid-column: span 2;">
+                <div class="kpi-label">채널별 비중</div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span class="t-bold">오프라인 97%</span>
+                    <span class="t-caption">온라인 3%</span>
+                </div>
+                <div style="width: 100%; height: 8px; background-color: var(--grey-200); border-radius: 4px; margin-top: 8px; overflow: hidden;">
+                    <div style="width: 97%; height: 100%; background-color: var(--blue-500);"></div>
+                </div>
+                <div class="kpi-desc" style="color: var(--grey-500); margin-top: 8px;">온라인은 아직 시동을 걸지 않은 상태예요.</div>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <h3 class="text-title" style="font-size: 16px;">숫자로 보는 매장 건강검진</h3>
-        <table class="simple-table">
-            <tr>
-                <td class="table-label">당월 매출 합계</td>
-                <td class="table-value" style="color: var(--toss-blue);">5,128,570원</td>
-            </tr>
-            <tr>
-                <td class="table-label">전월 매출 합계</td>
-                <td class="table-value">4,919,310원</td>
-            </tr>
-            <tr>
-                <td class="table-label">매출 증감액</td>
-                <td class="table-value">+209,260원</td>
-            </tr>
-            <tr>
-                <td class="table-label">고정비 합계</td>
-                <td class="table-value" style="color: var(--toss-red);">약 2,858,520원</td>
-            </tr>
-            <tr>
-                <td class="table-label">오프라인 마진 변동</td>
-                <td class="table-value">일 10만~17만원</td>
-            </tr>
-        </table>
-        <div class="summary-box" style="margin-top: 12px; background-color: var(--toss-blue-light);">
-            <p class="text-caption" style="color: var(--toss-blue); font-weight: 600;">💡 Insight</p>
-            <p class="text-caption" style="color: var(--grey-800); margin-top: 4px;">
-                매출은 꾸준히 오르고 있지만, <strong>고정비가 수익의 상단을 누르고 있습니다.</strong> 매출이 조금만 흔들려도 마진이 급격히 줄어들 수 있는 구조이니 주의가 필요합니다.
+    <!-- SECTION 3: 상세 분석 -->
+    <div class="section">
+        <h2>3. 상세 분석</h2>
+        <div class="card">
+            <h3 style="margin-bottom: 20px;">주요 지표 뜯어보기</h3>
+            <ul class="data-list">
+                <li class="data-row">
+                    <span class="data-label">당월 매출 합계</span>
+                    <span class="data-val t-blue">5,128,570원</span>
+                </li>
+                <li class="data-row">
+                    <span class="data-label">전월 매출 합계</span>
+                    <span class="data-val">4,919,310원</span>
+                </li>
+                <li class="data-row">
+                    <span class="data-label">매출 증감</span>
+                    <span class="data-val t-blue">+209,260원</span>
+                </li>
+                <li class="data-row">
+                    <span class="data-label">고정비 합계</span>
+                    <span class="data-val t-red">약 2,858,520원</span>
+                </li>
+                <li class="data-row">
+                    <span class="data-label">오프라인 마진 변동</span>
+                    <span class="data-val">일 10만~17만원</span>
+                </li>
+            </ul>
+            <div style="background-color: var(--grey-100); padding: 16px; border-radius: 12px; margin-top: 20px;">
+                <div class="t-caption">
+                    <strong>💡 분석 메모</strong><br>
+                    매출은 완만하게 오르고 있지만(4.25%↑), 고정비가 무겁게 누르고 있어 매출이 조금만 줄어도 타격이 클 수 있는 구조예요. '빈칸 채우기(데이터 입력)'부터 시작해야 더 정확한 진단이 가능해요.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4: 리스크 요인 -->
+    <div class="section">
+        <h2>4. 무엇을 지키고, 무엇을 조심할까요?</h2>
+        
+        <div class="card">
+            <h3>지켜야 할 것 (Good)</h3>
+            <ul style="margin-top: 12px; padding-left: 20px; color: var(--grey-700); font-size: 15px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>성장의 중심, 오프라인:</strong> 매출의 97%를 책임지고 있어요. 이번달 성장도 여기서 나왔습니다.</li>
+                <li style="margin-bottom: 8px;"><strong>안정적인 손익률:</strong> 35.6%는 업종 평균 대비 아주 훌륭한 수준이에요.</li>
+                <li><strong>비용 통제력:</strong> 변동비가 4%대로 아주 잘 관리되고 있습니다.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>조심해야 할 것 (Risk)</h3>
+            <ul style="margin-top: 12px; padding-left: 20px; color: var(--grey-700); font-size: 15px; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>데이터 공백:</strong> 지난달 변동비나 이번 달 매입 기록이 빠져있어요. 예고 없이 비용이 늘어날 수 있습니다.</li>
+                <li style="margin-bottom: 8px;"><strong>고정비 의존도:</strong> 매출이 꺾이면 손익이 급격히 나빠질 수 있는 구조입니다.</li>
+                <li><strong>들쑥날쑥한 마진:</strong> 오프라인 마진이 일별로 10만원에서 17만원까지 차이가 큽니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SECTION 5: 인사이트 -->
+    <div class="section">
+        <h2>5. 한눈에 보는 인사이트</h2>
+        
+        <div class="card" style="padding: 12px; background-color: transparent; box-shadow: none;">
+            <div class="insight-card" style="background-color: var(--white); box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                <div class="insight-num">01</div>
+                <div>
+                    <div class="t-bold">장사는 잘 되는데, 왜 남는 게 적을까요?</div>
+                    <div class="t-body" style="margin-top: 4px; font-size: 14px;">매출의 절반 이상이 고정비로 나가고 있어요. 사장님 통장에 실제로 꽂히는 돈을 늘리려면 고정비를 꼭 점검해야 해요.</div>
+                </div>
+            </div>
+            <div class="insight-card" style="background-color: var(--white); box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                <div class="insight-num">02</div>
+                <div>
+                    <div class="t-bold">온라인은 아직 '잠자는 보물'</div>
+                    <div class="t-body" style="margin-top: 4px; font-size: 14px;">지금 매출의 97%가 오프라인이에요. 온라인을 조금만 건드려도 성장할 여지가 아주 커요.</div>
+                </div>
+            </div>
+            <div class="insight-card" style="background-color: var(--white); box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                <div class="insight-num">03</div>
+                <div>
+                    <div class="t-bold">빈칸을 채우는 게 돈 버는 일</div>
+                    <div class="t-body" style="margin-top: 4px; font-size: 14px;">장부의 빈 숫자만 채워도 어디서 돈이 새는지 바로 보일 거예요.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 6: 액션 플랜 -->
+    <div class="section">
+        <h2>6. 다음 달 목표</h2>
+        <p class="t-caption" style="margin-bottom: 16px;">이번 달에 딱 하나만 실천해 보세요.</p>
+
+        <div class="card">
+            <div class="action-item">
+                <div class="action-check"></div>
+                <div>
+                    <div class="t-bold">고정비 1페이지로 정리하기 <span class="badge badge-essential">필수</span></div>
+                    <div class="t-caption" style="margin-top: 4px;">어디서 돈이 제일 많이 나가는지 적어보세요. 줄일 수 있는 항목 2개만 찾아도 성공이에요.</div>
+                </div>
+            </div>
+            <div class="action-item">
+                <div class="action-check"></div>
+                <div>
+                    <div class="t-bold">장부 빈칸 채우기 <span class="badge">기본</span></div>
+                    <div class="t-caption" style="margin-top: 4px;">매월 말일, 빠진 매입/변동비 기록을 채우는 루틴을 만들어보세요.</div>
+                </div>
+            </div>
+            <div class="action-item">
+                <div class="action-check"></div>
+                <div>
+                    <div class="t-bold">온라인 실험 시작하기 <span class="badge badge-growth">성장</span></div>
+                    <div class="t-caption" style="margin-top: 4px;">배달앱 1곳, 메뉴 1개만 골라서 집중적으로 팔아보세요.</div>
+                </div>
+            </div>
+            <div class="action-item">
+                <div class="action-check"></div>
+                <div>
+                    <div class="t-bold">매출 하락 시나리오 짜기</div>
+                    <div class="t-caption" style="margin-top: 4px;">매출이 10% 줄어든다면? 당장 줄일 비용을 미리 생각해두세요.</div>
+                </div>
+            </div>
+
+            <div style="background-color: var(--blue-100); padding: 16px; border-radius: 12px; margin-top: 20px; text-align: center;">
+                <span class="t-bold" style="color: var(--blue-500); font-size: 14px;">모두 다 할 필요 없어요.<br>가장 쉬운 것 하나부터 시작해 보세요!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 7: 결론 -->
+    <div class="section">
+        <h2>7. 마무리</h2>
+        <div class="card">
+            <p class="t-body">
+                슬램버거 강남점은 <strong>체력(손익률)은 좋지만, 몸집(고정비)이 무거운 상태</strong>예요. <br><br>
+                지금 가장 필요한 건 거창한 투자가 아니라, <strong>고정비 다이어트와 장부 정리</strong>입니다. 이것만 해도 다음 달엔 "왜 돈이 덜 남지?"라는 고민이 훨씬 줄어들 거예요.<br><br>
+                온라인이라는 든든한 지원군도 대기 중이니, 하나씩 차근차근 실행해 보시길 응원합니다!
             </p>
         </div>
     </div>
 
-    <div class="section-header">
-        <h2 class="text-title">4. 인사이트</h2>
-    </div>
-
-    <div class="card">
-        <div class="insight-item">
-            <div class="insight-avatar">1</div>
-            <div>
-                <div class="text-bold" style="font-size: 15px; margin-bottom: 4px;">장사는 잘 되지만, 체감 수익은 낮아요</div>
-                <div class="text-caption">매출과 손익률은 좋지만, 고정비 지출이 커서 사장님이 실제로 가져가는 돈은 적게 느껴질 수 있습니다.</div>
-            </div>
-        </div>
-        <div class="insight-item">
-            <div class="insight-avatar">2</div>
-            <div>
-                <div class="text-bold" style="font-size: 15px; margin-bottom: 4px;">온라인은 잠들어 있는 '보조 엔진'</div>
-                <div class="text-caption">매출 97%가 오프라인입니다. 온라인이 안 되는 게 아니라, 아직 시동을 안 건 상태에 가깝습니다. 성장 가능성이 큽니다.</div>
-            </div>
-        </div>
-        <div class="insight-item">
-            <div class="insight-avatar">3</div>
-            <div>
-                <div class="text-bold" style="font-size: 15px; margin-bottom: 4px;">빈칸 채우기가 곧 돈 버는 일</div>
-                <div class="text-caption">일부 데이터(전월 변동비 등)가 비어 있어 정확한 진단이 어렵습니다. 숫자를 꼼꼼히 채우는 것부터가 리스크 관리의 시작입니다.</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section-header">
-        <h2 class="text-title">5. 다음 달 액션 플랜</h2>
-        <span class="text-caption">실행 가능한 목표</span>
-    </div>
-
-    <div class="card">
-        <ul class="action-list">
-            <li class="action-item">
-                <div class="action-content">
-                    <div class="action-title">고정비 정밀 분해하기</div>
-                    <div class="action-desc">어디서 돈이 새는지 항목별로 1페이지 정리</div>
-                </div>
-                <span class="badge badge-red">필수</span>
-            </li>
-            <li class="action-item">
-                <div class="action-content">
-                    <div class="action-title">데이터 빈칸 채우기</div>
-                    <div class="action-desc">매월 말일, 빠진 장부 숫자 기입 루틴</div>
-                </div>
-                <span class="badge badge-grey">기본</span>
-            </li>
-            <li class="action-item">
-                <div class="action-content">
-                    <div class="action-title">온라인 실험 시작하기</div>
-                    <div class="action-desc">배달앱 1곳, 메뉴 1개 집중 공략해보기</div>
-                </div>
-                <span class="badge badge-blue">성장</span>
-            </li>
-        </ul>
-        <div style="margin-top: 20px; padding: 16px; background: linear-gradient(90deg, #F9F9F9, #F2F4F6); border-radius: 12px; text-align: center;">
-            <p class="text-caption" style="color: var(--grey-800);">
-                한 달 안에 다 할 필요 없어요.<br>
-                <strong>가장 쉬운 것 하나만 골라서 시작해보세요.</strong>
-            </p>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <strong>RestoGenie</strong> Profit Report<br>
-        Slam Burger Gangnam Branch
+    <!-- FOOTER -->
+    <footer>
+        <div style="font-weight: 700; margin-bottom: 8px;">RestoGenie Profit Report</div>
+        <div>슬램버거 강남점 수익 분석 리포트</div>
+        <div style="margin-top: 12px; opacity: 0.6;">숫자는 거짓말을 하지 않아요. 데이터를 통해 더 나은 결정을 돕습니다.</div>
     </footer>
 
 </div>

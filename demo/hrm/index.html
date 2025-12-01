@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.19 - 급여 계산 픽스)</title>
+    <title>레스토지니 파트너센터 (v2.21 - 소수점 올림 처리)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -365,7 +365,7 @@
                         const d = new Date(startOfWeek);
                         d.setDate(startOfWeek.getDate() + i);
                         const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
-                        days.push({ label: ['일','월','화','수','목','금','토'][i], date: dd, fullDate: `${y}-${m}-${dd}` });
+                        days.push({ label: ['월','화','수','목','금','토','일'][i], date: dd, fullDate: `${y}-${m}-${dd}` });
                     }
                     this.weekDays = days;
                 },
@@ -458,7 +458,7 @@
 
                             if (!weekStats[weekNum]) weekStats[weekNum] = { hours: 0, excluded: false, reasons: new Set(), weeklyBasePay: 0 };
                             
-                            const contract = emp.schedule && emp.schedule[dayName];
+                            const contract = emp.schedule?.[dayName];
                             const isScheduled = contract && contract.active;
                             const shift = this.shifts.find(s => s.date === dateStr && s.empId === emp.id);
                             
@@ -506,18 +506,18 @@
                             }
                         });
 
-                        const gross = Math.floor(base + juhyu);
+                        const gross = Math.ceil(base + juhyu);
                         
                         let deductions = { pension:0, health:0, care:0, employ:0, tax:0, total:0 };
                         if (emp.contractType === 'freelancer') {
-                            deductions.tax = Math.floor(gross * 0.033 / 10) * 10;
+                            deductions.tax = Math.ceil(gross * 0.033 / 10) * 10;
                         } else {
-                            deductions.pension = Math.floor(gross * 0.045 / 10) * 10;
-                            deductions.health = Math.floor(gross * 0.03545 / 10) * 10;
-                            deductions.care = Math.floor(deductions.health * 0.1295 / 10) * 10;
-                            deductions.employ = Math.floor(gross * 0.009 / 10) * 10;
-                            const iTax = Math.floor(gross * 0.01 / 10) * 10;
-                            deductions.tax = iTax + Math.floor(iTax * 0.1 / 10) * 10;
+                            deductions.pension = Math.ceil(gross * 0.045 / 10) * 10;
+                            deductions.health = Math.ceil(gross * 0.03545 / 10) * 10;
+                            deductions.care = Math.ceil(deductions.health * 0.1295 / 10) * 10;
+                            deductions.employ = Math.ceil(gross * 0.009 / 10) * 10;
+                            const iTax = Math.ceil(gross * 0.01 / 10) * 10;
+                            deductions.tax = iTax + Math.ceil(iTax * 0.1 / 10) * 10;
                         }
                         deductions.total = deductions.pension + deductions.health + deductions.care + deductions.employ + deductions.tax;
 

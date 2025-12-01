@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.21 - 소수점 올림 처리)</title>
+    <title>레스토지니 파트너센터 (v2.23 - 급여 상세 내역 강화)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -19,7 +19,7 @@
                             blue: '#3182F6', blueLight: '#E8F3FF', grey50: '#F9FAFB', grey100: '#F2F4F6',
                             grey200: '#E5E8EB', grey300: '#D1D6DB', grey400: '#B0B8C1', grey500: '#8B95A1',
                             grey600: '#6B7684', grey700: '#4E5968', grey800: '#333D4B', grey900: '#191F28',
-                            red: '#F04452', green: '#26D07C'
+                            red: '#F04452', green: '#26D07C', orange: '#FF9500', orangeLight: '#FFF7E6'
                         }
                     },
                     boxShadow: { 'toss': '0 4px 20px rgba(0, 0, 0, 0.04)', 'toss-hover': '0 8px 30px rgba(0, 0, 0, 0.08)' }
@@ -123,7 +123,16 @@
                                                     <div><div class="font-bold" x-text="emp.name"></div><div class="text-xs text-toss-grey500" x-text="formatRole(emp.role)"></div></div>
                                                 </div>
                                             </td>
-                                            <td><span class="px-2 py-1 rounded text-xs font-medium" :class="emp.contractType==='insurance4'?'bg-green-100 text-green-700':'bg-orange-100 text-orange-700'" x-text="emp.contractType==='insurance4'?'4대보험':'프리랜서'"></span></td>
+                                            <td>
+                                                <span class="px-2 py-1 rounded text-xs font-medium" 
+                                                      :class="{
+                                                          'bg-green-100 text-green-700': emp.contractType==='insurance4',
+                                                          'bg-toss-orangeLight text-toss-orange': emp.contractType==='freelancer',
+                                                          'bg-blue-100 text-blue-700': emp.contractType==='insurance2'
+                                                      }" 
+                                                      x-text="getContractLabel(emp.contractType)">
+                                                </span>
+                                            </td>
                                             <td><div class="font-medium" x-text="formatCurrency(emp.basePay)"></div><div class="text-xs text-toss-grey500" x-text="emp.role==='parttime'?'시급':'월급'"></div></td>
                                             <td><div class="flex gap-1"><template x-for="(s,d) in emp.schedule"><span x-show="s.active" class="text-xs bg-toss-grey100 px-1.5 py-0.5 rounded" x-text="d"></span></template></div></td>
                                             <td class="text-sm text-toss-grey600" x-text="emp.joinDate"></td>
@@ -136,7 +145,7 @@
                     </div>
                 </div>
 
-                <!-- 2. 근무 일정 -->
+                <!-- 2. 근무 일정 (동일) -->
                 <div x-show="activeTab === 'calendar'" class="animate-fade-in h-full flex flex-col">
                     <div class="bg-white rounded-3xl shadow-toss p-6 border border-toss-grey200 flex-1 flex flex-col min-h-[600px]">
                         <div class="flex justify-between items-center mb-6">
@@ -197,15 +206,12 @@
                                         <div class="week-col bg-white relative" 
                                              @mousedown="startDrag(index, d.fullDate, $event)" 
                                              @mousemove="onDrag($event, index)">
-                                            
                                             <template x-for="h in 18"><div class="time-slot pointer-events-none"></div></template>
-                                            
                                             <template x-for="shift in getShifts(d.fullDate)" :key="shift.id">
                                                 <div @click.stop="openEditShiftModal(shift)" class="event-chip bg-toss-blueLight text-toss-blue border-toss-blue font-bold shadow-sm" :style="getShiftStyle(shift)">
                                                     <div x-text="getEmpName(shift.empId)"></div><div class="font-normal text-[9px]" x-text="`${shift.startTime} - ${shift.endTime}`"></div>
                                                 </div>
                                             </template>
-
                                             <div x-show="dragState.active && dragState.dayIndex === index" 
                                                  class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" 
                                                  :style="getDragStyle()">
@@ -225,13 +231,20 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <template x-for="emp in employees" :key="emp.id">
                             <div class="bg-white rounded-3xl p-6 shadow-toss border border-toss-grey200 hover:shadow-toss-hover transition" 
-                                 x-data="{ pay: null, showDetail: true, showDeduction: false }" x-effect="pay = calculatePayroll(emp)"> 
+                                 x-data="{ pay: null, showDetail: false, showDeduction: false }" x-effect="pay = calculatePayroll(emp)"> 
                                 <template x-if="pay">
                                     <div>
                                         <div class="flex justify-between items-start mb-6">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-12 h-12 rounded-full bg-toss-grey100 flex items-center justify-center text-xl">👤</div>
-                                                <div><div class="font-bold text-lg" x-text="emp.name"></div><div class="text-sm text-toss-grey500"><span x-text="formatRole(emp.role)"></span> · <span x-text="emp.role === 'parttime' ? '시급제' : '월급제(환산)'"></span></div></div>
+                                                <div>
+                                                    <div class="font-bold text-lg" x-text="emp.name"></div>
+                                                    <div class="text-sm text-toss-grey500">
+                                                        <span x-text="formatRole(emp.role)"></span> · 
+                                                        <span x-text="emp.role === 'parttime' ? '시급제' : '월급제(환산)'"></span> ·
+                                                        <span x-text="getContractLabel(emp.contractType)"></span>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="text-right"><div class="text-xs text-toss-grey500 mb-1">실제 받는 금액</div><div class="text-2xl font-bold text-toss-blue" x-text="formatCurrency(pay.netPay)"></div></div>
                                         </div>
@@ -262,13 +275,55 @@
                                                 <h5 class="text-xs font-bold text-toss-grey500 mb-2 uppercase">비고 (계산 제외 사유)</h5>
                                                 <div class="text-xs text-toss-grey700 bg-toss-grey50 p-2 rounded space-y-1"><template x-for="remark in pay.remarks"><div class="flex items-start gap-1"><i data-lucide="alert-circle" class="w-3 h-3 mt-0.5 text-toss-red"></i><span x-text="remark"></span></div></template></div>
                                             </div>
-                                            <div>
-                                                <div class="flex justify-between items-center mb-2 cursor-pointer" @click="showDetail = !showDetail"><h5 class="text-xs font-bold text-toss-grey500 uppercase">근무 기록 상세 (일별)</h5><i data-lucide="chevron-down" class="w-4 h-4 text-toss-grey400 transition" :class="showDetail?'rotate-180':''"></i></div>
-                                                <div x-show="showDetail" class="bg-white border border-toss-grey200 rounded-lg overflow-hidden text-xs" x-transition>
-                                                    <div class="grid grid-cols-3 bg-toss-grey50 p-2 font-bold border-b border-toss-grey200 text-toss-grey600"><div>날짜</div><div>시간/상태</div><div class="text-right">인정시간</div></div>
-                                                    <div class="max-h-40 overflow-y-auto custom-scrollbar"><template x-for="log in pay.dailyLogs"><div class="grid grid-cols-3 p-2 border-b border-toss-grey100 last:border-0 items-center"><div x-text="log.date" class="text-toss-grey500"></div><div><span x-show="log.status === 'worked'" x-text="log.timeRange" class="text-toss-grey900"></span><span x-show="log.status === 'absent'" class="text-toss-red font-bold bg-red-50 px-1.5 py-0.5 rounded">결근</span></div><div class="text-right font-medium" :class="log.status==='absent'?'text-toss-red':'text-toss-blue'" x-text="log.hours + '시간'"></div></div></template></div>
+                                            
+                                            <!-- 상세 보기 토글 버튼 -->
+                                            <div class="mt-4">
+                                                <button @click="showDetail = !showDetail" class="w-full flex items-center justify-center gap-1 text-sm text-toss-grey600 hover:text-toss-grey900 py-2 border border-toss-grey200 rounded-xl hover:bg-toss-grey50 transition">
+                                                    <span x-text="showDetail ? '상세 내역 접기' : '일별 상세 내역 보기'"></span>
+                                                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="showDetail ? 'rotate-180' : ''"></i>
+                                                </button>
+                                                
+                                                <!-- 일별 상세 내역 테이블 (확장된 컬럼) -->
+                                                <div x-show="showDetail" class="mt-3 bg-white border border-toss-grey200 rounded-xl overflow-hidden text-xs" x-transition>
+                                                    <!-- 테이블 헤더 -->
+                                                    <div class="grid grid-cols-6 bg-toss-grey50 p-2 font-bold border-b border-toss-grey200 text-toss-grey600 text-center">
+                                                        <div>날짜</div>
+                                                        <div>시간/상태</div>
+                                                        <div>인정시간</div>
+                                                        <div>인정급여</div>
+                                                        <div>주휴금액</div>
+                                                        <div>총지급액</div>
+                                                    </div>
+                                                    <!-- 테이블 바디 -->
+                                                    <div class="max-h-60 overflow-y-auto custom-scrollbar">
+                                                        <template x-for="log in pay.dailyLogs">
+                                                            <div class="grid grid-cols-6 p-2 border-b border-toss-grey100 last:border-0 items-center text-center hover:bg-toss-grey50 transition-colors">
+                                                                <!-- 날짜 -->
+                                                                <div x-text="log.date" class="text-toss-grey500 text-[10px]"></div>
+                                                                
+                                                                <!-- 시간/상태 -->
+                                                                <div>
+                                                                    <span x-show="log.status === 'worked'" x-text="log.timeRange" class="text-toss-grey900 text-[10px] block truncate"></span>
+                                                                    <span x-show="log.status === 'absent'" class="text-toss-red font-bold bg-red-50 px-1.5 py-0.5 rounded text-[10px]">결근</span>
+                                                                </div>
+                                                                
+                                                                <!-- 인정시간 -->
+                                                                <div class="font-medium" :class="log.status==='absent'?'text-toss-red':'text-toss-blue'" x-text="log.hours + '시간'"></div>
+                                                                
+                                                                <!-- 인정급여 -->
+                                                                <div class="text-toss-grey700" x-text="formatCurrency(log.dailyBasePay)"></div>
+                                                                
+                                                                <!-- 주휴금액 (예상치: 해당일 기여분) -->
+                                                                <div class="text-toss-grey500" x-text="log.dailyJuhyu > 0 ? formatCurrency(log.dailyJuhyu) : '-'"></div>
+                                                                
+                                                                <!-- 총지급액 -->
+                                                                <div class="font-bold text-toss-grey900" x-text="formatCurrency(log.dailyTotal)"></div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </template>
@@ -289,6 +344,19 @@
                     <div><label class="block text-sm font-semibold mb-2 text-toss-grey700">이름</label><input x-model="newEmp.name" class="toss-input" required></div>
                     <div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-semibold mb-2 text-toss-grey700">직책</label><select x-model="newEmp.role" class="toss-input"><option value="parttime">아르바이트</option><option value="staff">정규직</option><option value="manager">매니저</option></select></div><div><label class="block text-sm font-semibold mb-2 text-toss-grey700">입사일</label><input x-model="newEmp.joinDate" type="date" class="toss-input" required></div></div>
                     <div><label class="block text-sm font-semibold mb-2 text-toss-grey700">급여</label><div class="relative"><input x-model.number="newEmp.basePay" type="number" class="toss-input text-right font-bold pr-12" required><span class="absolute right-4 top-3 text-toss-grey500">원</span></div></div>
+                    
+                    <!-- 계약 형태 선택 -->
+                    <div>
+                         <label class="block text-sm font-semibold text-toss-grey700 mb-2">계약 형태</label>
+                         <div class="p-4 border border-toss-grey200 rounded-xl space-y-3">
+                            <div class="flex gap-2">
+                                <label class="flex-1 cursor-pointer"><input type="radio" value="insurance4" x-model="newEmp.contractType" class="peer sr-only"><div class="text-center py-3 rounded-xl bg-toss-grey50 text-toss-grey600 text-sm peer-checked:bg-toss-blueLight peer-checked:text-toss-blue peer-checked:font-bold transition">4대보험</div></label>
+                                <label class="flex-1 cursor-pointer"><input type="radio" value="freelancer" x-model="newEmp.contractType" class="peer sr-only"><div class="text-center py-3 rounded-xl bg-toss-grey50 text-toss-grey600 text-sm peer-checked:bg-toss-blueLight peer-checked:text-toss-blue peer-checked:font-bold transition">프리랜서</div></label>
+                                <label class="flex-1 cursor-pointer"><input type="radio" value="insurance2" x-model="newEmp.contractType" class="peer sr-only"><div class="text-center py-3 rounded-xl bg-toss-grey50 text-toss-grey600 text-sm peer-checked:bg-toss-blueLight peer-checked:text-toss-blue peer-checked:font-bold transition">고용·산재</div></label>
+                            </div>
+                         </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-semibold mb-2 text-toss-grey700">근무 일정 계약</label>
                         <div class="space-y-2"><template x-for="day in ['월', '화', '수', '목', '금', '토', '일']"><div class="flex items-center gap-3 p-3 rounded-xl border" :class="newEmp.schedule[day].active ? 'border-toss-blue bg-toss-blueLight/30' : 'bg-white'"><label class="flex items-center min-w-[40px]"><input type="checkbox" x-model="newEmp.schedule[day].active" class="w-5 h-5 rounded text-toss-blue"><span class="ml-2 font-bold text-toss-grey700" x-text="day"></span></label><div class="flex-1 flex gap-2" x-show="newEmp.schedule[day].active"><input type="time" x-model="newEmp.schedule[day].start" class="p-1.5 text-xs bg-white rounded border"><span class="self-center">~</span><input type="time" x-model="newEmp.schedule[day].end" class="p-1.5 text-xs bg-white rounded border"></div></div></template></div>
@@ -342,6 +410,14 @@
                 getPageTitle() { return {'employees':'직원 관리','calendar':'근무 일정','payroll':'급여 내역'}[this.activeTab]; },
                 formatCurrency(v) { return Math.floor(v||0).toLocaleString()+'원'; },
                 formatRole(r) { return {'manager':'매니저','parttime':'아르바이트','staff':'정규직'}[r]; },
+                
+                getContractLabel(type) {
+                    if (type === 'insurance4') return '4대보험';
+                    if (type === 'freelancer') return '프리랜서';
+                    if (type === 'insurance2') return '고용·산재';
+                    return type;
+                },
+                
                 getEmpName(id) { const e = this.employees.find(x => x.id == id); return e ? e.name : '-'; },
                 getCalendarDays() {
                     const y = this.currentDate.getFullYear(), m = this.currentDate.getMonth(), lastDay = new Date(y, m+1, 0).getDate(), firstDayIdx = new Date(y, m, 1).getDay();
@@ -437,7 +513,7 @@
                             for (let d = 1; d <= lastDay; d++) {
                                 const tempDate = new Date(y, m, d);
                                 const dayName = ['일','월','화','수','목','금','토'][tempDate.getDay()];
-                                if (emp.schedule && emp.schedule[dayName] && emp.schedule[dayName].active) {
+                                if (emp.schedule?.[dayName]?.active) {
                                     monthScheduledDays++;
                                 }
                             }
@@ -456,7 +532,7 @@
                             const adjustedDate = d + dayOfFirst - 1;
                             const weekNum = Math.ceil(adjustedDate / 7);
 
-                            if (!weekStats[weekNum]) weekStats[weekNum] = { hours: 0, excluded: false, reasons: new Set(), weeklyBasePay: 0 };
+                            if (!weekStats[weekNum]) weekStats[weekNum] = { hours: 0, excluded: false, reasons: new Set(), weeklyBasePay: 0, juhyuEligible: false };
                             
                             const contract = emp.schedule?.[dayName];
                             const isScheduled = contract && contract.active;
@@ -467,7 +543,7 @@
                                     let h = (new Date(`2000-01-01T${shift.endTime}`) - new Date(`2000-01-01T${shift.startTime}`)) / 3600000;
                                     if (h < 0) h += 24;
 
-                                    // [New Logic] Auto Break Deduction
+                                    // Auto Break Deduction
                                     let breakDeduction = 0;
                                     if (h >= 8) {
                                         breakDeduction = 1; // 60 mins
@@ -482,10 +558,22 @@
                                     
                                     weekStats[weekNum].hours += h;
                                     weekStats[weekNum].weeklyBasePay += dailyPay;
-                                    dailyLogs.push({ date: dateStr, status: 'worked', timeRange: `${shift.startTime}~${shift.endTime}`, hours: h.toFixed(1) });
+                                    
+                                    // [New] Store daily details for later calculation
+                                    dailyLogs.push({ 
+                                        date: dateStr, 
+                                        status: 'worked', 
+                                        timeRange: `${shift.startTime}~${shift.endTime}`, 
+                                        hours: h.toFixed(1),
+                                        dailyBasePay: dailyPay,
+                                        weekNum: weekNum,
+                                        dailyJuhyu: 0, // To be calculated
+                                        dailyTotal: 0 
+                                    });
+
                                 } else {
                                     weekStats[weekNum].excluded = true; weekStats[weekNum].reasons.add(`${dateStr} 결근`);
-                                    dailyLogs.push({ date: dateStr, status: 'absent', timeRange: '-', hours: '0' });
+                                    dailyLogs.push({ date: dateStr, status: 'absent', timeRange: '-', hours: '0', dailyBasePay: 0, weekNum: weekNum, dailyJuhyu: 0, dailyTotal: 0 });
                                 }
                             }
                             if (dateStr === emp.joinDate) {
@@ -493,16 +581,34 @@
                             }
                         }
 
+                        // First pass: Calculate total Juhyu for each week
                         Object.keys(weekStats).forEach(w => {
                             const stat = weekStats[w];
                             if (!stat.excluded && stat.hours >= 15) {
+                                stat.juhyuEligible = true;
                                 if (emp.role === 'parttime') {
-                                    juhyu += (Math.min(stat.hours, 40) / 40) * 8 * emp.basePay;
+                                    stat.totalJuhyu = (Math.min(stat.hours, 40) / 40) * 8 * emp.basePay;
+                                    juhyu += stat.totalJuhyu;
                                 } else {
-                                    juhyu += stat.weeklyBasePay * 0.2;
+                                    stat.totalJuhyu = stat.weeklyBasePay * 0.2;
+                                    juhyu += stat.totalJuhyu;
                                 }
-                            } else if (stat.excluded) {
-                                stat.reasons.forEach(r => remarks.push(r));
+                            } else {
+                                stat.totalJuhyu = 0;
+                                if (stat.excluded) stat.reasons.forEach(r => remarks.push(r));
+                            }
+                        });
+
+                        // Second pass: Distribute Juhyu to daily logs
+                        dailyLogs.forEach(log => {
+                            if (log.status === 'worked') {
+                                const stat = weekStats[log.weekNum];
+                                if (stat && stat.juhyuEligible && stat.hours > 0) {
+                                    // Distribute proportional to hours worked this day vs total week hours
+                                    // This is a close approximation for display
+                                    log.dailyJuhyu = Math.ceil(stat.totalJuhyu * (parseFloat(log.hours) / stat.hours));
+                                }
+                                log.dailyTotal = Math.ceil(log.dailyBasePay + log.dailyJuhyu);
                             }
                         });
 
@@ -511,6 +617,10 @@
                         let deductions = { pension:0, health:0, care:0, employ:0, tax:0, total:0 };
                         if (emp.contractType === 'freelancer') {
                             deductions.tax = Math.ceil(gross * 0.033 / 10) * 10;
+                        } else if (emp.contractType === 'insurance2') {
+                            deductions.employ = Math.ceil(gross * 0.009 / 10) * 10;
+                            const iTax = Math.ceil(gross * 0.01 / 10) * 10;
+                            deductions.tax = iTax + Math.ceil(iTax * 0.1 / 10) * 10;
                         } else {
                             deductions.pension = Math.ceil(gross * 0.045 / 10) * 10;
                             deductions.health = Math.ceil(gross * 0.03545 / 10) * 10;
@@ -528,7 +638,6 @@
                         };
                     } catch (e) {
                         console.error('Payroll Error:', e);
-                        // Fallback object to prevent UI blanking
                         return { 
                             basePay: 0, juhyuAllowance: 0, grossTotal: 0, 
                             deductions: { pension:0, health:0, care:0, employ:0, tax:0, total:0 }, 

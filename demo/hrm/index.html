@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.5 - QA 반영 완료)</title>
+    <title>레스토지니 파트너센터 (v2.6 - 실시간 계산 적용)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -159,85 +159,87 @@
                     <p class="text-xs text-toss-grey500 text-right mt-2">* 빈 날짜를 클릭하여 추가, 근무 칩을 클릭하여 수정/삭제하세요.</p>
                 </div>
 
-                <!-- 3. 급여 내역 (개선됨) -->
+                <!-- 3. 급여 내역 (실시간 반응형 수정) -->
                 <div x-show="activeTab === 'payroll'" class="animate-fade-in space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <template x-for="emp in employees" :key="emp.id">
+                            <!-- [수정됨] x-effect를 사용하여 근무/직원정보 변경 시 급여 자동 재계산 -->
                             <div class="bg-white rounded-3xl p-6 shadow-toss border border-toss-grey200 hover:shadow-toss-hover transition" 
-                                 x-data="{ pay: calculatePayroll(emp), showDetail: true, showDeduction: false }">
+                                 x-data="{ pay: null, showDetail: true, showDeduction: false }"
+                                 x-effect="pay = calculatePayroll(emp)"> <!-- 여기서 자동 계산 실행 -->
                                 
-                                <div class="flex justify-between items-start mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 rounded-full bg-toss-grey100 flex items-center justify-center text-xl">👤</div>
-                                        <div><div class="font-bold text-lg" x-text="emp.name"></div><div class="text-sm text-toss-grey500" x-text="formatRole(emp.role)"></div></div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-xs text-toss-grey500 mb-1">실제 받는 금액</div>
-                                        <div class="text-2xl font-bold text-toss-blue" x-text="formatCurrency(pay.netPay)"></div>
-                                    </div>
-                                </div>
-
-                                <!-- 요약 카드 & 공제 펼쳐보기 -->
-                                <div class="bg-toss-grey50 rounded-2xl p-4 space-y-2 mb-4">
-                                    <div class="flex justify-between text-sm"><span class="text-toss-grey600">지급 합계</span><span class="font-bold" x-text="formatCurrency(pay.grossTotal)"></span></div>
-                                    <div class="flex justify-between text-sm cursor-pointer" @click="showDeduction = !showDeduction">
-                                        <span class="text-toss-grey600 flex items-center gap-1">공제 합계 <i data-lucide="chevron-down" class="w-3 h-3 transition" :class="showDeduction?'rotate-180':''"></i></span>
-                                        <span class="font-bold text-toss-red" x-text="'- '+formatCurrency(pay.deductions.total)"></span>
-                                    </div>
-                                    <!-- 공제 상세 (아코디언) -->
-                                    <div x-show="showDeduction" class="pt-2 mt-2 border-t border-gray-200 text-xs text-toss-grey600 space-y-1" x-transition>
-                                        <div class="flex justify-between" x-show="pay.deductions.pension > 0"><span>국민연금</span><span x-text="formatCurrency(pay.deductions.pension)"></span></div>
-                                        <div class="flex justify-between" x-show="pay.deductions.health > 0"><span>건강보험</span><span x-text="formatCurrency(pay.deductions.health)"></span></div>
-                                        <div class="flex justify-between" x-show="pay.deductions.care > 0"><span>장기요양</span><span x-text="formatCurrency(pay.deductions.care)"></span></div>
-                                        <div class="flex justify-between" x-show="pay.deductions.employ > 0"><span>고용보험</span><span x-text="formatCurrency(pay.deductions.employ)"></span></div>
-                                        <div class="flex justify-between"><span>소득세(지방세)</span><span x-text="formatCurrency(pay.deductions.tax)"></span></div>
-                                    </div>
-                                </div>
-
-                                <div class="border-t border-toss-grey200 pt-4">
-                                    <div class="mb-4">
-                                        <h5 class="text-xs font-bold text-toss-grey500 mb-2 uppercase">지급 상세</h5>
-                                        <div class="space-y-1 text-sm text-toss-grey700">
-                                            <div class="flex justify-between"><span>기본급</span><span x-text="formatCurrency(pay.basePay)"></span></div>
-                                            <!-- 주휴수당 표시 로직 개선 -->
-                                            <div class="flex justify-between">
-                                                <span>주휴수당</span>
-                                                <span :class="pay.juhyuAllowance > 0 ? 'text-toss-blue' : 'text-toss-grey400'" x-text="pay.juhyuAllowance > 0 ? '+ '+formatCurrency(pay.juhyuAllowance) : '0원'"></span>
-                                            </div>
-                                            <!-- 미지급 안내 메시지 -->
-                                            <div x-show="pay.juhyuAllowance === 0 && emp.role === 'parttime'" class="text-xs text-toss-red bg-red-50 p-2 rounded flex items-center gap-1 mt-1">
-                                                <i data-lucide="info" class="w-3 h-3"></i> 주휴수당 미지급 (아래 사유 참조)
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- 비고 (주휴 제외 사유) -->
-                                    <div class="mb-4" x-show="pay.remarks && pay.remarks.length > 0">
-                                        <h5 class="text-xs font-bold text-toss-grey500 mb-2 uppercase">비고 (계산 제외 사유)</h5>
-                                        <div class="text-xs text-toss-grey700 bg-toss-grey50 p-2 rounded space-y-1">
-                                            <template x-for="remark in pay.remarks"><div class="flex items-start gap-1"><i data-lucide="alert-circle" class="w-3 h-3 mt-0.5 text-toss-red"></i><span x-text="remark"></span></div></template>
-                                        </div>
-                                    </div>
-
+                                <template x-if="pay">
                                     <div>
-                                        <div class="flex justify-between items-center mb-2 cursor-pointer" @click="showDetail = !showDetail">
-                                            <h5 class="text-xs font-bold text-toss-grey500 uppercase">근무 기록 상세 (일별)</h5>
-                                            <i data-lucide="chevron-down" class="w-4 h-4 text-toss-grey400 transition" :class="showDetail?'rotate-180':''"></i>
+                                        <div class="flex justify-between items-start mb-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-12 h-12 rounded-full bg-toss-grey100 flex items-center justify-center text-xl">👤</div>
+                                                <div><div class="font-bold text-lg" x-text="emp.name"></div><div class="text-sm text-toss-grey500" x-text="formatRole(emp.role)"></div></div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs text-toss-grey500 mb-1">실제 받는 금액</div>
+                                                <div class="text-2xl font-bold text-toss-blue" x-text="formatCurrency(pay.netPay)"></div>
+                                            </div>
                                         </div>
-                                        <div x-show="showDetail" class="bg-white border border-toss-grey200 rounded-lg overflow-hidden text-xs" x-transition>
-                                            <div class="grid grid-cols-3 bg-toss-grey50 p-2 font-bold border-b border-toss-grey200 text-toss-grey600"><div>날짜</div><div>시간/상태</div><div class="text-right">인정시간</div></div>
-                                            <div class="max-h-40 overflow-y-auto custom-scrollbar">
-                                                <template x-for="log in pay.dailyLogs">
-                                                    <div class="grid grid-cols-3 p-2 border-b border-toss-grey100 last:border-0 items-center">
-                                                        <div x-text="log.date" class="text-toss-grey500"></div>
-                                                        <div><span x-show="log.status === 'worked'" x-text="log.timeRange" class="text-toss-grey900"></span><span x-show="log.status === 'absent'" class="text-toss-red font-bold bg-red-50 px-1.5 py-0.5 rounded">결근</span></div>
-                                                        <div class="text-right font-medium" :class="log.status==='absent'?'text-toss-red':'text-toss-blue'" x-text="log.hours + '시간'"></div>
+
+                                        <div class="bg-toss-grey50 rounded-2xl p-4 space-y-2 mb-4">
+                                            <div class="flex justify-between text-sm"><span class="text-toss-grey600">지급 합계</span><span class="font-bold" x-text="formatCurrency(pay.grossTotal)"></span></div>
+                                            <div class="flex justify-between text-sm cursor-pointer" @click="showDeduction = !showDeduction">
+                                                <span class="text-toss-grey600 flex items-center gap-1">공제 합계 <i data-lucide="chevron-down" class="w-3 h-3 transition" :class="showDeduction?'rotate-180':''"></i></span>
+                                                <span class="font-bold text-toss-red" x-text="'- '+formatCurrency(pay.deductions.total)"></span>
+                                            </div>
+                                            <!-- 공제 상세 -->
+                                            <div x-show="showDeduction" class="pt-2 mt-2 border-t border-gray-200 text-xs text-toss-grey600 space-y-1" x-transition>
+                                                <div class="flex justify-between" x-show="pay.deductions.pension > 0"><span>국민연금</span><span x-text="formatCurrency(pay.deductions.pension)"></span></div>
+                                                <div class="flex justify-between" x-show="pay.deductions.health > 0"><span>건강보험</span><span x-text="formatCurrency(pay.deductions.health)"></span></div>
+                                                <div class="flex justify-between" x-show="pay.deductions.care > 0"><span>장기요양</span><span x-text="formatCurrency(pay.deductions.care)"></span></div>
+                                                <div class="flex justify-between" x-show="pay.deductions.employ > 0"><span>고용보험</span><span x-text="formatCurrency(pay.deductions.employ)"></span></div>
+                                                <div class="flex justify-between"><span>소득세(지방세)</span><span x-text="formatCurrency(pay.deductions.tax)"></span></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border-t border-toss-grey200 pt-4">
+                                            <div class="mb-4">
+                                                <h5 class="text-xs font-bold text-toss-grey500 mb-2 uppercase">지급 상세</h5>
+                                                <div class="space-y-1 text-sm text-toss-grey700">
+                                                    <div class="flex justify-between"><span>기본급</span><span x-text="formatCurrency(pay.basePay)"></span></div>
+                                                    <div class="flex justify-between">
+                                                        <span>주휴수당</span>
+                                                        <span :class="pay.juhyuAllowance > 0 ? 'text-toss-blue' : 'text-toss-grey400'" x-text="pay.juhyuAllowance > 0 ? '+ '+formatCurrency(pay.juhyuAllowance) : '0원'"></span>
                                                     </div>
-                                                </template>
+                                                    <div x-show="pay.juhyuAllowance === 0 && emp.role === 'parttime'" class="text-xs text-toss-red bg-red-50 p-2 rounded flex items-center gap-1 mt-1">
+                                                        <i data-lucide="info" class="w-3 h-3"></i> 주휴수당 미지급 (아래 사유 참조)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-4" x-show="pay.remarks && pay.remarks.length > 0">
+                                                <h5 class="text-xs font-bold text-toss-grey500 mb-2 uppercase">비고 (계산 제외 사유)</h5>
+                                                <div class="text-xs text-toss-grey700 bg-toss-grey50 p-2 rounded space-y-1">
+                                                    <template x-for="remark in pay.remarks"><div class="flex items-start gap-1"><i data-lucide="alert-circle" class="w-3 h-3 mt-0.5 text-toss-red"></i><span x-text="remark"></span></div></template>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div class="flex justify-between items-center mb-2 cursor-pointer" @click="showDetail = !showDetail">
+                                                    <h5 class="text-xs font-bold text-toss-grey500 uppercase">근무 기록 상세 (일별)</h5>
+                                                    <i data-lucide="chevron-down" class="w-4 h-4 text-toss-grey400 transition" :class="showDetail?'rotate-180':''"></i>
+                                                </div>
+                                                <div x-show="showDetail" class="bg-white border border-toss-grey200 rounded-lg overflow-hidden text-xs" x-transition>
+                                                    <div class="grid grid-cols-3 bg-toss-grey50 p-2 font-bold border-b border-toss-grey200 text-toss-grey600"><div>날짜</div><div>시간/상태</div><div class="text-right">인정시간</div></div>
+                                                    <div class="max-h-40 overflow-y-auto custom-scrollbar">
+                                                        <template x-for="log in pay.dailyLogs">
+                                                            <div class="grid grid-cols-3 p-2 border-b border-toss-grey100 last:border-0 items-center">
+                                                                <div x-text="log.date" class="text-toss-grey500"></div>
+                                                                <div><span x-show="log.status === 'worked'" x-text="log.timeRange" class="text-toss-grey900"></span><span x-show="log.status === 'absent'" class="text-toss-red font-bold bg-red-50 px-1.5 py-0.5 rounded">결근</span></div>
+                                                                <div class="text-right font-medium" :class="log.status==='absent'?'text-toss-red':'text-toss-blue'" x-text="log.hours + '시간'"></div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         </template>
                     </div>

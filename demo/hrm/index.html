@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.15 - 드래그 안정화)</title>
+    <title>레스토지니 파트너센터 (v2.16 - 드래그 완벽 수정)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -46,6 +46,8 @@
         .week-col:last-child { border-right: none; }
         .event-chip { position: absolute; left: 2px; right: 2px; border-radius: 6px; font-size: 11px; padding: 2px 4px; overflow: hidden; cursor: pointer; transition: all 0.1s; border: 1px solid transparent; }
         .event-chip:hover { z-index: 10; transform: scale(1.02); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        /* 드래그 박스 스타일 - pointer-events: none 필수 */
         .drag-preview { position: absolute; left: 2px; right: 2px; background-color: rgba(49, 130, 246, 0.2); border: 1px dashed #3182F6; border-radius: 6px; pointer-events: none; z-index: 20; }
     </style>
 
@@ -177,8 +179,9 @@
                             </div>
                         </div>
 
-                        <!-- 주간 뷰 -->
+                        <!-- 주간 뷰 (수정: Index 기반 렌더링) -->
                         <div x-show="viewType === 'week'" class="border border-toss-grey200 rounded-2xl overflow-hidden flex flex-col h-[600px]">
+                            <!-- 헤더 -->
                             <div class="grid grid-cols-8 bg-toss-grey50 border-b border-toss-grey200 shrink-0">
                                 <div class="py-3 text-center text-xs text-toss-grey500 border-r border-toss-grey200">시간</div>
                                 <template x-for="(d, i) in weekDays" :key="d.fullDate">
@@ -188,27 +191,31 @@
                                     </div>
                                 </template>
                             </div>
+                            
+                            <!-- 바디 (타임 그리드) -->
                             <div class="flex-1 overflow-y-auto custom-scrollbar relative" x-ref="weekGrid">
                                 <div class="grid grid-cols-8 min-h-[900px]">
+                                    <!-- 시간축 -->
                                     <div class="border-r border-toss-grey200 bg-white">
                                         <template x-for="h in 18"><div class="time-slot text-[10px] text-toss-grey400 text-right pr-2 pt-1" x-text="(h+5).toString().padStart(2,'0')+':00'"></div></template>
                                     </div>
-                                    <!-- [Fix] weekDays 상태 사용 -->
+                                    
+                                    <!-- 요일별 컬럼 (index 사용) -->
                                     <template x-for="(d, index) in weekDays" :key="d.fullDate">
                                         <div class="week-col bg-white relative" 
                                              @mousedown="startDrag(index, d.fullDate, $event)" 
-                                             @mousemove="onDrag($event, index)" 
-                                             >
+                                             @mousemove="onDrag($event, index)">
                                             
                                             <template x-for="h in 18"><div class="time-slot pointer-events-none"></div></template>
                                             
+                                            <!-- 기존 일정 -->
                                             <template x-for="shift in getShifts(d.fullDate)" :key="shift.id">
                                                 <div @click.stop="openEditShiftModal(shift)" class="event-chip bg-toss-blueLight text-toss-blue border-toss-blue font-bold shadow-sm" :style="getShiftStyle(shift)">
                                                     <div x-text="getEmpName(shift.empId)"></div><div class="font-normal text-[9px]" x-text="`${shift.startTime} - ${shift.endTime}`"></div>
                                                 </div>
                                             </template>
 
-                                            <!-- [Fix] 직접 조건식으로 렌더링 제어 -->
+                                            <!-- [핵심 수정] 인덱스(index)를 직접 비교하여 해당 컬럼만 표시 -->
                                             <div x-show="dragState.active && dragState.dayIndex === index" 
                                                  class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" 
                                                  :style="getDragStyle()">

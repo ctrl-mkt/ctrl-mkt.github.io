@@ -177,7 +177,7 @@
                             </div>
                         </div>
 
-                        <!-- 주간 뷰 (인덱스 기반 드래그 수정) -->
+                        <!-- 주간 뷰 -->
                         <div x-show="viewType === 'week'" class="border border-toss-grey200 rounded-2xl overflow-hidden flex flex-col h-[600px]">
                             <div class="grid grid-cols-8 bg-toss-grey50 border-b border-toss-grey200 shrink-0">
                                 <div class="py-3 text-center text-xs text-toss-grey500 border-r border-toss-grey200">시간</div>
@@ -193,7 +193,7 @@
                                     <div class="border-r border-toss-grey200 bg-white">
                                         <template x-for="h in 18"><div class="time-slot text-[10px] text-toss-grey400 text-right pr-2 pt-1" x-text="(h+5).toString().padStart(2,'0')+':00'"></div></template>
                                     </div>
-                                    <!-- [Fix] 인덱스(index)를 사용하여 요일 구분 -->
+                                    <!-- [Fix] weekDays 상태 사용 -->
                                     <template x-for="(d, index) in weekDays" :key="d.fullDate">
                                         <div class="week-col bg-white relative" 
                                              @mousedown="startDrag(index, d.fullDate, $event)" 
@@ -208,7 +208,7 @@
                                                 </div>
                                             </template>
 
-                                            <!-- [Fix] 드래그 인덱스 비교를 통한 확실한 조건부 렌더링 -->
+                                            <!-- [Fix] 직접 조건식으로 렌더링 제어 -->
                                             <div x-show="dragState.active && dragState.dayIndex === index" 
                                                  class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" 
                                                  :style="getDragStyle()">
@@ -283,7 +283,7 @@
         </main>
     </div>
 
-    <!-- 모달들 (생략 없음) -->
+    <!-- 모달들 -->
     <div x-show="showEmpModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
         <div class="bg-white w-full max-w-lg rounded-[32px] shadow-2xl p-6 md:p-8" @click.away="showEmpModal = false">
             <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold text-toss-grey900" x-text="isEmpEditMode ? '직원 정보 수정하기' : '새 직원 등록하기'"></h2><button @click="showEmpModal = false"><i data-lucide="x"></i></button></div>
@@ -361,6 +361,7 @@
                     else { const n = new Date(this.currentDate); n.setDate(n.getDate() + (o * 7)); this.currentDate = n; this.updateWeekDays(); } 
                 },
                 
+                // [Fix] Update WeekDays State
                 updateWeekDays() {
                     const curr = new Date(this.currentDate);
                     const startOfWeek = new Date(curr.setDate(curr.getDate() - curr.getDay()));

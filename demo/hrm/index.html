@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.12 - 주간 뷰 완벽 수정)</title>
+    <title>레스토지니 파트너센터 (v2.13 - 드래그 완벽 수정)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -177,11 +177,11 @@
                             </div>
                         </div>
 
-                        <!-- 주간 뷰 (완벽 수정) -->
+                        <!-- 주간 뷰 (단일 요일 드래그 수정) -->
                         <div x-show="viewType === 'week'" class="border border-toss-grey200 rounded-2xl overflow-hidden flex flex-col h-[600px]">
                             <div class="grid grid-cols-8 bg-toss-grey50 border-b border-toss-grey200 shrink-0">
                                 <div class="py-3 text-center text-xs text-toss-grey500 border-r border-toss-grey200">시간</div>
-                                <template x-for="(d, i) in getWeekDays()">
+                                <template x-for="(d, i) in weekDays" :key="d.fullDate">
                                     <div class="py-3 text-center border-r border-toss-grey200 last:border-0">
                                         <div class="text-xs font-bold" :class="i===0?'text-toss-red':(i===6?'text-toss-blue':'text-toss-grey600')" x-text="d.label"></div>
                                         <div class="text-sm font-bold text-toss-grey900" x-text="d.date"></div>
@@ -193,8 +193,8 @@
                                     <div class="border-r border-toss-grey200 bg-white">
                                         <template x-for="h in 18"><div class="time-slot text-[10px] text-toss-grey400 text-right pr-2 pt-1" x-text="(h+5).toString().padStart(2,'0')+':00'"></div></template>
                                     </div>
-                                    <!-- [Fix] :key="d.fullDate"를 통해 각 컬럼을 고유하게 식별 -->
-                                    <template x-for="d in getWeekDays()" :key="d.fullDate">
+                                    <!-- [Fix] weekDays 상태 사용 -->
+                                    <template x-for="d in weekDays" :key="d.fullDate">
                                         <div class="week-col bg-white relative" 
                                              @mousedown="startDrag(d.fullDate, $event)" 
                                              @mousemove="onDrag($event, d.fullDate)" 
@@ -209,8 +209,8 @@
                                                 </div>
                                             </template>
 
-                                            <!-- [Fix] 날짜 키 비교를 통해 정확히 해당 요일만 드래그 박스 표시 -->
-                                            <div x-show="dragState.active && dragState.dateKey === d.fullDate" class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" :style="getDragStyle()">
+                                            <!-- [Fix] 드래그 타겟 함수 사용 -->
+                                            <div x-show="isDragTarget(d.fullDate)" class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" :style="getDragStyle()">
                                                 <span x-text="dragState.timeLabel"></span>
                                             </div>
                                         </div>
@@ -326,7 +326,7 @@
                 mobileMenuOpen: false, activeTab: 'employees', viewType: 'month',
                 menuItems: [ {id:'employees', label:'직원 관리', icon:'users'}, {id:'calendar', label:'근무 일정', icon:'calendar'}, {id:'payroll', label:'급여 내역', icon:'calculator'} ],
                 currentDate: new Date(2025, 11, 1),
-                // [Fix] Drag state uses dateKey now
+                weekDays: [], // [Fix] State for week days
                 dragState: { active: false, startY: 0, currentY: 0, dateKey: null, startTime: '', endTime: '', startYPos: 0 },
                 employees: [
                     { id: 1, name: '김매니저', role: 'manager', contractType: 'insurance4', basePay: 2200000, joinDate: '2024-01-01', schedule: { '월':{active:true, start:'09:00', end:'16:00', breakTime:60}, '화':{active:true, start:'09:00', end:'16:00', breakTime:60}, '수':{active:true, start:'09:00', end:'16:00', breakTime:60}, '목':{active:true, start:'09:00', end:'16:00', breakTime:60}, '금':{active:true, start:'09:00', end:'16:00', breakTime:60} } },
@@ -339,7 +339,7 @@
                 showEmpModal: false, isEmpEditMode: false, editingEmpId: null, showShiftModal: false, isEditMode: false, editingShiftId: null, targetDateStr: '',
                 newEmp: { name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030, joinDate: '', schedule: {} }, newShift: { empId: 1, startTime: '09:00', endTime: '14:00' },
 
-                initApp() { this.refreshIcons(); this.$watch('activeTab', () => this.refreshIcons()); },
+                initApp() { this.refreshIcons(); this.updateWeekDays(); this.$watch('activeTab', () => this.refreshIcons()); },
                 refreshIcons() { setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50); },
                 getPageTitle() { return {'employees':'직원 관리','calendar':'근무 일정','payroll':'급여 내역'}[this.activeTab]; },
                 formatCurrency(v) { return Math.floor(v||0).toLocaleString()+'원'; },
@@ -353,39 +353,36 @@
                 },
                 getShifts(d) { return this.shifts.filter(s => s.date === d); },
                 changeMonth(o) { this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth()+o, 1); },
-                changeDate(o) { if (this.viewType === 'month') this.changeMonth(o); else { const n = new Date(this.currentDate); n.setDate(n.getDate() + (o * 7)); this.currentDate = n; } },
                 
-                // [Fix] Correct week generation logic without mutation bugs
-                getWeekDays() {
+                changeDate(o) { 
+                    if (this.viewType === 'month') this.changeMonth(o); 
+                    else { const n = new Date(this.currentDate); n.setDate(n.getDate() + (o * 7)); this.currentDate = n; this.updateWeekDays(); } 
+                },
+                
+                // [Fix] Update WeekDays State
+                updateWeekDays() {
                     const curr = new Date(this.currentDate);
-                    // Get start of week (Sunday) based on current date
                     const startOfWeek = new Date(curr.setDate(curr.getDate() - curr.getDay()));
                     const days = [];
                     for (let i = 0; i < 7; i++) {
-                        // Create NEW date object for each day to avoid mutation issues
                         const d = new Date(startOfWeek);
                         d.setDate(startOfWeek.getDate() + i);
-                        
-                        const y = d.getFullYear();
-                        const m = String(d.getMonth() + 1).padStart(2, '0');
-                        const dd = String(d.getDate()).padStart(2, '0');
-                        days.push({ 
-                            label: ['일','월','화','수','목','금','토'][d.getDay()], 
-                            date: dd, 
-                            fullDate: `${y}-${m}-${dd}` 
-                        });
+                        const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+                        days.push({ label: ['일','월','화','수','목','금','토'][i], date: dd, fullDate: `${y}-${m}-${dd}` });
                     }
-                    return days;
+                    this.weekDays = days;
                 },
-                getWeekRangeString() { const d = this.getWeekDays(); return `${d[0].fullDate} ~ ${d[6].fullDate}`; },
+                getWeekDays() { return this.weekDays; }, // Compatibility
+                getWeekRangeString() { const d = this.weekDays; return d.length ? `${d[0].fullDate} ~ ${d[6].fullDate}` : ''; },
                 
-                // [Fix] Drag Logic using DateKey
+                // [Fix] Strict check helper
+                isDragTarget(dateKey) { return this.dragState.active && this.dragState.dateKey === dateKey; },
+                
                 startDrag(dateKey, e) {
                     const rect = e.currentTarget.getBoundingClientRect(); const offsetY = e.clientY - rect.top;
                     this.dragState = { active: true, dateKey: dateKey, startYPos: offsetY, currentY: offsetY, startTime: this.yToTime(offsetY), endTime: this.yToTime(offsetY + 48), timeLabel: '' };
                 },
                 onDrag(e, dateKey) { 
-                    // [Fix] Strict check for dateKey to prevent drag bleeding
                     if (!this.dragState.active || this.dragState.dateKey !== dateKey) return;
                     const rect = e.currentTarget.getBoundingClientRect(); const offsetY = e.clientY - rect.top;
                     this.dragState.currentY = offsetY;

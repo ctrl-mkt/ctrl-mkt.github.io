@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 HR 매니지먼트</title>
+    <title>레스토지니 HR 매니지먼트 (v1.0.1)</title>
 
     <!-- 1. 스타일 (Tailwind CSS & Pretendard) -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -23,185 +23,149 @@
     </script>
     <style>
         body { font-family: 'Pretendard', sans-serif; background-color: #F8FAFC; }
-        /* 탭 전환용 유틸리티 */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0.95; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* 안전 장치: x-show가 작동하기 전에도 첫 번째 탭은 보이게 설정할 수도 있으나, 
+           아예 CSS 숨김을 제거하고 Alpine의 x-show에 전적으로 맡깁니다. */
+        [x-cloak] { display: none !important; }
     </style>
 
-    <!-- 2. 아이콘 (Lucide) - 에러 방지용으로 defer 제거 -->
+    <!-- 2. 아이콘 (Lucide) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- 3. 로직 (Alpine.js) -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    
-    <!-- 4. 메인 애플리케이션 로직 (헤더에서 미리 정의) -->
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('hrApp', () => ({
-                activeTab: 'employees',
-                currentDate: new Date(),
-                employees: [
-                    { id: 1, name: '김매니저', role: 'manager', contractType: 'insurance4', basePay: 2200000, joinDate: '2024-01-01', contractStatus: 'signed' },
-                    { id: 2, name: '이알바', role: 'parttime', contractType: 'insurance4', basePay: 10030, joinDate: '2025-01-15', contractStatus: 'draft' },
-                    { id: 3, name: '박직원', role: 'staff', contractType: 'insurance4', basePay: 2100000, joinDate: '2025-02-01', contractStatus: 'draft' }
-                ],
-                shifts: [],
-                
-                // 모달 상태
-                showEmpModal: false,
-                showShiftModal: false,
-                targetDateStr: '',
-                newEmp: { name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030 },
-                newShift: { empId: 1, startTime: '09:00', endTime: '14:00' },
-
-                init() {
-                    // 아이콘 로딩 안전장치
-                    this.$watch('activeTab', () => {
-                        setTimeout(() => {
-                            if (window.lucide) window.lucide.createIcons();
-                        }, 50);
-                    });
-                    setTimeout(() => {
-                        if (window.lucide) window.lucide.createIcons();
-                    }, 100);
-                },
-
-                // 탭 전환 헬퍼
-                isActive(tab) { return this.activeTab === tab; },
-
-                // Getters
-                get currentYearMonth() {
-                    return `${this.currentDate.getFullYear()}년 ${this.currentDate.getMonth() + 1}월`;
-                },
-                get calendarDays() {
-                    const year = this.currentDate.getFullYear();
-                    const month = this.currentDate.getMonth();
-                    const lastDay = new Date(year, month + 1, 0).getDate();
-                    const firstDayIdx = new Date(year, month, 1).getDay(); // 0:일요일
-                    
-                    let days = [];
-                    // 빈 칸 채우기
-                    for(let i=0; i<firstDayIdx; i++) days.push({ key: `blank-${i}`, day: null });
-                    // 날짜 채우기
-                    for(let i=1; i<=lastDay; i++) {
-                        const m = String(month + 1).padStart(2, '0');
-                        const d = String(i).padStart(2, '0');
-                        days.push({ key: `day-${i}`, day: i, fullDate: `${year}-${m}-${d}` });
-                    }
-                    return days;
-                },
-
-                // Actions
-                changeMonth(offset) {
-                    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + offset, 1);
-                },
-                
-                // 모달 관련
-                openEmpModal() {
-                    this.newEmp = { name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030 };
-                    this.showEmpModal = true;
-                },
-                addEmployee() {
-                    this.employees.push({ 
-                        id: Date.now(), 
-                        ...this.newEmp, 
-                        contractStatus: 'draft', 
-                        joinDate: new Date().toISOString().split('T')[0] 
-                    });
-                    this.showEmpModal = false;
-                },
-                openShiftModal(day) {
-                    const year = this.currentDate.getFullYear();
-                    const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
-                    const d = String(day).padStart(2, '0');
-                    this.targetDateStr = `${year}-${month}-${d}`;
-                    // 첫 번째 직원을 기본 선택
-                    if (this.employees.length > 0) this.newShift.empId = this.employees[0].id;
-                    this.showShiftModal = true;
-                },
-                addShift() {
-                    this.shifts.push({ 
-                        id: Date.now(), 
-                        date: this.targetDateStr, 
-                        empId: parseInt(this.newShift.empId), 
-                        startTime: this.newShift.startTime, 
-                        endTime: this.newShift.endTime 
-                    });
-                    this.showShiftModal = false;
-                    setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
-                },
-                sendContract(id) {
-                    const emp = this.employees.find(e => e.id === id);
-                    if(emp) {
-                        emp.contractStatus = 'sent';
-                        alert(`${emp.name}님에게 전자근로계약서가 발송되었습니다.`);
-                    }
-                },
-                
-                // Helpers & Formatters
-                formatCurrency(val) { return Math.floor(val).toLocaleString() + '원'; },
-                formatRole(r) { return r === 'manager' ? '매니저' : (r === 'parttime' ? '아르바이트' : '정규직'); },
-                formatStatus(s) { return s === 'signed' ? '서명완료' : (s === 'sent' ? '발송됨' : '미작성'); },
-                getEmpName(id) { const e = this.employees.find(x => x.id == id); return e ? e.name : '-'; },
-                getShifts(date) { return this.shifts.filter(s => s.date === date); },
-
-                // 급여 계산 로직 (2025년 기준)
-                calculatePayroll(emp) {
-                    let base = 0, juhyu = 0, night = 0, pos = 0;
-                    const ym = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}`;
-                    const myShifts = this.shifts.filter(s => s.date.startsWith(ym) && s.empId === emp.id);
-
-                    if(emp.role === 'parttime') {
-                        let totalH = 0, nightH = 0, weekH = {};
-                        myShifts.forEach(s => {
-                            let h = (new Date(`2000-01-01T${s.endTime}`) - new Date(`2000-01-01T${s.startTime}`)) / 3600000;
-                            if(h < 0) h += 24;
-                            // 휴게 시간 공제
-                            if(h >= 8) h -= 1; else if(h >= 4) h -= 0.5; 
-                            
-                            totalH += h;
-                            
-                            // 심야 시간 (약식)
-                            const st = parseInt(s.startTime.split(':')[0]);
-                            if(st >= 22 || st < 6) nightH += h;
-
-                            // 주휴용 주차 계산
-                            const d = new Date(s.date);
-                            const w = Math.ceil((d.getDate() - d.getDay()) / 7); 
-                            weekH[w] = (weekH[w]||0) + h;
-                        });
-                        base = totalH * emp.basePay;
-                        night = nightH * 800; // 파트타임 심야 +800원
-                        
-                        // 주휴수당 (주 15시간 이상)
-                        Object.values(weekH).forEach(wh => { 
-                            if(wh >= 15) juhyu += (Math.min(wh,40)/40)*8*emp.basePay; 
-                        });
-                    } else {
-                        // 월급직
-                        base = emp.basePay;
-                        if(emp.role === 'manager') pos = 200000;
-                        if(myShifts.some(s => parseInt(s.startTime) >= 22)) night = 100000;
-                    }
-                    
-                    const gross = Math.floor(base + juhyu + night + pos);
-                    const taxRate = emp.contractType === 'freelancer' ? 0.033 : 0.093; // 4대보험+세금 약식
-                    const ded = Math.floor(gross * taxRate / 10) * 10;
-                    return { basePay: base, juhyuAllowance: juhyu, nightAllowance: night, grossTotal: gross, deductions: ded, netPay: gross - ded };
-                }
-            }));
-        });
-    </script>
 </head>
-<body class="text-slate-800 antialiased bg-slate-50" x-data="hrApp">
+
+<!-- x-data를 body에 직접 선언하여 초기화 오류 방지 -->
+<body class="text-slate-800 antialiased bg-slate-50"
+      x-data="{
+          activeTab: 'employees',
+          currentDate: new Date(),
+          employees: [
+              { id: 1, name: '김매니저', role: 'manager', contractType: 'insurance4', basePay: 2200000, joinDate: '2024-01-01', contractStatus: 'signed' },
+              { id: 2, name: '이알바', role: 'parttime', contractType: 'insurance4', basePay: 10030, joinDate: '2025-01-15', contractStatus: 'draft' },
+              { id: 3, name: '박직원', role: 'staff', contractType: 'insurance4', basePay: 2100000, joinDate: '2025-02-01', contractStatus: 'draft' }
+          ],
+          shifts: [],
+          showEmpModal: false,
+          showShiftModal: false,
+          targetDateStr: '',
+          newEmp: { name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030 },
+          newShift: { empId: 1, startTime: '09:00', endTime: '14:00' },
+
+          // 아이콘 갱신 함수
+          refreshIcons() {
+              setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 50);
+          },
+
+          // 초기화
+          init() {
+              this.refreshIcons();
+              this.$watch('activeTab', () => this.refreshIcons());
+          },
+
+          // Getters 대체 (함수로 구현)
+          getCurrentYearMonth() {
+              return `${this.currentDate.getFullYear()}년 ${this.currentDate.getMonth() + 1}월`;
+          },
+          getCalendarDays() {
+              const year = this.currentDate.getFullYear();
+              const month = this.currentDate.getMonth();
+              const lastDay = new Date(year, month + 1, 0).getDate();
+              const firstDayIdx = new Date(year, month, 1).getDay();
+              
+              let days = [];
+              for(let i=0; i<firstDayIdx; i++) days.push({ key: `blank-${i}`, day: null });
+              for(let i=1; i<=lastDay; i++) {
+                  const m = String(month + 1).padStart(2, '0');
+                  const d = String(i).padStart(2, '0');
+                  days.push({ key: `day-${i}`, day: i, fullDate: `${year}-${m}-${d}` });
+              }
+              return days;
+          },
+
+          // Actions
+          changeMonth(offset) {
+              this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + offset, 1);
+          },
+          openEmpModal() {
+              this.newEmp = { name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030 };
+              this.showEmpModal = true;
+          },
+          addEmployee() {
+              this.employees.push({ id: Date.now(), ...this.newEmp, contractStatus: 'draft', joinDate: new Date().toISOString().split('T')[0] });
+              this.showEmpModal = false;
+          },
+          openShiftModal(day) {
+              const year = this.currentDate.getFullYear();
+              const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
+              const d = String(day).padStart(2, '0');
+              this.targetDateStr = `${year}-${month}-${d}`;
+              if(this.employees.length > 0) this.newShift.empId = this.employees[0].id;
+              this.showShiftModal = true;
+          },
+          addShift() {
+              this.shifts.push({ id: Date.now(), date: this.targetDateStr, empId: parseInt(this.newShift.empId), startTime: this.newShift.startTime, endTime: this.newShift.endTime });
+              this.showShiftModal = false;
+              this.refreshIcons();
+          },
+          sendContract(id) {
+              const emp = this.employees.find(e => e.id === id);
+              if(emp) {
+                  emp.contractStatus = 'sent';
+                  alert(`${emp.name}님에게 전자근로계약서가 발송되었습니다.`);
+              }
+          },
+
+          // Helpers
+          formatCurrency(val) { return Math.floor(val).toLocaleString() + '원'; },
+          formatRole(r) { return r === 'manager' ? '매니저' : (r === 'parttime' ? '아르바이트' : '정규직'); },
+          formatStatus(s) { return s === 'signed' ? '서명완료' : (s === 'sent' ? '발송됨' : '미작성'); },
+          getEmpName(id) { const e = this.employees.find(x => x.id == id); return e ? e.name : '-'; },
+          getShifts(date) { return this.shifts.filter(s => s.date === date); },
+
+          // Payroll Logic
+          calculatePayroll(emp) {
+              let base = 0, juhyu = 0, night = 0, pos = 0;
+              const ym = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}`;
+              const myShifts = this.shifts.filter(s => s.date.startsWith(ym) && s.empId === emp.id);
+
+              if(emp.role === 'parttime') {
+                  let totalH = 0, nightH = 0, weekH = {};
+                  myShifts.forEach(s => {
+                      let h = (new Date(`2000-01-01T${s.endTime}`) - new Date(`2000-01-01T${s.startTime}`)) / 3600000;
+                      if(h < 0) h += 24;
+                      if(h >= 8) h -= 1; else if(h >= 4) h -= 0.5;
+                      totalH += h;
+                      const st = parseInt(s.startTime.split(':')[0]);
+                      if(st >= 22 || st < 6) nightH += h;
+                      const d = new Date(s.date);
+                      const w = Math.ceil((d.getDate() - d.getDay()) / 7);
+                      weekH[w] = (weekH[w]||0) + h;
+                  });
+                  base = totalH * emp.basePay;
+                  night = nightH * 800;
+                  Object.values(weekH).forEach(wh => { if(wh >= 15) juhyu += (Math.min(wh,40)/40)*8*emp.basePay; });
+              } else {
+                  base = emp.basePay;
+                  if(emp.role === 'manager') pos = 200000;
+                  if(myShifts.some(s => parseInt(s.startTime) >= 22)) night = 100000;
+              }
+              const gross = Math.floor(base + juhyu + night + pos);
+              const taxRate = emp.contractType === 'freelancer' ? 0.033 : 0.093;
+              const ded = Math.floor(gross * taxRate / 10) * 10;
+              return { basePay: base, juhyuAllowance: juhyu, nightAllowance: night, grossTotal: gross, deductions: ded, netPay: gross - ded };
+          }
+      }">
 
     <!-- 헤더 -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
         <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold bg-rg-primary">R</div>
-                <h1 class="text-xl font-bold text-slate-800">RestoGenie HR</h1>
+                <h1 class="text-xl font-bold text-slate-800">
+                    RestoGenie HR 
+                    <span class="text-sm font-normal text-blue-600 bg-blue-50 px-2 py-0.5 rounded ml-2">v1.0.1 (Deploy Check)</span>
+                </h1>
             </div>
             <nav class="flex space-x-1">
                 <button @click="activeTab = 'employees'" :class="activeTab === 'employees' ? 'text-blue-600 bg-blue-50' : 'text-slate-500'" class="px-4 py-2 rounded-md text-sm font-medium transition">직원 관리</button>
@@ -214,7 +178,7 @@
     <main class="max-w-5xl mx-auto p-6">
         
         <!-- 탭 1: 직원 관리 -->
-        <div class="tab-content" :class="{ 'active': activeTab === 'employees' }">
+        <div x-show="activeTab === 'employees'" class="animate-fade-in">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">직원 리스트</h2>
                 <button @click="openEmpModal()" class="flex items-center space-x-2 text-white px-4 py-2 rounded-lg bg-rg-primary hover:bg-blue-700 transition shadow-sm">
@@ -262,12 +226,12 @@
         </div>
 
         <!-- 탭 2: 근무 스케줄 -->
-        <div class="tab-content" :class="{ 'active': activeTab === 'calendar' }">
+        <div x-show="activeTab === 'calendar'" class="animate-fade-in" style="display: none;">
              <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold">근무 스케줄</h2>
                 <div class="flex items-center bg-white rounded-lg border p-1 shadow-sm">
                     <button @click="changeMonth(-1)" class="p-1 hover:bg-slate-100 rounded"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
-                    <span class="mx-4 font-semibold text-slate-700 min-w-[100px] text-center" x-text="currentYearMonth"></span>
+                    <span class="mx-4 font-semibold text-slate-700 min-w-[100px] text-center" x-text="getCurrentYearMonth()"></span>
                     <button @click="changeMonth(1)" class="p-1 hover:bg-slate-100 rounded"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                 </div>
             </div>
@@ -276,7 +240,7 @@
                     <div class="text-red-500">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="text-blue-500">토</div>
                 </div>
                 <div class="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200">
-                    <template x-for="d in calendarDays" :key="d.key">
+                    <template x-for="d in getCalendarDays()" :key="d.key">
                         <div @click="d.day ? openShiftModal(d.day) : null" 
                              class="h-28 p-1 relative bg-white flex flex-col group transition-colors"
                              :class="d.day ? 'cursor-pointer hover:bg-blue-50' : 'bg-slate-50'">
@@ -292,7 +256,7 @@
                                 </template>
                             </div>
                             
-                            <!-- 호버 시 + 버튼 (일자가 있는 경우만) -->
+                            <!-- 호버 시 + 버튼 -->
                             <div x-show="d.day" class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div class="bg-blue-600 text-white rounded-full p-0.5"><i data-lucide="plus" class="w-3 h-3"></i></div>
                             </div>
@@ -300,11 +264,10 @@
                     </template>
                 </div>
             </div>
-            <p class="text-xs text-slate-400 text-right mt-2">* 날짜를 클릭하여 근무를 등록하세요.</p>
         </div>
 
         <!-- 탭 3: 급여 정산 -->
-        <div class="tab-content" :class="{ 'active': activeTab === 'payroll' }">
+        <div x-show="activeTab === 'payroll'" class="animate-fade-in" style="display: none;">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold" x-text="`${currentDate.getMonth() + 1}월 급여 정산`"></h2>
                 <div class="text-sm text-slate-600 bg-white border px-3 py-1.5 rounded shadow-sm">
@@ -329,20 +292,16 @@
                         </div>
                         
                         <div class="flex-1 grid grid-cols-2 gap-6 text-sm">
-                            <!-- 지급 내역 -->
                             <div class="space-y-1">
                                 <h4 class="font-semibold text-slate-700 mb-2 border-b pb-1">지급</h4>
                                 <div class="flex justify-between"><span class="text-slate-500">기본급</span><span x-text="formatCurrency(pay.basePay)"></span></div>
                                 <div class="flex justify-between text-blue-600" x-show="pay.juhyuAllowance > 0"><span>주휴수당</span><span x-text="`+ ${formatCurrency(pay.juhyuAllowance)}`"></span></div>
                                 <div class="flex justify-between text-blue-600" x-show="pay.nightAllowance > 0"><span>심야수당</span><span x-text="`+ ${formatCurrency(pay.nightAllowance)}`"></span></div>
                             </div>
-                            <!-- 공제 내역 -->
                             <div class="space-y-1">
                                 <h4 class="font-semibold text-slate-700 mb-2 border-b pb-1">공제</h4>
                                 <div class="flex justify-between text-red-500 font-medium"><span>공제 합계</span><span x-text="`- ${formatCurrency(pay.deductions)}`"></span></div>
-                                <div class="text-[10px] text-slate-400 mt-2 leading-tight">
-                                    * 4대보험/소득세 포함<br>(약식 계산)
-                                </div>
+                                <div class="text-[10px] text-slate-400 mt-2 leading-tight">* 4대보험/소득세 포함</div>
                             </div>
                         </div>
                         
@@ -364,7 +323,7 @@
             <form @submit.prevent="addEmployee" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">이름</label>
-                    <input x-model="newEmp.name" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="홍길동" required>
+                    <input x-model="newEmp.name" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="홍길동" required>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">직책</label>
@@ -386,8 +345,8 @@
                     <input x-model.number="newEmp.basePay" type="number" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="10030">
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button type="button" @click="showEmpModal = false" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-lg font-medium transition">취소</button>
-                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md transition">등록</button>
+                    <button type="button" @click="showEmpModal = false" class="flex-1 py-2.5 bg-gray-100 text-slate-700 rounded-lg font-medium transition">취소</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium shadow-md transition">등록</button>
                 </div>
             </form>
         </div>
@@ -418,8 +377,8 @@
                     </div>
                 </div>
                 <div class="flex gap-3 pt-2">
-                    <button type="button" @click="showShiftModal = false" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-slate-700 rounded-lg font-medium transition">취소</button>
-                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md transition">저장</button>
+                    <button type="button" @click="showShiftModal = false" class="flex-1 py-2.5 bg-gray-100 text-slate-700 rounded-lg font-medium transition">취소</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium shadow-md transition">저장</button>
                 </div>
             </form>
         </div>

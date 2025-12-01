@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.8 - 매니저 급여 수정)</title>
+    <title>레스토지니 파트너센터 (v2.9 - 드래그 스케줄링)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -28,9 +28,9 @@
         }
     </script>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #F2F4F6; color: #191F28; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #F2F4F6; color: #191F28; user-select: none; }
         [x-cloak] { display: none !important; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #D1D6DB; border-radius: 3px; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
@@ -39,6 +39,14 @@
         .toss-table td { padding: 16px; border-bottom: 1px solid #F2F4F6; color: #333D4B; }
         .toss-input { width: 100%; padding: 12px; background-color: #F9FAFB; border-radius: 12px; border: none; font-weight: 500; transition: all 0.2s; }
         .toss-input:focus { background-color: #fff; box-shadow: 0 0 0 2px #3182F6; outline: none; }
+        
+        /* 주간 뷰 그리드 스타일 */
+        .time-slot { height: 48px; border-bottom: 1px solid #F2F4F6; box-sizing: border-box; } /* 1시간 = 48px */
+        .week-col { position: relative; border-right: 1px solid #F2F4F6; }
+        .week-col:last-child { border-right: none; }
+        .event-chip { position: absolute; left: 2px; right: 2px; border-radius: 6px; font-size: 11px; padding: 2px 4px; overflow: hidden; cursor: pointer; transition: all 0.1s; border: 1px solid transparent; }
+        .event-chip:hover { z-index: 10; transform: scale(1.02); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .drag-preview { position: absolute; left: 2px; right: 2px; background-color: rgba(49, 130, 246, 0.2); border: 1px dashed #3182F6; border-radius: 6px; pointer-events: none; z-index: 20; }
     </style>
 
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -89,7 +97,7 @@
 
         <!-- Main Content -->
         <main class="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 bg-toss-grey100 min-h-screen">
-            <div class="max-w-5xl mx-auto" x-cloak>
+            <div class="max-w-6xl mx-auto" x-cloak>
                 <header class="flex justify-between items-end mb-8">
                     <div>
                         <h1 class="text-2xl font-bold text-toss-grey900 mb-1" x-text="getPageTitle()"></h1>
@@ -129,22 +137,39 @@
                     </div>
                 </div>
 
-                <!-- 2. 근무 일정 -->
-                <div x-show="activeTab === 'calendar'" class="animate-fade-in">
-                    <div class="bg-white rounded-3xl shadow-toss p-6 border border-toss-grey200">
-                        <div class="flex justify-between mb-6">
-                            <h3 class="font-bold text-lg">12월 근무 현황</h3>
+                <!-- 2. 근무 일정 (주간/월간 뷰) -->
+                <div x-show="activeTab === 'calendar'" class="animate-fade-in h-full flex flex-col">
+                    <div class="bg-white rounded-3xl shadow-toss p-6 border border-toss-grey200 flex-1 flex flex-col min-h-[600px]">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <span x-text="viewType === 'month' ? '12월 근무 현황' : getWeekRangeString()"></span>
+                            </h3>
+                            <div class="flex items-center gap-3">
+                                <!-- 뷰 전환 토글 -->
+                                <div class="bg-toss-grey100 p-1 rounded-xl flex text-sm font-medium">
+                                    <button @click="viewType = 'month'" class="px-3 py-1.5 rounded-lg transition" :class="viewType === 'month' ? 'bg-white shadow-sm text-toss-grey900' : 'text-toss-grey500'">월간</button>
+                                    <button @click="viewType = 'week'" class="px-3 py-1.5 rounded-lg transition" :class="viewType === 'week' ? 'bg-white shadow-sm text-toss-grey900' : 'text-toss-grey500'">주간</button>
+                                </div>
+                                
+                                <!-- 날짜 이동 -->
+                                <div class="flex items-center bg-toss-grey100 rounded-xl px-1">
+                                    <button @click="changeDate(-1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm text-toss-grey600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                                    <button @click="changeDate(1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm text-toss-grey600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="border border-toss-grey200 rounded-2xl overflow-hidden">
+
+                        <!-- [월간 뷰] Month View -->
+                        <div x-show="viewType === 'month'" class="border border-toss-grey200 rounded-2xl overflow-hidden flex-1 flex flex-col">
                             <div class="grid grid-cols-7 bg-toss-grey50 border-b border-toss-grey200">
                                 <template x-for="(d,i) in ['일','월','화','수','목','금','토']"><div class="py-3 text-center text-sm font-bold" :class="i===0?'text-toss-red':(i===6?'text-toss-blue':'text-toss-grey600')" x-text="d"></div></template>
                             </div>
-                            <div class="grid grid-cols-7 bg-white">
+                            <div class="grid grid-cols-7 bg-white flex-1">
                                 <template x-for="d in getCalendarDays()" :key="d.key">
                                     <div @click="d.day ? openShiftModal(d.day) : null" 
-                                         class="min-h-[100px] p-1 border-b border-r border-toss-grey100 relative hover:bg-toss-grey50 transition cursor-pointer group">
+                                         class="min-h-[100px] p-1 border-b border-r border-toss-grey100 relative hover:bg-toss-grey50 transition cursor-pointer group flex flex-col">
                                         <div class="text-sm font-medium p-1" :class="d.day?'text-toss-grey900':'text-toss-grey300'" x-text="d.day||''"></div>
-                                        <div class="flex flex-col gap-1 mt-1">
+                                        <div class="flex flex-col gap-1 mt-1 flex-1">
                                             <template x-for="shift in getShifts(d.fullDate)">
                                                 <div @click.stop="openEditShiftModal(shift)" class="text-[10px] bg-toss-blueLight text-toss-blue px-2 py-1 rounded font-medium truncate hover:opacity-80 transition border border-transparent hover:border-toss-blue">
                                                     <span x-text="getEmpName(shift.empId)"></span> <span x-text="shift.startTime.slice(0,2)+'시'"></span>
@@ -156,8 +181,63 @@
                                 </template>
                             </div>
                         </div>
+
+                        <!-- [주간 뷰] Week View (Drag & Drop) -->
+                        <div x-show="viewType === 'week'" class="border border-toss-grey200 rounded-2xl overflow-hidden flex flex-col h-[600px]">
+                            <!-- 헤더 (요일) -->
+                            <div class="grid grid-cols-8 bg-toss-grey50 border-b border-toss-grey200 shrink-0">
+                                <div class="py-3 text-center text-xs text-toss-grey500 border-r border-toss-grey200">시간</div>
+                                <template x-for="(d, i) in getWeekDays()">
+                                    <div class="py-3 text-center border-r border-toss-grey200 last:border-0">
+                                        <div class="text-xs font-bold" :class="i===0?'text-toss-red':(i===6?'text-toss-blue':'text-toss-grey600')" x-text="d.label"></div>
+                                        <div class="text-sm font-bold text-toss-grey900" x-text="d.date"></div>
+                                    </div>
+                                </template>
+                            </div>
+                            <!-- 바디 (시간표) -->
+                            <div class="flex-1 overflow-y-auto custom-scrollbar relative" x-ref="weekGrid">
+                                <div class="grid grid-cols-8 min-h-[900px]">
+                                    <!-- 시간축 -->
+                                    <div class="border-r border-toss-grey200 bg-white">
+                                        <template x-for="h in 18"> <!-- 06:00 ~ 24:00 (18 hours) -->
+                                            <div class="time-slot text-[10px] text-toss-grey400 text-right pr-2 pt-1" x-text="(h+5).toString().padStart(2,'0')+':00'"></div>
+                                        </template>
+                                    </div>
+                                    
+                                    <!-- 요일별 컬럼 -->
+                                    <template x-for="(d, dayIdx) in getWeekDays()">
+                                        <div class="week-col bg-white relative" 
+                                             @mousedown="startDrag(dayIdx, $event)" 
+                                             @mousemove="onDrag($event)" 
+                                             @mouseup="endDrag()"
+                                             @mouseleave="endDrag()">
+                                            
+                                            <!-- 그리드 라인 -->
+                                            <template x-for="h in 18"><div class="time-slot pointer-events-none"></div></template>
+
+                                            <!-- 기존 근무 이벤트 -->
+                                            <template x-for="shift in getShifts(d.fullDate)">
+                                                <div @click.stop="openEditShiftModal(shift)"
+                                                     class="event-chip bg-toss-blueLight text-toss-blue border-toss-blue font-bold shadow-sm"
+                                                     :style="getShiftStyle(shift)">
+                                                    <div x-text="getEmpName(shift.empId)"></div>
+                                                    <div class="font-normal text-[9px]" x-text="`${shift.startTime} - ${shift.endTime}`"></div>
+                                                </div>
+                                            </template>
+
+                                            <!-- 드래그 프리뷰 -->
+                                            <div x-show="dragState.active && dragState.dayIndex === dayIdx"
+                                                 class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold"
+                                                 :style="getDragStyle()">
+                                                <span x-text="dragState.timeLabel"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-toss-grey500 text-right mt-2" x-show="viewType === 'week'">* 빈 공간을 드래그하여 근무를 추가하세요 (15분 단위).</p>
                     </div>
-                    <p class="text-xs text-toss-grey500 text-right mt-2">* 빈 날짜를 클릭하여 추가, 근무 칩을 클릭하여 수정/삭제하세요.</p>
                 </div>
 
                 <!-- 3. 급여 내역 -->
@@ -328,8 +408,15 @@
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <div class="flex-1"><label class="block text-xs font-semibold text-toss-grey500 mb-1">출근</label><input x-model="newShift.startTime" type="time" class="toss-input text-center" required></div>
-                    <div class="flex-1"><label class="block text-xs font-semibold text-toss-grey500 mb-1">퇴근</label><input x-model="newShift.endTime" type="time" class="toss-input text-center" required></div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-toss-grey500 mb-1">출근</label>
+                        <!-- 분단위 수정 허용 (step="60") -->
+                        <input x-model="newShift.startTime" type="time" step="60" class="toss-input text-center" required>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-toss-grey500 mb-1">퇴근</label>
+                        <input x-model="newShift.endTime" type="time" step="60" class="toss-input text-center" required>
+                    </div>
                 </div>
                 <div class="flex gap-2 pt-4">
                     <button type="button" @click="closeShiftModal()" class="flex-1 py-3 bg-toss-grey100 text-toss-grey700 rounded-xl font-bold">닫기</button>
@@ -345,8 +432,13 @@
             return {
                 mobileMenuOpen: false, 
                 activeTab: 'employees',
+                viewType: 'month', // month or week
                 menuItems: [ {id:'employees', label:'직원 관리', icon:'users'}, {id:'calendar', label:'근무 일정', icon:'calendar'}, {id:'payroll', label:'급여 내역', icon:'calculator'} ],
                 currentDate: new Date(2025, 11, 1),
+                
+                // 드래그 상태
+                dragState: { active: false, startY: 0, currentY: 0, dayIndex: null, startTime: '', endTime: '', startYPos: 0 },
+
                 employees: [
                     { 
                         id: 1, name: '김매니저', role: 'manager', contractType: 'insurance4', basePay: 2200000, joinDate: '2024-01-01', 
@@ -374,7 +466,6 @@
                     { id: 103, date: '2025-12-03', empId: 4, startTime: '09:00', endTime: '18:00' },
                     { id: 104, date: '2025-12-04', empId: 4, startTime: '09:00', endTime: '18:00' },
                     { id: 105, date: '2025-12-05', empId: 4, startTime: '09:00', endTime: '18:00' },
-                    // 매니저 근무 추가 (테스트용)
                     { id: 201, date: '2025-12-01', empId: 1, startTime: '09:00', endTime: '16:00' },
                     { id: 202, date: '2025-12-02', empId: 1, startTime: '09:00', endTime: '16:00' },
                     { id: 203, date: '2025-12-03', empId: 1, startTime: '09:00', endTime: '16:00' },
@@ -393,6 +484,8 @@
                 formatCurrency(v) { return Math.floor(v || 0).toLocaleString() + '원'; },
                 formatRole(r) { return {'manager':'매니저','parttime':'아르바이트','staff':'정규직'}[r]; },
                 getEmpName(id) { const e = this.employees.find(x => x.id == id); return e ? e.name : '-'; },
+                
+                // Calendar Util
                 getCalendarDays() {
                     const y = this.currentDate.getFullYear(), m = this.currentDate.getMonth();
                     const lastDay = new Date(y, m+1, 0).getDate(); const firstDayIdx = new Date(y, m, 1).getDay();
@@ -402,7 +495,115 @@
                 },
                 getShifts(d) { return this.shifts.filter(s => s.date === d); },
                 changeMonth(o) { this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth()+o, 1); },
+                
+                // Week View Util
+                changeDate(offset) {
+                    if (this.viewType === 'month') this.changeMonth(offset);
+                    else {
+                        const newDate = new Date(this.currentDate);
+                        newDate.setDate(newDate.getDate() + (offset * 7));
+                        this.currentDate = newDate;
+                    }
+                },
+                getWeekDays() {
+                    const curr = new Date(this.currentDate);
+                    const first = curr.getDate() - curr.getDay(); // Sunday
+                    const days = [];
+                    for (let i = 0; i < 7; i++) {
+                        const next = new Date(curr.setDate(first + i));
+                        const y = next.getFullYear();
+                        const m = String(next.getMonth() + 1).padStart(2, '0');
+                        const d = String(next.getDate()).padStart(2, '0');
+                        days.push({ label: ['일','월','화','수','목','금','토'][i], date: d, fullDate: `${y}-${m}-${d}` });
+                    }
+                    // reset current
+                    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDate());
+                    return days;
+                },
+                getWeekRangeString() {
+                    const days = this.getWeekDays();
+                    return `${days[0].fullDate} ~ ${days[6].fullDate}`;
+                },
+                
+                // Drag Logic
+                startDrag(dayIdx, e) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const offsetY = e.clientY - rect.top;
+                    this.dragState = { 
+                        active: true, 
+                        dayIndex: dayIdx, 
+                        startYPos: offsetY,
+                        currentY: offsetY,
+                        startTime: this.yToTime(offsetY),
+                        endTime: this.yToTime(offsetY + 48), // Default 1 hour
+                        timeLabel: '' 
+                    };
+                },
+                onDrag(e) {
+                    if (!this.dragState.active) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const offsetY = e.clientY - rect.top;
+                    this.dragState.currentY = offsetY;
+                    
+                    const startMin = Math.min(this.dragState.startYPos, offsetY);
+                    const endMin = Math.max(this.dragState.startYPos, offsetY);
+                    
+                    this.dragState.startTime = this.yToTime(startMin);
+                    this.dragState.endTime = this.yToTime(endMin);
+                    this.dragState.timeLabel = `${this.dragState.startTime} - ${this.dragState.endTime}`;
+                },
+                endDrag() {
+                    if (!this.dragState.active) return;
+                    const days = this.getWeekDays();
+                    const targetDate = days[this.dragState.dayIndex].fullDate;
+                    
+                    this.targetDateStr = targetDate;
+                    this.isEditMode = false;
+                    this.newShift = { 
+                        empId: this.employees[0]?.id, 
+                        startTime: this.dragState.startTime, 
+                        endTime: this.dragState.endTime 
+                    };
+                    
+                    this.dragState.active = false;
+                    this.showShiftModal = true;
+                },
+                yToTime(y) {
+                    // 6:00 is 0px. 1 hour = 48px. 15 min = 12px.
+                    // Start from 06:00
+                    const startHour = 6;
+                    const totalMin = Math.round(y / 12) * 15; // Snap to 15m
+                    const h = Math.floor(totalMin / 60) + startHour;
+                    const m = totalMin % 60;
+                    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                },
+                getShiftStyle(shift) {
+                    // Convert time to Y. 06:00 = 0
+                    const startH = parseInt(shift.startTime.split(':')[0]);
+                    const startM = parseInt(shift.startTime.split(':')[1]);
+                    const endH = parseInt(shift.endTime.split(':')[0]);
+                    const endM = parseInt(shift.endTime.split(':')[1]);
+                    
+                    const startMin = (startH - 6) * 60 + startM;
+                    const endMin = (endH - 6) * 60 + endM;
+                    
+                    const top = (startMin / 60) * 48;
+                    const height = ((endMin - startMin) / 60) * 48;
+                    
+                    return `top: ${Math.max(0, top)}px; height: ${Math.max(12, height)}px;`;
+                },
+                getDragStyle() {
+                    const startMin = Math.min(this.dragState.startYPos, this.dragState.currentY);
+                    const endMin = Math.max(this.dragState.startYPos, this.dragState.currentY);
+                    
+                    // Snap visually
+                    const snapStart = Math.round(startMin / 12) * 12;
+                    const snapEnd = Math.round(endMin / 12) * 12;
+                    
+                    return `top: ${snapStart}px; height: ${Math.max(12, snapEnd - snapStart)}px;`;
+                },
 
+                // CRUD
                 openEmpModal(emp = null) {
                     if (emp) {
                         this.isEmpEditMode = true; this.editingEmpId = emp.id;
@@ -461,12 +662,10 @@
                     let base = 0, juhyu = 0; const year = this.currentDate.getFullYear(), month = this.currentDate.getMonth(), lastDay = new Date(year, month + 1, 0).getDate();
                     let dailyLogs = [], weekStats = {}, remarks = [];
                     
-                    // 1. 월급직을 위한 월간 근무일수 계산 & 시급 환산
                     let hourlyRate = 0;
                     let monthScheduledDays = 0;
 
                     if (emp.role !== 'parttime') {
-                        // 스케줄 루프 돌며 해당 월의 총 근무 예정일 계산
                         for (let d = 1; d <= lastDay; d++) {
                             const tempDate = new Date(year, month, d);
                             const dayName = ['일','월','화','수','목','금','토'][tempDate.getDay()];
@@ -474,15 +673,13 @@
                                 monthScheduledDays++;
                             }
                         }
-                        // 공식: ((월급 / 월근무일수) / 8) / 1.2
                         if (monthScheduledDays > 0) {
                             hourlyRate = ((emp.basePay / monthScheduledDays) / 8) / 1.2;
                         }
                     } else {
-                        hourlyRate = emp.basePay; // 파트타임은 기본 시급 그대로 사용
+                        hourlyRate = emp.basePay;
                     }
 
-                    // 2. 일별 계산
                     for (let d = 1; d <= lastDay; d++) {
                         const dateObj = new Date(year, month, d), dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                         const dayName = ['일','월','화','수','목','금','토'][dateObj.getDay()];
@@ -497,7 +694,6 @@
                             if (shift) {
                                 let h = (new Date(`2000-01-01T${shift.endTime}`) - new Date(`2000-01-01T${shift.startTime}`)) / 3600000;
                                 if(h < 0) h += 24; 
-                                // [수정] 휴게시간이 undefined일 경우 0으로 처리하여 NaN 방지
                                 const breakTime = (contract && contract.breakTime) ? contract.breakTime : 0;
                                 h -= (breakTime / 60); 
                                 if(h < 0) h = 0;
@@ -518,15 +714,12 @@
                         }
                     }
 
-                    // 3. 주휴수당 계산
                     Object.keys(weekStats).forEach(w => {
                         const stat = weekStats[w];
                         if (!stat.excluded && stat.hours >= 15) {
                             if (emp.role === 'parttime') {
-                                // 파트타임: 40시간 비례 (기존 방식)
                                 juhyu += (Math.min(stat.hours, 40) / 40) * 8 * emp.basePay;
                             } else {
-                                // 월급직: 주간 기본급의 20% 추가 (요청 사항)
                                 juhyu += stat.weeklyBasePay * 0.2;
                             }
                         } else if (stat.excluded) {
@@ -552,7 +745,7 @@
                     return { 
                         basePay: base, juhyuAllowance: juhyu, grossTotal: gross, deductions, netPay: gross - deductions.total, dailyLogs, 
                         remarks: [...new Set(remarks)],
-                        details: { monthDays: monthScheduledDays, hourlyRate: hourlyRate } // 디버깅용 정보 리턴
+                        details: { monthDays: monthScheduledDays, hourlyRate: hourlyRate } 
                     };
                 }
             };

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>레스토지니 파트너센터 v3.0 (Google DB)</title>
+    
+    <!-- 스타일 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    
+    <!-- 카카오 주소 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script>
+        // [중요] 배포한 Google Apps Script 웹 앱 URL을 여기에 입력하세요.
+        const API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'; 
+
+        async function fetchAPI(action, method = 'GET', payload = null) {
+            // 실제 연동 시 주석 해제 및 구현
+            // const url = `${API_URL}?action=${action}`;
+            // const options = {
+            //     method: method,
+            //     body: method === 'POST' ? JSON.stringify({ action, payload }) : null
+            // };
+            // const res = await fetch(url, options);
+            // return await res.json();
+
+            // [데모용] 로컬 스토리지 또는 가짜 응답 반환
+            console.log(`[API Mock] ${method} ${action}`, payload);
+            return { status: 'success' };
+        }
+        
+        // 카카오 주소찾기 팝업
+        function openDaumPostcode(callback) {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    callback(data.address, data.zonecode);
+                }
+            }).open();
+        }
+    </script>
+
+    <!-- Tailwind Config 등 스타일 설정 생략 (v2.23과 동일) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+                    colors: {
+                        toss: { blue: '#3182F6', blueLight: '#E8F3FF', grey50: '#F9FAFB', grey100: '#F2F4F6', grey200: '#E5E8EB', grey500: '#8B95A1', grey700: '#4E5968', grey900: '#191F28', red: '#F04452' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style> body { font-family: 'Pretendard', sans-serif; background-color: #F2F4F6; } [x-cloak] { display: none !important; } </style>
+</head>
+
+<body class="antialiased select-none" x-data="hrApp()" x-init="initApp()">
+    
+    <!-- 레이아웃 및 헤더 등은 v2.23 유지 -->
+    <div class="flex min-h-screen">
+         <!-- LNB 생략 (v2.23 동일) -->
+         <!-- Main Content 생략 (v2.23 동일) -->
+         
+         <!-- ... -->
+    </div>
+
+    <!-- [모달] 직원 등록/수정 (필드 추가됨) -->
+    <div x-show="showEmpModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl p-8 max-h-[90vh] overflow-y-auto" @click.away="showEmpModal = false">
+            <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold text-toss-grey900">직원 정보 입력</h2><button @click="showEmpModal = false"><i data-lucide="x"></i></button></div>
+            
+            <form @submit.prevent="saveEmployee" class="space-y-6">
+                <!-- 1. 기본 정보 -->
+                <h3 class="text-lg font-bold text-toss-grey900 border-b pb-2">기본 정보</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-semibold mb-1 text-toss-grey700">이름</label><input x-model="newEmp.name" class="w-full p-3 bg-toss-grey50 rounded-xl border-none" required></div>
+                    <div><label class="block text-sm font-semibold mb-1 text-toss-grey700">주민등록번호</label><input x-model="newEmp.rrn" class="w-full p-3 bg-toss-grey50 rounded-xl border-none" placeholder="000000-0000000"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-toss-grey700">주소</label>
+                    <div class="flex gap-2">
+                        <input x-model="newEmp.address" class="flex-1 p-3 bg-toss-grey50 rounded-xl border-none" readonly placeholder="주소 검색 클릭">
+                        <button type="button" @click="searchAddress()" class="px-4 bg-toss-blue text-white rounded-xl font-medium">검색</button>
+                    </div>
+                </div>
+
+                <!-- 2. 급여 계좌 정보 -->
+                <h3 class="text-lg font-bold text-toss-grey900 border-b pb-2 pt-4">급여 계좌</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <div><label class="block text-sm font-semibold mb-1 text-toss-grey700

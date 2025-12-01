@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.1)</title>
+    <title>레스토지니 파트너센터 (v2.2)</title>
 
     <!-- 스타일 & 폰트 (Pretendard) -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -204,7 +204,9 @@
                                             </td>
                                             <td class="text-toss-grey600 text-sm" x-text="emp.joinDate"></td>
                                             <td class="text-right">
-                                                <button class="text-sm px-3 py-2 rounded-lg bg-toss-grey100 text-toss-grey700 hover:bg-toss-grey200 font-medium transition">
+                                                <!-- 상세보기 버튼: 클릭 시 해당 직원 정보를 인자로 넘겨 수정 모달을 띄움 -->
+                                                <button @click="openEmpModal(emp)"
+                                                        class="text-sm px-3 py-2 rounded-lg bg-toss-grey100 text-toss-grey700 hover:bg-toss-grey200 font-medium transition">
                                                     상세보기
                                                 </button>
                                             </td>
@@ -368,16 +370,17 @@
         </main>
     </div>
 
-    <!-- [Modal] 직원 등록 (Toss Style) -->
+    <!-- [Modal] 직원 등록/수정 (Toss Style) -->
     <div x-show="showEmpModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak x-transition.opacity>
         <div class="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" @click.away="showEmpModal = false">
             <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-toss-grey900">새 직원 등록하기</h2>
+                    <!-- 모달 제목 동적 변경 -->
+                    <h2 class="text-2xl font-bold text-toss-grey900" x-text="isEmpEditMode ? '직원 정보 수정하기' : '새 직원 등록하기'"></h2>
                     <button @click="showEmpModal = false" class="text-toss-grey500 hover:text-toss-grey900 bg-toss-grey100 p-2 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
 
-                <form @submit.prevent="addEmployee" class="space-y-6">
+                <form @submit.prevent="saveEmployee" class="space-y-6">
                     <!-- 입력 필드 스타일: bg-toss-grey50, border-transparent, focus:ring-toss-blue -->
                     <div class="space-y-4">
                         <div>
@@ -444,8 +447,9 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-toss-blue hover:bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-toss hover:shadow-toss-hover transition transform active:scale-[0.98]">
-                        등록 완료하기
+                    <button type="submit" 
+                            class="w-full bg-toss-blue hover:bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-toss hover:shadow-toss-hover transition transform active:scale-[0.98]"
+                            x-text="isEmpEditMode ? '수정 완료하기' : '등록 완료하기'">
                     </button>
                 </form>
             </div>
@@ -522,6 +526,9 @@
                 ],
 
                 showEmpModal: false,
+                isEmpEditMode: false,
+                editingEmpId: null,
+
                 showShiftModal: false,
                 isEditMode: false,
                 editingShiftId: null,
@@ -585,21 +592,47 @@
                 getShifts(date) { return this.shifts.filter(s => s.date === date); },
 
                 // Modal Actions
-                openEmpModal() {
-                    this.newEmp = { 
-                        name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030, joinDate: new Date().toISOString().split('T')[0],
-                        schedule: JSON.parse(JSON.stringify(this.employees[0].schedule || {})) // dummy init
-                    };
-                    // Reset schedule
-                    ['월','화','수','목','금','토','일'].forEach(d => {
-                         if(!this.newEmp.schedule[d]) this.newEmp.schedule[d] = { active: false, start: '09:00', end: '18:00', breakTime: 0 };
-                    });
+                openEmpModal(emp = null) {
+                    if (emp) {
+                        // Edit Mode
+                        this.isEmpEditMode = true;
+                        this.editingEmpId = emp.id;
+                        this.newEmp = JSON.parse(JSON.stringify(emp)); // Deep copy
+                        // Ensure schedule exists
+                        if (!this.newEmp.schedule) this.newEmp.schedule = {};
+                        ['월','화','수','목','금','토','일'].forEach(d => {
+                            if(!this.newEmp.schedule[d]) this.newEmp.schedule[d] = { active: false, start: '09:00', end: '18:00', breakTime: 0 };
+                        });
+                    } else {
+                        // Add Mode
+                        this.isEmpEditMode = false;
+                        this.editingEmpId = null;
+                        this.newEmp = { 
+                            name: '', role: 'parttime', contractType: 'insurance4', basePay: 10030, joinDate: new Date().toISOString().split('T')[0],
+                            schedule: {}
+                        };
+                        ['월','화','수','목','금','토','일'].forEach(d => {
+                            this.newEmp.schedule[d] = { active: false, start: '09:00', end: '18:00', breakTime: 0 };
+                        });
+                    }
                     this.showEmpModal = true;
                 },
-                addEmployee() {
-                    const empId = Date.now();
-                    const scheduleCopy = JSON.parse(JSON.stringify(this.newEmp.schedule));
-                    this.employees.push({ id: empId, ...this.newEmp, schedule: scheduleCopy });
+                saveEmployee() {
+                    if (this.isEmpEditMode) {
+                        // Update existing
+                        const idx = this.employees.findIndex(e => e.id === this.editingEmpId);
+                        if (idx !== -1) {
+                            // Keep ID, update other fields
+                            const updatedEmp = JSON.parse(JSON.stringify(this.newEmp));
+                            updatedEmp.id = this.editingEmpId; 
+                            this.employees[idx] = updatedEmp;
+                        }
+                    } else {
+                        // Add new
+                        const empId = Date.now();
+                        const scheduleCopy = JSON.parse(JSON.stringify(this.newEmp.schedule));
+                        this.employees.push({ id: empId, ...this.newEmp, schedule: scheduleCopy });
+                    }
                     this.showEmpModal = false;
                 },
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>레스토지니 파트너센터 (v2.13 - 드래그 완벽 수정)</title>
+    <title>레스토지니 파트너센터 (v2.14 - 주간 드래그 픽스)</title>
 
     <!-- 스타일 & 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -209,8 +209,10 @@
                                                 </div>
                                             </template>
 
-                                            <!-- [Fix] 드래그 타겟 함수 사용 -->
-                                            <div x-show="isDragTarget(d.fullDate)" class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" :style="getDragStyle()">
+                                            <!-- [Fix] 드래그 타겟을 인라인 조건으로 확인하여 유령 박스 제거 -->
+                                            <div x-show="dragState.active && dragState.dateKey === d.fullDate" 
+                                                 class="drag-preview flex items-center justify-center text-xs text-toss-blue font-bold" 
+                                                 :style="getDragStyle()">
                                                 <span x-text="dragState.timeLabel"></span>
                                             </div>
                                         </div>
@@ -375,7 +377,7 @@
                 getWeekDays() { return this.weekDays; }, // Compatibility
                 getWeekRangeString() { const d = this.weekDays; return d.length ? `${d[0].fullDate} ~ ${d[6].fullDate}` : ''; },
                 
-                // [Fix] Strict check helper
+                // [Fix] Strict check helper (Not used in template anymore, inline used)
                 isDragTarget(dateKey) { return this.dragState.active && this.dragState.dateKey === dateKey; },
                 
                 startDrag(dateKey, e) {

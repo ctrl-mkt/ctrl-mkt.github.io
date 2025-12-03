@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12월 02일 OKR 미팅 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <style type="text/css">
+        @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+        
+        html { scroll-behavior: smooth; }
+        body { font-family: "Pretendard", sans-serif; background-color: #0f172a; color: #e2e8f0; }
+
+        /* 탭 활성화 스타일 (Transition Theme: Purple) */
+        [tab-active] {
+            border-bottom: 3px solid #8b5cf6 !important; /* purple-500 */
+            color: #8b5cf6 !important;
+            font-weight: 700;
+            background-color: rgba(139, 92, 246, 0.05);
+        }
+
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        /* Prose 스타일 재정의 */
+        .prose h3 {
+            color: #f1f5f9;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #8b5cf6;
+            padding-left: 0.75rem;
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+        }
+        .prose li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .prose strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .icon-fix {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: -2px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-6 max-w-7xl">
+        
+        <!-- 헤더 -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-800 pb-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl font-bold text-white">12월 02일 OKR 미팅</h1>
+                    <span class="bg-purple-600/20 text-purple-400 border border-purple-600/50 text-xs px-2 py-1 rounded-full font-bold">
+                        전환점 (Transition)
+                    </span>
+                </div>
+                <p class="text-slate-400 mt-1 text-sm">작성일: 2025-12-02 (화) | 48주차 리뷰</p>
+            </div>
+            <div class="mt-3 md:mt-0 text-right">
+                <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">FOCUS</p>
+                <p class="text-white font-bold text-base">조직 개편 & 시스템 내재화</p>
+            </div>
+        </header>
+
+        <!-- 1. 핵심 요약 KPI -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- KPI 1: 전사 매출 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg relative overflow-hidden">
+                <h3 class="text-xs font-medium text-slate-400 uppercase">48주차 총 주문금액</h3>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-white">3,800만</span>
+                    <span class="text-xs text-slate-500">/ W47 4,247만</span>
+                </div>
+                <div class="mt-2 flex items-center text-red-400 text-sm font-bold">
+                    <span class="material-symbols-outlined text-lg mr-1">trending_down</span>
+                    -10% (신당/역곡 부진)
+                </div>
+            </div>
+            
+            <!-- KPI 2: 대학로 성과 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
+                <h3 class="text-xs font-medium text-slate-400 uppercase">대학로 홀 매출</h3>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-white">1,838만</span> <!-- 추산 -->
+                    <span class="text-xs text-slate-500">전주 대비</span>
+                </div>
+                <div class="mt-2 text-green-400 text-sm font-bold flex items-center gap-1">
+                     <span class="material-symbols-outlined text-lg">arrow_upward</span>
+                     +12.8% 반등
+                </div>
+            </div>
+
+            <!-- KPI 3: 회원가입 (핵심성과) -->
+            <div class="bg-slate-900 border border-purple-900/40 rounded-xl p-4 shadow-lg">
+                <h3 class="text-xs font-medium text-slate-400 uppercase">대학로 신규 가입률</h3>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-purple-400">37.4%</span>
+                    <span class="text-xs text-slate-500">/ 211명</span>
+                </div>
+                <div class="mt-2 text-slate-400 text-xs flex items-center gap-1">
+                     <span class="material-symbols-outlined text-sm text-purple-500">check_circle</span>
+                     오픈 초기 수준 회복
+                </div>
+            </div>
+
+            <!-- KPI 4: 개발 현황 -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg relative overflow-hidden">
+                <h3 class="text-xs font-medium text-slate-400 uppercase">데이터 적재 진행률</h3>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-yellow-500">지연</span>
+                    <span class="text-xs text-slate-500">외주사 이슈</span>
+                </div>
+                <div class="mt-2 flex items-center text-yellow-500 text-sm font-bold">
+                    <span class="material-symbols-outlined text-lg mr-1">schedule</span>
+                    12/3 방문 해결 예정
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 탭 네비게이션 -->
+        <nav id="tab-nav" class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-sm border-b border-slate-800 mb-6">
+            <div class="grid grid-cols-5 w-full">
+                <button data-tab="tab-dashboard" class="tab-button py-3 text-sm text-slate-400 hover:text-white border-b-2 border-transparent" tab-active>
+                    <span class="material-symbols-outlined block mb-1">monitoring</span>
+                    매출 대시보드
+                </button>
+                <button data-tab="tab-decisions" class="tab-button py-3 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1">gavel</span>
+                    결정사항
+                </button>
+                <button data-tab="tab-actions" class="tab-button py-3 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1">assignment_turned_in</span>
+                    액션 아이템
+                </button>
+                <button data-tab="tab-tracker" class="tab-button py-3 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1">list_alt</span>
+                    Task Tracker
+                </button>
+                <button data-tab="tab-analysis" class="tab-button py-3 text-sm text-slate-400 hover:text-white border-b-2 border-transparent">
+                    <span class="material-symbols-outlined block mb-1">psychology</span>
+                    코치 분석
+                </button>
+            </div>
+        </nav>
+
+        <!-- 3. 탭 콘텐츠 -->
+        <main class="min-h-[500px]">
+            
+            <!-- [TAB 1] 매출 대시보드 -->
+            <div id="tab-dashboard" class="tab-pane animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 매출 추이 차트 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-purple-500">show_chart</span>
+                            주간 매출 추이 (W45-W48)
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 메뉴 믹스 차트 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+                        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500">pie_chart</span>
+                            대학로점 메뉴 믹스 (W48)
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="menuMixChart"></canvas>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 text-center">갈비 39% 유지 (GPM 방어 성공)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [TAB 2] 결정사항 -->
+            <div id="tab-decisions" class="tab-pane hidden animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-red-500">person_remove</span>
+                            조직 & 인력
+                        </h3>
+                        <ul class="space-y-4">
+                            <li class="pb-4 border-b border-slate-800 last:border-0">
+                                <p class="font-semibold text-slate-200">Key Staff 오프보딩</p>
+                                <p class="text-sm text-slate-400 mt-1">소정빈, 배승환, 이준용 12월 말 퇴사 확정.</p>
+                            </li>
+                            <li class="pb-4 border-b border-slate-800 last:border-0">
+                                <p class="font-semibold text-slate-200">매장 인력 효율화 완료</p>
+                                <p class="text-sm text-slate-400 mt-1">강남/대학로 레이오프 실행 완료. 강남 재배치 잔여.</p>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500">settings_suggest</span>
+                            운영 & 툴
+                        </h3>
+                        <ul class="space-y-4">
+                            <li class="pb-4 border-b border-slate-800 last:border-0">
+                                <p class="font-semibold text-slate-200">AI 툴 전사 도입</p>
+                                <p class="text-sm text-slate-400 mt-1">Google Workspace 'Gemini Pro' 전사 적용. 회의록은 Google Meet 사용.</p>
+                            </li>
+                            <li class="pb-4 border-b border-slate-800 last:border-0">
+                                <p class="font-semibold text-slate-200">B2B 영업 숨고르기</p>
+                                <p class="text-sm text-slate-400 mt-1">아웃바운드 영업 잠정 중단. A-Bout 계약 및 MVP 내실화 우선.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [TAB 3] 액션 아이템 -->
+            <div id="tab-actions" class="tab-pane hidden animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Tech -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm border-t-4 border-t-blue-500">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-bold text-white">Tech (김도윤)</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="text-sm">
+                                <p class="font-semibold text-slate-300 mb-1">🛠 데이터 적재 해결</p>
+                                <p class="text-slate-400 pl-2 border-l-2 border-slate-700">외주사 방문 미팅 (12/3 10시)</p>
+                            </div>
+                            <div class="text-sm">
+                                <p class="font-semibold text-slate-300 mb-1">📅 1Q 스펙 기획</p>
+                                <p class="text-slate-400 pl-2 border-l-2 border-slate-700">전자계약, B2B 대시보드 (12월 중)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 영업 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm border-t-4 border-t-green-500">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-bold text-white">영업 (김평안, 이현진)</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="text-sm">
+                                <p class="font-semibold text-slate-300 mb-1">👥 강남 인력 재배치</p>
+                                <p class="text-slate-400 pl-2 border-l-2 border-slate-700">점장/매니저 면담 (금주)</p>
+                            </div>
+                            <div class="text-sm">
+                                <p class="font-semibold text-slate-300 mb-1">🎫 바우처 효율 분석</p>
+                                <p class="text-slate-400 pl-2 border-l-2 border-slate-700">5% 회수율 모니터링 (2주간)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VM/제조 -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm border-t-4 border-t-yellow-500">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-bold text-white">VM / 제조</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="text-sm">
+                                <p class="font-semibold text-slate-300 mb-1">📋 통합 체크리스트</p>
+                                <p class="text-slate-400 pl-2 border-l-2 border-slate-700">MOT + 시설관리 통합 (금주)</p>
+                            </div>
+                            <div class="text-sm">
+                                <p class="font-semibold text-slate-300 mb-1">🍔 신메뉴 출시</p>
+                                <p class="text-slate-400 pl-2 border-l-2 border-slate-700">레시피 확정, 촬영 (차주 월 출시)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [TAB 4] Task Tracker -->
+            <div id="tab-tracker" class="tab-pane hidden animate-fade-in">
+                <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-sm text-left text-slate-400">
+                        <thead class="text-xs text-slate-200 uppercase bg-slate-800">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">부서</th>
+                                <th scope="col" class="px-6 py-3">담당자</th>
+                                <th scope="col" class="px-6 py-3">데드라인</th>
+                                <th scope="col" class="px-6 py-3">업무내용</th>
+                                <th scope="col" class="px-6 py-3">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-slate-900 border-b border-slate-800">
+                                <td class="px-6 py-4"><span class="bg-blue-900 text-blue-300 py-1 px-2 rounded text-xs">Tech</span></td>
+                                <td class="px-6 py-4">김도윤</td>
+                                <td class="px-6 py-4 text-red-400 font-bold">12/3</td>
+                                <td class="px-6 py-4 text-white">데이터 적재 해결</td>
+                                <td class="px-6 py-4">외주사 방문</td>
+                            </tr>
+                            <tr class="bg-slate-900 border-b border-slate-800">
+                                <td class="px-6 py-4"><span class="bg-green-900 text-green-300 py-1 px-2 rounded text-xs">영업</span></td>
+                                <td class="px-6 py-4">김평안</td>
+                                <td class="px-6 py-4">금주</td>
+                                <td class="px-6 py-4 text-white">강남 인력 재배치</td>
+                                <td class="px-6 py-4">매니저 면담</td>
+                            </tr>
+                            <tr class="bg-slate-900 border-b border-slate-800">
+                                <td class="px-6 py-4"><span class="bg-purple-900 text-purple-300 py-1 px-2 rounded text-xs">경영</span></td>
+                                <td class="px-6 py-4">원종관</td>
+                                <td class="px-6 py-4">즉시</td>
+                                <td class="px-6 py-4 text-white">업무 툴 전환</td>
+                                <td class="px-6 py-4">Gemini Pro</td>
+                            </tr>
+                            <tr class="bg-slate-900 border-b border-slate-800">
+                                <td class="px-6 py-4"><span class="bg-yellow-900 text-yellow-300 py-1 px-2 rounded text-xs">제조</span></td>
+                                <td class="px-6 py-4">김만제</td>
+                                <td class="px-6 py-4">차주 월</td>
+                                <td class="px-6 py-4 text-white">신메뉴 출시</td>
+                                <td class="px-6 py-4">레시피 확정</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- [TAB 5] 회의 분석 -->
+            <div id="tab-analysis" class="tab-pane hidden animate-fade-in">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm">
+                    <div class="prose max-w-none">
+                        <h3>0. 핵심 총평</h3>
+                        <ul>
+                            <li>핵심 인력의 오프보딩(퇴사)이라는 위기 속에서, 감정적 동요보다는 <strong>'시스템화(Gemini)'와 '데이터(회원가입)'</strong>로 조직의 중심을 잡으려는 의지가 확인됨.</li>
+                        </ul>
+
+                        <h3>1. 긍정적 변화</h3>
+                        <ul>
+                            <li><strong>피드백 루프 작동:</strong> 지난주 지적된 '회원가입 누락' 문제가 현장에서 즉각 개선되어 대학로 가입률 37% 달성. 실행력이 살아남.</li>
+                            <li><strong>투명한 공유:</strong> 개발 지연, 매출 하락, 퇴사 등 부정적 이슈를 숨기지 않고 공유하며 대책을 논의함.</li>
+                        </ul>
+
+                        <h3>2. 리스크 & 과제</h3>
+                        <ul>
+                            <li><strong>개발 의존성:</strong> 외주사 이슈로 인한 데이터 적재 지연이 12월 중순 내재화 전까지 최대 리스크.</li>
+                            <li><strong>조직 안정화:</strong> 연말 대규모 인력 변동에 따른 잔류 인원들의 불안감을 해소할 비전과 툴(AI 도입 등) 지원이 지속되어야 함.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        
+        <footer class="mt-12 border-t border-slate-800 pt-6 text-center text-slate-500 text-xs">
+            <p>CONTROLL M WEEKLY OKR DASHBOARD | 2025</p>
+        </footer>
+    </div>
+
+    <!-- Scroll Top Button -->
+    <button id="scrollTopBtn" class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-purple-600 text-white shadow-lg hover:bg-purple-700 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none">
+        <span class="material-symbols-outlined">arrow_upward</span>
+    </button>
+
+    <script>
+        // Chart Configurations
+        const chartColors = {
+            purple: '#8b5cf6',
+            blue: '#3b82f6',
+            red: '#ef4444',
+            green: '#22c55e',
+            grid: 'rgba(51, 65, 85, 0.5)',
+            text: '#94a3b8'
+        };
+
+        Chart.defaults.color = chartColors.text;
+        Chart.defaults.borderColor = chartColors.grid;
+        Chart.defaults.font.family = "Pretendard";
+
+        // 1. Sales Trend Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['W45', 'W46', 'W47', 'W48'],
+                datasets: [
+                    {
+                        label: '강남점',
+                        data: [1276, 1181, 1222, 1162], // 추산치 포함
+                        borderColor: chartColors.blue,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: '대학로점',
+                        data: [1628, 1550, 1411, 1590], // 반등 추세
+                        borderColor: chartColors.purple,
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: 2000,
+                                yMax: 2000,
+                                borderColor: '#eab308',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                label: { content: 'BEP Target', display: true, position: 'end', color: '#eab308' }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // 2. Menu Mix Chart (Daehakro W48)
+        const menuMixCtx = document.getElementById('menuMixChart').getContext('2d');
+        new Chart(menuMixCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['갈비', '비프', '치킨', '기타'],
+                datasets: [{
+                    data: [39, 36, 19, 6],
+                    backgroundColor: [
+                        '#8b5cf6', // 갈비 (Signature)
+                        '#ef4444', // 비프
+                        '#eab308', // 치킨
+                        '#64748b'  // 기타
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // Interaction Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabNav = document.getElementById('tab-nav');
+            const tabs = document.querySelectorAll('.tab-button');
+            const panes = document.querySelectorAll('.tab-pane');
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+            // Tab Switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all
+                    tabs.forEach(t => t.removeAttribute('tab-active'));
+                    panes.forEach(p => p.classList.add('hidden'));
+                    
+                    // Activate clicked
+                    tab.setAttribute('tab-active', '');
+                    const target = document.getElementById(tab.dataset.tab);
+                    target.classList.remove('hidden');
+
+                    // Scroll to top of content
+                    const navHeight = tabNav.offsetHeight;
+                    const targetPos = tabNav.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({ top: targetPos - 1, behavior: 'smooth' });
+                });
+            });
+
+            // Scroll Top Button
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    scrollTopBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                } else {
+                    scrollTopBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                }
+            });
+            
+            scrollTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>

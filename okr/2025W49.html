@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>W49 Review & W50 Plan | Controll M</title>
+    <title>W49 Review & W50 Plan | Ctrl-M</title>
     
     <!-- Pretendard Font -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -108,7 +108,7 @@
             { name: 'W46', total: 4562, gangnam: 1276, daehakro: 1628, margin: 28 },
             { name: 'W47', total: 4234, gangnam: 1199, daehakro: 1411, margin: 29 },
             { name: 'W48', total: 3805, gangnam: 1138, daehakro: 1684, margin: 38 },
-            { name: 'W49', total: 3672, gangnam: 1218, daehakro: 1376, margin: 31 }, // Updated W49 Actual
+            { name: 'W49', total: 3672, gangnam: 1218, daehakro: 1376, margin: 31 }, 
         ];
 
         const daehakroMixData = [
@@ -233,7 +233,8 @@
                                 </div>
                             </div>
                             <p className="text-xs text-slate-400 mt-2 bg-slate-900/30 p-2 rounded">
-                                * 결정: 도급사(JP) 추가 채용 중단 및 자연 감소 유도. 향후 인력은 전원 직채용 진행.
+                                <span className="text-red-300 font-bold">* 결정사항:</span> 도급사(JP 등) 추가 채용 중단 및 자연 감소 유도. 향후 충원은 100% 직채용 전환.
+                                <br/><span className="text-indigo-300">* 기준:</span> 인건비의 5배수 매출 달성 필수 (수익성 마지노선).
                             </p>
                         </div>
 
@@ -241,29 +242,32 @@
                             <li className="flex items-start p-4 bg-slate-700/30 rounded-lg border border-slate-600">
                                 <div className="mr-3 mt-0.5"><Icons.Target className="w-6 h-6 text-orange-400" /></div>
                                 <div>
-                                    <h4 className="font-bold text-slate-200">1. 대학로 홀 매출 '단순화' 전략 (전환율 2.5% 목표)</h4>
+                                    <h4 className="font-bold text-slate-200">1. 대학로 홀 매출 '단순화(Simplification)' 전략</h4>
                                     <p className="text-sm text-slate-400 mt-1">
-                                        - 오프라인 지면(입간판/배너) 전면 교체: '김밥천국' 처럼 직관적이고 단순하게 <span className="text-white font-bold">핵심 메시지(가격) 하나만</span> 노출.<br/>
-                                        - 유동인구 9천명(통제 불가) 대비 낮은 전환율(1.3%)을 2%대로 끌어올리는 것이 핵심.
+                                        - <span className="text-white font-bold">'김밥천국'식 직관적 메시지:</span> 지나가는 유동인구가 1초 만에 인지할 수 있도록 입간판/배너를 단순하게 교체.<br/>
+                                        - <span className="text-white font-bold">지면당 1메시지 원칙:</span> 복잡한 메뉴 설명 제외하고 '가격' 등 핵심 소구점 하나만 노출.<br/>
+                                        - 목표: 유동인구 9천명(통제 불가) 중 매장 유입 전환율을 1.3% → 2.5%로 증대.
                                     </p>
                                 </div>
                             </li>
                             <li className="flex items-start p-4 bg-slate-700/30 rounded-lg border border-slate-600">
                                 <div className="mr-3 mt-0.5"><Icons.CheckCircle className="w-6 h-6 text-blue-400" /></div>
                                 <div>
-                                    <h4 className="font-bold text-slate-200">2. 마케팅 & 제휴 효율화</h4>
+                                    <h4 className="font-bold text-slate-200">2. 마케팅 & 제휴 효율화 (수익성 방어)</h4>
                                     <p className="text-sm text-slate-400 mt-1">
-                                        - <span className="text-blue-300">CPM 광고 도입:</span> 홀 전환율 액션과 병행하여 온라인 노출 증대.<br/>
-                                        - <span className="text-blue-300">제휴 정책 변경:</span> (기존) 금액권 1~2만원 → (변경) 메뉴 교환권 / (기존) 할인 → (변경) 사이드 증정권.
+                                        - <span className="text-blue-300">CPM 광고 도입:</span> 홀 단순화 액션과 동일한 메시지로 온라인 노출 증대 병행.<br/>
+                                        - <span className="text-blue-300">제휴 정책 전면 수정:</span><br/>
+                                        &nbsp;&nbsp; a. 금액권(1만원/2만원) 바우처 → <span className="text-white">특정 메뉴 교환권</span>으로 변경 (객단가 보전)<br/>
+                                        &nbsp;&nbsp; b. 학생증/티켓 할인 → <span className="text-white">사이드 메뉴 증정</span>으로 변경 (할인율 방어)
                                     </p>
                                 </div>
                             </li>
                             <li className="flex items-start p-4 bg-slate-700/30 rounded-lg border border-slate-600">
                                 <div className="mr-3 mt-0.5"><Icons.List className="w-6 h-6 text-green-400" /></div>
                                 <div>
-                                    <h4 className="font-bold text-slate-200">3. 현장 프로세스 정립</h4>
+                                    <h4 className="font-bold text-slate-200">3. 현장 프로세스 정립 (Daily Scrum)</h4>
                                     <p className="text-sm text-slate-400 mt-1">
-                                        - 매일 스크럼(Scrum) 루틴 도입하여 현장 생소리 청취 및 즉각 대응 체계 구축.
+                                        - 매일 스크럼(Scrum) 루틴 도입: 현장 이슈 즉각 공유 및 해결 속도 향상.
                                     </p>
                                 </div>
                             </li>
@@ -280,7 +284,7 @@
                         <thead className="bg-slate-700 text-slate-200 uppercase font-bold">
                             <tr>
                                 <th className="px-6 py-4">영역</th>
-                                <th className="px-6 py-4">Task</th>
+                                <th className="px-6 py-4">Task Detail</th>
                                 <th className="px-6 py-4">담당자</th>
                                 <th className="px-6 py-4">상태</th>
                                 <th className="px-6 py-4">기한</th>
@@ -290,8 +294,8 @@
                             <tr className="hover:bg-slate-700/50">
                                 <td className="px-6 py-4 font-medium text-slate-300">HR/운영</td>
                                 <td className="px-6 py-4">
-                                    <span className="text-white block mb-1">도급 인력(JP) 운영 계획 수립</span>
-                                    <span className="text-xs text-slate-500">자연감소 유도 및 우수 인력 직고용 전환 협의</span>
+                                    <span className="text-white block mb-1">도급사(JP) 인력 운영 계획 수립</span>
+                                    <span className="text-xs text-slate-500">- 추가 채용 중단 공지<br/>- 저성과자 리스트업 및 자연감소 유도<br/>- 우수 인력 직고용 전환 면담</span>
                                 </td>
                                 <td className="px-6 py-4">운영팀</td>
                                 <td className="px-6 py-4"><span className="px-2 py-1 rounded bg-blue-900/50 text-blue-300 text-xs border border-blue-800">진행중</span></td>
@@ -301,7 +305,7 @@
                                 <td className="px-6 py-4 font-medium text-slate-300">대학로</td>
                                 <td className="px-6 py-4">
                                     <span className="text-white block mb-1">오프라인 지면(입간판) 단순화 교체</span>
-                                    <span className="text-xs text-slate-500">가격 소구점 강조, 지면당 1메시지 원칙 적용</span>
+                                    <span className="text-xs text-slate-500">- '김밥천국' 컨셉 벤치마킹<br/>- 가격 소구점(ex: "5,900원~") 핵심 노출<br/>- 지면당 1메시지 디자인 시안 확정</span>
                                 </td>
                                 <td className="px-6 py-4">영업본부</td>
                                 <td className="px-6 py-4"><span className="px-2 py-1 rounded bg-red-900/50 text-red-300 text-xs border border-red-800">긴급</span></td>
@@ -311,7 +315,7 @@
                                 <td className="px-6 py-4 font-medium text-slate-300">마케팅</td>
                                 <td className="px-6 py-4">
                                     <span className="text-white block mb-1">CPM 광고 매체 선정 및 라이브</span>
-                                    <span className="text-xs text-slate-500">홀 모객용 온라인 노출 극대화</span>
+                                    <span className="text-xs text-slate-500">- 홀 모객용 온라인 노출 극대화<br/>- 입간판 메시지와 동일한 소재 사용 (일관성)</span>
                                 </td>
                                 <td className="px-6 py-4">마케팅</td>
                                 <td className="px-6 py-4"><span className="px-2 py-1 rounded bg-blue-900/50 text-blue-300 text-xs border border-blue-800">진행중</span></td>
@@ -321,7 +325,7 @@
                                 <td className="px-6 py-4 font-medium text-slate-300">영업</td>
                                 <td className="px-6 py-4">
                                     <span className="text-white block mb-1">극단 제휴 바우처/티켓 정책 변경</span>
-                                    <span className="text-xs text-slate-500">금액권 → 메뉴 교환권 / 할인 → 사이드 증정권</span>
+                                    <span className="text-xs text-slate-500">- 금액권(1/2만원) → 메뉴 교환권 디자인/제작<br/>- 할인권 → 사이드 증정권 변경 공지</span>
                                 </td>
                                 <td className="px-6 py-4">영업본부</td>
                                 <td className="px-6 py-4"><span className="px-2 py-1 rounded bg-slate-700 text-slate-400 text-xs border border-slate-600">대기</span></td>
@@ -335,11 +339,11 @@
 
         function TaskTrackerTab() {
             const tasks = [
-                { name: '[대학로] 입간판/메뉴판 리뉴얼 디자인', owner: '영업/디자인', status: 'In Progress', deadline: '12/12', note: 'NEW' },
-                { name: '[마케팅] CPM 광고 세팅 및 운영', owner: '마케팅', status: 'Pending', deadline: '즉시', note: 'NEW' },
+                { name: '[대학로] 입간판/메뉴판 리뉴얼 (가격 소구점 강조)', owner: '영업/디자인', status: 'In Progress', deadline: '12/12', note: 'NEW' },
+                { name: '[마케팅] CPM 광고 세팅 및 운영 (소재 통일)', owner: '마케팅', status: 'Pending', deadline: '즉시', note: 'NEW' },
                 { name: '[HR] 도급사(JP) 인력 리스트업 및 면담', owner: '운영', status: 'In Progress', deadline: '12/15', alert: true },
                 { name: '[운영] 현장 스크럼 루틴 셋업', owner: '영업본부', status: 'Pending', deadline: '즉시', note: 'NEW' },
-                { name: '[영업] 제휴 바우처(교환권/증정권) 신규 제작', owner: '영업', status: 'Hold', deadline: '차주', note: '' },
+                { name: '[영업] 제휴 바우처(교환권/증정권) 신규 제작', owner: '영업', status: 'Hold', deadline: '차주', note: '정책변경' },
                 { name: '[데이터] 연극 일정 vs 매출 상관관계 분석', owner: '데이터', status: 'Done', deadline: '12/08', note: '' },
             ];
 
@@ -358,6 +362,7 @@
                                         {task.name}
                                         {task.alert && <Icons.AlertTriangle className="w-4 h-4 text-red-400 ml-2" />}
                                         {task.note === 'NEW' && <span className="ml-2 px-1.5 py-0.5 bg-indigo-500 text-white text-[10px] rounded">NEW</span>}
+                                        {task.note === '정책변경' && <span className="ml-2 px-1.5 py-0.5 bg-yellow-600 text-white text-[10px] rounded">Change</span>}
                                     </div>
                                     <div className="text-xs text-slate-500 mt-0.5">
                                         {task.owner} | {task.deadline} {task.note && `| ${task.note}`}
@@ -404,7 +409,7 @@
                             <div>
                                 <h4 className="flex items-center text-orange-400 font-bold mb-2">
                                     <Icons.Target className="w-5 h-5 mr-2" />
-                                    대학로: "단순화"와 "전환율 2.5%"
+                                    대학로: "통제 불가능(유동) vs 통제 가능(전환)"
                                 </h4>
                                 <p className="text-slate-300 text-sm leading-relaxed">
                                     유동인구(9천명)는 통제 불가능하므로, 통제 가능한 '전환율'에 집중하는 전략은 타당합니다.
@@ -445,7 +450,7 @@
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <h1 className="text-xl font-bold tracking-tight text-white">
-                                    Controll M <span className="text-indigo-400">OKR Review</span>
+                                    Ctrl-M <span className="text-indigo-400">OKR Review</span>
                                 </h1>
                                 <span className="px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
                                     W49 리뷰 & W50 계획

@@ -47,29 +47,22 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Slide Animation for Chatbot */
-        .slide-in-right {
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .slide-in-right.active {
-            transform: translateX(0);
-        }
+        /* Slide Animation */
+        .slide-in-right { transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-in-right.active { transform: translateX(0); }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Mobile specific adjustments */
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
             body { font-size: 14px; }
-            h1 { font-size: 1.25rem; }
-            .mobile-hide { display: none; }
         }
-        
-        .modal-enter { opacity: 0; transform: scale(0.95); }
-        .modal-enter-active { opacity: 1; transform: scale(1); transition: all 0.2s; }
     </style>
 </head>
 <body class="bg-slam-gray text-slam-text font-sans antialiased h-screen flex flex-col overflow-hidden">
 
-    <!-- Login / API Key Modal (First Screen) -->
+    <!-- Login / Shift Select Modal -->
     <div id="login-screen" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-300">
         <div class="w-full max-w-md space-y-8 text-center">
             <h1 class="text-4xl font-bold text-slam-red tracking-tighter">SLAM BURGER</h1>
@@ -78,15 +71,43 @@
             <div class="space-y-4 text-left">
                 <div>
                     <label class="block text-sm font-medium mb-1">직원 이름</label>
-                    <input type="text" id="username-input" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 focus:outline-none focus:border-slam-red focus:ring-1 focus:ring-slam-red transition" placeholder="홍길동">
+                    <input type="text" id="username-input" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 focus:outline-none focus:border-slam-red focus:ring-1 focus:ring-slam-red transition" placeholder="이름을 입력하세요">
                 </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">근무 타임 선택</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="shift" value="open" class="peer sr-only">
+                            <div class="p-3 text-center rounded-xl border border-gray-200 peer-checked:bg-slam-red peer-checked:text-white peer-checked:border-slam-red transition hover:bg-gray-50">
+                                <span class="block font-bold text-sm">오픈</span>
+                                <span class="text-xs opacity-70">09:00~</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="shift" value="middle" class="peer sr-only">
+                            <div class="p-3 text-center rounded-xl border border-gray-200 peer-checked:bg-slam-red peer-checked:text-white peer-checked:border-slam-red transition hover:bg-gray-50">
+                                <span class="block font-bold text-sm">미들</span>
+                                <span class="text-xs opacity-70">14:00~</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="shift" value="close" class="peer sr-only">
+                            <div class="p-3 text-center rounded-xl border border-gray-200 peer-checked:bg-slam-red peer-checked:text-white peer-checked:border-slam-red transition hover:bg-gray-50">
+                                <span class="block font-bold text-sm">마감</span>
+                                <span class="text-xs opacity-70">21:00~</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium mb-1">Gemini API Key</label>
-                    <input type="password" id="apikey-input" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 focus:outline-none focus:border-slam-red focus:ring-1 focus:ring-slam-red transition" placeholder="AI 기능 사용을 위해 키 입력">
-                    <p class="text-xs text-gray-400 mt-1">* 키는 브라우저에만 저장됩니다.</p>
+                    <input type="password" id="apikey-input" class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-200 focus:outline-none focus:border-slam-red focus:ring-1 focus:ring-slam-red transition" placeholder="AI 기능 사용 시 입력 (선택)">
                 </div>
-                <button onclick="handleLogin()" class="w-full py-4 bg-slam-red text-white font-bold rounded-2xl shadow-toss hover:bg-red-700 transition transform active:scale-95">
-                    접속하기
+                
+                <button onclick="handleLogin()" class="w-full py-4 bg-slam-red text-white font-bold rounded-2xl shadow-toss hover:bg-red-700 transition transform active:scale-95 mt-4">
+                    출근하기
                 </button>
             </div>
         </div>
@@ -95,7 +116,7 @@
     <!-- Main App Layout -->
     <div id="app-container" class="flex h-full hidden">
         
-        <!-- Mobile Left Sidebar (Drawer) - Hidden by default -->
+        <!-- Mobile Drawer -->
         <div id="mobile-drawer" class="fixed inset-0 z-40 bg-black/50 hidden transition-opacity" onclick="toggleDrawer()">
             <div class="absolute left-0 top-0 h-full w-64 bg-white shadow-xl p-6" onclick="event.stopPropagation()">
                 <h2 class="text-2xl font-bold text-slam-red mb-8">MENU</h2>
@@ -108,7 +129,7 @@
             </div>
         </div>
 
-        <!-- PC Top Navigation -->
+        <!-- PC Header -->
         <header class="fixed top-0 w-full bg-white/80 backdrop-blur-md z-30 border-b border-gray-100 h-16 flex items-center justify-between px-4 md:px-10">
             <div class="flex items-center gap-4">
                 <button onclick="toggleDrawer()" class="md:hidden p-2">
@@ -117,7 +138,6 @@
                 <span class="text-xl font-bold text-slam-red cursor-pointer" onclick="navigate('home')">SLAM BURGER</span>
             </div>
             
-            <!-- Desktop Menu -->
             <nav class="hidden md:flex gap-8">
                 <button onclick="navigate('home')" class="font-medium hover:text-slam-red transition">홈</button>
                 <button onclick="navigate('checklist')" class="font-medium hover:text-slam-red transition">체크리스트</button>
@@ -126,7 +146,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="text-right hidden md:block">
-                    <p class="text-xs text-gray-500">현재 근무자</p>
+                    <p class="text-xs text-gray-500" id="header-shift">Shift</p>
                     <p class="font-bold" id="header-username">Guest</p>
                 </div>
                 <div class="w-8 h-8 rounded-full bg-slam-red text-white flex items-center justify-center font-bold">
@@ -135,30 +155,29 @@
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <main class="flex-1 pt-20 pb-20 md:pb-6 px-4 md:px-10 overflow-y-auto w-full max-w-7xl mx-auto scroll-smooth">
             
-            <!-- VIEW: HOME (Dashboard) -->
+            <!-- VIEW: HOME -->
             <div id="view-home" class="space-y-6 animate-fade-in">
-                <!-- Welcome Card -->
                 <div class="bg-white p-6 md:p-8 rounded-3xl shadow-toss relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-10 -mt-10 z-0"></div>
                     <div class="relative z-10">
-                        <h2 class="text-2xl md:text-3xl font-bold mb-2">오늘도 힘차게! <span class="text-slam-red" id="dashboard-name">홍길동</span>님</h2>
-                        <p class="text-gray-500 mb-6">현재 매장 상태를 확인하고 체크리스트를 완료해보세요.</p>
+                        <h2 class="text-2xl md:text-3xl font-bold mb-2">반갑습니다, <span class="text-slam-red" id="dashboard-name">홍길동</span>님!</h2>
+                        <p class="text-gray-500 mb-6">오늘 <span id="dashboard-shift" class="font-bold text-slam-dark">오픈</span> 근무도 파이팅하세요.</p>
                         
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex-1 bg-gray-50 rounded-2xl p-4 flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm text-gray-500">이번 달 내 포인트</p>
-                                    <p class="text-2xl font-bold text-slam-red" id="my-points-display">0 P</p>
+                                    <p class="text-sm text-gray-500">내 누적 포인트</p>
+                                    <p class="text-2xl font-bold text-slam-red" id="my-points-display">로딩중...</p>
                                 </div>
                                 <i data-lucide="award" class="w-8 h-8 text-yellow-500"></i>
                             </div>
-                            <div class="flex-1 bg-gray-50 rounded-2xl p-4 flex items-center justify-between">
+                            <div class="flex-1 bg-gray-50 rounded-2xl p-4 flex items-center justify-between cursor-pointer" onclick="navigate('checklist')">
                                 <div>
-                                    <p class="text-sm text-gray-500">진행중인 체크리스트</p>
-                                    <p class="text-2xl font-bold">미들 타임</p>
+                                    <p class="text-sm text-gray-500">진행중인 업무</p>
+                                    <p class="text-2xl font-bold" id="task-progress-display">0 / 0</p>
                                 </div>
                                 <i data-lucide="clipboard-list" class="w-8 h-8 text-blue-500"></i>
                             </div>
@@ -166,108 +185,68 @@
                     </div>
                 </div>
 
-                <!-- Section Links -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <button onclick="navigate('checklist')" class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-toss transition text-left group">
                         <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition">
                             <i data-lucide="check-square" class="text-slam-red w-5 h-5"></i>
                         </div>
                         <h3 class="font-bold mb-1">체크리스트</h3>
-                        <p class="text-xs text-gray-400">업무 보고하기</p>
+                        <p class="text-xs text-gray-400">업무 수행 및 보고</p>
                     </button>
-
                     <button onclick="navigate('points')" class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-toss transition text-left group">
                         <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition">
                             <i data-lucide="bar-chart-2" class="text-yellow-600 w-5 h-5"></i>
                         </div>
                         <h3 class="font-bold mb-1">포인트 현황</h3>
-                        <p class="text-xs text-gray-400">팀 & 개인 랭킹</p>
+                        <p class="text-xs text-gray-400">명예의 전당 확인</p>
                     </button>
-                    
                      <button onclick="openChatbot()" class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-toss transition text-left group">
                         <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition">
                             <i data-lucide="bot" class="text-blue-600 w-5 h-5"></i>
                         </div>
                         <h3 class="font-bold mb-1">AI 매뉴얼</h3>
-                        <p class="text-xs text-gray-400">궁금한 점 물어보기</p>
+                        <p class="text-xs text-gray-400">레시피 & 규정 질문</p>
                     </button>
-
-                    <div class="bg-gray-100 p-6 rounded-3xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400">
-                        <p class="text-xs font-medium">Coming Soon</p>
-                    </div>
-                </div>
-                
-                <!-- Monthly Team Goal -->
-                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-toss">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-lg">12월 팀 목표 달성률</h3>
-                        <span class="text-slam-red font-bold">75%</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-                        <div class="bg-slam-red h-full rounded-full transition-all duration-1000" style="width: 75%"></div>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-2 text-center">목표 달성 시 전원 보너스 포인트 지급!</p>
                 </div>
             </div>
 
             <!-- VIEW: CHECKLIST -->
             <div id="view-checklist" class="hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold">✅ 업무 체크리스트</h2>
-                    <select id="time-select" class="p-2 rounded-lg border border-gray-200 text-sm font-medium bg-white" onchange="loadChecklist()">
+                <div class="flex justify-between items-center sticky top-0 bg-slam-gray py-2 z-10">
+                    <div>
+                        <h2 class="text-2xl font-bold">✅ 업무 체크리스트</h2>
+                        <p class="text-sm text-gray-500">카테고리별로 업무를 확인하세요</p>
+                    </div>
+                    <select id="time-select" class="p-2 rounded-lg border border-gray-200 text-sm font-medium bg-white shadow-sm" onchange="loadChecklist()">
                         <option value="open">오픈 (09:00~)</option>
-                        <option value="middle" selected>미들 (14:00~)</option>
+                        <option value="middle">미들 (14:00~)</option>
                         <option value="close">마감 (21:00~)</option>
                     </select>
                 </div>
 
                 <!-- Checklist Container -->
-                <div id="checklist-items" class="space-y-4">
-                    <!-- Items will be injected here via JS -->
+                <div id="checklist-items" class="space-y-6 pb-20">
+                    <!-- Dynamic Injection -->
                 </div>
 
-                <div class="pt-4 pb-8">
-                    <button onclick="submitChecklist()" class="w-full py-4 bg-slam-red text-white font-bold rounded-2xl shadow-floating hover:bg-red-700 transition active:scale-95">
-                        보고 완료하고 포인트 받기
+                <div class="fixed bottom-6 left-0 w-full px-4 md:px-10 z-20">
+                     <button onclick="submitChecklist()" id="submit-btn" class="w-full max-w-7xl mx-auto py-4 bg-slam-red text-white font-bold rounded-2xl shadow-floating hover:bg-red-700 transition active:scale-95 flex justify-center items-center gap-2">
+                        <span>보고 완료하고 포인트 받기</span>
+                        <i data-lucide="send" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
 
             <!-- VIEW: POINTS -->
             <div id="view-points" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold">🏆 명예의 전당</h2>
-                
-                <!-- Tabs -->
-                <div class="flex p-1 bg-gray-200 rounded-xl w-full md:w-fit">
-                    <button onclick="switchPointTab('team')" id="tab-team" class="flex-1 md:w-32 py-2 text-sm font-bold rounded-lg bg-white shadow-sm transition">TEAM</button>
-                    <button onclick="switchPointTab('individual')" id="tab-individual" class="flex-1 md:w-32 py-2 text-sm font-medium text-gray-500 rounded-lg transition">개인</button>
-                </div>
-
-                <!-- Content -->
-                <div id="point-content" class="bg-white p-6 rounded-3xl shadow-toss min-h-[300px]">
-                    <!-- Chart/List injected via JS -->
-                    <div class="space-y-6">
-                         <div class="flex items-center justify-between border-b pb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold">1</div>
-                                <span class="font-medium">강남점 A팀</span>
-                            </div>
-                            <span class="font-bold text-slam-red">15,400 P</span>
-                        </div>
-                        <div class="flex items-center justify-between border-b pb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">2</div>
-                                <span class="font-medium">홍대점 B팀</span>
-                            </div>
-                            <span class="font-bold">12,200 P</span>
-                        </div>
-                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold">3</div>
-                                <span class="font-medium">이태원점 C팀</span>
-                            </div>
-                            <span class="font-bold">11,050 P</span>
-                        </div>
+                <h2 class="text-2xl font-bold">🏆 포인트 현황</h2>
+                <div class="bg-white p-6 rounded-3xl shadow-toss min-h-[300px]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg">실시간 랭킹</h3>
+                        <button onclick="fetchRanking()" class="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200">새로고침</button>
+                    </div>
+                    <div id="ranking-list" class="space-y-4">
+                        <div class="text-center py-10 text-gray-400">데이터를 불러오는 중입니다...</div>
                     </div>
                 </div>
             </div>
@@ -275,55 +254,37 @@
         </main>
     </div>
 
-    <!-- Floating Chatbot Button (PC) -->
-    <button onclick="toggleChatbot()" class="fixed bottom-6 right-6 w-14 h-14 bg-slam-dark text-white rounded-full shadow-floating flex items-center justify-center hover:scale-105 transition z-40 hidden md:flex">
+    <!-- Chatbot Components (Same as before) -->
+    <button onclick="toggleChatbot()" class="fixed bottom-24 md:bottom-6 right-6 w-14 h-14 bg-slam-dark text-white rounded-full shadow-floating flex items-center justify-center hover:scale-105 transition z-40 hidden md:flex">
         <i data-lucide="message-circle" class="w-6 h-6"></i>
     </button>
 
-    <!-- Chatbot Sidebar/Modal -->
     <div id="chatbot-panel" class="fixed inset-y-0 right-0 w-full md:w-[400px] bg-white shadow-2xl z-50 slide-in-right flex flex-col border-l border-gray-200">
-        <!-- Header -->
         <div class="p-4 border-b flex justify-between items-center bg-slam-dark text-white">
             <div class="flex items-center gap-2">
                 <i data-lucide="bot" class="w-5 h-5 text-slam-red"></i>
-                <span class="font-bold">Slam Burger AI 매니저</span>
+                <span class="font-bold">Slam Burger AI</span>
             </div>
-            <button onclick="toggleChatbot()" class="p-1 hover:bg-gray-700 rounded-full">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+            <button onclick="toggleChatbot()" class="p-1 hover:bg-gray-700 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-        
-        <!-- Chat Area -->
         <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
             <div class="flex gap-3">
                 <div class="w-8 h-8 bg-slam-red rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs">AI</div>
-                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100">
-                    안녕하세요! 매장 관리나 레시피, 청소 방법에 대해 궁금한 점이 있으신가요?
-                </div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100">안녕하세요! 매뉴얼이나 레시피에 대해 궁금한 점을 물어보세요.</div>
             </div>
         </div>
-
-        <!-- Input Area -->
-        <div class="p-4 bg-white border-t">
-            <div class="flex gap-2">
-                <input type="text" id="chat-input" class="flex-1 bg-gray-100 border-0 rounded-xl px-4 py-3 focus:ring-1 focus:ring-slam-red text-sm" placeholder="질문을 입력하세요..." onkeypress="if(event.key === 'Enter') sendMessage()">
-                <button onclick="sendMessage()" class="bg-slam-red text-white p-3 rounded-xl hover:bg-red-700 transition">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                </button>
-            </div>
+        <div class="p-4 bg-white border-t flex gap-2">
+            <input type="text" id="chat-input" class="flex-1 bg-gray-100 border-0 rounded-xl px-4 py-3 text-sm" placeholder="질문을 입력하세요..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()" class="bg-slam-red text-white p-3 rounded-xl hover:bg-red-700 transition"><i data-lucide="send" class="w-4 h-4"></i></button>
         </div>
     </div>
 
-    <!-- Detail Modal Template -->
+    <!-- Detail Modal -->
     <div id="detail-modal" class="fixed inset-0 z-[60] bg-black/60 hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl transform transition-all scale-100 relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
+        <div class="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl relative animate-fade-in">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
             <h3 id="modal-title" class="text-xl font-bold mb-4 border-b pb-2">상세 가이드</h3>
-            <div id="modal-content" class="text-sm text-gray-600 leading-relaxed space-y-4">
-                <!-- Dynamic Content -->
-            </div>
+            <div id="modal-content" class="text-sm text-gray-600 leading-relaxed space-y-4"></div>
             <div class="mt-6 flex justify-end">
                 <button onclick="closeModal()" class="px-5 py-2 bg-gray-100 rounded-xl text-sm font-bold hover:bg-gray-200">닫기</button>
             </div>
@@ -331,86 +292,170 @@
     </div>
 
     <script>
-        // --- State Management ---
-        const state = {
-            user: null,
-            apiKey: null,
-            points: 0,
-            currentView: 'home',
-            checklist: []
-        };
+        // ★ 중요: 배포한 GAS Web App URL을 여기에 입력하세요 ★
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyqIt-8ieUhy-yvbBgNBFGpuzfUv9mUCq3IaBCOgErQusQpOA0Uru6WZVl0t814WM5q/exec"; 
 
-        // --- Mock Data ---
-        const checklistData = {
+        // --- Data Structure (Real Data from CSVs) ---
+        // Categories: 복장/위생, 기기점검, 식자재준비, 홀관리, 마감청소 등
+        const realChecklistData = {
             open: [
-                { id: 1, task: "매장 환기 및 조명 점검", desc: "모든 창문을 열어 10분간 환기하고, 홀과 주방의 모든 조명이 정상 작동하는지 확인하세요.", points: 10 },
-                { id: 2, task: "포스기 부팅 및 시재 점검", desc: "메인 포스기를 켜고, 준비금이 50,000원 맞는지 확인 후 기록하세요.", points: 10 },
-                { id: 3, task: "주방 식자재 해동 상태 확인", desc: "패티와 번의 해동 상태를 확인하고, 부족한 경우 즉시 매니저에게 보고하세요.", points: 15 }
+                {
+                    category: "출근 및 위생 점검",
+                    items: [
+                        { id: "o1", task: "복장 점검 (유니폼, 모자, 명찰)", desc: "단정한 복장, 머리카락 노출 금지, 명찰 패용 필수.", points: 5 },
+                        { id: "o2", task: "손 세척 및 소독", desc: "30초 이상 흐르는 물에 손 세척 후 소독젤 사용.", points: 5 },
+                        { id: "o3", task: "업무 공유 사항 확인 (잔디)", desc: "어제 마감팀 전달사항 및 본사 공지사항(잔디) 확인.", points: 5 }
+                    ]
+                },
+                {
+                    category: "매장 오픈 준비",
+                    items: [
+                        { id: "o4", task: "매장 전체 환기 및 조명 ON", desc: "출입문 개방하여 10분 환기, 홀/주방/간판 조명 점등 확인.", points: 10 },
+                        { id: "o5", task: "POS 및 키오스크 부팅", desc: "전원 ON 후 정상 작동 확인, 준비금(시재) 50,000원 확인.", points: 10 },
+                        { id: "o6", task: "음악(BGM) 재생", desc: "매장 분위기에 맞는 플레이리스트 재생 및 볼륨 조절.", points: 5 }
+                    ]
+                },
+                {
+                    category: "주방 기기 점검",
+                    items: [
+                        { id: "o7", task: "튀김기 예열 및 기름 상태 확인", desc: "170도 예열, 산패도 측정지 확인(2.5 이상 시 교체 보고).", points: 15 },
+                        { id: "o8", task: "그릴 및 후드 작동 확인", desc: "그릴 예열, 닥트(후드) 가동 확인.", points: 10 },
+                        { id: "o9", task: "냉장/냉동고 온도 체크", desc: "냉장 5도 이하, 냉동 -18도 이하 확인 후 온도기록표 작성.", points: 10 }
+                    ]
+                },
+                {
+                    category: "식자재 준비 (Mise-en-place)",
+                    items: [
+                        { id: "o10", task: "패티 및 번 해동 상태 확인", desc: "소고기/치킨/갈비 패티 및 번 해동 상태 확인, 부족 시 추가 해동.", points: 20 },
+                        { id: "o11", task: "야채(양상추, 토마토) 상태 확인", desc: "신선도 체크, 무른 부분 폐기, 정량 소분.", points: 15 },
+                        { id: "o12", task: "소스 및 시즈닝 필업", desc: "소스통 80% 이상 채우기, 유통기한 라벨 확인.", points: 10 }
+                    ]
+                }
             ],
             middle: [
-                { id: 4, task: "홀 테이블 청결 유지", desc: "손님이 나간 테이블은 즉시 소독액으로 닦고 의자를 정돈하세요.", points: 10 },
-                { id: 5, task: "음료 디스펜서 점검", desc: "시럽 잔량을 확인하고 얼음이 충분한지 체크하세요.", points: 10 },
-                { id: 6, task: "화장실 청소 상태 확인", desc: "물비누, 페이퍼 타월을 보충하고 바닥 물기를 제거하세요.", points: 20 },
-                { id: 7, task: "쓰레기통 비우기", desc: "홀 중앙 쓰레기통이 80% 이상 찼다면 즉시 교체하세요.", points: 15 }
+                {
+                    category: "피크타임 준비 (11:00~)",
+                    items: [
+                        { id: "m1", task: "식자재 및 포장용기 재고 재확인", desc: "점심 피크 대비 버거번, 패티, 감자튀김, 포장지 충분한지 확인.", points: 10 },
+                        { id: "m2", task: "준비된 튀김류 상태 점검", desc: "미리 튀겨둔 제품이 있다면 폐기 시간 준수 확인.", points: 10 }
+                    ]
+                },
+                {
+                    category: "홀 청결 및 고객 응대",
+                    items: [
+                        { id: "m3", task: "테이블 및 의자 정돈", desc: "빈 테이블 소독수 닦기, 의자 줄 맞추기.", points: 10 },
+                        { id: "m4", task: "퇴식구 및 쓰레기통 정리", desc: "트레이 정리, 쓰레기통 80% 차면 즉시 교체.", points: 15 },
+                        { id: "m5", task: "화장실 점검 (휴지/비누)", desc: "1시간 간격 체크, 바닥 물기 제거.", points: 15 },
+                        { id: "m6", task: "입/퇴점 인사 철저", desc: "'어서오세요 슬램버거입니다', '감사합니다' 큰 소리로 인사.", points: 5 }
+                    ]
+                }
             ],
             close: [
-                { id: 8, task: "프라이어 기름 정제", desc: "기름 온도를 낮춘 후 정제기를 사용하여 찌꺼기를 걸러내세요. (화상 주의)", points: 30 },
-                { id: 9, task: "그릴판 마감 청소", desc: "스크래퍼로 탄화물을 완전히 제거하고 전용 세제로 닦으세요.", points: 30 },
-                { id: 10, task: "식자재 유통기한 라벨링", desc: "남은 식자재는 밀봉 후 폐기/사용 기한 라벨을 부착해 냉장고에 보관하세요.", points: 20 }
+                {
+                    category: "주방 마감 청소",
+                    items: [
+                        { id: "c1", task: "튀김기 기름 정제 및 청소", desc: "기름 식힌 후 정제, 내부 찌꺼기 완벽 제거. (화상 주의)", points: 30 },
+                        { id: "c2", task: "그릴판 탄화물 제거(스크래퍼)", desc: "전용 세제 사용, 물기 제거 후 식용유 코팅.", points: 25 },
+                        { id: "c3", task: "후드 필터 세척", desc: "필터 분리 후 온수 불림 세척.", points: 20 },
+                        { id: "c4", task: "바닥 청소 및 트랜치 거름망", desc: "바닥 솔질 후 스퀴지로 물기 제거, 하수구 거름망 비우기.", points: 20 }
+                    ]
+                },
+                {
+                    category: "식자재 마감 및 발주",
+                    items: [
+                        { id: "c5", task: "남은 식자재 밀봉 및 라벨링", desc: "개봉한 식자재는 밀봉 후 '개봉일/폐기일' 라벨 부착.", points: 15 },
+                        { id: "c6", task: "재고 조사 및 발주 신청", desc: "재고표 작성, 부족 품목 발주 시트에 기입.", points: 20 },
+                        { id: "c7", task: "음식물 쓰레기 처리", desc: "지정된 장소에 배출.", points: 10 }
+                    ]
+                },
+                {
+                    category: "매장 보안 및 소등",
+                    items: [
+                        { id: "c8", task: "가스 밸브 차단 확인", desc: "메인 가스 밸브 잠금 확인 필수.", points: 10 },
+                        { id: "c9", task: "전자기기 전원 OFF", desc: "POS 마감 정산, 오디오/조명/에어컨 전원 차단.", points: 10 }
+                    ]
+                }
             ]
         };
 
-        // --- Init & Auth ---
+        // --- State ---
+        const state = {
+            user: null,
+            shift: null,
+            apiKey: null,
+            points: 0,
+            currentView: 'home'
+        };
+
+        // --- Init ---
         window.onload = () => {
             lucide.createIcons();
             
-            // Check Local Storage
             const storedUser = localStorage.getItem('slam_user');
+            const storedShift = localStorage.getItem('slam_shift');
             const storedKey = localStorage.getItem('slam_apikey');
-            const storedPoints = localStorage.getItem('slam_points');
 
-            if (storedUser && storedKey) {
+            if (storedUser && storedShift) {
                 state.user = storedUser;
+                state.shift = storedShift;
                 state.apiKey = storedKey;
-                state.points = parseInt(storedPoints) || 0;
-                enterApp();
+                
+                // Set Inputs
+                document.getElementById('username-input').value = storedUser;
+                // Radio select
+                const radios = document.getElementsByName('shift');
+                radios.forEach(r => { if(r.value === storedShift) r.checked = true; });
+
+                enterApp(false);
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
             }
         };
 
         function handleLogin() {
-            const user = document.getElementById('username-input').value;
-            const key = document.getElementById('apikey-input').value;
+            const user = document.getElementById('username-input').value.trim();
+            const apiKey = document.getElementById('apikey-input').value.trim();
+            
+            // Get selected shift
+            let selectedShift = null;
+            const radios = document.getElementsByName('shift');
+            for(let r of radios) { if(r.checked) selectedShift = r.value; }
 
-            if (!user || !key) {
-                alert('이름과 API 키를 모두 입력해주세요.');
-                return;
-            }
+            if (!user) return alert('이름을 입력해주세요.');
+            if (!selectedShift) return alert('근무 타임을 선택해주세요.');
 
-            // Save to LocalStorage
+            // Save
             localStorage.setItem('slam_user', user);
-            localStorage.setItem('slam_apikey', key);
-            localStorage.setItem('slam_points', state.points);
+            localStorage.setItem('slam_shift', selectedShift);
+            if(apiKey) localStorage.setItem('slam_apikey', apiKey);
 
             state.user = user;
-            state.apiKey = key;
+            state.shift = selectedShift;
+            state.apiKey = apiKey;
 
-            enterApp();
+            enterApp(true);
         }
 
-        function enterApp() {
-            // UI Update
-            document.getElementById('login-screen').classList.add('opacity-0', 'pointer-events-none');
+        function enterApp(isFirstLogin) {
+            // UI Transition
+            const loginScreen = document.getElementById('login-screen');
+            loginScreen.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => {
-                document.getElementById('login-screen').style.display = 'none';
+                loginScreen.style.display = 'none';
                 document.getElementById('app-container').classList.remove('hidden');
             }, 300);
 
+            // Update Header/Dashboard
             document.getElementById('header-username').innerText = state.user;
             document.getElementById('dashboard-name').innerText = state.user;
-            updatePointsDisplay();
+            document.getElementById('header-shift').innerText = state.shift.toUpperCase();
             
+            const shiftMap = { 'open': '오픈', 'middle': '미들', 'close': '마감' };
+            document.getElementById('dashboard-shift').innerText = shiftMap[state.shift];
+            document.getElementById('time-select').value = state.shift; // Sync select box
+
+            // Initial Data Fetch
+            fetchUserPoints(); 
             navigate('home');
         }
 
@@ -419,89 +464,105 @@
             location.reload();
         }
 
-        // --- Navigation ---
         function navigate(viewId) {
-            // Hide all views
             ['home', 'checklist', 'points'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
             });
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
             
-            // Show target view
-            const target = document.getElementById(`view-${viewId}`);
-            target.classList.remove('hidden');
-            target.classList.add('animate-fade-in');
-
-            state.currentView = viewId;
-
             if (viewId === 'checklist') loadChecklist();
-            
-            // Close mobile drawer if open
+            if (viewId === 'points') fetchRanking();
+
             document.getElementById('mobile-drawer').classList.add('hidden');
         }
 
         function toggleDrawer() {
             const drawer = document.getElementById('mobile-drawer');
-            if (drawer.classList.contains('hidden')) {
-                drawer.classList.remove('hidden');
-            } else {
-                drawer.classList.add('hidden');
-            }
+            drawer.classList.toggle('hidden');
         }
 
         // --- Checklist Logic ---
         function loadChecklist() {
             const timeSlot = document.getElementById('time-select').value;
-            const items = checklistData[timeSlot];
+            const categoryList = realChecklistData[timeSlot];
             const container = document.getElementById('checklist-items');
             
-            container.innerHTML = ''; // Clear
+            container.innerHTML = ''; 
 
-            items.forEach((item, index) => {
-                const el = document.createElement('div');
-                el.className = 'bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-3 transition hover:shadow-md';
-                el.innerHTML = `
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="check-${item.id}" class="w-6 h-6 text-slam-red rounded focus:ring-slam-red border-gray-300 cursor-pointer" onchange="toggleTaskStyle(this)">
-                            <div>
-                                <label for="check-${item.id}" class="font-bold text-lg cursor-pointer">${item.task}</label>
-                                <p class="text-xs text-slam-red font-medium">+${item.points} P</p>
+            let totalTasks = 0;
+            let completedTasks = 0;
+
+            categoryList.forEach(category => {
+                // Render Category Header
+                const catHeader = document.createElement('div');
+                catHeader.className = "flex items-center gap-2 pt-4 pb-2 border-b border-gray-200";
+                catHeader.innerHTML = `<h3 class="font-bold text-gray-600">${category.category}</h3>`;
+                container.appendChild(catHeader);
+
+                // Render Items
+                category.items.forEach(item => {
+                    totalTasks++;
+                    const el = document.createElement('div');
+                    el.className = 'bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-2 transition hover:shadow-md';
+                    el.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="check-${item.id}" data-points="${item.points}" class="w-6 h-6 text-slam-red rounded focus:ring-slam-red border-gray-300 cursor-pointer task-checkbox" onchange="toggleTaskStyle(this)">
+                                <div>
+                                    <label for="check-${item.id}" class="font-bold text-base cursor-pointer select-none">${item.task}</label>
+                                    <p class="text-xs text-slam-red font-medium">+${item.points} P</p>
+                                </div>
                             </div>
+                            <button onclick="showDetail('${item.id}', '${timeSlot}')" class="text-gray-400 hover:text-slam-red p-1">
+                                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                            </button>
                         </div>
-                        <button onclick="showDetail(${item.id}, '${timeSlot}')" class="text-gray-400 hover:text-slam-red">
-                            <i data-lucide="help-circle" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="flex gap-2 pl-9">
-                        <label class="cursor-pointer flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-xs text-gray-500 hover:bg-gray-100 border border-gray-200">
-                            <i data-lucide="camera" class="w-4 h-4"></i>
-                            <span>사진 인증</span>
-                            <input type="file" class="hidden" accept="image/*" onchange="alert('사진이 첨부되었습니다!')">
-                        </label>
-                    </div>
-                `;
-                container.appendChild(el);
+                        <div class="pl-9 hidden" id="photo-${item.id}">
+                            <label class="cursor-pointer flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg text-xs text-gray-500 hover:bg-gray-100 border border-gray-200 w-fit">
+                                <i data-lucide="camera" class="w-4 h-4"></i>
+                                <span>인증 사진 첨부</span>
+                                <input type="file" class="hidden" accept="image/*">
+                            </label>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
             });
             lucide.createIcons();
+            
+            // Dashboard Progress
+            document.getElementById('task-progress-display').innerText = `${completedTasks} / ${totalTasks}`;
         }
 
         function toggleTaskStyle(checkbox) {
             const label = checkbox.nextElementSibling.querySelector('label');
+            const photoArea = document.getElementById(`photo-${checkbox.id.replace('check-', '')}`);
+            
             if (checkbox.checked) {
                 label.classList.add('text-gray-400', 'line-through');
+                photoArea.classList.remove('hidden'); // Show photo upload when checked
             } else {
                 label.classList.remove('text-gray-400', 'line-through');
+                photoArea.classList.add('hidden');
             }
         }
 
         function showDetail(id, timeSlot) {
-            const item = checklistData[timeSlot].find(i => i.id === id);
+            let item;
+            // Find item in nested structure
+            realChecklistData[timeSlot].forEach(cat => {
+                const found = cat.items.find(i => i.id === id);
+                if(found) item = found;
+            });
+
+            if(!item) return;
+
             document.getElementById('modal-title').innerText = item.task;
             document.getElementById('modal-content').innerHTML = `
+                <p class="text-lg font-bold text-gray-800 mb-2">업무 가이드</p>
                 <p>${item.desc}</p>
                 <div class="mt-4 p-3 bg-red-50 text-slam-red rounded-lg text-xs font-bold">
-                    💡 Tip: 꼼꼼하게 수행하고 사진을 꼭 찍어주세요!
+                    💡 중요: 수행 후 체크박스를 클릭해주세요. 필요 시 사진을 첨부하세요.
                 </div>
             `;
             document.getElementById('detail-modal').classList.remove('hidden');
@@ -513,221 +574,163 @@
             document.getElementById('detail-modal').classList.remove('flex');
         }
 
+        // --- Network Logic (GAS Interaction) ---
+
+        // 1. Fetch User Points
+        function fetchUserPoints() {
+            document.getElementById('my-points-display').innerText = '...';
+            
+            // Send GET request with 'user' param
+            fetch(`${GAS_WEB_APP_URL}?type=user_info&user=${encodeURIComponent(state.user)}`)
+            .then(res => res.json())
+            .then(data => {
+                state.points = data.points || 0;
+                document.getElementById('my-points-display').innerText = `${state.points.toLocaleString()} P`;
+            })
+            .catch(err => {
+                console.error("Fetch Error:", err);
+                // Fallback to local storage if offline
+                document.getElementById('my-points-display').innerText = `${state.points} P (Offline)`;
+            });
+        }
+
+        // 2. Submit Checklist
         function submitChecklist() {
-            // Count checked items
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const checkboxes = document.querySelectorAll('.task-checkbox:checked');
             if (checkboxes.length === 0) {
                 alert('완료한 항목이 없습니다.');
                 return;
             }
 
-            // Calculate points (simplified logic)
-            let earned = 0;
+            let earnedPoints = 0;
+            let tasksCompleted = [];
+
             checkboxes.forEach(cb => {
-                // In real app, map ID to points. Here assume 10 for demo or parsing sibling.
-                // Retrieving points from text for demo simplicity
-                const pointText = cb.nextElementSibling.querySelector('p').innerText;
-                const p = parseInt(pointText.replace(/[^0-9]/g, ''));
-                earned += p;
-                
-                // Reset UI
-                cb.checked = false;
-                toggleTaskStyle(cb);
+                earnedPoints += parseInt(cb.getAttribute('data-points'));
+                const taskName = cb.nextElementSibling.querySelector('label').innerText;
+                tasksCompleted.push(taskName);
             });
 
-            state.points += earned;
-            localStorage.setItem('slam_points', state.points);
-            updatePointsDisplay();
+            if(!confirm(`총 ${checkboxes.length}개 항목을 완료 보고하시겠습니까?\n예상 적립 포인트: ${earnedPoints} P`)) return;
 
-            // Simulate DB Call (GAS)
-            sendToGAS({
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '보고 전송중...';
+            btn.disabled = true;
+
+            const payload = {
                 type: 'checklist_report',
                 user: state.user,
-                points: earned,
+                points: earnedPoints,
+                shift: state.shift,
+                tasks: tasksCompleted.join(', '), // Send task names
                 timestamp: new Date().toISOString()
-            });
+            };
 
-            alert(`보고가 완료되었습니다!\n${earned} 포인트가 적립되었습니다.`);
-        }
-
-        function updatePointsDisplay() {
-            document.getElementById('my-points-display').innerText = `${state.points.toLocaleString()} P`;
-        }
-
-        // --- Points Tab Logic ---
-        function switchPointTab(type) {
-            const btnTeam = document.getElementById('tab-team');
-            const btnIndi = document.getElementById('tab-individual');
-            const content = document.getElementById('point-content');
-
-            if (type === 'team') {
-                btnTeam.classList.add('bg-white', 'shadow-sm', 'font-bold', 'text-black');
-                btnTeam.classList.remove('text-gray-500');
-                btnIndi.classList.remove('bg-white', 'shadow-sm', 'font-bold', 'text-black');
-                btnIndi.classList.add('text-gray-500');
+            // Use 'no-cors' for POST to GAS (standard method)
+            fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                alert(`✅ 보고 완료!\n${earnedPoints} 포인트가 적립되었습니다.`);
                 
-                content.innerHTML = `
-                     <div class="space-y-6">
-                         <div class="flex items-center justify-between border-b pb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold">1</div>
-                                <span class="font-medium">강남점 A팀</span>
-                            </div>
-                            <span class="font-bold text-slam-red">15,400 P</span>
-                        </div>
-                        <div class="flex items-center justify-between border-b pb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">2</div>
-                                <span class="font-medium">홍대점 B팀</span>
-                            </div>
-                            <span class="font-bold">12,200 P</span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                btnIndi.classList.add('bg-white', 'shadow-sm', 'font-bold', 'text-black');
-                btnIndi.classList.remove('text-gray-500');
-                btnTeam.classList.remove('bg-white', 'shadow-sm', 'font-bold', 'text-black');
-                btnTeam.classList.add('text-gray-500');
+                // Optimistic UI Update
+                state.points += earnedPoints;
+                document.getElementById('my-points-display').innerText = `${state.points.toLocaleString()} P`;
+                
+                // Reset Checkboxes
+                checkboxes.forEach(cb => {
+                    cb.checked = false;
+                    toggleTaskStyle(cb);
+                });
 
-                // Show Individual with current user
-                content.innerHTML = `
-                    <div class="space-y-6">
-                         <div class="flex items-center justify-between border-b border-slam-red/20 bg-red-50 p-3 rounded-lg">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-bold text-slam-red">ME</span>
-                                <span class="font-bold">${state.user}</span>
-                            </div>
-                            <span class="font-bold text-slam-red">${state.points.toLocaleString()} P</span>
-                        </div>
-                         <div class="flex items-center justify-between border-b pb-4 mt-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold">1</div>
-                                <span class="font-medium">김매니저</span>
-                            </div>
-                            <span class="font-bold text-gray-700">5,400 P</span>
-                        </div>
-                         <div class="flex items-center justify-between border-b pb-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">2</div>
-                                <span class="font-medium">이알바</span>
-                            </div>
-                            <span class="font-bold text-gray-700">4,200 P</span>
-                        </div>
-                    </div>
-                `;
-            }
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Refresh data from server just in case
+                setTimeout(fetchUserPoints, 1000);
+
+            }).catch(err => {
+                alert('전송 실패. 네트워크를 확인해주세요.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
         }
 
-        // --- Chatbot Logic (Gemini API) ---
-        function toggleChatbot() {
-            const panel = document.getElementById('chatbot-panel');
-            panel.classList.toggle('active');
-        }
-        
-        // Open chatbot from main menu
-        function openChatbot() {
-            document.getElementById('chatbot-panel').classList.add('active');
+        // 3. Fetch Ranking
+        function fetchRanking() {
+            const list = document.getElementById('ranking-list');
+            list.innerHTML = '<div class="text-center py-4">랭킹 로딩중...</div>';
+
+            fetch(`${GAS_WEB_APP_URL}?type=ranking`)
+            .then(res => res.json())
+            .then(data => {
+                list.innerHTML = '';
+                data.forEach((u, idx) => {
+                    const isMe = u.name === state.user;
+                    const rankColor = idx === 0 ? 'bg-yellow-400' : (idx === 1 ? 'bg-gray-300' : (idx === 2 ? 'bg-orange-400' : 'bg-gray-100 text-gray-500'));
+                    
+                    const row = document.createElement('div');
+                    row.className = `flex items-center justify-between border-b pb-4 ${isMe ? 'bg-red-50 p-2 rounded-lg border-none' : ''}`;
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 ${rankColor} rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                ${idx + 1}
+                            </div>
+                            <span class="font-medium ${isMe ? 'text-slam-red font-bold' : ''}">${u.name}</span>
+                        </div>
+                        <span class="font-bold text-gray-700">${parseInt(u.points).toLocaleString()} P</span>
+                    `;
+                    list.appendChild(row);
+                });
+            })
+            .catch(err => {
+                list.innerHTML = '<div class="text-center text-red-500">랭킹을 불러오지 못했습니다.</div>';
+            });
         }
 
+        // --- Chatbot (Same as original) ---
+        function toggleChatbot() { document.getElementById('chatbot-panel').classList.toggle('active'); }
+        function openChatbot() { document.getElementById('chatbot-panel').classList.add('active'); }
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
-
-            // Add User Message
             appendMessage('user', message);
             input.value = '';
-
-            // Add Loading
             const loadingId = 'loading-' + Date.now();
             appendMessage('bot', '<span id="'+loadingId+'">답변을 생성중입니다...</span>');
-
             try {
                 const response = await fetchGemini(message);
                 document.getElementById(loadingId).parentElement.innerHTML = response;
             } catch (error) {
-                console.error(error);
-                document.getElementById(loadingId).innerText = "죄송합니다. 오류가 발생했습니다. API 키를 확인해주세요.";
+                document.getElementById(loadingId).innerText = "AI 키를 확인해주세요.";
             }
         }
-
         function appendMessage(sender, html) {
             const history = document.getElementById('chat-history');
             const div = document.createElement('div');
             div.className = 'flex gap-3 mb-4 animate-fade-in';
-            
             if (sender === 'user') {
                 div.classList.add('flex-row-reverse');
-                div.innerHTML = `
-                    <div class="bg-slam-red text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm max-w-[80%]">
-                        ${html}
-                    </div>
-                `;
+                div.innerHTML = `<div class="bg-slam-red text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-sm max-w-[80%]">${html}</div>`;
             } else {
-                div.innerHTML = `
-                    <div class="w-8 h-8 bg-slam-red rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs">AI</div>
-                    <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 max-w-[85%] leading-relaxed">
-                        ${html}
-                    </div>
-                `;
+                div.innerHTML = `<div class="w-8 h-8 bg-slam-red rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs">AI</div><div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm text-sm border border-gray-100 max-w-[85%] leading-relaxed">${html}</div>`;
             }
             history.appendChild(div);
             history.scrollTop = history.scrollHeight;
         }
-
         async function fetchGemini(prompt) {
             if (!state.apiKey) throw new Error("No API Key");
-
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.apiKey}`;
-            
-            // System instruction to act as a Slam Burger manager
-            const systemContext = `
-                당신은 '슬램버거(SLAM BURGER)'의 AI 매장 매니저입니다.
-                사용자는 매장 근무자(아르바이트생)입니다.
-                친절하고 에너제틱한 톤으로 답변하세요.
-                질문이 매장 청소, 레시피, 고객 응대 매뉴얼에 관한 것이면 구체적으로 답변하세요.
-                슬램버거의 브랜드 컬러는 레드이며, 위생과 청결을 최우선으로 합니다.
-                답변은 HTML 태그를 사용하지 말고 줄바꿈과 이모지를 적절히 사용하여 가독성 있게 작성해주세요.
-            `;
-
-            const payload = {
-                contents: [{
-                    parts: [{ text: systemContext + "\n\nUser Question: " + prompt }]
-                }]
-            };
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
+            const systemContext = `당신은 '슬램버거' AI 매니저입니다. 친절하고 에너제틱하게 답변하세요.`;
+            const payload = { contents: [{ parts: [{ text: systemContext + "\nUser: " + prompt }] }] };
+            const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             const data = await response.json();
-            const rawText = data.candidates[0].content.parts[0].text;
-            
-            // Simple Markdown formatting
-            return rawText
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+            return data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
         }
-
-        // --- Mock GAS Sender ---
-        function sendToGAS(data) {
-            // This function would send data to your Google Apps Script Web App URL
-            console.log("Sending to DB:", data);
-            
-            // Example Code for real implementation:
-            /*
-            fetch('YOUR_GAS_WEB_APP_URL', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            */
-        }
-
     </script>
 </body>
 </html>

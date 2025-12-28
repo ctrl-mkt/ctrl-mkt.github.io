@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RestoGenie v5.0 (Advanced Payroll Engine)</title>
+    <title>RestoGenie v5.1 (P&L Restored)</title>
     
     <!-- Pretendard & Tailwind & FontAwesome -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
@@ -52,6 +52,9 @@
             </button>
             <button onclick="switchTab('payroll')" id="nav-payroll" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-left font-bold transition-all nav-item-inactive">
                 <i class="fas fa-coins w-5 text-center"></i> 급여 정산
+            </button>
+            <button onclick="switchTab('pnl')" id="nav-pnl" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-left font-bold transition-all nav-item-inactive">
+                <i class="fas fa-chart-line w-5 text-center"></i> 손익 분석
             </button>
         </nav>
         <div class="p-6 border-t border-gray-100">
@@ -129,6 +132,101 @@
                 </div>
             </section>
 
+            <!-- 4. P&L Page (RESTORED) -->
+            <section id="view-pnl" class="hidden space-y-8 max-w-5xl mx-auto">
+                <!-- Header -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">손익 분석</h2>
+                        <p class="text-gray-400 text-sm mt-1">실시간 예상 영업이익</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-gray-400 block mb-1">분석 기간</span>
+                        <span id="pnl-date-display" class="font-bold text-lg text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">2025년 11월</span>
+                    </div>
+                </div>
+
+                <!-- Dashboard -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="toss-card border-l-4 border-blue-500 p-5">
+                        <div class="text-xs font-bold text-gray-500 mb-1">총 매출액</div>
+                        <div class="text-2xl font-bold text-gray-800" id="pnl-revenue">0원</div>
+                    </div>
+                    <div class="toss-card border-l-4 border-red-400 p-5">
+                        <div class="text-xs font-bold text-gray-500 mb-1">총 비용</div>
+                        <div class="text-2xl font-bold text-gray-800" id="pnl-expense">0원</div>
+                    </div>
+                    <div class="toss-card border-l-4 border-green-500 bg-green-50/30 p-5">
+                        <div class="text-xs font-bold text-gray-500 mb-1">영업이익</div>
+                        <div class="text-3xl font-extrabold text-green-600" id="pnl-profit">0원</div>
+                        <div class="text-xs font-bold text-green-600 mt-2" id="pnl-margin">이익률 0%</div>
+                    </div>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Revenue & COGS -->
+                    <div class="space-y-6">
+                        <div class="toss-card">
+                            <h3 class="font-bold text-lg mb-4">1. 매출 상세</h3>
+                            <div class="space-y-3">
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">카드 매출</label><input type="number" id="in-sales-card" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">현금 매출</label><input type="number" id="in-sales-cash" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">배달 매출</label><input type="number" id="in-sales-delivery" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                            </div>
+                        </div>
+                        <div class="toss-card">
+                            <h3 class="font-bold text-lg mb-4">2. 재료비 (COGS)</h3>
+                            <div class="space-y-3">
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">원두/음료/우유</label><input type="number" id="in-cost-mat" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">디저트/베이커리</label><input type="number" id="in-cost-dst" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">기타 부자재</label><input type="number" id="in-cost-etc" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                                <span class="text-sm font-bold text-gray-500">원가율</span>
+                                <span class="text-lg font-bold text-gray-800" id="disp-cogs-ratio">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Labor & Expense -->
+                    <div class="space-y-6">
+                        <div class="toss-card border-2 border-blue-100">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-lg">3. 인건비</h3>
+                                <span class="badge badge-blue">자동 연동</span>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-xl mb-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm text-gray-600">직원 급여 합계</span>
+                                    <span class="font-bold text-lg" id="disp-labor-auto">0원</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                                    <span class="text-xs font-bold text-gray-500">본사 파견비 (수기)</span>
+                                    <input type="number" id="in-labor-hq" class="p-1 w-24 text-right bg-white border rounded text-sm font-bold" oninput="savePnLInput(this.id, this.value)">
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-bold text-gray-500">인건비율</span>
+                                <span class="text-lg font-bold text-blue-600" id="disp-labor-ratio">0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="toss-card">
+                            <h3 class="font-bold text-lg mb-4">4. 판매관리비</h3>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="text-xs font-bold text-gray-500 block mb-1">임대료</label><input type="number" id="in-exp-rent" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                    <div><label class="text-xs font-bold text-gray-500 block mb-1">수도광열</label><input type="number" id="in-exp-util" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                </div>
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">배달 대행료</label><input type="number" id="in-exp-deliv" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="text-xs font-bold text-gray-500 block mb-1">기타 잡비</label><input type="number" id="in-exp-misc" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </div>
 
         <!-- Mobile Nav -->
@@ -136,6 +234,7 @@
             <button onclick="switchTab('staff')" id="mob-staff" class="flex-1 py-2 text-blue-600 font-bold text-[10px] flex flex-col items-center gap-1"><i class="fas fa-users text-lg"></i>직원</button>
             <button onclick="switchTab('schedule')" id="mob-schedule" class="flex-1 py-2 text-gray-300 font-bold text-[10px] flex flex-col items-center gap-1"><i class="far fa-calendar-alt text-lg"></i>일정</button>
             <button onclick="switchTab('payroll')" id="mob-payroll" class="flex-1 py-2 text-gray-300 font-bold text-[10px] flex flex-col items-center gap-1"><i class="fas fa-coins text-lg"></i>정산</button>
+            <button onclick="switchTab('pnl')" id="mob-pnl" class="flex-1 py-2 text-gray-300 font-bold text-[10px] flex flex-col items-center gap-1"><i class="fas fa-chart-pie text-lg"></i>손익</button>
         </nav>
     </main>
 
@@ -277,6 +376,7 @@
         const DB_KEY = 'restogenie_v5_db';
         let staffData = [];
         let schedules = {}; // Key: staffId_YYYY-MM-DD
+        let pnlData = {};   // Key: inputId
         let currentYear = 2025;
         let currentMonth = 10; // Nov (0-based)
         let selectedStaffId = null;
@@ -290,6 +390,7 @@
                 staffData = db.staff || [];
                 schedules = db.schedules || {};
                 global5Plus = db.global5Plus ?? true;
+                pnlData = db.pnlData || {};
             } else {
                 seedData(); // Load Demo Data if empty
             }
@@ -297,14 +398,21 @@
             document.getElementById('global-5plus').checked = global5Plus;
             if(staffData.length > 0) selectedStaffId = staffData[0].id;
             
+            // Restore P&L Inputs
+            Object.keys(pnlData).forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = pnlData[id];
+            });
+
             updateDisplays();
             renderStaffList();
             renderScheduleUI();
             renderPayroll();
+            renderPnL();
         }
 
         function saveData() {
-            localStorage.setItem(DB_KEY, JSON.stringify({ staff: staffData, schedules, global5Plus }));
+            localStorage.setItem(DB_KEY, JSON.stringify({ staff: staffData, schedules, global5Plus, pnlData }));
         }
 
         function seedData() {
@@ -329,6 +437,14 @@
                     schedules[k] = { status: 'work', start: '09:00', end: '16:30', breakMins: 30, isHoliday: false };
                 }
             }
+            
+            // Seed P&L defaults
+            pnlData = {
+                'in-sales-card': 55159010, 'in-sales-cash': 1289810, 'in-sales-delivery': 7217600,
+                'in-cost-mat': 8881550, 'in-cost-dst': 3171270, 'in-cost-etc': 1206000,
+                'in-exp-rent': 4950000, 'in-exp-util': 2120000, 'in-exp-deliv': 2365000, 'in-exp-misc': 500000
+            };
+            
             saveData();
         }
 
@@ -336,6 +452,7 @@
             global5Plus = document.getElementById('global-5plus').checked;
             saveData();
             renderPayroll(); // Re-calc immediately
+            renderPnL();
         }
 
         // === STAFF LOGIC ===
@@ -526,6 +643,7 @@
             closeSchModal();
             renderScheduleUI();
             renderPayroll(); // Auto Recalc
+            renderPnL();     // Update P&L
         }
 
         function closeSchModal() { document.getElementById('sch-modal').classList.add('hidden'); }
@@ -774,9 +892,71 @@
                 totalWorkHours, totalOvertime,
                 baseSalary, extraPay, juhyuPay,
                 deduction,
+                totalGross,
                 netPay: totalGross - deduction,
                 dailyLogs
             };
+        }
+
+        // === P&L LOGIC (NEW) ===
+        function renderPnL() {
+            // 1. Calculate Total Labor Cost (Gross + Company Burden)
+            let totalLaborCost = 0;
+            staffData.forEach(staff => {
+                const analysis = analyzeAttendance(staff);
+                // Assume Company Cost = Gross Pay + Employer Insurance (~10% for 4major)
+                let companyCost = analysis.totalGross;
+                if(staff.taxType === '4major') companyCost *= 1.1; // Add ~10% burden
+                totalLaborCost += companyCost;
+            });
+
+            // Update Labor Display
+            document.getElementById('disp-labor-auto').innerText = Math.floor(totalLaborCost).toLocaleString() + '원';
+
+            // 2. Fetch Inputs
+            const revCard = Number(pnlData['in-sales-card']) || 0;
+            const revCash = Number(pnlData['in-sales-cash']) || 0;
+            const revDeliv = Number(pnlData['in-sales-delivery']) || 0;
+            const totalRev = revCard + revCash + revDeliv;
+
+            const costMat = Number(pnlData['in-cost-mat']) || 0;
+            const costDst = Number(pnlData['in-cost-dst']) || 0;
+            const costEtc = Number(pnlData['in-cost-etc']) || 0;
+            const totalCogs = costMat + costDst + costEtc;
+
+            const laborHq = Number(pnlData['in-labor-hq']) || 0;
+            const finalLabor = totalLaborCost + laborHq;
+
+            const expRent = Number(pnlData['in-exp-rent']) || 0;
+            const expUtil = Number(pnlData['in-exp-util']) || 0;
+            const expDeliv = Number(pnlData['in-exp-deliv']) || 0;
+            const expMisc = Number(pnlData['in-exp-misc']) || 0;
+            const totalExp = expRent + expUtil + expDeliv + expMisc;
+
+            // 3. Profit Calculation
+            const totalCost = totalCogs + finalLabor + totalExp;
+            const profit = totalRev - totalCost;
+            const margin = totalRev > 0 ? (profit / totalRev * 100).toFixed(1) : 0;
+            const cogsRatio = totalRev > 0 ? (totalCogs / totalRev * 100).toFixed(1) : 0;
+            const laborRatio = totalRev > 0 ? (finalLabor / totalRev * 100).toFixed(1) : 0;
+
+            // 4. Update UI
+            document.getElementById('pnl-revenue').innerText = Math.floor(totalRev).toLocaleString() + '원';
+            document.getElementById('pnl-expense').innerText = Math.floor(totalCost).toLocaleString() + '원';
+            
+            const pEl = document.getElementById('pnl-profit');
+            pEl.innerText = Math.floor(profit).toLocaleString() + '원';
+            pEl.className = `text-3xl font-extrabold ${profit >= 0 ? 'text-green-600' : 'text-red-500'}`;
+            
+            document.getElementById('pnl-margin').innerText = `이익률 ${margin}%`;
+            document.getElementById('disp-cogs-ratio').innerText = `${cogsRatio}%`;
+            document.getElementById('disp-labor-ratio').innerText = `${laborRatio}%`;
+        }
+
+        function savePnLInput(id, val) {
+            pnlData[id] = val;
+            saveData();
+            renderPnL();
         }
 
         function parseTime(t) {
@@ -791,16 +971,18 @@
             updateDisplays();
             renderScheduleUI();
             renderPayroll();
+            renderPnL();
         }
 
         function updateDisplays() {
             const t = `${currentYear}년 ${currentMonth+1}월`;
             document.getElementById('cal-date-display').innerText = t;
             document.getElementById('pay-date-display').innerText = t;
+            document.getElementById('pnl-date-display').innerText = t;
         }
 
         function switchTab(t) {
-            ['staff','schedule','payroll'].forEach(x => {
+            ['staff','schedule','payroll','pnl'].forEach(x => {
                 document.getElementById(`view-${x}`).classList.add('hidden');
                 document.getElementById(`nav-${x}`).classList.replace('nav-item-active','nav-item-inactive');
                 document.getElementById(`mob-${x}`).classList.replace('text-blue-600','text-gray-300');

@@ -2,94 +2,852 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>레스토지니 파트너센터 v3.0 (Google DB)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
+    <title>RestoGenie v4.0 (Full Interactive)</title>
     
-    <!-- 스타일 -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
-    
-    <!-- 카카오 주소 API -->
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script>
-        // [중요] 배포한 Google Apps Script 웹 앱 URL을 여기에 입력하세요.
-        const API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'; 
-
-        async function fetchAPI(action, method = 'GET', payload = null) {
-            // 실제 연동 시 주석 해제 및 구현
-            // const url = `${API_URL}?action=${action}`;
-            // const options = {
-            //     method: method,
-            //     body: method === 'POST' ? JSON.stringify({ action, payload }) : null
-            // };
-            // const res = await fetch(url, options);
-            // return await res.json();
-
-            // [데모용] 로컬 스토리지 또는 가짜 응답 반환
-            console.log(`[API Mock] ${method} ${action}`, payload);
-            return { status: 'success' };
-        }
+    <style>
+        body { font-family: "Pretendard Variable", Pretendard, sans-serif; background-color: #F2F4F6; color: #191F28; -webkit-font-smoothing: antialiased; }
         
-        // 카카오 주소찾기 팝업
-        function openDaumPostcode(callback) {
-            new daum.Postcode({
-                oncomplete: function(data) {
-                    callback(data.address, data.zonecode);
-                }
-            }).open();
-        }
-    </script>
+        /* Toss UI Utils */
+        .toss-card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); padding: 24px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .toss-card:active { transform: scale(0.99); }
+        .toss-btn-primary { background-color: #3182F6; color: white; font-weight: 600; border-radius: 14px; padding: 14px 20px; transition: background-color 0.2s; border: none; width: 100%; }
+        .toss-btn-primary:hover { background-color: #1B64DA; }
+        .toss-btn-secondary { background-color: #E8F3FF; color: #3182F6; font-weight: 600; border-radius: 14px; padding: 14px 20px; transition: background-color 0.2s; border: none; width: 100%; }
+        .toss-btn-danger { background-color: #FFF1F1; color: #FF4B4B; font-weight: 600; border-radius: 14px; padding: 14px 20px; transition: background-color 0.2s; border: none; width: 100%; }
+        
+        .toss-input { background-color: #F9FAFB; border: 1px solid #F2F4F6; border-radius: 14px; padding: 16px; font-size: 16px; width: 100%; transition: border-color 0.2s, background-color 0.2s; font-weight: 500; }
+        .toss-input:focus { outline: none; border-color: #3182F6; background-color: #FFF; }
+        
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1D6DB; border-radius: 3px; }
+        
+        /* Nav States */
+        .nav-item-active { background-color: #E8F3FF; color: #3182F6; }
+        .nav-item-inactive { color: #8B95A1; }
+        .nav-item-inactive:hover { background-color: #F9FAFB; color: #191F28; }
 
-    <!-- Tailwind Config 등 스타일 설정 생략 (v2.23과 동일) -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Pretendard', 'sans-serif'] },
-                    colors: {
-                        toss: { blue: '#3182F6', blueLight: '#E8F3FF', grey50: '#F9FAFB', grey100: '#F2F4F6', grey200: '#E5E8EB', grey500: '#8B95A1', grey700: '#4E5968', grey900: '#191F28', red: '#F04452' }
-                    }
-                }
-            }
-        }
-    </script>
-    <style> body { font-family: 'Pretendard', sans-serif; background-color: #F2F4F6; } [x-cloak] { display: none !important; } </style>
+        /* Schedule Grid */
+        .schedule-staff-active { border: 2px solid #3182F6; background-color: #E8F3FF; color: #3182F6; }
+        .schedule-staff-inactive { border: 1px solid #F2F4F6; background-color: #FFFFFF; color: #6B7684; }
+    </style>
 </head>
+<body class="h-screen w-screen flex overflow-hidden bg-[#F2F4F6]">
 
-<body class="antialiased select-none" x-data="hrApp()" x-init="initApp()">
-    
-    <!-- 레이아웃 및 헤더 등은 v2.23 유지 -->
-    <div class="flex min-h-screen">
-         <!-- LNB 생략 (v2.23 동일) -->
-         <!-- Main Content 생략 (v2.23 동일) -->
-         
-         <!-- ... -->
-    </div>
+    <!-- Desktop Sidebar -->
+    <aside class="w-72 bg-white border-r border-gray-100 flex flex-col hidden md:flex z-20 shadow-sm shrink-0">
+        <div class="p-8 pb-4 flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-200">R</div>
+            <h1 class="text-2xl font-extrabold tracking-tight text-[#191F28]">RestoGenie</h1>
+        </div>
+        
+        <nav class="flex-1 px-5 space-y-2 mt-6">
+            <button onclick="switchTab('staff')" id="nav-staff" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-left font-bold transition-all nav-item-active">
+                <i class="fas fa-users w-6 text-center text-lg"></i> 직원 관리
+            </button>
+            <button onclick="switchTab('schedule')" id="nav-schedule" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-left font-bold transition-all nav-item-inactive">
+                <i class="far fa-calendar-alt w-6 text-center text-lg"></i> 근무 일정
+            </button>
+            <button onclick="switchTab('payroll')" id="nav-payroll" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-left font-bold transition-all nav-item-inactive">
+                <i class="fas fa-coins w-6 text-center text-lg"></i> 급여 정산
+            </button>
+            <button onclick="switchTab('pnl')" id="nav-pnl" class="w-full flex items-center gap-3 px-5 py-4 rounded-2xl text-left font-bold transition-all nav-item-inactive">
+                <i class="fas fa-chart-line w-6 text-center text-lg"></i> 손익 분석
+            </button>
+        </nav>
 
-    <!-- [모달] 직원 등록/수정 (필드 추가됨) -->
-    <div x-show="showEmpModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" x-cloak>
-        <div class="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl p-8 max-h-[90vh] overflow-y-auto" @click.away="showEmpModal = false">
-            <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold text-toss-grey900">직원 정보 입력</h2><button @click="showEmpModal = false"><i data-lucide="x"></i></button></div>
-            
-            <form @submit.prevent="saveEmployee" class="space-y-6">
-                <!-- 1. 기본 정보 -->
-                <h3 class="text-lg font-bold text-toss-grey900 border-b pb-2">기본 정보</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-semibold mb-1 text-toss-grey700">이름</label><input x-model="newEmp.name" class="w-full p-3 bg-toss-grey50 rounded-xl border-none" required></div>
-                    <div><label class="block text-sm font-semibold mb-1 text-toss-grey700">주민등록번호</label><input x-model="newEmp.rrn" class="w-full p-3 bg-toss-grey50 rounded-xl border-none" placeholder="000000-0000000"></div>
+        <div class="p-6 border-t border-gray-100">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-user-tie"></i>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1 text-toss-grey700">주소</label>
-                    <div class="flex gap-2">
-                        <input x-model="newEmp.address" class="flex-1 p-3 bg-toss-grey50 rounded-xl border-none" readonly placeholder="주소 검색 클릭">
-                        <button type="button" @click="searchAddress()" class="px-4 bg-toss-blue text-white rounded-xl font-medium">검색</button>
+                    <div class="text-xs text-gray-400 font-medium">관리자</div>
+                    <div class="text-sm font-bold text-gray-700">김점장님</div>
+                </div>
+            </div>
+            <button onclick="resetData()" class="text-xs text-gray-300 underline mt-2">데이터 초기화 (데모용)</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-white px-5 py-4 flex justify-between items-center shadow-sm z-10 sticky top-0 shrink-0">
+             <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-500 rounded-xl flex items-center justify-center text-white font-bold">R</div>
+                <h1 class="text-xl font-bold tracking-tight text-[#191F28]">RestoGenie</h1>
+            </div>
+            <div onclick="resetData()" class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 cursor-pointer">
+                <i class="fas fa-redo-alt"></i>
+            </div>
+        </header>
+
+        <!-- Content Pages -->
+        <div class="flex-1 overflow-y-auto p-0 md:p-8 pb-24 md:pb-8 space-y-8 scroll-smooth bg-[#F2F4F6]" id="main-scroll">
+            
+            <!-- 1. STAFF MANAGEMENT -->
+            <section id="view-staff" class="space-y-6 max-w-4xl mx-auto px-5 md:px-0 pt-5 md:pt-0">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold">직원 관리</h2>
+                        <p class="text-[#8B95A1] mt-1 text-sm font-medium">총 <span id="staff-count" class="text-blue-600 font-bold">0</span>명의 직원이 등록되어 있습니다.</p>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <button onclick="openStaffModal()" class="toss-btn-primary text-sm shadow-lg shadow-blue-100">+ 직원 등록</button>
+                    </div>
+                </div>
+                <div id="staff-list" class="space-y-4">
+                    <!-- Staff Cards Rendered Here -->
+                </div>
+            </section>
+
+            <!-- 2. SCHEDULE -->
+            <section id="view-schedule" class="hidden h-full flex flex-col md:flex-row gap-6 max-w-7xl mx-auto px-5 md:px-0 pt-5 md:pt-0">
+                <div class="md:w-64 shrink-0 flex flex-col gap-4">
+                    <h2 class="text-2xl font-bold md:mb-2">근무 일정</h2>
+                    <p class="text-xs text-gray-500 -mt-2 md:hidden">직원을 선택하고 날짜를 눌러 근무를 입력하세요.</p>
+                    <div id="schedule-staff-list" class="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide">
+                        <!-- Staff Selectors Rendered Here -->
                     </div>
                 </div>
 
-                <!-- 2. 급여 계좌 정보 -->
-                <h3 class="text-lg font-bold text-toss-grey900 border-b pb-2 pt-4">급여 계좌</h3>
-                <div class="grid grid-cols-3 gap-4">
-                    <div><label class="block text-sm font-semibold mb-1 text-toss-grey700
+                <div class="flex-1 flex flex-col gap-4 h-full pb-10">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeDateRange(-1)" class="w-9 h-9 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-600"><i class="fas fa-chevron-left"></i></button>
+                            <span id="current-month-display" class="text-xl font-bold text-[#191F28]">2025년 12월</span>
+                            <button onclick="changeDateRange(1)" class="w-9 h-9 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-600"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="text-xs text-gray-400 font-medium">* 날짜를 클릭하여 근무 추가</div>
+                    </div>
+                    <div class="toss-card flex-1 min-h-[500px] overflow-hidden relative p-0 flex flex-col bg-white">
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-px bg-gray-100 border border-gray-100 h-full">
+                            <!-- Calendar Rendered Here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. PAYROLL -->
+            <section id="view-payroll" class="hidden space-y-6 max-w-4xl mx-auto px-5 md:px-0 pt-5 md:pt-0">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl shadow-sm border border-gray-100">
+                         <button onclick="changeDateRange(-1)" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600"><i class="fas fa-chevron-left"></i></button>
+                         <span id="payroll-month-display" class="text-xl font-bold text-[#191F28] min-w-[120px] text-center">2025년 12월</span>
+                         <button onclick="changeDateRange(1)" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold hidden md:block">급여 정산</h2>
+                        <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold">실시간 계산</span>
+                    </div>
+                </div>
+                <div id="payroll-list" class="space-y-6">
+                    <!-- Payroll Cards Rendered Here -->
+                </div>
+            </section>
+
+            <!-- 4. PROFIT & LOSS -->
+            <section id="view-pnl" class="hidden space-y-8 max-w-5xl mx-auto px-5 md:px-0 pt-5 md:pt-0">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold">손익 분석</h2>
+                        <p class="text-[#8B95A1] mt-1 text-sm font-medium">실시간으로 계산되는 예상 영업이익입니다.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-500 font-bold mb-1">분석 월</div>
+                        <div class="text-lg font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg" id="pnl-month-display">2025년 12월</div>
+                    </div>
+                </div>
+
+                <!-- P&L Dashboard -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="toss-card border-l-4 border-blue-500">
+                        <div class="text-sm text-gray-500 font-bold mb-1">총 매출액</div>
+                        <div class="text-2xl font-bold text-[#191F28]" id="pnl-revenue">0원</div>
+                        <div class="text-xs text-gray-400 mt-2">카드 + 현금 + 배달</div>
+                    </div>
+                    <div class="toss-card border-l-4 border-red-400">
+                        <div class="text-sm text-gray-500 font-bold mb-1">총 비용</div>
+                        <div class="text-2xl font-bold text-[#191F28]" id="pnl-expense">0원</div>
+                        <div class="text-xs text-red-400 mt-2">원가 + 인건비 + 판관비</div>
+                    </div>
+                    <div class="toss-card border-l-4 border-green-500 bg-green-50/30">
+                        <div class="text-sm text-gray-500 font-bold mb-1">영업이익</div>
+                        <div class="text-3xl font-extrabold text-green-600" id="pnl-profit">0원</div>
+                        <div class="text-xs font-bold text-green-600 mt-2" id="pnl-margin">이익률 0%</div>
+                    </div>
+                </div>
+
+                <!-- P&L Inputs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Revenue & COGS -->
+                    <div class="space-y-6">
+                        <div class="toss-card">
+                            <h3 class="text-lg font-bold mb-4 flex justify-between">1. 매출 상세 <span class="text-xs font-normal text-gray-400 self-center">입력 시 자동저장</span></h3>
+                            <div class="space-y-3">
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">카드 매출</label><input type="number" id="in-sales-card" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">현금 매출</label><input type="number" id="in-sales-cash" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">배달 매출</label><input type="number" id="in-sales-delivery" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                            </div>
+                        </div>
+                        <div class="toss-card">
+                            <h3 class="text-lg font-bold mb-4">2. 식자재 원가 (COGS)</h3>
+                            <div class="space-y-3">
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">원두/우유/음료</label><input type="number" id="in-cost-material" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">디저트/베이커리</label><input type="number" id="in-cost-dessert" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">기타 부자재</label><input type="number" id="in-cost-etc" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between">
+                                <span class="text-sm font-bold text-gray-600">원가율</span>
+                                <span class="text-lg font-bold text-gray-800" id="disp-cogs-ratio">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Labor & Expenses -->
+                    <div class="space-y-6">
+                        <div class="toss-card border-2 border-blue-100">
+                            <h3 class="text-lg font-bold mb-4 flex justify-between items-center">
+                                3. 인건비
+                                <span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-1 rounded font-bold">급여모듈 연동</span>
+                            </h3>
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm text-gray-600">직원 급여 (4대포함)</span>
+                                    <span class="font-bold" id="disp-labor-staff">0원</span>
+                                </div>
+                                <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
+                                    <span class="text-sm text-gray-600">본사 파견비 (수기)</span>
+                                    <input type="number" id="in-labor-hq" class="p-1 w-24 text-right bg-white border rounded text-sm font-bold" oninput="savePnLInput(this.id, this.value)">
+                                </div>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-bold text-gray-600">인건비율</span>
+                                <span class="text-lg font-bold text-blue-600" id="disp-labor-ratio">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="toss-card">
+                            <h3 class="text-lg font-bold mb-4">4. 판매관리비</h3>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="block text-xs font-bold text-gray-500 mb-1">임대료</label><input type="number" id="in-exp-rent" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                    <div><label class="block text-xs font-bold text-gray-500 mb-1">수도광열비</label><input type="number" id="in-exp-utility" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                </div>
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">배달 대행료</label><input type="number" id="in-exp-delivery" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                                <div><label class="block text-xs font-bold text-gray-500 mb-1">기타 잡비</label><input type="number" id="in-exp-misc" class="toss-input text-right" oninput="savePnLInput(this.id, this.value)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Mobile Nav -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around p-2 pb-safe z-30 shadow-lg">
+            <button onclick="switchTab('staff')" id="mob-staff" class="flex-1 flex flex-col items-center gap-1 py-2 text-blue-600"><i class="fas fa-users text-xl"></i><span class="text-[10px] font-bold">직원</span></button>
+            <button onclick="switchTab('schedule')" id="mob-schedule" class="flex-1 flex flex-col items-center gap-1 py-2 text-gray-300"><i class="far fa-calendar-alt text-xl"></i><span class="text-[10px] font-bold">일정</span></button>
+            <button onclick="switchTab('payroll')" id="mob-payroll" class="flex-1 flex flex-col items-center gap-1 py-2 text-gray-300"><i class="fas fa-coins text-xl"></i><span class="text-[10px] font-bold">정산</span></button>
+            <button onclick="switchTab('pnl')" id="mob-pnl" class="flex-1 flex flex-col items-center gap-1 py-2 text-gray-300"><i class="fas fa-chart-line text-xl"></i><span class="text-[10px] font-bold">손익</span></button>
+        </nav>
+    </main>
+
+    <!-- === MODALS === -->
+
+    <!-- 1. STAFF MODAL -->
+    <div id="staff-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 modal-overlay" onclick="closeStaffModal()"></div>
+        <div class="absolute bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:bottom-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-[600px] bg-white rounded-t-3xl md:rounded-3xl p-0 shadow-2xl transform transition-transform duration-300 translate-y-full h-[85vh] flex flex-col" id="staff-modal-content">
+            <div class="p-6 pb-4 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-3xl shrink-0">
+                <h3 class="text-xl font-bold" id="staff-modal-title">직원 등록</h3>
+                <button onclick="closeStaffModal()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="staff-form" onsubmit="handleStaffSubmit(event)" class="flex-1 overflow-y-auto p-6 space-y-6">
+                 <input type="hidden" id="staff-id">
+                 <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-gray-800">기본 정보</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">이름</label><input type="text" id="staff-name" class="toss-input" required></div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">직책</label>
+                            <div class="flex gap-2">
+                                <label class="flex-1 cursor-pointer"><input type="radio" name="role" value="staff" class="peer hidden" checked><div class="text-center py-3 rounded-xl bg-gray-50 peer-checked:bg-blue-50 peer-checked:text-blue-500 peer-checked:ring-1 peer-checked:ring-blue-500 font-bold text-xs">스태프</div></label>
+                                <label class="flex-1 cursor-pointer"><input type="radio" name="role" value="manager" class="peer hidden"><div class="text-center py-3 rounded-xl bg-gray-50 peer-checked:bg-blue-50 peer-checked:text-blue-500 peer-checked:ring-1 peer-checked:ring-blue-500 font-bold text-xs">매니저</div></label>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-gray-800">급여 정보</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">시급/월급</label><input type="number" id="staff-base-pay" class="toss-input text-right" placeholder="0" required></div>
+                        <div><label class="block text-xs font-bold text-gray-500 mb-1">수당</label><input type="number" id="staff-allowance" class="toss-input text-right" placeholder="0"></div>
+                    </div>
+                     <div class="flex gap-4 mb-2">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="payType" value="hourly" class="w-4 h-4 text-blue-600" checked><span class="text-sm font-medium">시급제</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="payType" value="monthly" class="w-4 h-4 text-blue-600"><span class="text-sm font-medium">월급제</span></label>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">계약 형태</label>
+                        <select id="staff-contract" class="toss-input">
+                            <option value="4major">4대보험 (약 9.3% 공제)</option>
+                            <option value="freelancer">프리랜서 (3.3% 공제)</option>
+                        </select>
+                    </div>
+                 </div>
+                 <div class="pt-4 flex gap-3 pb-safe">
+                     <button type="button" onclick="deleteStaff()" id="btn-delete-staff" class="toss-btn-danger hidden w-auto px-6">삭제</button>
+                    <button type="submit" class="flex-1 toss-btn-primary shadow-lg shadow-blue-200">저장하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. SCHEDULE INPUT MODAL -->
+    <div id="schedule-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 modal-overlay" onclick="closeScheduleModal()"></div>
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative z-10">
+            <h3 class="text-xl font-bold mb-1" id="sch-modal-date">11월 1일</h3>
+            <p class="text-sm text-gray-500 mb-6" id="sch-modal-staff">직원 이름</p>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
+                    <span class="font-bold text-gray-700">근무 상태</span>
+                    <select id="sch-status" onchange="toggleTimeInputs()" class="bg-transparent font-bold text-blue-600 outline-none text-right">
+                        <option value="work">정상 근무</option>
+                        <option value="off">휴무</option>
+                        <option value="absent">결근</option>
+                    </select>
+                </div>
+                
+                <div id="sch-time-inputs" class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <input type="time" id="sch-start" class="toss-input py-3 text-center font-bold text-lg" value="09:00">
+                        <span class="text-gray-300 font-bold">~</span>
+                        <input type="time" id="sch-end" class="toss-input py-3 text-center font-bold text-lg" value="18:00">
+                    </div>
+                    <div class="flex justify-between items-center px-2">
+                         <span class="text-xs text-gray-500">휴게시간 (분)</span>
+                         <input type="number" id="sch-break" class="w-16 text-right border-b border-gray-200 focus:outline-none focus:border-blue-500 font-bold" value="60">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-6">
+                    <button onclick="saveSchedule()" class="toss-btn-primary">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === STORAGE MANAGER ===
+        const DB_KEY = 'restogenie_db_v4';
+
+        function loadDB() {
+            const data = localStorage.getItem(DB_KEY);
+            return data ? JSON.parse(data) : null;
+        }
+
+        function saveDB() {
+            const data = { staffData, schedules, pnlData };
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+        }
+
+        function resetData() {
+            if(confirm("모든 데이터를 초기화하고 데모 데이터로 복구하시겠습니까?")) {
+                localStorage.removeItem(DB_KEY);
+                location.reload();
+            }
+        }
+
+        // === GLOBAL STATE ===
+        let staffData = [];
+        let schedules = {}; // Key: "staffId_YYYY-MM-DD"
+        let pnlData = {};   // Key: inputId
+        
+        let currentYear = 2025;
+        let currentMonth = 11; // 12월 (Index 11)
+        let selectedStaffId = null;
+        let activeTab = 'pnl';
+
+        // === INIT ===
+        function init() {
+            const db = loadDB();
+            if (db) {
+                staffData = db.staffData || [];
+                schedules = db.schedules || {};
+                pnlData = db.pnlData || {};
+            } else {
+                seedDemoData();
+            }
+
+            // Set P&L inputs from saved state
+            setTimeout(() => {
+                Object.keys(pnlData).forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.value = pnlData[id];
+                });
+                renderPnL(); // Recalc P&L with loaded data
+            }, 100);
+
+            if (staffData.length > 0) selectedStaffId = staffData[0].id;
+            
+            updateDateDisplays();
+            renderStaffList();
+            renderScheduleStaffList();
+            renderCalendar();
+            renderPayroll();
+            renderPnL();
+            
+            // Start on P&L tab
+            switchTab('pnl');
+        }
+
+        function seedDemoData() {
+            staffData = [
+                { id: 's1', name: '김점장', role: 'manager', payType: 'monthly', basePay: 2800000, allowance: 200000, contractType: '4major' },
+                { id: 's2', name: '이알바', role: 'staff', payType: 'hourly', basePay: 10030, allowance: 0, contractType: '4major' },
+                { id: 's3', name: '박프리', role: 'staff', payType: 'hourly', basePay: 12000, allowance: 0, contractType: 'freelancer' }
+            ];
+            
+            // Seed Schedules for Dec 2025
+            const days = 31; 
+            for(let d=1; d<=days; d++) {
+                const dateStr = `2025-12-${String(d).padStart(2,'0')}`;
+                const day = new Date(currentYear, currentMonth, d).getDay();
+                
+                // Manager (Mon-Fri)
+                if(day >= 1 && day <= 5) {
+                    schedules[`s1_${dateStr}`] = { staffId:'s1', date:dateStr, status:'work', start:'09:00', end:'18:00', breakMinutes:60 };
+                }
+                // Alba (Wed-Sun)
+                if(day >= 3 || day === 0) {
+                    schedules[`s2_${dateStr}`] = { staffId:'s2', date:dateStr, status:'work', start:'12:00', end:'21:00', breakMinutes:60 };
+                }
+            }
+
+            // Seed P&L Defaults
+            pnlData = {
+                'in-sales-card': 45000000, 'in-sales-cash': 2000000, 'in-sales-delivery': 5000000,
+                'in-cost-material': 8000000, 'in-cost-dessert': 3000000, 'in-cost-etc': 500000,
+                'in-exp-rent': 3500000, 'in-exp-utility': 1200000, 'in-exp-delivery': 1500000, 'in-exp-misc': 300000
+            };
+            
+            saveDB();
+        }
+
+        // === NAVIGATION & UI UTILS ===
+        function switchTab(t) {
+            activeTab = t;
+            document.querySelectorAll('section').forEach(e => e.classList.add('hidden'));
+            document.getElementById(`view-${t}`).classList.remove('hidden');
+            if(t==='schedule') document.getElementById(`view-${t}`).classList.add('flex');
+            
+            // Update Nav Styles
+            ['staff','schedule','payroll','pnl'].forEach(x => {
+                const btn = document.getElementById(`nav-${x}`);
+                const mob = document.getElementById(`mob-${x}`);
+                if(x===t) {
+                    btn.classList.replace('nav-item-inactive','nav-item-active');
+                    mob.classList.replace('text-gray-300','text-blue-600');
+                } else {
+                    btn.classList.replace('nav-item-active','nav-item-inactive');
+                    mob.classList.replace('text-blue-600','text-gray-300');
+                }
+            });
+
+            if(t==='payroll') renderPayroll();
+            if(t==='pnl') renderPnL();
+        }
+
+        function updateDateDisplays() {
+            const txt = `${currentYear}년 ${currentMonth+1}월`;
+            document.getElementById('current-month-display').innerText = txt;
+            document.getElementById('payroll-month-display').innerText = txt;
+            document.getElementById('pnl-month-display').innerText = txt;
+        }
+
+        function changeDateRange(d) {
+            currentMonth += d;
+            if(currentMonth > 11) { currentMonth=0; currentYear++; }
+            if(currentMonth < 0) { currentMonth=11; currentYear--; }
+            updateDateDisplays();
+            renderCalendar();
+            renderPayroll();
+            renderPnL();
+        }
+
+        function formatMoney(n) { return Math.floor(n).toLocaleString() + '원'; }
+
+        // === STAFF LOGIC ===
+        function renderStaffList() {
+            const list = document.getElementById('staff-list');
+            list.innerHTML = '';
+            staffData.forEach(s => {
+                list.innerHTML += `
+                <div class="toss-card flex items-center justify-between cursor-pointer hover:bg-gray-50" onclick="openStaffModal('${s.id}')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">${s.name[0]}</div>
+                        <div>
+                            <div class="font-bold text-lg">${s.name} <span class="text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-500 ml-1">${s.role==='manager'?'매니저':'스태프'}</span></div>
+                            <div class="text-sm text-gray-400">${s.payType==='monthly'?'월급':'시급'} · ${formatMoney(s.basePay)}</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300"></i>
+                </div>`;
+            });
+            document.getElementById('staff-count').innerText = staffData.length;
+        }
+
+        function openStaffModal(id) {
+            const form = document.getElementById('staff-form');
+            form.reset();
+            const delBtn = document.getElementById('btn-delete-staff');
+            
+            if (id) {
+                const s = staffData.find(x => x.id === id);
+                document.getElementById('staff-modal-title').innerText = "직원 수정";
+                document.getElementById('staff-id').value = s.id;
+                document.getElementById('staff-name').value = s.name;
+                document.getElementById('staff-base-pay').value = s.basePay;
+                document.getElementById('staff-allowance').value = s.allowance;
+                document.getElementById('staff-contract').value = s.contractType || '4major';
+                // Radio logic
+                document.querySelector(`input[name="role"][value="${s.role}"]`).checked = true;
+                document.querySelector(`input[name="payType"][value="${s.payType}"]`).checked = true;
+                delBtn.classList.remove('hidden');
+            } else {
+                document.getElementById('staff-modal-title').innerText = "직원 등록";
+                document.getElementById('staff-id').value = "";
+                delBtn.classList.add('hidden');
+            }
+            document.getElementById('staff-modal').classList.remove('hidden');
+            setTimeout(()=>document.getElementById('staff-modal-content').classList.remove('translate-y-full'), 10);
+        }
+
+        function closeStaffModal() {
+            document.getElementById('staff-modal-content').classList.add('translate-y-full');
+            setTimeout(()=>document.getElementById('staff-modal').classList.add('hidden'), 300);
+        }
+
+        function handleStaffSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('staff-id').value;
+            const newStaff = {
+                id: id || 's' + Date.now(),
+                name: document.getElementById('staff-name').value,
+                role: document.querySelector('input[name="role"]:checked').value,
+                payType: document.querySelector('input[name="payType"]:checked').value,
+                basePay: Number(document.getElementById('staff-base-pay').value),
+                allowance: Number(document.getElementById('staff-allowance').value),
+                contractType: document.getElementById('staff-contract').value
+            };
+
+            if(id) {
+                const idx = staffData.findIndex(x => x.id === id);
+                staffData[idx] = newStaff;
+            } else {
+                staffData.push(newStaff);
+                if(!selectedStaffId) selectedStaffId = newStaff.id;
+            }
+            saveDB();
+            closeStaffModal();
+            renderStaffList();
+            renderScheduleStaffList();
+            renderPayroll();
+            renderPnL();
+        }
+
+        function deleteStaff() {
+            if(!confirm("삭제하시겠습니까?")) return;
+            const id = document.getElementById('staff-id').value;
+            staffData = staffData.filter(x => x.id !== id);
+            if(selectedStaffId === id) selectedStaffId = staffData[0]?.id || null;
+            saveDB();
+            closeStaffModal();
+            renderStaffList();
+            renderScheduleStaffList();
+        }
+
+        // === SCHEDULE LOGIC ===
+        function renderScheduleStaffList() {
+            const list = document.getElementById('schedule-staff-list');
+            list.innerHTML = '';
+            staffData.forEach(s => {
+                const active = s.id === selectedStaffId;
+                list.innerHTML += `
+                <div class="flex-shrink-0 px-4 py-2 rounded-xl cursor-pointer font-bold text-sm transition-all ${active ? 'schedule-staff-active' : 'schedule-staff-inactive'}"
+                     onclick="selectScheduleStaff('${s.id}')">
+                    ${s.name}
+                </div>`;
+            });
+        }
+
+        function selectScheduleStaff(id) {
+            selectedStaffId = id;
+            renderScheduleStaffList();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            // Header
+            ['월','화','수','목','금','토','일'].forEach(d => {
+                grid.innerHTML += `<div class="text-center py-2 bg-white text-xs font-bold text-gray-500">${d}</div>`;
+            });
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // Sun=0
+            const emptyCells = firstDay === 0 ? 6 : firstDay - 1; // Mon Start
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            for(let i=0; i<emptyCells; i++) grid.innerHTML += `<div class="bg-white"></div>`;
+
+            for(let d=1; d<=daysInMonth; d++) {
+                const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                let content = '';
+                
+                if (selectedStaffId) {
+                    const sch = schedules[`${selectedStaffId}_${dateStr}`];
+                    if (sch && sch.status === 'work') {
+                        // Calculate hours
+                        const start = new Date(`2000-01-01T${sch.start}`);
+                        const end = new Date(`2000-01-01T${sch.end}`);
+                        let diff = (end - start) / (1000 * 60 * 60); // hours
+                        if(diff < 0) diff += 24;
+                        const workHours = diff - (sch.breakMinutes/60);
+                        
+                        content = `<div class="mt-2 text-xs bg-blue-50 text-blue-600 px-1 py-1 rounded font-bold text-center">
+                            ${sch.start}~${sch.end}<br>(${workHours.toFixed(1)}h)
+                        </div>`;
+                    } else if (sch && sch.status === 'off') {
+                         content = `<div class="mt-2 text-xs bg-gray-100 text-gray-400 px-1 py-1 rounded font-bold text-center">휴무</div>`;
+                    }
+                }
+
+                grid.innerHTML += `
+                <div class="bg-white p-1 min-h-[80px] border-t border-gray-100 cursor-pointer hover:bg-blue-50 transition-colors" onclick="openScheduleModal(${d})">
+                    <span class="text-xs font-bold text-gray-700 ml-1">${d}</span>
+                    ${content}
+                </div>`;
+            }
+        }
+
+        // Schedule Modal Logic
+        let editingDateStr = '';
+
+        function openScheduleModal(day) {
+            if(!selectedStaffId) return alert("직원을 먼저 선택해주세요.");
+            const s = staffData.find(x => x.id === selectedStaffId);
+            document.getElementById('sch-modal-staff').innerText = s.name;
+            document.getElementById('sch-modal-date').innerText = `${currentMonth+1}월 ${day}일`;
+            
+            editingDateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const sch = schedules[`${selectedStaffId}_${editingDateStr}`];
+
+            if (sch) {
+                document.getElementById('sch-status').value = sch.status;
+                document.getElementById('sch-start').value = sch.start || '09:00';
+                document.getElementById('sch-end').value = sch.end || '18:00';
+                document.getElementById('sch-break').value = sch.breakMinutes || 60;
+            } else {
+                document.getElementById('sch-status').value = 'work';
+                document.getElementById('sch-start').value = '09:00';
+                document.getElementById('sch-end').value = '18:00';
+                document.getElementById('sch-break').value = 60;
+            }
+            toggleTimeInputs();
+            document.getElementById('schedule-modal').classList.remove('hidden');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('schedule-modal').classList.add('hidden');
+        }
+
+        function toggleTimeInputs() {
+            const status = document.getElementById('sch-status').value;
+            const inputs = document.getElementById('sch-time-inputs');
+            if(status === 'work') inputs.classList.remove('hidden');
+            else inputs.classList.add('hidden');
+        }
+
+        function saveSchedule() {
+            const status = document.getElementById('sch-status').value;
+            const data = {
+                staffId: selectedStaffId,
+                date: editingDateStr,
+                status: status
+            };
+            
+            if(status === 'work') {
+                data.start = document.getElementById('sch-start').value;
+                data.end = document.getElementById('sch-end').value;
+                data.breakMinutes = Number(document.getElementById('sch-break').value);
+            }
+
+            schedules[`${selectedStaffId}_${editingDateStr}`] = data;
+            saveDB();
+            closeScheduleModal();
+            renderCalendar();
+            renderPayroll(); // Trigger automatic recalc
+            renderPnL();     // Update P&L
+        }
+
+        // === PAYROLL ENGINE ===
+        function renderPayroll() {
+            const list = document.getElementById('payroll-list');
+            list.innerHTML = '';
+            
+            let totalCompanyCost = 0; // For P&L
+
+            staffData.forEach(staff => {
+                let totalWorkHours = 0;
+                let workPay = 0;
+
+                // 1. Calculate Hours
+                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                for(let d=1; d<=daysInMonth; d++) {
+                    const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const sch = schedules[`${staff.id}_${dateStr}`];
+                    if(sch && sch.status === 'work') {
+                        const start = new Date(`2000-01-01T${sch.start}`);
+                        const end = new Date(`2000-01-01T${sch.end}`);
+                        let diff = (end - start) / (1000 * 60 * 60);
+                        if(diff < 0) diff += 24;
+                        totalWorkHours += (diff - (sch.breakMinutes/60));
+                    }
+                }
+
+                // 2. Calculate Gross Pay
+                let grossPay = 0;
+                if(staff.payType === 'monthly') {
+                    grossPay = staff.basePay + staff.allowance;
+                } else {
+                    grossPay = Math.floor(totalWorkHours * staff.basePay) + staff.allowance;
+                    // Mock Juhyu: If worked > 60h, add 20%
+                    if(totalWorkHours >= 60) grossPay += Math.floor(grossPay * 0.2);
+                }
+
+                // 3. Deductions
+                let deduction = 0;
+                let taxName = '';
+                if(staff.contractType === 'freelancer') {
+                    deduction = Math.floor(grossPay * 0.033); // 3.3%
+                    taxName = '3.3%';
+                } else {
+                    deduction = Math.floor(grossPay * 0.0932); // Approx 4major
+                    taxName = '4대보험';
+                }
+
+                const netPay = grossPay - deduction;
+                
+                // Save for P&L (Company Cost = Gross + ~10% company share for 4major, or Gross for freelancer)
+                // Simplified: Just use Gross for now, or add 10% for 4major staff
+                let companyCost = grossPay;
+                if(staff.contractType === '4major') companyCost = Math.floor(grossPay * 1.1);
+
+                list.innerHTML += `
+                <div class="toss-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-lg">${staff.name}</h3>
+                            <p class="text-sm text-gray-400">${staff.role==='manager'?'매니저':'스태프'} · ${staff.payType==='monthly'?'월급':'시급'}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-bold text-blue-600">${formatMoney(netPay)}</div>
+                            <div class="text-xs text-gray-400">실 수령액</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm bg-gray-50 p-4 rounded-xl">
+                        <div><span class="text-gray-500 block text-xs">총 근무시간</span><span class="font-bold">${totalWorkHours.toFixed(1)}시간</span></div>
+                        <div><span class="text-gray-500 block text-xs">세전 총액</span><span class="font-bold">${formatMoney(grossPay)}</span></div>
+                        <div><span class="text-gray-500 block text-xs">공제 (${taxName})</span><span class="font-bold text-red-400">-${formatMoney(deduction)}</span></div>
+                        <div><span class="text-gray-500 block text-xs">회사부담비용</span><span class="font-bold text-gray-600">${formatMoney(companyCost)}</span></div>
+                    </div>
+                </div>`;
+
+                totalCompanyCost += companyCost;
+            });
+
+            // Store global labor cost for P&L
+            window.globalLaborCost = totalCompanyCost;
+            window.globalStaffCount = staffData.length;
+        }
+
+        // === P&L LOGIC ===
+        function savePnLInput(id, val) {
+            pnlData[id] = Number(val);
+            saveDB();
+            renderPnL();
+        }
+
+        function renderPnL() {
+            // Recalc Payroll first to get latest labor
+            if(window.globalLaborCost === undefined) renderPayroll();
+
+            // 1. Revenue
+            const revCard = pnlData['in-sales-card'] || 0;
+            const revCash = pnlData['in-sales-cash'] || 0;
+            const revDel = pnlData['in-sales-delivery'] || 0;
+            const totalRev = revCard + revCash + revDel;
+
+            // 2. COGS
+            const costMat = pnlData['in-cost-material'] || 0;
+            const costDes = pnlData['in-cost-dessert'] || 0;
+            const costEtc = pnlData['in-cost-etc'] || 0;
+            const totalCogs = costMat + costDes + costEtc;
+
+            // 3. Labor (Auto + Manual)
+            const laborStaff = window.globalLaborCost || 0;
+            const laborHq = pnlData['in-labor-hq'] || 0;
+            const totalLabor = laborStaff + laborHq;
+
+            // 4. Expenses
+            const expRent = pnlData['in-exp-rent'] || 0;
+            const expUtil = pnlData['in-exp-utility'] || 0;
+            const expDel = pnlData['in-exp-delivery'] || 0;
+            const expMisc = pnlData['in-exp-misc'] || 0;
+            const totalExp = expRent + expUtil + expDel + expMisc;
+
+            // 5. Profit
+            const totalCost = totalCogs + totalLabor + totalExp;
+            const profit = totalRev - totalCost;
+            const margin = totalRev > 0 ? (profit/totalRev*100).toFixed(1) : 0;
+            
+            // Render Dashboard
+            document.getElementById('pnl-revenue').innerText = formatMoney(totalRev);
+            document.getElementById('pnl-expense').innerText = formatMoney(totalCost);
+            const pEl = document.getElementById('pnl-profit');
+            pEl.innerText = formatMoney(profit);
+            pEl.className = `text-3xl font-extrabold ${profit>=0 ? 'text-green-600' : 'text-red-500'}`;
+            document.getElementById('pnl-margin').innerText = `이익률 ${margin}%`;
+
+            // Render Auto-Labor Display
+            document.getElementById('disp-labor-staff').innerText = formatMoney(laborStaff);
+            
+            // Ratios
+            document.getElementById('disp-cogs-ratio').innerText = (totalRev > 0 ? (totalCogs/totalRev*100).toFixed(1) : 0) + '%';
+            document.getElementById('disp-labor-ratio').innerText = (totalRev > 0 ? (totalLabor/totalRev*100).toFixed(1) : 0) + '%';
+        }
+
+        // Start App
+        init();
+
+    </script>
+</body>
+</html>

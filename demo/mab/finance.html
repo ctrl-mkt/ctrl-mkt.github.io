@@ -34,6 +34,7 @@
         .badge-green { background-color: #DCFCE7; color: #166534; }
         .badge-red { background-color: #FEE2E2; color: #991B1B; }
         .badge-blue { background-color: #DBEAFE; color: #1E40AF; }
+        .badge-orange { background-color: #FFEDD5; color: #9A3412; }
 
         /* Animation */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
@@ -42,14 +43,20 @@
         /* Hide Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Navigation Active State */
+        .nav-item.active { color: #4F46E5; }
+        .nav-item.active i { color: #4F46E5; }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
     <!-- === MODE SWITCHER (DEMO ONLY) === -->
-    <div class="fixed bottom-4 right-4 z-50 flex gap-2 bg-white p-2 rounded-full shadow-lg border border-slate-200">
-        <button onclick="switchMode('branch')" id="btn-mode-branch" class="px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white transition-all">점주 모드</button>
-        <button onclick="switchMode('hq')" id="btn-mode-hq" class="px-4 py-2 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all">본사 모드</button>
+    <div class="fixed bottom-20 right-4 z-50 flex flex-col gap-2 md:bottom-4">
+        <div class="flex gap-2 bg-white p-2 rounded-full shadow-lg border border-slate-200">
+            <button onclick="switchMode('branch')" id="btn-mode-branch" class="px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white transition-all">점주 모드</button>
+            <button onclick="switchMode('hq')" id="btn-mode-hq" class="px-4 py-2 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all">본사 모드</button>
+        </div>
     </div>
 
     <!-- === 1. BRANCH ADMIN VIEW === -->
@@ -64,113 +71,202 @@
                     <p class="text-[10px] text-slate-500">구미인동점 (점주)</p>
                 </div>
             </div>
-            <button class="text-slate-400 hover:text-indigo-600"><i class="fas fa-bell"></i></button>
+            <button class="text-slate-400 hover:text-indigo-600 relative">
+                <i class="fas fa-bell"></i>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+            </button>
         </header>
 
         <!-- Main Content (Scrollable) -->
-        <main class="flex-1 overflow-y-auto p-4 space-y-6 bg-[#F8FAFC] pb-24" id="branch-content">
+        <main class="flex-1 overflow-y-auto p-4 bg-[#F8FAFC] pb-24 relative" id="branch-content-area">
             
-            <!-- Alert Banner -->
-            <div id="branch-alert" class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-start gap-3 fade-in cursor-pointer hover:bg-indigo-100 transition" onclick="openExpenseModal()">
-                <div class="text-indigo-600 mt-0.5"><i class="fas fa-exclamation-circle"></i></div>
-                <div class="flex-1">
-                    <h4 class="font-bold text-indigo-900 text-sm">11월 마감 입력 기간입니다.</h4>
-                    <p class="text-xs text-indigo-700 mt-1">전기세, 수도세 등 변동비를 입력하고 예상 손익을 확인하세요.</p>
+            <!-- Tab 1: REPORT (DASHBOARD) -->
+            <div id="branch-tab-report" class="space-y-6 fade-in">
+                <!-- Alert Banner -->
+                <div id="branch-alert" class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-start gap-3 cursor-pointer hover:bg-indigo-100 transition" onclick="openExpenseModal()">
+                    <div class="text-indigo-600 mt-0.5"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-indigo-900 text-sm">11월 마감 입력 기간입니다.</h4>
+                        <p class="text-xs text-indigo-700 mt-1">전기세, 수도세 등 변동비를 입력하고 예상 손익을 확인하세요.</p>
+                    </div>
+                    <div class="text-indigo-400"><i class="fas fa-chevron-right"></i></div>
                 </div>
-                <div class="text-indigo-400"><i class="fas fa-chevron-right"></i></div>
+
+                <!-- Dashboard Summary -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="card p-4">
+                        <p class="text-xs text-slate-500 font-bold mb-1">예상 매출 (11월)</p>
+                        <h3 class="text-xl font-bold text-slate-800" id="br-revenue">₩62,435,320</h3>
+                        <div class="mt-2 text-[10px] text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded font-bold">▲ 5.2% 전월비</div>
+                    </div>
+                    <div class="card p-4 border-l-4 border-indigo-500">
+                        <p class="text-xs text-slate-500 font-bold mb-1">예상 영업이익</p>
+                        <h3 class="text-xl font-bold text-indigo-600" id="br-profit">₩25,248,366</h3>
+                        <div class="mt-2 text-[10px] text-indigo-600 font-bold">이익률 40.4%</div>
+                    </div>
+                </div>
+
+                <!-- Cost Breakdown Cards -->
+                <section class="space-y-4">
+                    <h3 class="font-bold text-slate-700 flex justify-between items-center">
+                        비용 상세 내역
+                        <span class="text-xs font-normal text-slate-400">실시간 집계 중</span>
+                    </h3>
+
+                    <!-- 1. COGS (Read Only) -->
+                    <div class="card p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fas fa-boxes-stacked"></i></div>
+                                <span class="font-bold text-sm text-slate-700">재료비 (본사매입)</span>
+                            </div>
+                            <span class="text-sm font-bold text-slate-800" id="br-cogs">₩14,981,280</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1 text-slate-500">
+                            <div class="flex justify-between"><span>원두/음료</span> <span>₩8,881,550</span></div>
+                            <div class="flex justify-between"><span>베이커리/디저트</span> <span>₩4,893,730</span></div>
+                            <div class="flex justify-between"><span>기타 부자재</span> <span>₩1,206,000</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Labor (Auto Calc) -->
+                    <div class="card p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><i class="fas fa-users"></i></div>
+                                <div>
+                                    <span class="font-bold text-sm text-slate-700 block">인건비</span>
+                                    <span class="text-[10px] text-slate-400">근태기록 자동 연동</span>
+                                </div>
+                            </div>
+                            <span class="text-sm font-bold text-slate-800" id="br-labor">₩7,604,700</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1 text-slate-500 mb-2">
+                            <div class="flex justify-between"><span>급여 합계 (4대포함)</span> <span>₩7,604,700</span></div>
+                            <div class="flex justify-between"><span>본사 파견비</span> <span>₩0</span></div>
+                        </div>
+                        <button onclick="switchBranchTab('payroll')" class="w-full py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition">급여 대장 상세 보기</button>
+                    </div>
+
+                    <!-- 3. Expenses (User Input) -->
+                    <div class="card p-4 border-2 border-indigo-100 cursor-pointer hover:border-indigo-300 transition" onclick="openExpenseModal()">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center"><i class="fas fa-file-invoice-dollar"></i></div>
+                                <div>
+                                    <span class="font-bold text-sm text-slate-700 block">판매관리비 (입력필요)</span>
+                                    <span class="text-[10px] text-indigo-500 font-bold">터치하여 입력하기</span>
+                                </div>
+                            </div>
+                            <span class="text-sm font-bold text-slate-800" id="br-expense">₩14,600,974</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1 text-slate-500">
+                            <div class="flex justify-between"><span>고정비 (임대료 등)</span> <span>₩8,392,284</span></div>
+                            <div class="flex justify-between"><span>변동비 (전기/수도 등)</span> <span id="br-var-exp">₩6,208,690</span></div>
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            <!-- Dashboard Summary -->
-            <div class="grid grid-cols-2 gap-3 fade-in">
-                <div class="card p-4">
-                    <p class="text-xs text-slate-500 font-bold mb-1">예상 매출 (11월)</p>
-                    <h3 class="text-xl font-bold text-slate-800" id="br-revenue">₩62,435,320</h3>
-                    <div class="mt-2 text-[10px] text-green-600 bg-green-50 inline-block px-2 py-0.5 rounded font-bold">▲ 5.2% 전월비</div>
-                </div>
-                <div class="card p-4 border-l-4 border-indigo-500">
-                    <p class="text-xs text-slate-500 font-bold mb-1">예상 영업이익</p>
-                    <h3 class="text-xl font-bold text-indigo-600" id="br-profit">₩25,248,366</h3>
-                    <div class="mt-2 text-[10px] text-indigo-600 font-bold">이익률 40.4%</div>
+            <!-- Tab 2: PAYROLL -->
+            <div id="branch-tab-payroll" class="hidden space-y-6 fade-in">
+                <h3 class="font-bold text-slate-800 text-lg mb-2">급여 대장 (11월)</h3>
+                <div class="card p-4 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">김</div>
+                            <div>
+                                <p class="font-bold text-sm text-slate-800">김은주 (주방)</p>
+                                <p class="text-xs text-slate-400">142시간 근무</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-800">₩2,126,300</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">이</div>
+                            <div>
+                                <p class="font-bold text-sm text-slate-800">이석기 (매니저)</p>
+                                <p class="text-xs text-slate-400">월급제</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-800">₩2,100,000</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">박</div>
+                            <div>
+                                <p class="font-bold text-sm text-slate-800">박지민 (스태프)</p>
+                                <p class="text-xs text-slate-400">98시간 근무</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-800">₩1,128,400</span>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-xl text-center">
+                        <p class="text-xs text-indigo-600 mb-1">총 인건비 합계</p>
+                        <p class="text-xl font-bold text-indigo-700">₩7,604,700</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Cost Breakdown Cards -->
-            <section class="space-y-4 fade-in">
-                <h3 class="font-bold text-slate-700 flex justify-between items-center">
-                    비용 상세 내역
-                    <span class="text-xs font-normal text-slate-400">실시간 집계 중</span>
-                </h3>
-
-                <!-- 1. COGS (Read Only) -->
+            <!-- Tab 3: ATTENDANCE -->
+            <div id="branch-tab-attendance" class="hidden space-y-6 fade-in">
+                <h3 class="font-bold text-slate-800 text-lg mb-2">근태 관리</h3>
                 <div class="card p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center"><i class="fas fa-boxes-stacked"></i></div>
-                            <span class="font-bold text-sm text-slate-700">재료비 (본사매입)</span>
-                        </div>
-                        <span class="text-sm font-bold text-slate-800" id="br-cogs">₩14,981,280</span>
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-sm">오늘 근무자 (11/30)</h4>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold">영업중</span>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1 text-slate-500">
-                        <div class="flex justify-between"><span>원두/음료</span> <span>₩8,881,550</span></div>
-                        <div class="flex justify-between"><span>베이커리/디저트</span> <span>₩4,893,730</span></div>
-                        <div class="flex justify-between"><span>기타 부자재</span> <span>₩1,206,000</span></div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                            <span class="text-sm font-bold text-slate-700">김은주</span>
+                            <span class="text-xs text-slate-500">09:00 - 16:30</span>
+                            <span class="badge badge-green">출근완료</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                            <span class="text-sm font-bold text-slate-700">박지민</span>
+                            <span class="text-xs text-slate-500">17:00 - 22:00</span>
+                            <span class="badge badge-blue">근무예정</span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 2. Labor (Auto Calc) -->
-                <div class="card p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><i class="fas fa-users"></i></div>
-                            <div>
-                                <span class="font-bold text-sm text-slate-700 block">인건비</span>
-                                <span class="text-[10px] text-slate-400">근태기록 자동 연동</span>
-                            </div>
-                        </div>
-                        <span class="text-sm font-bold text-slate-800" id="br-labor">₩7,604,700</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1 text-slate-500 mb-2">
-                        <div class="flex justify-between"><span>급여 합계 (4대포함)</span> <span>₩7,604,700</span></div>
-                        <div class="flex justify-between"><span>본사 파견비</span> <span>₩0</span></div>
-                    </div>
-                    <button class="w-full py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition">급여 대장 상세 보기</button>
+            <!-- Tab 4: SETTINGS -->
+            <div id="branch-tab-settings" class="hidden space-y-6 fade-in">
+                <h3 class="font-bold text-slate-800 text-lg mb-2">설정</h3>
+                <div class="card p-0 overflow-hidden">
+                    <button class="w-full flex items-center justify-between p-4 border-b border-slate-100 hover:bg-slate-50 text-left" onclick="openOnboarding()">
+                        <span class="text-sm font-medium text-slate-700">매장 정보 수정 (튜토리얼 다시보기)</span>
+                        <i class="fas fa-chevron-right text-slate-300"></i>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-4 border-b border-slate-100 hover:bg-slate-50 text-left">
+                        <span class="text-sm font-medium text-slate-700">고정비 설정</span>
+                        <i class="fas fa-chevron-right text-slate-300"></i>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-slate-50 text-left text-red-500">
+                        <span class="text-sm font-medium">로그아웃</span>
+                    </button>
                 </div>
+            </div>
 
-                <!-- 3. Expenses (User Input) -->
-                <div class="card p-4 border-2 border-indigo-100 cursor-pointer hover:border-indigo-300 transition" onclick="openExpenseModal()">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center"><i class="fas fa-file-invoice-dollar"></i></div>
-                            <div>
-                                <span class="font-bold text-sm text-slate-700 block">판매관리비 (입력필요)</span>
-                                <span class="text-[10px] text-indigo-500 font-bold">터치하여 입력하기</span>
-                            </div>
-                        </div>
-                        <span class="text-sm font-bold text-slate-800" id="br-expense">₩14,600,974</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1 text-slate-500">
-                        <div class="flex justify-between"><span>고정비 (임대료 등)</span> <span>₩8,392,284</span></div>
-                        <div class="flex justify-between"><span>변동비 (전기/수도 등)</span> <span id="br-var-exp">₩6,208,690</span></div>
-                    </div>
-                </div>
-            </section>
         </main>
 
         <!-- Branch Bottom Nav -->
         <nav class="bg-white border-t border-slate-200 flex justify-around p-3 pb-safe z-20 shrink-0">
-            <button class="flex flex-col items-center gap-1 text-indigo-600 w-1/4">
+            <button onclick="switchBranchTab('report')" class="nav-item active flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600 transition">
                 <i class="fas fa-chart-pie text-lg"></i>
                 <span class="text-[10px] font-bold">리포트</span>
             </button>
-            <button class="flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600">
+            <button onclick="switchBranchTab('payroll')" class="nav-item flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600 transition">
                 <i class="fas fa-coins text-lg"></i>
                 <span class="text-[10px] font-bold">급여</span>
             </button>
-            <button class="flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600">
+            <button onclick="switchBranchTab('attendance')" class="nav-item flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600 transition">
                 <i class="fas fa-calendar-check text-lg"></i>
                 <span class="text-[10px] font-bold">근태</span>
             </button>
-            <button class="flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600">
+            <button onclick="switchBranchTab('settings')" class="nav-item flex flex-col items-center gap-1 text-slate-400 w-1/4 hover:text-slate-600 transition">
                 <i class="fas fa-cog text-lg"></i>
                 <span class="text-[10px] font-bold">설정</span>
             </button>
@@ -178,7 +274,7 @@
     </div>
 
     <!-- === 2. HQ SUPER ADMIN VIEW === -->
-    <div id="view-hq" class="hidden flex-1 flex flex-col h-full bg-slate-100">
+    <div id="view-hq" class="hidden flex-1 flex flex-col h-full bg-slate-100 relative">
         
         <!-- PC Header -->
         <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm z-20">
@@ -188,10 +284,9 @@
                     <span class="font-bold text-lg text-slate-800">RestoGenie Admin</span>
                 </div>
                 <nav class="hidden md:flex gap-6 text-sm font-medium text-slate-500">
-                    <a href="#" class="text-indigo-600 font-bold border-b-2 border-indigo-600 py-4 -my-4">대시보드</a>
-                    <a href="#" class="hover:text-slate-800">데이터 업로드</a>
-                    <a href="#" class="hover:text-slate-800">지점 관리</a>
-                    <a href="#" class="hover:text-slate-800">정산 마감</a>
+                    <button onclick="switchHQTab('dashboard')" class="hq-nav-item text-indigo-600 font-bold border-b-2 border-indigo-600 py-4 -my-4 transition">대시보드</button>
+                    <button onclick="switchHQTab('upload')" class="hq-nav-item hover:text-slate-800 py-4 -my-4 transition">데이터 업로드</button>
+                    <button onclick="switchHQTab('branches')" class="hq-nav-item hover:text-slate-800 py-4 -my-4 transition">지점 관리</button>
                 </nav>
             </div>
             <div class="flex items-center gap-4">
@@ -204,93 +299,105 @@
             <!-- Sidebar -->
             <aside class="w-64 bg-white border-r border-slate-200 hidden md:block overflow-y-auto">
                 <div class="p-4">
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Data Source</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Quick Actions</div>
                     <button onclick="openUploadModal()" class="w-full flex items-center gap-3 px-4 py-3 bg-indigo-50 text-indigo-700 rounded-lg font-bold hover:bg-indigo-100 transition mb-2">
                         <i class="fas fa-cloud-upload-alt"></i> 자료 업로드
                     </button>
                     <button class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg transition font-medium text-sm">
-                        <i class="fas fa-cash-register"></i> POS 연동 상태 <span class="ml-auto w-2 h-2 rounded-full bg-green-500"></span>
+                        <i class="fas fa-file-excel"></i> 엑셀 다운로드
                     </button>
-                </div>
-                <div class="p-4 border-t border-slate-100">
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Analytics</div>
-                    <div class="space-y-1">
-                        <button class="w-full text-left px-4 py-2 text-sm font-bold text-slate-800 bg-slate-100 rounded-lg">전사 손익 현황</button>
-                        <button class="w-full text-left px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 rounded-lg">지점별 상세 비교</button>
-                        <button class="w-full text-left px-4 py-2 text-sm text-slate-500 hover:bg-slate-50 rounded-lg">이상치 탐지 <span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded ml-2">3건</span></button>
-                    </div>
                 </div>
             </aside>
 
             <!-- Main Dashboard Area -->
-            <main class="flex-1 overflow-y-auto p-8 space-y-8">
+            <main class="flex-1 overflow-y-auto p-8 space-y-8" id="hq-content-area">
                 
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="card p-6 flex flex-col justify-between">
-                        <span class="text-sm font-bold text-slate-400">총 가맹점 수</span>
-                        <div class="flex items-end justify-between mt-2">
-                            <span class="text-3xl font-bold text-slate-800">65</span>
-                            <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded font-bold">+2 New</span>
+                <!-- HQ Tab: Dashboard -->
+                <div id="hq-tab-dashboard" class="space-y-8 fade-in">
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="card p-6 flex flex-col justify-between">
+                            <span class="text-sm font-bold text-slate-400">총 가맹점 수</span>
+                            <div class="flex items-end justify-between mt-2">
+                                <span class="text-3xl font-bold text-slate-800">65</span>
+                                <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded font-bold">+2 New</span>
+                            </div>
+                        </div>
+                        <div class="card p-6 flex flex-col justify-between">
+                            <span class="text-sm font-bold text-slate-400">전사 총 매출 (11월)</span>
+                            <div class="flex items-end justify-between mt-2">
+                                <span class="text-3xl font-bold text-slate-800">₩3.8B</span>
+                                <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded font-bold">▲ 4.2%</span>
+                            </div>
+                        </div>
+                        <div class="card p-6 flex flex-col justify-between">
+                            <span class="text-sm font-bold text-slate-400">평균 원가율</span>
+                            <div class="flex items-end justify-between mt-2">
+                                <span class="text-3xl font-bold text-indigo-600">28.4%</span>
+                                <span class="text-xs text-slate-400">전월 28.1%</span>
+                            </div>
+                        </div>
+                        <div class="card p-6 flex flex-col justify-between border-l-4 border-indigo-500">
+                            <span class="text-sm font-bold text-slate-400">마감 진행률</span>
+                            <div class="flex items-end justify-between mt-2">
+                                <span class="text-3xl font-bold text-slate-800">82%</span>
+                                <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded">12개 점포 미입력</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-1.5 mt-4 rounded-full overflow-hidden">
+                                <div class="bg-indigo-500 h-full w-[82%] rounded-full"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card p-6 flex flex-col justify-between">
-                        <span class="text-sm font-bold text-slate-400">전사 총 매출 (11월)</span>
-                        <div class="flex items-end justify-between mt-2">
-                            <span class="text-3xl font-bold text-slate-800">₩3.8B</span>
-                            <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded font-bold">▲ 4.2%</span>
+
+                    <!-- Real-time Table Section -->
+                    <div class="card overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
+                            <h3 class="font-bold text-slate-800 text-lg">지점별 손익 현황 (Real-time)</h3>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1.5 border border-slate-200 rounded text-xs font-bold text-slate-600 hover:bg-slate-50"><i class="fas fa-filter mr-1"></i> 필터</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card p-6 flex flex-col justify-between">
-                        <span class="text-sm font-bold text-slate-400">평균 원가율</span>
-                        <div class="flex items-end justify-between mt-2">
-                            <span class="text-3xl font-bold text-indigo-600">28.4%</span>
-                            <span class="text-xs text-slate-400">전월 28.1%</span>
-                        </div>
-                    </div>
-                    <div class="card p-6 flex flex-col justify-between border-l-4 border-indigo-500">
-                        <span class="text-sm font-bold text-slate-400">마감 진행률</span>
-                        <div class="flex items-end justify-between mt-2">
-                            <span class="text-3xl font-bold text-slate-800">82%</span>
-                            <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded">12개 점포 미입력</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-1.5 mt-4 rounded-full overflow-hidden">
-                            <div class="bg-indigo-500 h-full w-[82%] rounded-full"></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3">지점명</th>
+                                        <th class="px-6 py-3 text-right">매출액</th>
+                                        <th class="px-6 py-3 text-right">원가 (율)</th>
+                                        <th class="px-6 py-3 text-right">인건비 (율)</th>
+                                        <th class="px-6 py-3 text-right">판관비</th>
+                                        <th class="px-6 py-3 text-right">영업이익</th>
+                                        <th class="px-6 py-3 text-center">상태</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white" id="hq-table-body">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Real-time Table Section -->
-                <div class="card overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
-                        <h3 class="font-bold text-slate-800 text-lg">지점별 손익 현황 (Real-time)</h3>
-                        <div class="flex gap-2">
-                            <button class="px-3 py-1.5 border border-slate-200 rounded text-xs font-bold text-slate-600 hover:bg-slate-50"><i class="fas fa-filter mr-1"></i> 필터</button>
-                            <button class="px-3 py-1.5 bg-indigo-600 text-white rounded text-xs font-bold hover:bg-indigo-700"><i class="fas fa-download mr-1"></i> 엑셀 다운로드</button>
+                <!-- HQ Tab: Upload (Placeholder for Navigation Demo) -->
+                <div id="hq-tab-upload" class="hidden space-y-8 fade-in">
+                    <div class="card p-12 flex flex-col items-center justify-center text-center space-y-4">
+                        <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 text-3xl mb-2">
+                            <i class="fas fa-cloud-upload-alt"></i>
                         </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-                                <tr>
-                                    <th class="px-6 py-3">지점명</th>
-                                    <th class="px-6 py-3 text-right">매출액</th>
-                                    <th class="px-6 py-3 text-right">원가 (율)</th>
-                                    <th class="px-6 py-3 text-right">인건비 (율)</th>
-                                    <th class="px-6 py-3 text-right">판관비</th>
-                                    <th class="px-6 py-3 text-right">영업이익</th>
-                                    <th class="px-6 py-3 text-center">상태</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 bg-white" id="hq-table-body">
-                                <!-- Dynamic Rows -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 text-center">
-                        <button class="text-xs font-bold text-indigo-600 hover:underline">더 보기</button>
+                        <h3 class="text-xl font-bold text-slate-800">데이터 일괄 업로드</h3>
+                        <p class="text-slate-500 max-w-md">거래처에서 받은 엑셀 파일(우유, 원두 등)과 POS 매출 데이터를 업로드하면 시스템이 자동으로 분석하여 각 지점에 배분합니다.</p>
+                        <button onclick="openUploadModal()" class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition">파일 업로드 시작</button>
                     </div>
                 </div>
+
+                <!-- HQ Tab: Branches (Placeholder) -->
+                <div id="hq-tab-branches" class="hidden space-y-8 fade-in">
+                    <h3 class="text-xl font-bold text-slate-800">지점 관리</h3>
+                    <div class="card p-6">
+                        <p class="text-slate-500">지점 목록 및 기준 정보(수수료율 등) 관리 화면입니다.</p>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -310,7 +417,6 @@
             </div>
             
             <div class="p-5 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
-                <!-- Smart Alert Logic: Compare with Last Month -->
                 <div class="bg-blue-50 border border-blue-100 p-3 rounded-lg flex gap-3 items-start">
                     <i class="fas fa-lightbulb text-blue-500 mt-1"></i>
                     <p class="text-xs text-blue-700 leading-relaxed">
@@ -320,42 +426,27 @@
 
                 <div class="space-y-4">
                     <h4 class="text-sm font-bold text-slate-700">변동비 항목</h4>
-                    
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">전기요금</label>
-                            <input type="number" id="inp-elec" class="input-field text-right font-bold text-slate-800" value="1380000">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">수도요금</label>
-                            <input type="number" id="inp-water" class="input-field text-right font-bold text-slate-800" value="740000">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">가스요금</label>
-                            <input type="number" id="inp-gas" class="input-field text-right font-bold text-slate-800" placeholder="0">
-                        </div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">전기요금</label><input type="number" id="inp-elec" class="input-field text-right font-bold text-slate-800" value="1380000"></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">수도요금</label><input type="number" id="inp-water" class="input-field text-right font-bold text-slate-800" value="740000"></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">가스요금</label><input type="number" id="inp-gas" class="input-field text-right font-bold text-slate-800" placeholder="0"></div>
                     </div>
-
                     <h4 class="text-sm font-bold text-slate-700 mt-6">기타 지출</h4>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1">로컬 매입 (마트/인터넷)</label>
                             <input type="number" id="inp-local" class="input-field text-right font-bold text-slate-800" value="1206000">
-                            <p class="text-[10px] text-slate-400 mt-1 text-right">* 영수증 사진은 추후 업데이트 예정</p>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="p-5 border-t border-slate-100 bg-white">
-                <button onclick="saveExpense()" class="btn-primary shadow-lg shadow-indigo-200">
-                    저장하고 손익 계산하기
-                </button>
+                <button onclick="saveExpense()" class="btn-primary shadow-lg shadow-indigo-200">저장하고 손익 계산하기</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. Onboarding Modal (Branch - First Time) -->
+    <!-- 2. Onboarding Modal -->
     <div id="modal-onboarding" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
@@ -364,87 +455,39 @@
                 <h2 class="text-xl font-bold text-white">환영합니다, 점주님!</h2>
                 <p class="text-indigo-200 text-sm mt-1">RestoGenie 시작을 위해 초기 설정을 진행합니다.</p>
             </div>
-            
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
                 <!-- Step 1 -->
                 <div>
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 font-bold text-xs flex items-center justify-center">1</span>
-                        <h3 class="font-bold text-slate-800">기본 정보 확인</h3>
-                    </div>
+                    <div class="flex items-center gap-2 mb-4"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 font-bold text-xs flex items-center justify-center">1</span><h3 class="font-bold text-slate-800">기본 정보 확인</h3></div>
                     <div class="space-y-3">
                         <input type="text" class="input-field" value="에이바우트커피 구미인동점" readonly>
                         <input type="text" class="input-field" placeholder="사업자등록번호 입력">
-                        <button class="btn-secondary text-sm"><i class="fas fa-search mr-1"></i> 주소 검색 (Kakao API 연동)</button>
+                        <button class="btn-secondary text-sm w-full"><i class="fas fa-search mr-1"></i> 주소 검색</button>
                     </div>
                 </div>
-
                 <hr class="border-slate-100">
-
                 <!-- Step 2 -->
                 <div>
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 font-bold text-xs flex items-center justify-center">2</span>
-                        <h3 class="font-bold text-slate-800">고정비 설정 (매월 자동 입력)</h3>
-                    </div>
+                    <div class="flex items-center gap-2 mb-4"><span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 font-bold text-xs flex items-center justify-center">2</span><h3 class="font-bold text-slate-800">고정비 설정</h3></div>
                     <div class="bg-slate-50 p-4 rounded-xl space-y-3 border border-slate-200">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">월 임대료 (VAT포함)</label>
-                            <input type="number" class="input-field text-right" value="4950000">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">월 관리비 (VAT포함)</label>
-                            <input type="number" class="input-field text-right" value="108000">
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-1/2">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">세콤/보안</label>
-                                <input type="number" class="input-field text-right" value="110000">
-                            </div>
-                            <div class="w-1/2">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">인터넷/정수기</label>
-                                <input type="number" class="input-field text-right" value="45000">
-                            </div>
-                        </div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">월 임대료</label><input type="number" class="input-field text-right" value="4950000"></div>
+                        <div><label class="block text-xs font-bold text-slate-500 mb-1">월 관리비</label><input type="number" class="input-field text-right" value="108000"></div>
                     </div>
                 </div>
             </div>
-
-            <div class="p-6 border-t border-slate-100 bg-white shrink-0">
-                <button onclick="finishOnboarding()" class="btn-primary">설정 완료</button>
-            </div>
+            <div class="p-6 border-t border-slate-100 bg-white shrink-0"><button onclick="finishOnboarding()" class="btn-primary">설정 완료</button></div>
         </div>
     </div>
 
-    <!-- 3. Upload Modal (HQ) -->
+    <!-- 3. Upload Modal -->
     <div id="modal-upload" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeUploadModal()"></div>
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl z-10 p-6">
             <h3 class="font-bold text-lg text-slate-800 mb-4">자료 일괄 업로드</h3>
-            
             <div class="border-2 border-dashed border-indigo-200 rounded-xl p-8 text-center bg-indigo-50/50 hover:bg-indigo-50 transition cursor-pointer mb-4">
                 <div class="text-indigo-400 text-3xl mb-3"><i class="fas fa-file-excel"></i></div>
                 <p class="font-bold text-indigo-900">거래처 엑셀 원장 드래그 앤 드롭</p>
-                <p class="text-xs text-indigo-500 mt-1">또는 클릭하여 파일 선택</p>
             </div>
-
-            <div class="space-y-2">
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-check-circle text-green-500"></i>
-                        <span class="text-sm font-medium text-slate-700">우유_마감원장_11월.xlsx</span>
-                    </div>
-                    <span class="text-xs font-bold text-slate-400">Ready</span>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-check-circle text-green-500"></i>
-                        <span class="text-sm font-medium text-slate-700">원두_청구서_11월.pdf</span>
-                    </div>
-                    <span class="text-xs font-bold text-slate-400">Ready</span>
-                </div>
-            </div>
-
             <div class="mt-6 flex justify-end gap-2">
                 <button onclick="closeUploadModal()" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-100">취소</button>
                 <button onclick="processUpload()" class="px-6 py-2 rounded-lg text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700">업로드 및 파싱 실행</button>
@@ -453,39 +496,31 @@
     </div>
 
     <script>
-        // === STATE & DATA ===
-        // Mock Data based on provided files (Gumi Indong Branch)
+        // === DATA ===
         const branchData = {
             name: "구미인동점",
             revenue: 62435320,
-            cogs: 14981280, // Materials
-            labor: 7604700, // From Payroll
-            fixedCost: 8392284, // Rent + etc
-            variableCost: 6208690, // Utility + etc
+            cogs: 14981280,
+            labor: 7604700,
+            fixedCost: 8392284,
+            variableCost: 6208690,
         };
 
-        // HQ Dashboard Mock Data
         const hqData = [
             { name: "한라대점", rev: 85000000, cogs: 28.5, labor: 18.2, profit: 32000000, status: "완료" },
             { name: "베라체점", rev: 72000000, cogs: 27.8, labor: 19.5, profit: 24500000, status: "완료" },
-            { name: "구미인동점", rev: 62435320, cogs: 24.0, labor: 12.2, profit: 25248366, status: "입력중" }, // Active Demo
+            { name: "구미인동점", rev: 62435320, cogs: 24.0, labor: 12.2, profit: 25248366, status: "입력중" },
             { name: "서울이수점", rev: 58000000, cogs: 29.1, labor: 22.0, profit: 15000000, status: "미입력" },
             { name: "강남대점", rev: 45000000, cogs: 30.2, labor: 25.0, profit: 8000000, status: "완료" },
         ];
 
-        // === INITIALIZATION ===
+        // === INIT ===
         function init() {
-            // Check if onboarding is done (Simulated)
-            const visited = localStorage.getItem('restogenie_visited');
-            if (!visited) {
-                // setTimeout(() => openOnboarding(), 500); // Demo: Auto open on first load
-            }
-            
             renderBranchDashboard();
             renderHQTable();
         }
 
-        // === UI LOGIC ===
+        // === NAVIGATION LOGIC (FIXED) ===
         function switchMode(mode) {
             const btnBranch = document.getElementById('btn-mode-branch');
             const btnHQ = document.getElementById('btn-mode-hq');
@@ -493,25 +528,100 @@
             const viewHQ = document.getElementById('view-hq');
 
             if (mode === 'branch') {
-                btnBranch.className = "px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white transition-all";
-                btnHQ.className = "px-4 py-2 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all";
+                // Style Active Button
+                btnBranch.classList.remove('text-slate-500', 'hover:bg-slate-100');
+                btnBranch.classList.add('bg-indigo-600', 'text-white');
+                
+                // Style Inactive Button
+                btnHQ.classList.remove('bg-indigo-900', 'text-white');
+                btnHQ.classList.add('text-slate-500', 'hover:bg-slate-100');
+
+                // Toggle Views
                 viewBranch.classList.remove('hidden');
                 viewHQ.classList.add('hidden');
             } else {
-                btnBranch.className = "px-4 py-2 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all";
-                btnHQ.className = "px-4 py-2 rounded-full text-xs font-bold bg-indigo-900 text-white transition-all";
+                // Style Active Button
+                btnHQ.classList.remove('text-slate-500', 'hover:bg-slate-100');
+                btnHQ.classList.add('bg-indigo-900', 'text-white');
+
+                // Style Inactive Button
+                btnBranch.classList.remove('bg-indigo-600', 'text-white');
+                btnBranch.classList.add('text-slate-500', 'hover:bg-slate-100');
+
+                // Toggle Views
                 viewBranch.classList.add('hidden');
                 viewHQ.classList.remove('hidden');
                 viewHQ.classList.add('flex');
             }
         }
 
+        // Branch Tab Switcher
+        function switchBranchTab(tabName) {
+            // 1. Hide all tabs
+            document.getElementById('branch-tab-report').classList.add('hidden');
+            document.getElementById('branch-tab-payroll').classList.add('hidden');
+            document.getElementById('branch-tab-attendance').classList.add('hidden');
+            document.getElementById('branch-tab-settings').classList.add('hidden');
+
+            // 2. Show selected tab
+            const selectedTab = document.getElementById(`branch-tab-${tabName}`);
+            if(selectedTab) selectedTab.classList.remove('hidden');
+
+            // 3. Update Bottom Nav Styles
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active', 'text-indigo-600');
+                item.classList.add('text-slate-400');
+                
+                // Icon handling
+                const icon = item.querySelector('i');
+                const text = item.querySelector('span');
+                
+                // Basic match check (simple text match for demo)
+                const itemText = text.innerText.trim();
+                let match = false;
+                if(tabName === 'report' && itemText === '리포트') match = true;
+                if(tabName === 'payroll' && itemText === '급여') match = true;
+                if(tabName === 'attendance' && itemText === '근태') match = true;
+                if(tabName === 'settings' && itemText === '설정') match = true;
+
+                if (match) {
+                    item.classList.add('active', 'text-indigo-600');
+                    item.classList.remove('text-slate-400');
+                }
+            });
+        }
+
+        // HQ Tab Switcher
+        function switchHQTab(tabName) {
+            // 1. Hide all tabs
+            document.getElementById('hq-tab-dashboard').classList.add('hidden');
+            document.getElementById('hq-tab-upload').classList.add('hidden');
+            document.getElementById('hq-tab-branches').classList.add('hidden');
+
+            // 2. Show selected tab
+            document.getElementById(`hq-tab-${tabName}`).classList.remove('hidden');
+
+            // 3. Update Nav Styles
+            // Reset all styles
+            const navLinks = document.querySelectorAll('.hq-nav-item');
+            navLinks.forEach(link => {
+                link.classList.remove('text-indigo-600', 'font-bold', 'border-b-2', 'border-indigo-600');
+                link.classList.add('hover:text-slate-800');
+            });
+
+            // Set active style (by index for demo simplicity)
+            if(tabName === 'dashboard') navLinks[0].classList.add('text-indigo-600', 'font-bold', 'border-b-2', 'border-indigo-600');
+            if(tabName === 'upload') navLinks[1].classList.add('text-indigo-600', 'font-bold', 'border-b-2', 'border-indigo-600');
+            if(tabName === 'branches') navLinks[2].classList.add('text-indigo-600', 'font-bold', 'border-b-2', 'border-indigo-600');
+        }
+
+
+        // === RENDER & LOGIC ===
         function renderBranchDashboard() {
-            // Update summary cards with current state
             const totalExp = branchData.fixedCost + branchData.variableCost;
             const totalCost = branchData.cogs + branchData.labor + totalExp;
             const profit = branchData.revenue - totalCost;
-            const margin = ((profit / branchData.revenue) * 100).toFixed(1);
 
             document.getElementById('br-revenue').innerText = '₩' + branchData.revenue.toLocaleString();
             document.getElementById('br-profit').innerText = '₩' + profit.toLocaleString();
@@ -524,22 +634,20 @@
         function renderHQTable() {
             const tbody = document.getElementById('hq-table-body');
             tbody.innerHTML = '';
-
             hqData.forEach(row => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 border-b border-slate-50 last:border-0";
                 
-                let statusBadge = '';
-                if(row.status === '완료') statusBadge = '<span class="badge badge-green">완료</span>';
-                else if(row.status === '입력중') statusBadge = '<span class="badge badge-blue">입력중</span>';
-                else statusBadge = '<span class="badge badge-red">미입력</span>';
+                let statusBadge = row.status === '완료' ? '<span class="badge badge-green">완료</span>' :
+                                  row.status === '입력중' ? '<span class="badge badge-blue">입력중</span>' :
+                                  '<span class="badge badge-red">미입력</span>';
 
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-bold text-slate-700">${row.name}</td>
                     <td class="px-6 py-4 text-right text-slate-600">₩${(row.rev/1000000).toFixed(1)}M</td>
                     <td class="px-6 py-4 text-right text-slate-500">${row.cogs}%</td>
                     <td class="px-6 py-4 text-right text-slate-500">${row.labor}%</td>
-                    <td class="px-6 py-4 text-right text-slate-500">₩${((row.rev * 0.25)/1000000).toFixed(1)}M</td> <!-- Mock -->
+                    <td class="px-6 py-4 text-right text-slate-500">₩${((row.rev * 0.25)/1000000).toFixed(1)}M</td>
                     <td class="px-6 py-4 text-right font-bold text-indigo-600">₩${(row.profit/1000000).toFixed(1)}M</td>
                     <td class="px-6 py-4 text-center">${statusBadge}</td>
                 `;
@@ -547,72 +655,52 @@
             });
         }
 
-        // === MODAL FUNCTIONS ===
+        // === MODALS ===
         function openExpenseModal() {
-            document.getElementById('modal-expense').classList.remove('hidden');
-            document.getElementById('modal-expense').classList.add('flex');
+            const m = document.getElementById('modal-expense');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
-
         function closeExpenseModal() {
-            document.getElementById('modal-expense').classList.add('hidden');
-            document.getElementById('modal-expense').classList.remove('flex');
+            const m = document.getElementById('modal-expense');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
         }
-
         function saveExpense() {
-            // Get inputs
             const elec = Number(document.getElementById('inp-elec').value);
             const water = Number(document.getElementById('inp-water').value);
             const gas = Number(document.getElementById('inp-gas').value);
             const local = Number(document.getElementById('inp-local').value);
-            
-            // Update State (In a real app, this would send API request)
-            branchData.variableCost = elec + water + gas + local + 2365000 + 1575410; // Adding fixed misc from excel logic for demo consistency
-            
+            branchData.variableCost = elec + water + gas + local + 2365000 + 1575410; 
             renderBranchDashboard();
             closeExpenseModal();
             alert("비용이 저장되고 손익이 재계산되었습니다.");
-            
-            // Hide alert banner after action
             document.getElementById('branch-alert').style.display = 'none';
         }
 
-        function openOnboarding() {
-            document.getElementById('modal-onboarding').classList.remove('hidden');
-        }
-
+        function openOnboarding() { document.getElementById('modal-onboarding').classList.remove('hidden'); }
         function finishOnboarding() {
             localStorage.setItem('restogenie_visited', 'true');
             document.getElementById('modal-onboarding').classList.add('hidden');
-            alert("초기 설정이 완료되었습니다.");
+            alert("설정이 완료되었습니다.");
         }
 
-        function openUploadModal() {
-            document.getElementById('modal-upload').classList.remove('hidden');
-        }
-
-        function closeUploadModal() {
-            document.getElementById('modal-upload').classList.add('hidden');
-        }
-
+        function openUploadModal() { document.getElementById('modal-upload').classList.remove('hidden'); }
+        function closeUploadModal() { document.getElementById('modal-upload').classList.add('hidden'); }
         function processUpload() {
-            // Simulation of parsing logic
             const btn = document.querySelector('#modal-upload button:last-child');
             const originalText = btn.innerText;
             btn.innerText = "처리중...";
             btn.disabled = true;
-
             setTimeout(() => {
                 closeUploadModal();
                 btn.innerText = originalText;
                 btn.disabled = false;
-                alert("업로드 완료! 65개 지점의 매입 데이터가 갱신되었습니다.");
-                // Update HQ table logic could go here
+                alert("업로드 완료! 데이터가 갱신되었습니다.");
             }, 1500);
         }
 
-        // Run Init
         init();
-
     </script>
 </body>
 </html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>레스토지니 B2B 세일즈 플레이북 & BANT 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        body {
+            overflow-x: hidden;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased">
+    <!-- Chosen Palette: Warm Neutrals with Navy Blue and Teal accents -->
+    <!-- Application Structure Plan: The SPA is divided into 3 main functional sections: 1) Call Objectives & Guidelines, 2) Interactive Call Script (accordion style for real-time tracking), 3) Interactive BANT Analyzer & Performance Dashboard. This structure facilitates smooth navigation during a live sales call while providing immediate visual feedback on lead quality based the predefined CRM scoring criteria. -->
+    <!-- Visualization & Content Choices: Report Info -> 1st Call Script & BANT. Goal -> Guide sales reps and evaluate leads interactively. Viz/Presentation -> Accordion for script, Radar Chart for BANT profile, Bar Chart for Conversion Metrics. Interaction -> Select dropdowns update charts and action texts dynamically. Justification -> Radar charts perfectly illustrate the balance of BANT criteria. No SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">📞 레스토지니 1차 영업 통화 플레이북</h1>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">인바운드 문의에 대한 신속한 응대부터 시스템 환경 파악, BANT 기반의 리드 퀄리파잉 및 2차 대면 미팅 유도까지 한 번에 관리하세요.</p>
+        </header>
+
+        <section id="objective" class="mb-12 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b-2 border-blue-100 pb-2">🎯 통화 목적 및 가이드</h2>
+            <p class="text-slate-600 mb-6 leading-relaxed">이 섹션은 인바운드 문의 응대 시 영업 담당자가 반드시 달성해야 하는 핵심 목표를 안내합니다. 신속한 서비스 소개, 시스템 환경 파악, 그리고 BANT 스코어링을 통한 리드 검증(Qualifying)과 2차 대면 미팅 유도가 주 목적입니다. 스크립트를 참고하되, 고객의 상황에 맞게 유연하게 대화를 이끌어가십시오.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-start space-x-4">
+                    <span class="text-2xl">🤝</span>
+                    <div>
+                        <h3 class="font-bold text-slate-800">신속한 응대 & 소개</h3>
+                        <p class="text-sm text-slate-500 mt-1">문의 접수 후 빠른 연락으로 신뢰를 구축하고 레스토지니의 핵심 가치를 간결하게 전달합니다.</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-start space-x-4">
+                    <span class="text-2xl">⚙️</span>
+                    <div>
+                        <h3 class="font-bold text-slate-800">시스템 환경 파악</h3>
+                        <p class="text-sm text-slate-500 mt-1">현재 사용 중인 POS, 배달앱, ERP 등을 파악하여 향후 연동 가능성 및 프로젝트 규모를 가늠합니다.</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-100 flex items-start space-x-4">
+                    <span class="text-2xl">🎯</span>
+                    <div>
+                        <h3 class="font-bold text-slate-800">BANT 검증 & 미팅 유도</h3>
+                        <p class="text-sm text-slate-500 mt-1">예산, 권한, 니즈, 시기를 파악하여 리드의 우선순위를 정하고 대면 데모 시연으로 이끌어 냅니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="script" class="mb-12 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b-2 border-teal-100 pb-2">💬 인터랙티브 콜 스크립트</h2>
+            <p class="text-slate-600 mb-6 leading-relaxed">실제 고객과의 통화 흐름에 맞춘 7단계 스크립트입니다. 각 단계를 클릭하여 담당자가 응대할 풀 스크립트와 통화 중 놓치지 말고 메모해야 할 핵심 확인 키워드(BANT 요건)를 확인하며 대화를 진행하세요.</p>
+            <div id="script-container" class="space-y-3">
+            </div>
+        </section>
+
+        <section id="bant-dashboard" class="mb-12 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b-2 border-blue-100 pb-2">📊 BANT 리드 스코어링 & 전략 대시보드</h2>
+            <p class="text-slate-600 mb-6 leading-relaxed">통화 종료 직후, 파악한 고객의 BANT(Budget, Authority, Need, Timeline) 정보를 아래 드롭다운에서 평가하세요. 입력 결과에 따라 리드의 품질을 나타내는 방사형 차트가 실시간 업데이트되며, 점수 구간에 따른 맞춤형 후속 액션 플랜이 제시됩니다. (상=3점, 중=2점, 하=1점)</p>
+            
+            <div class="grid lg:grid-cols-2 gap-10 items-center">
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">BANT 입력 패널</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label for="score-b" class="font-semibold text-slate-700">💰 Budget (예산 확보 및 과금 동의)</label>
+                            <select id="score-b" class="bant-select bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm">
+                                <option value="1">하 (예산 미정/단순 탐색)</option>
+                                <option value="2" selected>중 (과금 구조 이해/검토 가능)</option>
+                                <option value="3">상 (예산 기확보/적극 수용)</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="score-a" class="font-semibold text-slate-700">👑 Authority (의사결정 권한)</label>
+                            <select id="score-a" class="bant-select bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm">
+                                <option value="1">하 (단순 실무자/권한 없음)</option>
+                                <option value="2" selected>중 (결정권자 보고 가능 구조)</option>
+                                <option value="3">상 (대표/팀장 등 직접 결정권자)</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="score-n" class="font-semibold text-slate-700">🎯 Need (구체적 페인포인트)</label>
+                            <select id="score-n" class="bant-select bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm">
+                                <option value="1">하 (포괄적 니즈/호기심)</option>
+                                <option value="2" selected>중 (운영 효율화 등 일반적 필요성)</option>
+                                <option value="3">상 (명확한 통점 및 당사 솔루션 Fit 일치)</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="score-t" class="font-semibold text-slate-700">⏳ Timeline (도입 시급성)</label>
+                            <select id="score-t" class="bant-select bg-white border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm">
+                                <option value="1" selected>하 (장기 검토/시급성 없음)</option>
+                                <option value="2">중 (다음 분기/내년도 사업계획 반영)</option>
+                                <option value="3">상 (연내/단기 도입 목표)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+                        <h4 class="font-bold text-blue-800 mb-1">📌 후속 액션 플랜</h4>
+                        <p id="action-plan-text" class="text-blue-900 text-sm leading-relaxed">
+                            잠재 리드 (Warm Lead): 니즈는 있으나 시기나 예산이 불확실합니다. 데모 시연을 통해 페인포인트를 자극하여 도입 시급성을 끌어올리는 전략이 필요합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="bantRadarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="conversion-metrics" class="mb-12 bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b-2 border-teal-100 pb-2">📈 BANT 점수별 대면 미팅 전환율 시뮬레이션</h2>
+            <p class="text-slate-600 mb-6 leading-relaxed">통화로 획득한 BANT 스코어링의 중요성을 보여주는 모의 데이터 기반 전환율 분석 차트입니다. 리드의 BANT 등급(상/중/하)에 따라 2차 대면 미팅(데모 시연)으로 이어지는 확률을 시각화하여, 영업 리소스를 고득점 리드에 집중해야 하는 이유를 명확히 제시합니다.</p>
+            <div class="chart-container">
+                <canvas id="conversionBarChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const scriptData = [
+            {
+                step: "1. 인사 및 문의 확인",
+                script: "안녕하세요, 컨트롤엠에서 사업기획을 맡고 있는 박요한 본부장입니다. 이번에 저희 홈페이지를 통해 레스토지니 AI 솔루션 도입 문의를 남겨주셔서 연락드렸습니다. 통화 괜찮으신가요?",
+                key: "✔️ 기본 정보 파악\n• 담당자 성함 및 직급 확인\n• 인바운드 문의 경로 파악"
+            },
+            {
+                step: "2. 도입 배경 및 니즈 파악 (Need)",
+                script: "문의 남겨주신 내용을 보니 솔루션에 관심이 있으신 것 같은데요, 혹시 이번에 프로그램 도입을 검토하시게 된 특별한 계기나 구체적인 니즈가 있으실까요?\n\n(상대방이 모호하게 대답할 경우)\n다른 브랜드들의 경우 '발주 자동화'나 'CCTV를 통한 고객 연령/성별 분석', '가맹점 마케팅 관리' 등의 니즈로 연락을 많이 주시는데, 현재 매장들을 운영하시면서 어떤 부분에서 가장 답답함이나 페인포인트를 느끼셨는지 궁금합니다.",
+                key: "✔️ Need : 필요성 파악\n• 도입 목적: 단순 호기심 vs 구체적 문제 해결 의지\n• 주요 관심사: 마케팅 / 매장 운영 자동화 / 매출 및 손익 분석 / 인력 관리 등"
+            },
+            {
+                step: "3. 현재 시스템 환경 파악",
+                script: "저희 AI가 고객사의 상황에 맞춰 똑똑하게 분석을 해드리려면 기존 데이터와의 연동이 필수적인데요. 현재 본사나 가맹점에서 사용 중인 포스(POS), 배달 프로그램, 내부 ERP, 혹은 마이프차나 FC다움 같은 기타 SaaS 프로그램은 어떤 걸 사용하고 계신가요?",
+                key: "✔️ 기술 스펙 및 연동 가능성 확인\n• 사용 POS: 메이트포스, KICC, 오케이포스, 페이히어 등\n• 사용 배달앱: 배민, 쿠팡, 요기요 등\n• 사용 ERP/SaaS: FC다움, 마이프차, 자체 구축 시스템 등"
+            },
+            {
+                step: "4. 의사결정 구조 파악 (Authority)",
+                script: "현재 가볍게 알아보고 계신 단계일 수도 있지만, 제가 통화 종료 후 회사 소개서와 서비스 제안서를 보내드리면, 내부적으로 어떤 분들(부서)과 함께 검토를 진행하시게 되나요?",
+                key: "✔️ Authority : 의사결정권자\n• 실무자 단독 검토인지, 상위 결정권자(과장, 팀장, 대표 등)가 관여하는 구조인지 파악"
+            },
+            {
+                step: "5. 서비스 기능 및 요금제 안내 (Budget)",
+                script: "저희 솔루션에 대해 간단히 말씀드리면, 기본적으로 흩어져 있는 매출, 배달, 마케팅 데이터를 통합해서 보여주는 대시보드 기능과 본사 매뉴얼을 바탕으로 매장 관리를 돕는 AI 챗봇 기능을 제공하고 있습니다.\n\n도입 비용의 경우, 브랜드 맞춤형 솔루션 세팅을 위한 초기 구축비가 일부 발생하며, 이후에는 매장당 월 구독료 형태의 기본 요금제로 운영되고 있습니다. 자세한 금액은 필요하신 기능 범위에 따라 안내해 드리고 있습니다.",
+                key: "✔️ Budget : 예산\n• 과금 구조(초기 구축비 + 월 구독료) 안내 시 고객 반응 확인\n• 예산 확보 여부 타진"
+            },
+            {
+                step: "6. 도입 시기 타진 (Timeline)",
+                script: "혹시 내부적으로 연내 도입을 목표로 하시거나, 다음 분기 사업 계획에 맞춰 도입 일정을 생각하고 계신 부분이 있으실까요?",
+                key: "✔️ Timeline : 도입 시기\n• 도입의 시급성 파악 (단기 vs 장기 계획)"
+            },
+            {
+                step: "7. 서비스 소개서 전달 및 2차 대면 미팅 유도",
+                script: "통화 마치고 남겨주신 메일로 저희 서비스 소개서와 안내 자료를 보내드리겠습니다.\n\n초기 단계이신 만큼, 문서만 보시는 것보다 저희가 데모 화면을 직접 보여드리는 것이 훨씬 이해가 빠르실 겁니다. 자료 검토해 보시고 괜찮으시다면, 저희 개발본부장과 함께 직접 찾아뵙고 구체적인 데모 시연과 맞춤형 상담을 드리는 대면 미팅을 진행하고 싶은데 어떠실까요? 일정 논의를 위해 메일 회신 부탁드리겠습니다.",
+                key: "✔️ Next Step\n• 서비스 소개서 발송\n• 2차 대면 미팅(데모 시연) 성사 유도\n• 연락처 및 명함 교환 요청"
+            }
+        ];
+
+        const container = document.getElementById('script-container');
+        scriptData.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = "border border-slate-200 rounded-xl overflow-hidden transition-all duration-200";
+            
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left p-4 bg-slate-50 hover:bg-blue-50 font-bold text-slate-800 flex justify-between items-center focus:outline-none focus:bg-blue-50 transition-colors";
+            btn.innerHTML = `<span>${item.step}</span><span class="text-slate-400 text-sm">&#9660;</span>`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = "p-5 hidden bg-white border-t border-slate-200 flex flex-col md:flex-row gap-6";
+            
+            const scriptHTML = item.script.replace(/\n/g, '<br>');
+            const keyHTML = item.key.replace(/\n/g, '<br>');
+
+            contentDiv.innerHTML = `
+                <div class="flex-1">
+                    <h4 class="font-bold text-blue-700 mb-3 flex items-center"><span class="mr-2">🗣️</span> 풀 스크립트</h4>
+                    <p class="text-slate-700 bg-blue-50/50 border border-blue-100 p-4 rounded-xl leading-relaxed text-sm md:text-base shadow-inner">${scriptHTML}</p>
+                </div>
+                <div class="flex-1 md:max-w-xs">
+                    <h4 class="font-bold text-teal-700 mb-3 flex items-center"><span class="mr-2">🔍</span> 확인 포인트</h4>
+                    <p class="text-slate-700 bg-teal-50/50 border border-teal-100 p-4 rounded-xl leading-relaxed text-sm shadow-inner">${keyHTML}</p>
+                </div>
+            `;
+            
+            div.appendChild(btn);
+            div.appendChild(contentDiv);
+            container.appendChild(div);
+
+            btn.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const isHidden = content.classList.contains('hidden');
+                
+                document.querySelectorAll('#script-container > div > div').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('#script-container button span:last-child').forEach(el => el.innerHTML = '&#9660;');
+                document.querySelectorAll('#script-container button').forEach(el => el.classList.remove('bg-blue-50'));
+
+                if (isHidden) {
+                    content.classList.remove('hidden');
+                    this.classList.add('bg-blue-50');
+                    this.querySelector('span:last-child').innerHTML = '&#9650;';
+                }
+            });
+        });
+
+        const ctxRadar = document.getElementById('bantRadarChart').getContext('2d');
+        const bantChart = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: ['Budget (예산)', 'Authority (권한)', 'Need (니즈)', 'Timeline (시기)'],
+                datasets: [{
+                    label: '리드 적합도 프로필',
+                    data: [2, 2, 2, 1],
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(37, 99, 235, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                        pointLabels: { font: { size: 13, weight: 'bold' }, color: '#334155' },
+                        min: 0,
+                        max: 3,
+                        ticks: { stepSize: 1, display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const selectors = document.querySelectorAll('.bant-select');
+        const actionText = document.getElementById('action-plan-text');
+        
+        selectors.forEach(select => {
+            select.addEventListener('change', () => {
+                let total = 0;
+                const newData = Array.from(selectors).map(s => {
+                    const val = parseInt(s.value);
+                    total += val;
+                    return val;
+                });
+                
+                bantChart.data.datasets[0].data = newData;
+                bantChart.update();
+
+                if(total >= 10) {
+                    actionText.className = "text-red-700 text-sm leading-relaxed font-semibold";
+                    actionText.parentElement.className = "mt-8 bg-red-50 border-l-4 border-red-600 p-4 rounded-r-lg transition-colors duration-300";
+                    actionText.previousElementSibling.className = "font-bold text-red-800 mb-1";
+                    actionText.textContent = "🔥 최우선 리드 (Hot Lead): 모든 조건이 부합합니다. 결정권자가 포함된 2차 대면 미팅(데모)을 최우선으로 성사시키고, 즉각적인 계약 및 예산 확보 절차를 지원하세요.";
+                } else if(total >= 7) {
+                    actionText.className = "text-blue-900 text-sm leading-relaxed font-semibold";
+                    actionText.parentElement.className = "mt-8 bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg transition-colors duration-300";
+                    actionText.previousElementSibling.className = "font-bold text-blue-800 mb-1";
+                    actionText.textContent = "💡 잠재 리드 (Warm Lead): 니즈나 권한은 있으나 시기/예산이 다소 불확실합니다. 데모 시연을 통해 페인포인트를 강하게 자극하여 도입 시급성을 끌어올리는 전략이 필요합니다.";
+                } else {
+                    actionText.className = "text-slate-700 text-sm leading-relaxed font-semibold";
+                    actionText.parentElement.className = "mt-8 bg-slate-100 border-l-4 border-slate-500 p-4 rounded-r-lg transition-colors duration-300";
+                    actionText.previousElementSibling.className = "font-bold text-slate-800 mb-1";
+                    actionText.textContent = "🌱 육성 리드 (Cold Lead): 단순 정보 수집 단계일 가능성이 높습니다. 무리한 푸시보다는 서비스 소개서 및 성공 사례를 정기적으로 발송하며 장기적인 관점에서 너처링(Nurturing)을 진행하세요.";
+                }
+            });
+        });
+
+        const ctxBar = document.getElementById('conversionBarChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Hot Lead (10~12점)', 'Warm Lead (7~9점)', 'Cold Lead (4~6점)'],
+                datasets: [{
+                    label: '예상 대면 미팅 전환율 (%)',
+                    data: [85, 45, 10],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(148, 163, 184, 0.8)'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { borderDash: [4, 4] }
+                    },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + '% 전환 확률';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
